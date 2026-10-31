@@ -1,0 +1,143 @@
+/* =========================================================
+ * 相簿（iPhone 內建「照片」風格）
+ * ========================================================= */
+.photos-app { --pt-blue: #007aff; --pt-red: #ff3b30; }
+.photos-app .app-scroll { background: #fff; color: #000; padding-bottom: 0; display: flex; flex-direction: column; }
+.photos-app button { font: inherit; }
+/* 捲動區是 flex 直排：裡面的區塊不要被壓扁（相簿卡片列有 overflow，會被壓到看不到名字） */
+.photos-app .app-scroll > * { flex-shrink: 0; }
+
+/* 大標題 */
+.pt-libhead { display: flex; align-items: flex-end; justify-content: space-between; padding: 6px 16px 10px; }
+.pt-libhead h1 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -.5px; }
+.pt-libhead small { display: block; color: #8a8a8e; font-size: 14px; font-weight: 500; margin-top: 2px; }
+.pt-libhead-s { padding-top: 0; }
+.pt-pill { background: rgba(120,120,128,.14); color: var(--pt-blue); font-size: 15px; font-weight: 600; padding: 5px 14px; border-radius: 16px; }
+
+/* 相簿內頁：左上「‹ 相簿」 */
+.pt-nav { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px 0 6px; }
+.pt-nav a { display: flex; align-items: center; color: var(--pt-blue); font-size: 17px; }
+.pt-nav a svg { width: 24px; height: 24px; }
+
+/* 照片格子 */
+.pt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.pt-cell { position: relative; display: block; aspect-ratio: 1; overflow: hidden; background: #eee; }
+.pt-cell img, .pt-cell video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.pt-cell:active { filter: brightness(.8); }
+.pt-dur { position: absolute; right: 5px; bottom: 4px; color: #fff; font-size: 12px; font-weight: 600; text-shadow: 0 0 3px rgba(0,0,0,.6); }
+.pt-fav { position: absolute; left: 5px; bottom: 3px; color: #fff; filter: drop-shadow(0 0 2px rgba(0,0,0,.5)); }
+.pt-fav svg { width: 14px; height: 14px; display: block; }
+.pt-days { position: absolute; left: 0; right: 0; bottom: 0; padding: 10px 6px 4px; color: #fff; font-size: 12px; font-weight: 600; background: linear-gradient(transparent, rgba(0,0,0,.45)); }
+.pt-count { text-align: center; color: #000; font-size: 15px; font-weight: 600; padding: 16px 0 8px; }
+.pt-empty { text-align: center; color: #8a8a8e; font-size: 15px; padding: 80px 20px; }
+.pt-note { color: #8a8a8e; font-size: 13px; padding: 0 16px 12px; }
+
+/* 年／月：大卡片 */
+.pt-cards { display: flex; flex-direction: column; gap: 14px; padding: 0 14px; }
+.pt-card { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; border-radius: 14px; overflow: hidden; padding: 0; text-align: left; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.pt-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pt-card::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.35), transparent 40%); }
+.pt-card-t { position: absolute; left: 16px; top: 14px; z-index: 1; color: #fff; }
+.pt-card-t b { display: block; font-size: 26px; font-weight: 700; }
+.pt-card-t small { display: block; font-size: 15px; font-weight: 600; opacity: .9; }
+.pt-card:active { filter: brightness(.85); }
+
+/* 下方：年／月／所有照片 切換，固定在分頁列上面 */
+.pt-seg {
+  position: sticky; bottom: 92px; z-index: 3; align-self: center;
+  display: flex; gap: 2px; padding: 3px; margin: auto 0 12px;
+  background: rgba(240,240,242,.86); border-radius: 18px;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 2px 12px rgba(0,0,0,.12);
+}
+.pt-seg button { padding: 6px 14px; border-radius: 15px; font-size: 13px; font-weight: 600; color: #000; }
+.pt-seg button.on { background: rgba(120,120,128,.24); }
+
+/* 分頁列（圖庫／為你推薦／相簿／搜尋） */
+.pt-tabs {
+  position: sticky; bottom: 0; z-index: 4; flex: none;
+  display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 0 34px; margin-top: auto;
+  background: rgba(249,249,249,.94); border-top: .5px solid rgba(0,0,0,.18);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.pt-seg + .pt-tabs { margin-top: 0; }
+.pt-tabs a, .pt-tabs button { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #999; font-size: 10px; font-weight: 500; }
+.pt-tabs svg { width: 25px; height: 25px; }
+.pt-tabs .on { color: var(--pt-blue); }
+
+/* 相簿列表 */
+.pt-sec-t { font-size: 20px; font-weight: 700; padding: 14px 16px 8px; border-top: .5px solid #e2e2e6; margin: 0 0 0 0; }
+.pt-libhead + .pt-sec-t { border-top: 0; padding-top: 0; }
+.pt-acards {
+  display: grid; grid-template-rows: repeat(2, auto); grid-auto-flow: column; grid-auto-columns: calc((100% - 46px) / 2);
+  gap: 12px 14px; overflow-x: auto; padding: 0 16px 14px; scroll-snap-type: x mandatory; scrollbar-width: none;
+}
+.pt-acards::-webkit-scrollbar { display: none; }
+.pt-acard { scroll-snap-align: start; display: block; min-width: 0; }
+.pt-acover { display: block; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #f0f0f2; }
+.pt-acover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pt-acard b { display: block; font-size: 15px; font-weight: 500; margin-top: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pt-acard small { display: block; font-size: 15px; color: #8a8a8e; }
+.pt-acard:active .pt-acover { filter: brightness(.85); }
+.pt-rows { padding: 0 0 10px 16px; }
+.pt-row { display: flex; align-items: center; gap: 12px; height: 46px; border-bottom: .5px solid #e2e2e6; padding-right: 16px; }
+.pt-row:last-child { border-bottom: 0; }
+.pt-row:active { background: #f2f2f4; }
+.pt-row-ico { color: var(--pt-blue); display: flex; }
+.pt-row-ico svg { width: 24px; height: 24px; }
+.pt-row-l { flex: 1; font-size: 17px; color: var(--pt-blue); }
+.pt-row-r { display: flex; align-items: center; gap: 4px; color: #8a8a8e; font-size: 17px; }
+.pt-row-r svg { width: 16px; height: 16px; }
+.pt-row-r svg:first-child:not(:last-child) { width: 18px; height: 18px; }
+
+/* 已隱藏：密碼畫面（沿用 KakaoTalk 的鍵盤排版，改成 iPhone 的樣子） */
+.pt-lock { padding-top: 44px; }
+.pt-lock::before { flex-basis: 12%; }
+.pt-lock-ico { color: #8a8a8e; margin-bottom: 12px; }
+.pt-lock-ico svg { width: 44px; height: 44px; }
+.pt-lock .kk-lock-title { font-size: 20px; }
+.pt-lock .kk-lock-dots { gap: 22px; }
+.pt-lock .kk-lock-dots i { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid #000; background: none; }
+.pt-lock .kk-lock-dots i.on { width: 13px; height: 13px; background: #000; }
+
+/* 看照片 */
+.pt-viewer { position: absolute; inset: 0; z-index: 6; background: #fff; display: flex; flex-direction: column; transition: background .2s; }
+.pt-vtop { flex: none; display: grid; grid-template-columns: 70px 1fr 70px; align-items: center; height: 50px; margin-top: 44px; padding: 0 8px; transition: opacity .2s; }
+.pt-vtop a { color: var(--pt-blue); display: flex; }
+.pt-vtop a svg { width: 26px; height: 26px; }
+.pt-vtitle { text-align: center; line-height: 1.2; }
+.pt-vtitle b { display: block; font-size: 15px; font-weight: 600; }
+.pt-vtitle small { display: block; font-size: 12px; color: #8a8a8e; }
+.pt-vedit { justify-self: end; color: var(--pt-blue); font-size: 17px; }
+.pt-strip { flex: 1; min-height: 0; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior: contain; }
+.pt-strip::-webkit-scrollbar { display: none; }
+.pt-slide { flex: 0 0 100%; height: 100%; scroll-snap-align: center; scroll-snap-stop: always; display: flex; align-items: center; justify-content: center; }
+.pt-slide img, .pt-slide video { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.pt-vbar { flex: none; display: flex; justify-content: space-between; align-items: center; padding: 10px 22px 40px; transition: opacity .2s; }
+.pt-vbar button { color: var(--pt-blue); display: flex; padding: 4px; font-size: 17px; }
+.pt-vbar svg { width: 26px; height: 26px; }
+.pt-vbar .pt-red { color: var(--pt-red); }
+.pt-vbar .pt-blue { color: var(--pt-blue); }
+/* 點一下照片：黑底、隱藏上下工具列 */
+.pt-viewer.bare { background: #000; }
+.pt-viewer.bare .pt-vtop, .pt-viewer.bare .pt-vbar { opacity: 0; pointer-events: none; }
+
+/* 下方滑出的面板（刪除確認、資訊） */
+.pt-sheet-wrap { position: absolute; inset: 0; z-index: 10; }
+.pt-sheet-bg { position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background .25s; }
+.pt-sheet { position: absolute; left: 8px; right: 8px; bottom: 34px; transform: translateY(120%); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+.pt-sheet-wrap.show .pt-sheet-bg { background: rgba(0,0,0,.3); }
+.pt-sheet-wrap.show .pt-sheet { transform: none; }
+.pt-act { background: rgba(250,250,250,.96); border-radius: 14px; overflow: hidden; text-align: center; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.pt-act p { margin: 0; padding: 14px 16px; font-size: 13px; color: #8a8a8e; border-bottom: .5px solid #d8d8dc; }
+.pt-act button { display: block; width: 100%; height: 56px; font-size: 20px; }
+.pt-act .pt-red { color: var(--pt-red); }
+.pt-act-cancel { display: block; width: 100%; height: 56px; margin-top: 8px; border-radius: 14px; background: #fff; color: var(--pt-blue); font-size: 20px; font-weight: 600; }
+.pt-info { background: #fff; border-radius: 14px; padding: 4px 16px; }
+.pt-info-cap { padding: 14px 0; font-size: 17px; border-bottom: .5px solid #e2e2e6; }
+.pt-info-cap span { color: #b0b0b5; }
+.pt-info-row { display: flex; gap: 10px; padding: 12px 0; font-size: 15px; border-bottom: .5px solid #e2e2e6; }
+.pt-info-row:last-child { border-bottom: 0; }
+.pt-info-row b { font-weight: 600; }
+.pt-info-row span { color: #8a8a8e; }
+.pt-info-place .pt-blue { color: var(--pt-blue); }

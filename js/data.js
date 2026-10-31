@@ -33,7 +33,8 @@ window.SITE_DATA = {
     apps: [
       { id: "ig",    label: "Instagram", icon: "images/icon_insta.png" },
       { id: "phone", label: "電話",      icon: "images/icon_phone.png" },
-      { id: "kakao", label: "KakaoTalk", icon: "images/icon_kakao.png" }
+      { id: "kakao", label: "KakaoTalk", icon: "images/icon_kakao.png" },
+      { id: "photos", label: "相簿",     icon: "images/icon_photos.png" }
     ]
   },
 
@@ -265,6 +266,33 @@ window.SITE_DATA = {
     noAnswerText: "無人接聽",
     callButtons: ["靜音", "鍵盤", "擴音", "加入通話", "FaceTime", "聯絡人"],
     endLabel: "結束"
+  },
+
+  /* ---------- 相簿（iPhone「照片」風格） ----------
+   * photos：所有照片，照時間「舊 → 新」排（圖庫最下面是最新的）；每張的編號 = 在這個清單的位置（從 0 開始）
+   *   image = 圖片或影片路徑（.mp4 = 影片，再寫 duration: "0:15" 顯示長度）
+   *   date = "2026年1月1日"（年／月分組用）、time = "下午 3:20"、place = 地點、device = 拍攝裝置、caption = 說明
+   *   favorite: true = 預設在「個人收藏」；hidden: true = 只在「已隱藏」相簿
+   * albums：自己建的相簿（photos 寫照片編號）
+   * hiddenPasscode：打開「已隱藏」相簿要輸入的密碼（留空 "" = 不鎖）；解開時記錄旗標 photos_hidden_unlocked
+   */
+  photos: {
+    hiddenPasscode: "0000",
+    photos: [
+      { image: PH, date: "2025年6月1日", time: "上午 10:12", place: "地點 A" },
+      { image: PH, date: "2025年6月1日", time: "上午 10:15" },
+      { image: PH, date: "2025年8月20日", time: "下午 6:40", favorite: true },
+      { image: PH, date: "2025年12月24日", time: "下午 8:03", place: "地點 B", caption: "照片說明" },
+      { image: PH, date: "2025年12月31日", time: "下午 11:59", hidden: true },
+      { image: PH, date: "2026年1月1日", time: "上午 12:00", favorite: true },
+      { image: PH, date: "2026年1月1日", time: "上午 9:30", device: "iPhone" },
+      { image: PH, date: "2026年1月1日", time: "下午 2:45" }
+    ],
+    albums: [
+      { id: "a1", name: "相簿 1", photos: [0, 1, 3] },
+      { id: "a2", name: "相簿 2", photos: [5, 6, 7] }
+    ]
+    // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/photos.js 的 T_DEFAULT）
   },
 
   /* ---------- KakaoTalk ---------- */
