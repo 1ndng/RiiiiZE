@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#000000">
+  <title>RiiiiZE</title>
+  <link rel="stylesheet" href="css/style.css?v=1">
+  <link rel="stylesheet" href="css/apps.css?v=1">
+</head>
+<body>
+  <div class="phone" id="phone">
+    <!-- 狀態列 -->
+    <div class="statusbar" id="statusbar">
+      <span class="sb-time" id="sb-time">9:41</span>
+      <span class="sb-icons">
+        <svg viewBox="0 0 18 12" width="18" height="12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg viewBox="0 0 16 12" width="16" height="12" style="fill:none"><path d="M1.4 4.3a9.4 9.4 0 0 1 13.2 0M3.6 6.6a6.2 6.2 0 0 1 8.8 0M5.8 8.8a3.1 3.1 0 0 1 4.4 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><rect x="7" y="10" width="2" height="2" rx=".4" fill="currentColor"/></svg>
+        <span class="sb-battery"><span></span></span>
+      </span>
+    </div>
+
+    <div class="screens">
+      <!-- 手機首頁 -->
+      <section class="home" id="home"></section>
+
+      <!-- Instagram -->
+      <section class="app ig" id="app-ig" data-app="ig">
+        <div class="app-scroll" id="ig-scroll"></div>
+        <div id="ig-overlay"></div>
+      </section>
+
+      <!-- 電話 -->
+      <section class="app phone-app" id="app-phone" data-app="phone">
+        <div class="app-scroll" id="phone-scroll"></div>
+        <div class="app-overlay" id="phone-overlay"></div>
+      </section>
+
+      <!-- KakaoTalk -->
+      <section class="app kakao-app" id="app-kakao" data-app="kakao">
+        <div class="app-scroll" id="kakao-scroll"></div>
+        <div class="app-overlay" id="kakao-overlay"></div>
+      </section>
+    </div>
+
+    <!-- 手機密碼鎖 -->
+    <div class="lock" id="lock"></div>
+
+    <!-- 「尚未更新」提示 -->
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <!-- iPhone 底部橫條：往上滑回首頁 -->
+    <div class="home-gesture" id="home-gesture" aria-label="上滑回到首頁">
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <!-- data.js 每次都重新下載，改完內容不會被手機快取卡住 -->
+  <script>
+    document.write('<script src="js/data.js?t=' + Date.now() + '"><\/script>');
+  </script>
+  <script src="js/vendor/opencc-t2cn.js?v=1"></script>
+  <script src="js/lang.js?v=1"></script>
+  <script src="js/apps/phone.js?v=1"></script>
+  <script src="js/apps/kakao.js?v=1"></script>
+  <script src="js/app.js?v=1"></script>
+</body>
+</html>

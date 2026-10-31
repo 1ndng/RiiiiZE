@@ -1,0 +1,210 @@
+/* 電話、KakaoTalk */
+.app-overlay { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.app-overlay > * { pointer-events: auto; }
+
+/* =========================================================
+ * 電話（iOS 數字鍵盤）
+ * ========================================================= */
+.phone-app .app-scroll { background: #fff; color: #000; padding-bottom: 60px; }
+
+/* 數字鍵盤 */
+/* 按鍵大小隨螢幕高度縮放（最大 80px），矮的手機也不會被下方標籤擋住 */
+.phone-app .app-scroll { container-type: size; }
+.ph-kp { --k: min(80px, calc((100cqh - 120px) / 5.6)); display: flex; flex-direction: column; align-items: center; min-height: 100%; }
+.ph-kp-top { align-self: stretch; display: flex; justify-content: flex-end; padding: 6px 16px 0; height: 44px; }
+.ph-kp-num { height: 70px; font-size: 40px; font-weight: 400; letter-spacing: 1px; margin-top: 6px; max-width: 92%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.ph-kp-num.long { font-size: 28px; line-height: 70px; }
+.ph-kp-keys { display: grid; grid-template-columns: repeat(3, var(--k)); gap: calc(var(--k) * .2) calc(var(--k) * .32); margin-top: auto; }
+.ph-key { width: var(--k); height: var(--k); border-radius: 50%; background: #f2f2f4; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #000; box-shadow: 0 2px 10px rgba(0,0,0,.05); }
+.ph-key:active { background: #d9d9de; }
+.ph-key b { font-size: calc(var(--k) * .42); font-weight: 400; line-height: 1; }
+.ph-key small { font-size: 9.5px; font-weight: 700; letter-spacing: 2.5px; margin-top: 2px; }
+.ph-kp-bottom { display: grid; grid-template-columns: repeat(3, var(--k)); gap: 0 calc(var(--k) * .32); margin: calc(var(--k) * .2) 0 0; align-items: center; justify-items: center; }
+.ph-kp-call { width: var(--k); height: var(--k); border-radius: 50%; background: #34c759; color: #fff; display: flex; align-items: center; justify-content: center; }
+.ph-kp-call:active { background: #2aa84a; }
+.ph-kp-call svg { width: 40px; height: 40px; }
+.ph-kp-del { width: 44px; height: 32px; }
+.ph-kp-del svg { width: 40px; height: 28px; }
+.ph-calling {
+  position: absolute; inset: 0; z-index: 3; color: #fff; text-align: center;
+  background: linear-gradient(160deg, #3f4a5c, #1d222c 60%, #12151b);
+  padding-top: clamp(60px, 13vh, 110px);
+}
+.ph-calling-status { font-size: 17px; opacity: .8; }
+.ph-calling-name { font-size: 34px; margin-top: 6px; padding: 0 20px; }
+/* 六個按鈕放在名字和「結束」中間（螢幕矮的時候也不會壓到結束鍵） */
+.ph-calling-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 0; margin: auto 34px 0; align-self: stretch; padding-bottom: 24px; }
+.ph-calling-grid button { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: #fff; }
+.ph-calling-grid span { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,.18); }
+.ph-end { width: 72px; height: 72px; border-radius: 50%; background: #ff3b30; color: #fff; margin-top: 46px; display: inline-flex; align-items: center; justify-content: center; }
+.ph-end svg { width: 38px; height: 38px; }
+.ph-end-label { font-size: 13px; margin-top: 6px; }
+
+/* =========================================================
+ * KakaoTalk
+ * ========================================================= */
+.kakao-app .app-scroll { background: #fff; color: #191919; padding-bottom: 34px; }
+.kk-head { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px 6px 18px; }
+.kk-head h1 { font-size: 22px; margin: 0; font-weight: 700; }
+.kk-chatrow:active { background: #f5f5f5; }
+.kk-chatrow { display: flex; align-items: center; gap: 12px; padding: 9px 18px; }
+.kk-chatrow img { width: 48px; height: 48px; border-radius: 19px; object-fit: cover; flex: none; }
+.kk-chatrow-mid { flex: 1; min-width: 0; }
+.kk-chatrow-mid b { display: block; font-size: 15px; font-weight: 600; }
+.kk-chatrow-mid small { display: block; font-size: 13px; color: #8e8e8e; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.kk-chatrow-r { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.kk-chatrow-r small { font-size: 11px; color: #a0a0a0; white-space: nowrap; }
+.kk-badge { font-style: normal; background: #ff4d3d; color: #fff; font-size: 11px; font-weight: 700; min-width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 9px; padding: 0 5px; }
+
+
+/* 聊天室 */
+.kk-chat { position: absolute; inset: 0; z-index: 3; background: #bacee0; display: flex; flex-direction: column; padding-top: 44px; }
+.kk-chat-head { display: grid; grid-template-columns: 40px 1fr 40px; align-items: center; height: 48px; padding: 0 8px; }
+.kk-chat-head a { display: flex; align-items: center; justify-content: center; height: 40px; color: #191919; }
+.kk-chat-head a svg { width: 24px; height: 24px; }
+.kk-chat-head b { font-size: 16px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kk-chat-head svg { width: 23px; height: 23px; }
+.kk-msgs { flex: 1; overflow-y: auto; padding: 6px 10px 12px; overflow-anchor: none; }
+.kk-date { text-align: center; margin: 18px 0 4px; }
+.kk-date span { display: inline-block; background: rgba(0,0,0,.12); color: #fff; font-size: 11.5px; padding: 3px 12px; border-radius: 12px; }
+.kk-msg { display: flex; margin-top: 8px; }   /* 同一個人連續的訊息 */
+.kk-msg.first { margin-top: 18px; }   /* 換人說話 */
+.kk-bubble { max-width: 240px; padding: 7px 10px; border-radius: 13px; font-size: 14.5px; line-height: 1.4; word-break: break-word; position: relative; }
+.kk-msg.me { justify-content: flex-end; align-items: flex-end; gap: 5px; }
+.kk-msg.me .kk-bubble { background: #fee500; color: #191919; }
+.kk-msg.me .kk-bubble.tail { border-top-right-radius: 3px; }
+.kk-meta { display: flex; flex-direction: column; align-items: flex-end; font-size: 10px; color: #556677; line-height: 1.25; white-space: nowrap; }
+.kk-meta i { font-style: normal; color: #f2c200; font-weight: 700; font-size: 11px; }
+.kk-meta small { font-size: 10px; }
+.kk-msg.them { gap: 8px; }
+.kk-av { width: 38px; height: 38px; border-radius: 15px; object-fit: cover; flex: none; }
+.kk-them-col { min-width: 0; }
+.kk-name { font-size: 12px; color: #4b5a68; margin: 0 0 4px 2px; }
+.kk-row { display: flex; align-items: flex-end; gap: 5px; }
+.kk-msg.them .kk-bubble { background: #fff; }
+.kk-msg.them .kk-bubble.tail { border-top-left-radius: 3px; }
+.kk-row .kk-meta { align-items: flex-start; }
+.kk-input { display: flex; align-items: center; gap: 6px; background: #fff; padding: 6px 8px 40px 12px; }
+.kk-field { flex: 1; display: flex; align-items: center; background: #f4f4f4; border-radius: 18px; padding: 0 6px 0 14px; height: 36px; }
+.kk-field input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font: inherit; font-size: 16px; }
+.kk-send { width: 34px; height: 34px; border-radius: 50%; background: #fee500; color: #191919; display: flex; align-items: center; justify-content: center; }
+.kk-send:disabled { background: #f0f0f0; color: #b4b4b4; }
+.kk-send svg { width: 20px; height: 20px; }
+
+.kk-photo { display: block; max-width: 200px; border-radius: 12px; overflow: hidden; background: #ddd; }
+.kk-photo img { display: block; width: 100%; height: auto; max-height: 300px; object-fit: cover; }
+.kk-viewer { position: absolute; inset: 0; z-index: 6; background: #000; display: flex; align-items: center; justify-content: center; }
+.kk-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.kk-viewer video { max-width: 100%; max-height: 100%; }
+.kk-video { position: relative; }
+.kk-video video { display: block; width: 100%; height: auto; max-height: 300px; object-fit: cover; pointer-events: none; }
+.kk-play { position: absolute; left: 50%; top: 50%; width: 44px; height: 44px; margin: -22px 0 0 -22px; border-radius: 50%; background: rgba(0,0,0,.45); }
+.kk-play::after { content: ''; position: absolute; left: 17px; top: 13px; border-left: 14px solid #fff; border-top: 9px solid transparent; border-bottom: 9px solid transparent; }
+
+
+/* 接通後：字幕＋選項（取代按鈕格） */
+.ph-calling { display: flex; flex-direction: column; align-items: center; }
+.ph-calling .ph-end { margin-top: auto; margin-bottom: 0; }
+.ph-calling .ph-end-label { margin-bottom: 58px; }
+.ph-calling-grid { margin-bottom: 0; align-self: stretch; }
+.ph-captions, .ph-choices { display: none; }
+.ph-calling.connected .ph-calling-grid { display: none; }
+.ph-calling.connected .ph-captions { display: block; width: 100%; flex: 1; min-height: 0; overflow-y: auto; padding: 26px 22px 10px; text-align: left; }
+.ph-calling.connected .ph-choices { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 0 22px 14px; }
+.ph-cap { margin-bottom: 14px; animation: capin .35s ease-out; max-width: 88%; cursor: pointer; }
+.ph-cap.me { margin-left: auto; text-align: right; }
+.ph-cap-text { font-size: 17px; line-height: 1.45; }
+.ph-cap.them .ph-cap-text { color: #fff; }
+.ph-cap.me .ph-cap-text { color: #8fd3ff; }
+.ph-cap-sub { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 3px; }
+@keyframes capin { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.ph-choice { width: 100%; padding: 12px 16px; border-radius: 14px; background: rgba(255,255,255,.16); color: #fff; font-size: 15px; text-align: left; line-height: 1.35; animation: capin .3s ease-out; }
+.ph-choice:active { background: rgba(255,255,255,.3); }
+.ph-choice small { display: block; font-size: 12px; color: rgba(255,255,255,.6); margin-top: 2px; }
+
+/* 群組聊天室 */
+.kk-count { font-style: normal; font-weight: 400; color: #a0a0a0; font-size: .9em; margin-left: 5px; }
+/* 群組頭貼：圓形大頭照、白框、互相疊一點（照 Kakao 的樣子） */
+.kk-gav { position: relative; display: block !important; background: none !important; border-radius: 0 !important; overflow: visible; }
+.kk-gav img { position: absolute; border-radius: 50% !important; border: 2px solid #fff; object-fit: cover; box-sizing: border-box; }
+.kk-gav.n1 img { inset: 0; width: 100%; height: 100%; }
+.kk-gav.n2 img { width: 66%; height: 66%; }
+.kk-gav.n2 img:nth-child(1) { left: 0; top: 0; }
+.kk-gav.n2 img:nth-child(2) { right: 0; bottom: 0; }
+.kk-gav.n3 img { width: 56%; height: 56%; }
+.kk-gav.n3 img:nth-child(1) { left: 22%; top: 0; }
+.kk-gav.n3 img:nth-child(2) { left: 0; bottom: 0; }
+.kk-gav.n3 img:nth-child(3) { right: 0; bottom: 0; }
+.kk-gav.n4 img { width: 52%; height: 52%; }
+.kk-gav.n4 img:nth-child(1) { left: 0; top: 0; }
+.kk-gav.n4 img:nth-child(2) { right: 0; top: 0; }
+.kk-gav.n4 img:nth-child(3) { left: 0; bottom: 0; }
+.kk-gav.n4 img:nth-child(4) { right: 0; bottom: 0; }
+.kk-chatrow-av { width: 48px; height: 48px; border-radius: 19px; object-fit: cover; flex: none; }
+
+/* KakaoTalk 密碼畫面（照 Kakao 的「My 비밀번호 입력」排版）：白底、標題在上方、黃色圓點、數字鍵盤在下方 */
+.kk-lock { position: absolute; inset: 0; z-index: 4; background: #fff; color: #191919; display: flex; flex-direction: column; align-items: center; padding: 0 0 44px; }
+.kk-lock::before { content: ""; flex: 0 0 22%; }   /* 標題放在畫面約 1/4 高的位置 */
+.kk-lock-title { font-size: 25px; font-weight: 700; letter-spacing: -.3px; }
+.kk-lock-hint { margin-top: 10px; font-size: 15px; color: #8a8a8a; }
+.kk-lock-dots { display: flex; gap: 34px; margin-top: 34px; height: 20px; align-items: center; }
+/* 還沒輸入：灰色短橫線；輸入後：黃色圓點 */
+.kk-lock-dots i { width: 18px; height: 3px; border-radius: 2px; background: #a8a8a8; transition: all .12s; }
+.kk-lock-dots i.on { width: 19px; height: 19px; border-radius: 50%; background: #f7df3f; }
+.kk-lock-dots.shake { animation: lockshake .4s; }
+.kk-lock-keys { margin-top: auto; width: 100%; display: grid; grid-template-columns: repeat(3, 1fr); row-gap: 6px; padding: 0 18px; }
+.kk-lock-key { height: 74px; font-size: 32px; font-weight: 300; color: #191919; }
+.kk-lock-key:active { color: #999; }
+.kk-lock-del { height: 74px; display: flex; align-items: center; justify-content: center; color: #8a8a8a; }
+.kk-lock-del svg { width: 32px; height: 22px; }
+
+/* Kakao 通話紀錄泡泡 */
+.kk-call { display: flex; align-items: center; gap: 9px; padding: 9px 13px 9px 11px; }
+.kk-call svg { width: 24px; height: 24px; flex: none; }
+.kk-call span { display: flex; flex-direction: column; line-height: 1.25; }
+.kk-call b { font-weight: 600; font-size: 14px; }
+.kk-call small { font-size: 12px; opacity: .65; }
+
+/* Kakao 連結訊息（點了打開論壇文章） */
+.kk-link { display: flex; flex-direction: column; gap: 3px; max-width: 230px; padding: 10px 12px; background: #fff; color: #191919; text-decoration: none; }
+.kk-link small { font-size: 11px; color: #8a8a8a; }
+.kk-link b { font-size: 14px; font-weight: 600; line-height: 1.35; }
+.kk-link span { font-size: 11px; color: #3b6db8; word-break: break-all; }
+.kk-link:active { filter: brightness(.95); }
+
+/* Kakao 收回的訊息 */
+.kk-msg .kk-bubble.kk-recalled { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,.55); color: #6b7682; font-size: 13.5px; }
+.kk-recalled svg { width: 16px; height: 16px; flex: none; }
+.kk-expired { width: 150px; height: 110px; border-radius: 10px; background: #dfe3e8; color: #8a949e; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-size: 12.5px; }
+.kk-expired svg { width: 30px; height: 30px; }
+
+/* 自己的聊天室：名字旁的「我」 */
+.kk-me-tag { display: inline-flex; align-items: center; justify-content: center; min-width: 17px; height: 17px; padding: 0 4px; margin-left: 5px; border-radius: 50%; background: #5f6b7a; color: #fff; font-size: 10.5px; font-style: normal; font-weight: 700; vertical-align: 2px; }
+
+/* ---------- 即時訊息的通知橫幅 ---------- */
+.kk-banner { position: absolute; left: 8px; right: 8px; top: 50px; z-index: 95; display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 22px;
+  background: rgba(245,245,247,.88); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: 0 8px 28px rgba(0,0,0,.18); color: #111;
+  transform: translateY(-200%); transition: transform .35s cubic-bezier(.2,.8,.2,1); text-decoration: none; }
+.kk-banner.show { transform: none; }
+.kk-banner-av { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; flex: none; }
+.kk-banner-txt { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.kk-banner-now { position: absolute; right: 16px; top: 13px; font-size: 13px; color: #8e8e93; }
+.kk-banner-txt b { padding-right: 40px; }
+.kk-banner-txt b { font-size: 15px; font-weight: 700; }
+.kk-banner-txt span { font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---------- 來電畫面 ---------- */
+.ph-in-av { width: 96px; height: 96px; border-radius: 50%; object-fit: cover; margin-top: 28px; }
+.ph-in-btns { margin-top: auto; margin-bottom: 70px; display: flex; justify-content: space-between; align-self: stretch; padding: 0 48px; }
+.ph-in-btns > div { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; }
+.ph-in-btns .ph-end { margin-top: 0; }
+.ph-accept { width: 72px; height: 72px; border-radius: 50%; background: #34c759; color: #fff; display: inline-flex; align-items: center; justify-content: center; }
+.ph-accept svg { width: 36px; height: 36px; }
+.ph-call-av { width: 72px; height: 72px; margin-top: 18px; flex: none; }
+
+/* 對方正在輸入 */
+.kk-typing { display: inline-flex; gap: 4px; align-items: center; padding: 11px 13px; }
+.kk-typing i { width: 6px; height: 6px; border-radius: 50%; background: #9aa3ad; animation: kkDot 1.2s infinite ease-in-out; }
+.kk-typing i:nth-child(2) { animation-delay: .2s; }
+.kk-typing i:nth-child(3) { animation-delay: .4s; }
+@keyframes kkDot { 0%, 60%, 100% { opacity: .35; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
