@@ -12,7 +12,6 @@
 .pt-libhead h1 { margin: 0; font-size: 32px; font-weight: 700; letter-spacing: -.5px; }
 .pt-libhead small { display: block; color: #8a8a8e; font-size: 14px; font-weight: 500; margin-top: 2px; }
 .pt-libhead-s { padding-top: 0; }
-.pt-pill { background: rgba(120,120,128,.14); color: var(--pt-blue); font-size: 15px; font-weight: 600; padding: 5px 14px; border-radius: 16px; }
 
 /* 相簿內頁：左上「‹ 相簿」 */
 .pt-nav { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px 0 6px; }
@@ -53,10 +52,10 @@
 .pt-seg button { padding: 6px 14px; border-radius: 15px; font-size: 13px; font-weight: 600; color: #000; }
 .pt-seg button.on { background: rgba(120,120,128,.24); }
 
-/* 分頁列（圖庫／為你推薦／相簿／搜尋） */
+/* 分頁列（圖庫／相簿／搜尋） */
 .pt-tabs {
   position: sticky; bottom: 0; z-index: 4; flex: none;
-  display: grid; grid-template-columns: repeat(4, 1fr); padding: 6px 0 34px; margin-top: auto;
+  display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px 0 34px; margin-top: auto;
   background: rgba(249,249,249,.94); border-top: .5px solid rgba(0,0,0,.18);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }

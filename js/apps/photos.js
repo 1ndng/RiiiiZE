@@ -22,7 +22,6 @@
     chevron: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     // 下方分頁列
     tabLibrary: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="15" height="14" rx="2.5" fill="currentColor"/><path d="M6.5 3.5h11A3 3 0 0 1 20.5 6.5v10" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
-    tabForYou: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor"/><path d="M12 17s-4.5-2.7-4.5-6A2.4 2.4 0 0 1 12 9.6a2.4 2.4 0 0 1 4.5 1.4c0 3.3-4.5 6-4.5 6z" fill="#fff"/></svg>',
     tabAlbums: '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="14" height="13" rx="2.5" fill="currentColor"/><path d="M6.5 5h11A2.5 2.5 0 0 1 20 7.5V17" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
     tabSearch: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2.2" fill="none"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
     del: '<svg viewBox="0 0 32 22"><path d="M10 1.5h19a1.5 1.5 0 0 1 1.5 1.5v16a1.5 1.5 0 0 1-1.5 1.5H10L1.5 11z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M15.5 7l7 8M22.5 7l-7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
@@ -32,8 +31,8 @@
   function P() { return S().data.photos || { photos: [], albums: [] }; }
   function esc(s) { return S().esc(s); }
   var T_DEFAULT = {
-    libraryTitle: '圖庫', albumsTitle: '相簿', forYou: '為你推薦', search: '搜尋',
-    years: '年', months: '月', allPhotos: '所有照片', select: '選取', edit: '編輯',
+    libraryTitle: '圖庫', albumsTitle: '相簿', search: '搜尋',
+    years: '年', months: '月', allPhotos: '所有照片', edit: '編輯',
     myAlbums: '我的相簿', mediaTypes: '媒體類型', utilities: '其他',
     recents: '最近項目', favorites: '個人收藏', videos: '影片', hidden: '已隱藏', deleted: '最近刪除',
     photosUnit: '張照片', videosUnit: '部影片', empty: '沒有照片或影片',
@@ -109,7 +108,6 @@
     var t = T();
     return '<nav class="pt-tabs">' +
       '<a href="#/photos"' + (on === 'lib' ? ' class="on"' : '') + '>' + ICON.tabLibrary + '<span>' + esc(t.libraryTitle) + '</span></a>' +
-      '<button type="button" data-na>' + ICON.tabForYou + '<span>' + esc(t.forYou) + '</span></button>' +
       '<a href="#/photos/albums"' + (on === 'albums' ? ' class="on"' : '') + '>' + ICON.tabAlbums + '<span>' + esc(t.albumsTitle) + '</span></a>' +
       '<button type="button" data-na>' + ICON.tabSearch + '<span>' + esc(t.search) + '</span></button>' +
     '</nav>';
@@ -151,7 +149,6 @@
     S().$('#photos-scroll').innerHTML =
       '<div class="pt-libhead">' +
         '<div><h1>' + esc(t.libraryTitle) + '</h1><small>' + esc(first === last ? first : first + ' – ' + last) + '</small></div>' +
-        '<button type="button" class="pt-pill" data-na>' + esc(t.select) + '</button>' +
       '</div>' + body +
       '<div class="pt-seg">' + ['years', 'months', 'all'].map(function (m) {
         return '<button type="button" data-mode="' + m + '"' + (m === libMode ? ' class="on"' : '') + '>' + esc(t[m === 'all' ? 'allPhotos' : m]) + '</button>';
@@ -208,8 +205,7 @@
     var del = id === 'deleted', st = state(), now = Date.now();
     S().$('#photos-overlay').innerHTML = '';
     S().$('#photos-scroll').innerHTML =
-      '<div class="pt-nav"><a href="#/photos/albums" data-pback>' + ICON.back + '<span>' + esc(t.albumsTitle) + '</span></a>' +
-        '<button type="button" class="pt-pill" data-na>' + esc(t.select) + '</button></div>' +
+      '<div class="pt-nav"><a href="#/photos/albums" data-pback>' + ICON.back + '<span>' + esc(t.albumsTitle) + '</span></a></div>' +
       '<div class="pt-libhead pt-libhead-s"><div><h1>' + esc(a.title) + '</h1><small>' + esc(countLine(a.items)) + '</small></div></div>' +
       (del ? '<div class="pt-note">' + esc(t.deletedNote) + '</div>' : '') +
       (a.items.length
