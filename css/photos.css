@@ -52,10 +52,10 @@
 .pt-seg button { padding: 6px 14px; border-radius: 15px; font-size: 13px; font-weight: 600; color: #000; }
 .pt-seg button.on { background: rgba(120,120,128,.24); }
 
-/* 分頁列（圖庫／相簿／搜尋） */
+/* 分頁列（圖庫／相簿） */
 .pt-tabs {
   position: sticky; bottom: 0; z-index: 4; flex: none;
-  display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px 0 34px; margin-top: auto;
+  display: grid; grid-template-columns: repeat(2, 1fr); padding: 6px 0 34px; margin-top: auto;
   background: rgba(249,249,249,.94); border-top: .5px solid rgba(0,0,0,.18);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
 }

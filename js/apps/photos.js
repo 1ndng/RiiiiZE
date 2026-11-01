@@ -23,7 +23,6 @@
     // 下方分頁列
     tabLibrary: '<svg viewBox="0 0 24 24"><rect x="3" y="6" width="15" height="14" rx="2.5" fill="currentColor"/><path d="M6.5 3.5h11A3 3 0 0 1 20.5 6.5v10" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
     tabAlbums: '<svg viewBox="0 0 24 24"><rect x="3" y="8" width="14" height="13" rx="2.5" fill="currentColor"/><path d="M6.5 5h11A2.5 2.5 0 0 1 20 7.5V17" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
-    tabSearch: '<svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="2.2" fill="none"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
     del: '<svg viewBox="0 0 32 22"><path d="M10 1.5h19a1.5 1.5 0 0 1 1.5 1.5v16a1.5 1.5 0 0 1-1.5 1.5H10L1.5 11z" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/><path d="M15.5 7l7 8M22.5 7l-7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
   };
 
@@ -31,7 +30,7 @@
   function P() { return S().data.photos || { photos: [], albums: [] }; }
   function esc(s) { return S().esc(s); }
   var T_DEFAULT = {
-    libraryTitle: '圖庫', albumsTitle: '相簿', search: '搜尋',
+    libraryTitle: '圖庫', albumsTitle: '相簿',
     years: '年', months: '月', allPhotos: '所有照片', edit: '編輯',
     myAlbums: '我的相簿', mediaTypes: '媒體類型', utilities: '其他',
     recents: '最近項目', favorites: '個人收藏', videos: '影片', hidden: '已隱藏', deleted: '最近刪除',
@@ -109,7 +108,6 @@
     return '<nav class="pt-tabs">' +
       '<a href="#/photos"' + (on === 'lib' ? ' class="on"' : '') + '>' + ICON.tabLibrary + '<span>' + esc(t.libraryTitle) + '</span></a>' +
       '<a href="#/photos/albums"' + (on === 'albums' ? ' class="on"' : '') + '>' + ICON.tabAlbums + '<span>' + esc(t.albumsTitle) + '</span></a>' +
-      '<button type="button" data-na>' + ICON.tabSearch + '<span>' + esc(t.search) + '</span></button>' +
     '</nav>';
   }
 
