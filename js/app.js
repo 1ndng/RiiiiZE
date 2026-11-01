@@ -1529,8 +1529,14 @@
                 ['7', 'P Q R S'], ['8', 'T U V'], ['9', 'W X Y Z'], ['', ''], ['0', ''], ['del', '']];
     var lock = $('#lock');
     lock.style.backgroundImage = 'url("' + (D.home && D.home.wallpaper) + '")';
+    // 先是鎖定畫面（滑動以解鎖、時間、未讀訊息通知），往上滑才出現輸入密碼
     lock.innerHTML =
       '<div class="lock-shade"></div>' +
+      '<div class="lock-cover" id="lock-cover">' +
+        '<div class="lc-hint"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2.5" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" fill="none"/></svg>' + esc(L.swipeText || '滑動以解鎖') + '</div>' +
+        '<div class="lc-time" id="lc-time"></div>' +
+        '<div class="lc-notes" id="lc-notes"></div>' +
+      '</div>' +
       '<div class="lock-inner">' +
         '<svg class="lock-ico" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2.5" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" fill="none"/></svg>' +
         '<div class="lock-title">' + esc(L.title) + '</div>' +
@@ -1541,9 +1547,68 @@
           return '<button class="lock-key" data-lock="' + k[0] + '"><b>' + k[0] + '</b>' + (k[1] ? '<small>' + k[1] + '</small>' : '') + '</button>';
         }).join('') + '</div>' +
       '</div>';
+    var target = null;   // 點了哪則通知：解鎖後直接打開那個聊天室
+    var cover = $('#lock-cover');
+
+    // 時間（跟著現實走）
+    function paintTime() {
+      var el = $('#lc-time'), d = new Date();
+      if (el) el.textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+    }
+    // 通知：KakaoTalk 有未讀訊息的聊天室，一個聊天室一張；同一個聊天室有好幾則時後面疊著卡片
+    function kakaoIcon() {
+      var hit = (D.home.icons || []).concat(D.home.apps || []).filter(function (a) { return a.id === 'kakao'; })[0];
+      return hit ? hit.icon : 'images/icon_kakao.png';
+    }
+    function paintNotes() {
+      var box = $('#lc-notes');
+      if (!box || !window.SOSHO_KAKAO) return;
+      var list = window.SOSHO_KAKAO.unreadList(), html = list.map(function (n) {
+        return '<button type="button" class="lc-note' + (n.count > 1 ? ' stack' : '') + '" data-lock-open="#/kakao/chat/' + encodeURIComponent(n.id) + '">' +
+          '<img src="' + esc(kakaoIcon()) + '" alt="">' +
+          '<span class="lc-note-t"><b>' + esc(n.title) + '</b><span>' + esc(n.text) + '</span></span>' +
+          '<small>' + esc(n.time) + '</small>' +
+          (n.count > 1 ? '<i class="lc-more">' + esc((L.moreText || '還有 {n} 則通知').replace('{n}', n.count - 1)) + '</i>' : '') +
+        '</button>';
+      }).join('');
+      if (box.innerHTML !== html) box.innerHTML = html;
+    }
+    paintTime(); paintNotes(); paint();
+    var lockTimer = setInterval(function () {
+      if (!document.body.contains(lock)) { clearInterval(lockTimer); return; }
+      paintTime(); paintNotes();
+    }, 2000);
+
+    // 往上滑 → 出現輸入密碼；「取消」回到鎖定畫面
+    function showPin() { lock.classList.add('pin'); cover.style.transform = ''; }
+    function hidePin() { lock.classList.remove('pin'); typed = ''; paint(); target = null; }
+    var y0 = null, dy = 0, moved = false;
+    cover.addEventListener('pointerdown', function (e) { y0 = e.clientY; dy = 0; moved = false; cover.style.transition = 'none'; });
+    cover.addEventListener('pointermove', function (e) {
+      if (y0 === null) return;
+      dy = Math.min(0, e.clientY - y0);
+      if (dy < -6) moved = true;
+      if (moved) cover.style.transform = 'translateY(' + dy + 'px)';
+    });
+    function endDrag(e) {
+      if (y0 === null) return;
+      y0 = null; cover.style.transition = '';
+      if (dy < -60) {
+        showPin();
+      } else {
+        cover.style.transform = '';
+        // 點一下通知（沒有滑動）→ 記住要打開的聊天室，再出現輸入密碼（和 iPhone 一樣要先解鎖）
+        var note = !moved && e && e.target && e.target.closest && e.target.closest('[data-lock-open]');
+        if (note) { target = note.dataset.lockOpen; showPin(); }
+      }
+    }
+    cover.addEventListener('pointerup', endDrag);
+    cover.addEventListener('pointercancel', function () { endDrag(null); });
     $('#phone').classList.add('locked');
     function paint() {
       lock.querySelectorAll('.lock-dots i').forEach(function (d, i) { d.classList.toggle('on', i < typed.length); });
+      var del = lock.querySelector('[data-lock-del]');
+      if (del) del.textContent = typed ? L.deleteLabel || '刪除' : L.cancelLabel || '取消';
     }
     lock.addEventListener('click', function (e) {
       var k = e.target.closest('[data-lock]');
@@ -1556,6 +1621,7 @@
               lock.classList.add('unlocked');
               setFlag('phone_unlocked');   // 解鎖手機（即時訊息從這裡開始算時間）
               $('#phone').classList.remove('locked');
+              if (target) location.hash = target;   // 點通知解鎖 → 打開那個聊天室
               setTimeout(function () { lock.remove(); }, 450);
             }, 120);
           } else {
@@ -1565,7 +1631,8 @@
           }
         }
       } else if (e.target.closest('[data-lock-del]')) {
-        typed = typed.slice(0, -1); paint();
+        // 還沒輸入 → 「取消」回到鎖定畫面；有輸入 → 「刪除」一個數字
+        if (!typed) hidePin(); else { typed = typed.slice(0, -1); paint(); }
       }
     });
   }

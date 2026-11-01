@@ -405,7 +405,30 @@ div.ig-frow-main { cursor: default; }
 /* ---------- 手機密碼鎖 ---------- */
 .lock { position: absolute; inset: 0; z-index: 80; background: #333 center / cover no-repeat; color: #fff; transition: transform .45s cubic-bezier(.4,0,.2,1), opacity .45s; }
 .lock.unlocked { transform: translateY(-100%); opacity: .6; pointer-events: none; }
-.lock-shade { position: absolute; inset: 0; background: rgba(20,20,25,.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); }
+.lock-shade { position: absolute; inset: 0; background: rgba(20,20,25,.45); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); opacity: 0; transition: opacity .35s; }
+/* 鎖定畫面（輸入密碼前）：滑動以解鎖、時間、通知 */
+.lock-cover { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; padding: 50px 14px 60px; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .3s; }
+.lc-hint { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,.18); }
+.lc-hint svg { width: 15px; height: 15px; }
+.lc-time { margin-top: 26px; font-family: "New York", "Iowan Old Style", Georgia, "Times New Roman", serif; font-size: 96px; font-weight: 700; line-height: 1; letter-spacing: -2px; font-variant-numeric: lining-nums; text-shadow: 0 2px 12px rgba(0,0,0,.12); }
+.lc-notes { width: 100%; margin-top: 34px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; flex: 1; padding-bottom: 12px; scrollbar-width: none; }
+.lc-notes::-webkit-scrollbar { display: none; }
+.lc-note { position: relative; flex: none; display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 14px; border-radius: 22px; text-align: left; color: #fff; font: inherit; background: rgba(70,50,110,.42); backdrop-filter: blur(20px) saturate(1.3); -webkit-backdrop-filter: blur(20px) saturate(1.3); }
+.lc-note img { width: 38px; height: 38px; border-radius: 9px; flex: none; }
+.lc-note-t { flex: 1; min-width: 0; }
+.lc-note-t b { display: block; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lc-note-t span { display: block; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: .92; }
+.lc-note small { align-self: flex-start; flex: none; font-size: 13px; opacity: .75; }
+/* 同一個聊天室好幾則：後面疊一張卡片＋「還有 N 則通知」 */
+.lc-note.stack { margin-bottom: 12px; }
+.lc-note.stack::after { content: ""; position: absolute; left: 10px; right: 10px; bottom: -10px; height: 20px; border-radius: 0 0 18px 18px; background: rgba(70,50,110,.3); z-index: -1; }
+.lc-more { position: absolute; right: 16px; bottom: 3px; font-style: normal; font-size: 11px; opacity: .7; }
+.lc-note:active { filter: brightness(.9); }
+/* 往上滑之後：鎖定畫面滑走，換成輸入密碼 */
+.lock-inner { opacity: 0; pointer-events: none; transition: opacity .3s; }
+.lock.pin .lock-shade, .lock.pin .lock-inner { opacity: 1; }
+.lock.pin .lock-inner { pointer-events: auto; }
+.lock.pin .lock-cover { transform: translateY(-100%); opacity: 0; pointer-events: none; }
 /* 內容整組置中（稍微偏上），手機上不會太靠上面 */
 .lock-inner { position: relative; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; padding-bottom: 70px; }
 .lock-ico { width: 22px; height: 22px; margin-bottom: 14px; }
@@ -422,6 +445,7 @@ div.ig-frow-main { cursor: default; }
 .lock-key small { font-size: 9px; font-weight: 600; letter-spacing: 1.5px; margin-top: 2px; }
 .lock-del { color: #fff; font-size: 16px; align-self: center; justify-self: center; }
 .phone.locked .statusbar { color: #fff; z-index: 90; }
+.phone.locked .sb-time { visibility: hidden; }   /* 鎖定畫面中間已經有大時鐘 */
 .phone.locked .home-gesture { z-index: 90; }
 .phone.locked .home-gesture { pointer-events: none; }
 .phone.locked .home-indicator { background: #fff; }
