@@ -26,6 +26,8 @@
     postTitle: '貼文', replyingTo: '回覆', retweets: '轉推', likes: '喜歡', retweetedBy: '{name} 已轉推',
     replyPlaceholder: '發佈你的回覆', post: '發佈', reply: '回覆', cancel: '取消', composePlaceholder: '有什麼新鮮事？',
     following: '正在跟隨', followers: '跟隨者', follow: '跟隨', followingBtn: '正在跟隨', requested: '已提出要求',
+    editProfile: '編輯個人資料', save: '儲存', nameLabel: '名稱', bioLabel: '簡介',
+    protectLabel: '保護你的貼文', protectNote: '只有你的跟隨者才能看到你的貼文。', noFollowing: '還沒有跟隨任何人', noFollowers: '還沒有跟隨者',
     posts: '貼文', repliesTab: '回覆', retweetsTab: '轉推', likesTab: '喜歡', noPosts: '還沒有貼文', noReplies: '還沒有回覆', noRetweets: '還沒有轉推', noLikes: '還沒有喜歡的貼文', justNow: '剛剛',
     protectedTitle: '這些貼文受到保護', protectedDesc: '只有獲准的跟隨者才能看到 @{handle} 的貼文。'
   };
@@ -42,7 +44,18 @@
   }
   function save(st) { S().save(KEY, st); }
 
-  function acc(handle) { return (X().accounts || []).filter(function (a) { return a.handle === handle; })[0] || null; }
+  // 帳號資料；自己的帳號套用「編輯個人資料」改過的名稱、簡介、公開／不公開
+  function acc(handle) {
+    var a = (X().accounts || []).filter(function (x) { return x.handle === handle; })[0] || null;
+    var p = state().profile;
+    if (a && p && handle === X().me) {
+      a = Object.assign({}, a);
+      if (p.name != null) a.name = p.name;
+      if (p.bio != null) a.bio = p.bio;
+      if (p.protected != null) a.protected = p.protected;
+    }
+    return a;
+  }
   function me() { return acc(X().me) || { handle: X().me || 'me', name: X().me || 'me', avatar: '' }; }
   function isMe(a) { return a && a.handle === me().handle; }
   // 追蹤：玩家按過就照玩家的，不然看 data.js 的 followed
@@ -64,9 +77,10 @@
   function tweet(id) { return allTweets().filter(function (t) { return String(t.id) === String(id); })[0] || null; }
 
   // 文字：@帳號、#標籤 變藍色；遊戲裡有的帳號可以點進去
-  function rich(s) {
-    return esc(s).replace(/\n/g, '<br>').replace(/(^|[^\w])([@#][\w\u0080-￿.]+)/g, function (m, pre, tag) {
-      var a = tag.charAt(0) === '@' && acc(tag.slice(1));
+  // noLinks = 放在別的連結裡面時（名單的簡介），只變藍色、不做成連結
+  function rich(s, noLinks) {
+    return esc(s).replace(/\n/g, '<br>').replace(/(^|[^\w])([@#][\w\u0080-\uffff.]+)/g, function (m, pre, tag) {
+      var a = !noLinks && tag.charAt(0) === '@' && acc(tag.slice(1));
       return pre + (a ? '<a class="x-blue" href="#/x/u/' + encodeURIComponent(a.handle) + '">' + tag + '</a>' : '<span class="x-blue">' + tag + '</span>');
     });
   }
@@ -202,13 +216,15 @@
       '<div class="x-banner"' + (a.banner ? ' style="background-image:url(&quot;' + esc(a.banner) + '&quot;)"' : '') + '></div>' +
       '<div class="x-prof">' +
         '<div class="x-prof-top"><img class="x-prof-av" src="' + esc(a.avatar) + '" alt="">' +
-          (isMe(a) ? '' : '<button type="button" class="x-follow' + (f ? ' on' : '') + '" data-xfollow="' + esc(a.handle) + '">' +
-            esc(f === 1 ? tt.followingBtn : f === 'req' ? tt.requested : tt.follow) + '</button>') +
+          (isMe(a) ? '<a class="x-follow on" href="#/x/edit">' + esc(tt.editProfile) + '</a>' : followBtn(a)) +
         '</div>' +
         '<div class="x-prof-name">' + nameLine(a) + '</div>' +
         (a.bio ? '<div class="x-prof-bio">' + rich(a.bio) + '</div>' : '') +
-        '<div class="x-prof-cnt"><span><b>' + esc(a.following != null ? a.following : 0) + '</b> ' + esc(tt.following) + '</span>' +
-          '<span><b>' + esc(a.followers != null ? a.followers : 0) + '</b> ' + esc(tt.followers) + '</span></div>' +
+        // 正在跟隨／跟隨者：點進去看名單（鎖帳又沒跟隨就點不進去）
+        '<div class="x-prof-cnt">' + ['following', 'followers'].map(function (k) {
+          var inner = '<b>' + esc(countOf(a, k)) + '</b> ' + esc(tt[k]);
+          return locked ? '<span>' + inner + '</span>' : '<a href="#/x/u/' + encodeURIComponent(a.handle) + '/' + k + '">' + inner + '</a>';
+        }).join('') + '</div>' +
       '</div>' +
       // 貼文／回覆／轉推／喜歡 四個分頁
       '<div class="x-ptabs">' + [['posts', tt.posts], ['replies', tt.repliesTab], ['rts', tt.retweetsTab], ['likes', tt.likesTab]].map(function (x) {
@@ -268,6 +284,79 @@
     '</article>';
   }
 
+  function followBtn(a) {
+    var f = follows(a), tt = T();
+    return '<button type="button" class="x-follow' + (f ? ' on' : '') + '" data-xfollow="' + esc(a.handle) + '">' +
+      esc(f === 1 ? tt.followingBtn : f === 'req' ? tt.requested : tt.follow) + '</button>';
+  }
+
+  /* ---- 正在跟隨／跟隨者名單（和 IG 一樣）----
+   * data.js 帳號的 followingList / followersList：寫 handle = 遊戲裡的帳號（可以點進去）；
+   *   寫 { handle, name, avatar, bio } = 路人（點不進去）
+   * 另外會自動加上：自己的「正在跟隨」= 玩家跟隨中的帳號；別人的「跟隨者」= 玩家跟隨了他 → 自己的帳號
+   * 數字：data.js 有寫 following / followers 就顯示那個數字，沒寫就是名單的人數 */
+  function listOf(a, kind) {
+    var out = [], seen = {};
+    function add(x) { if (x && !seen[x.handle]) { seen[x.handle] = 1; out.push(x); } }
+    (a[kind + 'List'] || []).forEach(function (x) {
+      if (typeof x === 'string') add(acc(x) || { handle: x, name: x, filler: true });
+      else if (x) add({ handle: x.handle, name: x.name || x.handle, avatar: x.avatar, bio: x.bio, filler: true });
+    });
+    if (kind === 'following' && isMe(a)) (X().accounts || []).forEach(function (x) { if (!isMe(x) && follows(x) === 1) add(acc(x.handle)); });
+    if (kind === 'followers' && !isMe(a) && follows(a) === 1) add(me());
+    if (kind === 'following' && isMe(a)) out = out.filter(function (x) { return x.filler || follows(x) === 1; });   // 玩家取消跟隨 → 從名單拿掉
+    return out;
+  }
+  function countOf(a, kind) { return a[kind] != null ? a[kind] : listOf(a, kind).length; }
+
+  function renderFollows(handle, kind) {
+    var a = acc(handle), tt = T();
+    if (!a) { S().replaceHash('#/x'); return; }
+    if (hidden(a)) { S().replaceHash('#/x/u/' + encodeURIComponent(a.handle)); return; }
+    var base = '#/x/u/' + encodeURIComponent(a.handle) + '/';
+    S().$('#x-overlay').innerHTML = '';
+    S().$('#x-scroll').innerHTML =
+      '<div class="x-bar"><a href="#/x/u/' + encodeURIComponent(a.handle) + '" data-xback>' + ICON.back + '</a>' +
+        '<div class="x-bar-t"><b>' + esc(a.name) + '</b><small>@' + esc(a.handle) + '</small></div><span></span></div>' +
+      '<div class="x-ptabs x-ftabs">' + ['followers', 'following'].map(function (k) {
+        return '<a data-xftab href="' + base + k + '"' + (k === kind ? ' class="on"' : '') + '>' + esc(tt[k]) + '</a>';
+      }).join('') + '</div>' +
+      (listOf(a, kind).map(function (x) {
+        var inner = '<img src="' + esc(x.avatar || 'images/default_avatar.png') + '" alt="">' +
+          '<div class="x-frow-t"><div class="x-head">' + nameLine(x) + '</div>' + (x.bio ? '<div class="x-frow-bio">' + rich(x.bio, true) + '</div>' : '') + '</div>';
+        return '<div class="x-frow">' +
+          (x.filler ? '<div class="x-frow-main">' + inner + '</div>' : '<a class="x-frow-main" href="#/x/u/' + encodeURIComponent(x.handle) + '">' + inner + '</a>') +
+          (x.filler || isMe(x) ? '' : followBtn(x)) +
+        '</div>';
+      }).join('') || '<div class="x-empty">' + esc(kind === 'following' ? tt.noFollowing : tt.noFollowers) + '</div>');
+  }
+
+  /* ---- 編輯個人資料：名稱、簡介、保護你的貼文（不公開帳號） ---- */
+  function renderEdit() {
+    var m = me(), tt = T();
+    S().$('#x-overlay').innerHTML = '';
+    S().$('#x-scroll').innerHTML =
+      '<form class="x-edit" id="x-edit" autocomplete="off">' +
+        '<div class="x-bar x-edit-bar"><a href="#/x/u/' + encodeURIComponent(m.handle) + '" data-xback class="x-edit-cancel">' + esc(tt.cancel) + '</a>' +
+          '<b>' + esc(tt.editProfile) + '</b><button type="submit" class="x-edit-save">' + esc(tt.save) + '</button></div>' +
+        '<div class="x-banner x-edit-banner"' + (m.banner ? ' style="background-image:url(&quot;' + esc(m.banner) + '&quot;)"' : '') + '></div>' +
+        '<div class="x-prof"><div class="x-prof-top"><img class="x-prof-av" src="' + esc(m.avatar) + '" alt=""></div></div>' +
+        '<label class="x-field"><span>' + esc(tt.nameLabel) + '</span><input name="nm" maxlength="50" value="' + esc(m.name) + '"></label>' +
+        '<label class="x-field"><span>' + esc(tt.bioLabel) + '</span><textarea name="bio" rows="3" maxlength="160">' + esc(m.bio || '') + '</textarea></label>' +
+        '<button type="button" class="x-field x-switch-row" data-xprivacy><span><b>' + esc(tt.protectLabel) + '</b>' +
+          '<small id="x-privacy-note"' + (m.protected ? '' : ' hidden') + '>' + esc(tt.protectNote) + '</small></span>' +
+          '<i class="x-switch' + (m.protected ? ' on' : '') + '" id="x-privacy"></i></button>' +
+      '</form>';
+    S().$('#x-edit').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var f = e.target, st = state(), was = !!me().protected, now = S().$('#x-privacy').classList.contains('on');
+      st.profile = { name: f.nm.value.trim() || me().handle, bio: f.bio.value.trim(), protected: now };
+      save(st);
+      if (was !== now) S().setFlag((now ? 'x_private_' : 'x_public_') + me().handle);   // 改成不公開／公開（進度旗標）
+      S().goBack('#/x/u/' + encodeURIComponent(me().handle));
+    });
+  }
+
   /* ---- 發文 ---- */
   function openCompose() {
     var tt = T(), w = document.createElement('div');
@@ -307,6 +396,8 @@
     if (parts[0] === 'u' && parts[1] !== profHandle) { profHandle = parts[1]; profTab = 'posts'; }
     S().$('#x-scroll').scrollTop = 0;
     if (parts[0] === 't') renderTweet(parts[1]);
+    else if (parts[0] === 'edit') renderEdit();
+    else if (parts[0] === 'u' && (parts[2] === 'following' || parts[2] === 'followers')) renderFollows(parts[1], parts[2]);
     else if (parts[0] === 'u') renderProfile(parts[1]);
     else renderHome();
   }
@@ -330,7 +421,15 @@
     if ((el = e.target.closest('[data-xfollow]'))) {
       st = state(); var a = acc(el.dataset.xfollow), f = follows(a);
       st.follows[a.handle] = f ? 0 : (a.protected ? 'req' : 1);   // 鎖帳只會變「已提出要求」
-      save(st); renderProfile(a.handle); return;
+      save(st); repaint(); return;
+    }
+    if ((el = e.target.closest('[data-xftab]'))) {   // 名單頁切換分頁：取代目前這頁
+      e.preventDefault(); S().replaceHash(el.getAttribute('href')); return;
+    }
+    if (e.target.closest('[data-xprivacy]')) {
+      var sw = S().$('#x-privacy'); sw.classList.toggle('on');
+      S().$('#x-privacy-note').hidden = !sw.classList.contains('on');
+      return;
     }
     if ((el = e.target.closest('[data-xtab]'))) {
       profTab = el.dataset.xtab;

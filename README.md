@@ -17,7 +17,7 @@
 | `js/apps/photos.js` | 相簿（iPhone「照片」風格：圖庫的年／月／所有照片、相簿列表、看照片、收藏、刪除／最近刪除、上鎖的已隱藏） |
 | `js/apps/kakao.js` | KakaoTalk（密碼畫面、聊天列表、聊天室、自動回覆、即時訊息） |
 | `js/apps/kakaocall.js` | KakaoTalk 語音通話（打給好友、來電、通話字幕＋選項、通話紀錄） |
-| `js/apps/x.js` | X（時間軸、貼文內頁＋回覆串、個人檔案的貼文／回覆／轉推／喜歡分頁、鎖帳、按讚／轉推／回覆／發文） |
+| `js/apps/x.js` | X（時間軸、貼文內頁＋回覆串、個人檔案的貼文／回覆／轉推／喜歡分頁、正在跟隨／跟隨者名單、編輯個人資料（名稱、簡介、不公開）、鎖帳、按讚／轉推／回覆／發文） |
 | `js/apps/notes.js` | 備忘錄（列表、釘選、編輯、新增／刪除、上鎖的備忘錄） |
 | `js/lang.js`、`js/vendor/opencc-t2cn.js` | 繁體／简体切換 |
 | `css/style.css` | 手機外框、首頁、密碼鎖、Instagram |
@@ -41,7 +41,7 @@
 | `#/home` | 首頁 |
 | `#/ig`、`#/ig/u/帳號` | 自己的 IG、別人的 IG |
 | `#/ig/settings`、`#/ig/archive`、`#/ig/saved` | 設定、典藏、已儲存 |
-| `#/x`、`#/x/t/貼文id`、`#/x/u/帳號` | X 時間軸、貼文、個人檔案 |
+| `#/x`、`#/x/t/貼文id`、`#/x/u/帳號`、`#/x/u/帳號/following`、`#/x/edit` | X 時間軸、貼文、個人檔案、跟隨名單、編輯個人資料 |
 | `#/notes`、`#/notes/n/id` | 備忘錄列表、單則備忘錄 |
 | `#/photos`、`#/photos/albums`、`#/photos/album/相簿id` | 圖庫、相簿列表、某個相簿（`fav` 個人收藏、`videos` 影片、`hidden` 已隱藏、`deleted` 最近刪除） |
 | `#/kakao`、`#/kakao/chat/f1`、`#/kakao/chat/me`、`#/kakao/chat/g1` | 聊天列表、聊天室 |

@@ -260,7 +260,11 @@ window.SITE_DATA = {
    * me = 玩家用的帳號（左上角頭貼、回覆、發文都是這個帳號）
    * accounts：handle = @後面的 id、name、avatar、banner（封面）、bio、
    *   protected（鎖帳：沒跟隨就看不到貼文，按跟隨會變「已提出要求」）、followed（玩家一開始就有跟隨）、
-   *   following / followers（顯示的數字）
+   *   following / followers（顯示的數字；不寫 = 名單的人數）
+   *   followingList / followersList：正在跟隨／跟隨者名單（點數字進去看）；寫 handle = 遊戲裡的帳號，
+   *     寫 { handle, name, avatar, bio } = 路人（點不進去）。自己的「正在跟隨」會自動加上玩家跟隨中的帳號
+   *   自己的帳號：玩家可以在「編輯個人資料」改名稱、簡介、保護你的貼文（不公開）；改成不公開／公開時記錄旗標
+   *     x_private_帳號 / x_public_帳號
    *   likes / retweets：這個帳號按過喜歡／轉推的貼文 id（個人檔案的「喜歡」「轉推」分頁）；
    *   玩家自己的帳號不用寫，會顯示玩家按過的
    * tweets：照時間軸順序（新的在上面）
@@ -273,9 +277,12 @@ window.SITE_DATA = {
   x: {
     me: "my_account",
     accounts: [
-      { handle: "my_account", name: "我的帳號", avatar: PH, bio: "簡介", following: 12, followers: 3 },
+      { handle: "my_account", name: "我的帳號", avatar: PH, bio: "簡介",
+        followersList: ["user_a", { handle: "passerby_1", name: "路人 1", avatar: PH, bio: "路人的簡介" }] },
       { handle: "user_a", name: "使用者 A", avatar: PH, banner: PH, followed: true,
         bio: "使用者 A 的簡介 #標籤", following: 120, followers: "1.2萬",
+        followingList: ["my_account", "user_b", { handle: "passerby_1", name: "路人 1", avatar: PH }],
+        followersList: ["user_b", { handle: "passerby_2", name: "路人 2" }],
         likes: ["t2"], retweets: [] },
       { handle: "user_b", name: "使用者 B", avatar: PH, protected: true, followed: true, bio: "鎖帳", following: 30, followers: 41,
         likes: ["t1", "t4"] },
