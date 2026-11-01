@@ -25,10 +25,16 @@ window.SITE_DATA = {
   /* ---------- 手機首頁 ---------- */
   home: {
     wallpaper: PH,
-    // 左上角的備忘錄小工具（玩家可以直接打字；不要的話整段刪掉）
-    memo: { label: "備忘錄" },
-    // 右上角的時鐘小工具：時間跟著現實走，日期固定
-    clock: { date: "1月1日" },
+    // 上方的行事曆小工具：日期、月曆跟著現實的日期走
+    //   events = 左邊顯示的行程（只顯示「今天」的）：title = 文字、color = 顏色
+    //   date 可寫 "10-1"（每年 10/1）、"2026-10-1"（只有那天）、"fri"（每個星期五）；不寫 = 每天都顯示
+    //   noEvents = 今天沒有行程時顯示的字（不寫 = 空白）
+    //   想改成中文：weekdays（星期日～六）、months（1～12 月）、weekHeads（一～日）
+    calendar: {
+      events: [
+        { title: "boring-day", color: "#b36ad9", textColor: "#7b3f9e" }
+      ]
+    },
     // Dock 上的 App（最多 4 個、不顯示名稱）
     apps: [
       { id: "ig",    label: "Instagram", icon: "images/icon_insta.png" },

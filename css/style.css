@@ -84,20 +84,29 @@ img { display: block; max-width: 100%; }
   background: rgba(255,255,255,.28);
   backdrop-filter: blur(24px) saturate(1.4); -webkit-backdrop-filter: blur(24px) saturate(1.4);
 }
-/* 備忘錄小工具（iPhone 小型 widget：白底圓角、黃色標題） */
-.home-widget { position: absolute; left: 22px; top: 60px; width: 158px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.memo-widget { width: 158px; height: 158px; border-radius: 22px; background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,.18); display: flex; flex-direction: column; padding: 12px 12px 10px; cursor: text; }
-.memo-head { display: flex; align-items: center; gap: 5px; color: #e0a800; font-size: 14px; font-weight: 700; margin-bottom: 4px; }
-.memo-head svg { width: 18px; height: 18px; flex: none; }
-.memo-widget textarea { flex: 1; width: 100%; border: 0; outline: none; resize: none; background: none; padding: 0; color: #1c1c1e; font: inherit; font-size: 14px; line-height: 1.4; }
-.home-widget-r { left: auto; right: 22px; }
-/* 時鐘小工具：淺色翻頁鐘 */
-.clock-widget { width: 158px; height: 158px; border-radius: 22px; background: rgba(255,255,255,.55); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); box-shadow: 0 4px 16px rgba(0,0,0,.18); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 12px; }
-.clock-tiles { display: flex; gap: 8px; }
-.clock-tiles b { position: relative; width: 60px; height: 76px; border-radius: 10px; background: rgba(255,255,255,.75); color: #1c1c1e; font-size: 46px; font-weight: 600; line-height: 76px; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: -1px; }
-.clock-tiles b::after { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1.5px; background: rgba(0,0,0,.22); }
-.clock-widget span { color: #3a3a3c; font-size: 14px; font-weight: 600; }
-.home-widget-name { color: #fff; font-size: 12px; text-shadow: 0 1px 3px rgba(0,0,0,.4); }
+/* 行事曆小工具（iPhone 中型 widget）：左邊今天、右邊月曆 */
+.cal-widget {
+  position: absolute; left: 22px; right: 22px; top: 70px; height: 158px;
+  display: flex; gap: 10px; padding: 18px 16px 14px 18px;
+  background: #fff; border-radius: 22px; box-shadow: 0 4px 16px rgba(0,0,0,.14);
+  color: #000; font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
+}
+.cal-l { flex: 1; min-width: 0; }
+.cal-r { flex: none; width: 150px; }
+.cal-red { display: block; color: #e5534b; font-size: 12.5px; font-weight: 600; letter-spacing: .2px; line-height: 1; }
+.cal-big { font-size: 46px; font-weight: 300; line-height: 1; margin: 6px 0 9px; letter-spacing: -1px; }
+.cal-ev { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.cal-ev i { flex: none; width: 4px; height: 20px; border-radius: 2px; }
+.cal-ev span { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cal-none { color: #8e8e93; font-size: 13px; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); margin-top: 6px; row-gap: 1px; }
+.cal-grid i { font-style: normal; font-size: 10.5px; font-weight: 600; text-align: center; line-height: 16.5px; height: 16.5px; }
+.cal-grid.six i { line-height: 14px; height: 14px; font-size: 10px; }
+.cal-grid .cal-h { color: #000; }
+.cal-grid .we { color: #8e8e93; }
+.cal-grid .today { position: relative; color: #fff; z-index: 0; }
+.cal-grid .today::before { content: ""; position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: #e5534b; z-index: -1; }
+.cal-grid.six .today::before { width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; }
 .app-icon { display: block; }
 .app-icon img { width: 62px; height: 62px; border-radius: 15px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
 .app-icon:active img { filter: brightness(.7); }

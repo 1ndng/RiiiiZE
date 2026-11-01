@@ -74,48 +74,70 @@
     var h = D.home;
     var home = $('#home');
     home.style.backgroundImage = 'url("' + h.wallpaper + '")';
-    // 桌布下方的 Dock（和 iPhone 一樣不顯示名稱）
-    var memo = h.memo || {};
     home.innerHTML =
-      // 左上角的備忘錄小工具：直接在上面打字，內容存在瀏覽器裡（重新開始會清掉）
-      (h.memo ? '<div class="home-widget">' +
-        '<label class="memo-widget">' +
-          '<span class="memo-head">' + ICON_MEMO + esc(memo.label || '備忘錄') + '</span>' +
-          '<textarea id="memo-text" spellcheck="false" placeholder="' + esc(memo.placeholder || '') + '"></textarea>' +
-        '</label>' +
-        '<span class="home-widget-name">' + esc(memo.label || '備忘錄') + '</span>' +
-      '</div>' : '') +
-      // 右上角的時鐘小工具（翻頁鐘）：時、分是現在的時間；日期固定（data.js 的 home.clock.date）
-      (h.clock ? '<div class="home-widget home-widget-r">' +
-        '<div class="clock-widget"><div class="clock-tiles"><b id="clock-h"></b><b id="clock-m"></b></div>' +
-          '<span>' + esc(h.clock.date || '') + '</span></div>' +
-        '<span class="home-widget-name">' + esc(h.clock.label || '時鐘') + '</span>' +
-      '</div>' : '') +
+      // 上方的行事曆小工具（中型）：日期跟著現實走，每天的行程寫在 data.js 的 home.calendar.events
+      (h.calendar ? '<div class="cal-widget" id="cal-widget"></div>' : '') +
+      // 桌布下方的 Dock（和 iPhone 一樣不顯示名稱）
       '<div class="home-dock">' +
       h.apps.map(function (a) {
         return '<a class="app-icon" href="#/' + esc(a.id) + '" aria-label="' + esc(a.label) + '">' +
           '<img src="' + esc(a.icon) + '" alt=""></a>';
       }).join('') +
       '</div>';
-    tickClock();
-    var ta = $('#memo-text');
-    if (ta) {
-      try { ta.value = localStorage.getItem(MEMO_KEY) || ''; } catch (e) {}
-      ta.addEventListener('input', function () {
-        try { localStorage.setItem(MEMO_KEY, ta.value); } catch (e) {}
-      });
+    renderCalendar();
+  }
+
+  /* ---------------- 行事曆小工具 ----------------
+   * 左邊：星期、今天幾號、今天的行程；右邊：這個月的月曆（星期一開頭，週末灰色，今天紅色圓圈）
+   * events：{ title, color, date }；date 可寫 "10-1"（每年 10/1）、"2026-10-1"（那一天）、"fri"（每個星期五），不寫 = 每天 */
+  var calDay = '';
+  var WEEKDAYS = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+  var MONTHS = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+  function eventToday(ev, d) {
+    var k = String(ev.date || '').trim().toLowerCase();
+    if (!k) return true;
+    if (/^[a-z]{3}/.test(k)) return WEEKDAYS[d.getDay()].toLowerCase().indexOf(k.slice(0, 3)) === 0;
+    var n = k.split(/\D+/).map(Number);
+    if (n.length === 3) return n[0] === d.getFullYear() && n[1] === d.getMonth() + 1 && n[2] === d.getDate();
+    return n[0] === d.getMonth() + 1 && n[1] === d.getDate();
+  }
+  function renderCalendar() {
+    var box = $('#cal-widget'), c = D.home.calendar;
+    if (!box || !c) return;
+    var d = new Date(), y = d.getFullYear(), m = d.getMonth(), today = d.getDate();
+    calDay = y + '-' + m + '-' + today;
+    var wd = c.weekdays || WEEKDAYS, mn = c.months || MONTHS, heads = c.weekHeads || ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    var events = (c.events || []).filter(function (ev) { return eventToday(ev, d); });
+    var lead = (new Date(y, m, 1).getDay() + 6) % 7;   // 這個月 1 號前面空幾格（星期一開頭）
+    var days = new Date(y, m + 1, 0).getDate(), cells = [];
+    for (var i = 0; i < lead; i++) cells.push('<i></i>');
+    for (var n = 1; n <= days; n++) {
+      var col = (lead + n - 1) % 7;
+      cells.push('<i class="' + (col >= 5 ? 'we' : '') + (n === today ? ' today' : '') + '">' + n + '</i>');
     }
+    box.innerHTML =
+      '<div class="cal-l">' +
+        '<b class="cal-red">' + esc(wd[d.getDay()]) + '</b>' +
+        '<div class="cal-big">' + today + '</div>' +
+        events.map(function (ev) {
+          return '<div class="cal-ev"><i style="background:' + esc(ev.color || '#b36ad9') + '"></i>' +
+            '<span style="color:' + esc(ev.textColor || ev.color || '#7b3f9e') + '">' + esc(ev.title) + '</span></div>';
+        }).join('') +
+        (!events.length && c.noEvents ? '<div class="cal-none">' + esc(c.noEvents) + '</div>' : '') +
+      '</div>' +
+      '<div class="cal-r">' +
+        '<b class="cal-red">' + esc(mn[m]) + '</b>' +
+        '<div class="cal-grid' + (cells.length > 35 ? ' six' : '') + '">' +
+          heads.map(function (x, k) { return '<i class="cal-h' + (k >= 5 ? ' we' : '') + '">' + esc(x) + '</i>'; }).join('') +
+          cells.join('') +
+        '</div>' +
+      '</div>';
   }
-  var MEMO_KEY = 'riiiize-memo';
-  function tickClock() {
-    var hh = $('#clock-h'), mm = $('#clock-m');
-    if (!hh) return;
+  // 過了午夜自動換日期
+  setInterval(function () {
     var d = new Date();
-    hh.textContent = ('0' + d.getHours()).slice(-2);
-    mm.textContent = ('0' + d.getMinutes()).slice(-2);
-  }
-  setInterval(tickClock, 5000);
-  var ICON_MEMO = '<svg viewBox="0 0 24 24"><rect x="3" y="2.5" width="18" height="19" rx="4" fill="#fff" stroke="#d6d6d6"/><path d="M3 7.5V6.5a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v1z" fill="#f7c600"/><path d="M7 11.5h10M7 14.5h10M7 17.5h6" stroke="#c9c9c9" stroke-width="1.2" stroke-linecap="round"/></svg>';
+    if (d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() !== calDay) renderCalendar();
+  }, 30000);
 
   /* ---------------- 進度旗標 ---------------- */
   // 進度旗標（給電話來電、Kakao 即時訊息、自動回覆的 when / flag 用）
