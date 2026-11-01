@@ -26,7 +26,7 @@
 | `css/photos.css` | 相簿 |
 | `images/` | 圖片（App 圖示、預設頭貼、佔位照片） |
 
-首頁：上方是行事曆小工具（日期跟著現實走，行程寫在 `data.js` 的 `home.calendar`），下面是有名稱的 App 圖示（`home.icons`），最下面是 Dock（`home.apps`）。
+首頁：上方是行事曆小工具（日期跟著現實走，行程寫在 `data.js` 的 `home.calendar`），下面是有名稱的 App 圖示（`home.icons`，照順序上到下、左到右排）。
 
 ## 其他
 

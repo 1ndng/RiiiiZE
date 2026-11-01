@@ -77,18 +77,11 @@
     home.innerHTML =
       // 上方的行事曆小工具（中型）：日期跟著現實走，每天的行程寫在 data.js 的 home.calendar.events
       (h.calendar ? '<div class="cal-widget" id="cal-widget"></div>' : '') +
-      // 行事曆下面的 App 圖示（有名稱）：data.js 的 home.icons
+      // 行事曆下面的 App 圖示（有名稱，一排 4 個，上到下、左到右照 data.js 的 home.icons 排）
       ((h.icons || []).length ? '<div class="home-grid">' + h.icons.map(function (a) {
         return '<a class="app-icon" href="#/' + esc(a.id) + '" aria-label="' + esc(a.label) + '">' +
           '<img src="' + esc(a.icon) + '" alt=""><span>' + esc(a.label) + '</span></a>';
-      }).join('') + '</div>' : '') +
-      // 桌布下方的 Dock（和 iPhone 一樣不顯示名稱）
-      '<div class="home-dock">' +
-      h.apps.map(function (a) {
-        return '<a class="app-icon" href="#/' + esc(a.id) + '" aria-label="' + esc(a.label) + '">' +
-          '<img src="' + esc(a.icon) + '" alt=""></a>';
-      }).join('') +
-      '</div>';
+      }).join('') + '</div>' : '');
     renderCalendar();
   }
 

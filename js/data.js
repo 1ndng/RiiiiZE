@@ -38,16 +38,13 @@ window.SITE_DATA = {
         { title: "星期五的行程", date: "星期五", color: "#34c759" }
       ]
     },
-    // Dock 上的 App（最多 4 個、不顯示名稱）
-    apps: [
-      { id: "ig",    label: "Instagram", icon: "images/icon_insta.png" },
-      { id: "kakao", label: "KakaoTalk", icon: "images/icon_kakao.png" },
-      { id: "photos", label: "相簿",     icon: "images/icon_photos.png" }
-    ],
-    // 行事曆下面的 App 圖示（有名稱；一排 4 個）
+    // 行事曆下面的 App 圖示（有名稱；一排 4 個，照這裡的順序上到下、左到右排）
     icons: [
-      { id: "x",     label: "X",     icon: "images/icon_x.png" },
-      { id: "notes", label: "備忘錄", icon: "images/icon_notes.png" }
+      { id: "photos", label: "相簿",      icon: "images/icon_photos.png" },
+      { id: "notes",  label: "備忘錄",    icon: "images/icon_notes.png" },
+      { id: "kakao",  label: "KakaoTalk", icon: "images/icon_kakao.png" },
+      { id: "ig",     label: "Instagram", icon: "images/icon_insta.png" },
+      { id: "x",      label: "X",         icon: "images/icon_x.png" }
     ]
   },
 
