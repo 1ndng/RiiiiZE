@@ -94,15 +94,20 @@
 
   /* ---------------- 行事曆小工具 ----------------
    * 左邊：星期、今天幾號、今天的行程；右邊：這個月的月曆（星期一開頭，週末灰色，今天紅色圓圈）
-   * events：{ title, color, date }；date 可寫 "10-1"（每年 10/1）、"2026-10-1"（那一天）、"fri"（每個星期五），不寫 = 每天 */
-  var calDay = '';
-  var WEEKDAYS = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-  var MONTHS = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+   * events：{ title, color, date }；date 可寫 "10-1"（每年 10/1）、"2026-10-1"（那一天）、"15"（每個月 15 號）、
+   *   "fri" 或 "星期五"（每個星期五），不寫 = 每天
+   * 點月曆上的日期 → 左邊換成那天的星期、日期和行程；再點今天（或點左邊）回到今天 */
+  var calDay = '', calPick = null;   // calPick = 玩家點的那天（幾號），null = 今天
+  var WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+  var MONTHS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+  var WEEK_EN = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
   function eventToday(ev, d) {
     var k = String(ev.date || '').trim().toLowerCase();
     if (!k) return true;
-    if (/^[a-z]{3}/.test(k)) return WEEKDAYS[d.getDay()].toLowerCase().indexOf(k.slice(0, 3)) === 0;
-    var n = k.split(/\D+/).map(Number);
+    if (/^[a-z]{3}/.test(k)) return WEEK_EN[d.getDay()] === k.slice(0, 3);
+    if (/^(星期|週|周)/.test(k)) return '日一二三四五六天'.indexOf(k.slice(-1)) % 7 === d.getDay();
+    var n = k.split(/\D+/).filter(Boolean).map(Number);
+    if (n.length === 1) return n[0] === d.getDate();
     if (n.length === 3) return n[0] === d.getFullYear() && n[1] === d.getMonth() + 1 && n[2] === d.getDate();
     return n[0] === d.getMonth() + 1 && n[1] === d.getDate();
   }
@@ -111,19 +116,20 @@
     if (!box || !c) return;
     var d = new Date(), y = d.getFullYear(), m = d.getMonth(), today = d.getDate();
     calDay = y + '-' + m + '-' + today;
-    var wd = c.weekdays || WEEKDAYS, mn = c.months || MONTHS, heads = c.weekHeads || ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    var events = (c.events || []).filter(function (ev) { return eventToday(ev, d); });
+    var pick = calPick || today, pd = new Date(y, m, pick);   // 左邊顯示的那天
+    var wd = c.weekdays || WEEKDAYS, mn = c.months || MONTHS, heads = c.weekHeads || ['一', '二', '三', '四', '五', '六', '日'];
+    var events = (c.events || []).filter(function (ev) { return eventToday(ev, pd); });
     var lead = (new Date(y, m, 1).getDay() + 6) % 7;   // 這個月 1 號前面空幾格（星期一開頭）
     var days = new Date(y, m + 1, 0).getDate(), cells = [];
     for (var i = 0; i < lead; i++) cells.push('<i></i>');
     for (var n = 1; n <= days; n++) {
       var col = (lead + n - 1) % 7;
-      cells.push('<i class="' + (col >= 5 ? 'we' : '') + (n === today ? ' today' : '') + '">' + n + '</i>');
+      cells.push('<i data-calday="' + n + '" class="' + (col >= 5 ? 'we' : '') + (n === today ? ' today' : '') + (n === pick && n !== today ? ' pick' : '') + '">' + n + '</i>');
     }
     box.innerHTML =
-      '<div class="cal-l">' +
-        '<b class="cal-red">' + esc(wd[d.getDay()]) + '</b>' +
-        '<div class="cal-big">' + today + '</div>' +
+      '<div class="cal-l" data-caltoday>' +
+        '<b class="cal-red">' + esc(wd[pd.getDay()]) + '</b>' +
+        '<div class="cal-big">' + pick + '</div>' +
         events.map(function (ev) {
           return '<div class="cal-ev"><i style="background:' + esc(ev.color || '#b36ad9') + '"></i>' +
             '<span style="color:' + esc(ev.textColor || ev.color || '#7b3f9e') + '">' + esc(ev.title) + '</span></div>';
@@ -138,11 +144,17 @@
         '</div>' +
       '</div>';
   }
-  // 過了午夜自動換日期
+  // 過了午夜自動換日期（選的日期也回到今天）
   setInterval(function () {
     var d = new Date();
-    if (d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() !== calDay) renderCalendar();
+    if (d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() !== calDay) { calPick = null; renderCalendar(); }
   }, 30000);
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest('#cal-widget')) return;
+    var day = e.target.closest('[data-calday]');
+    if (day) { calPick = +day.dataset.calday === new Date().getDate() ? null : +day.dataset.calday; renderCalendar(); }
+    else if (e.target.closest('[data-caltoday]') && calPick) { calPick = null; renderCalendar(); }
+  });
 
   /* ---------------- 進度旗標 ---------------- */
   // 進度旗標（給電話來電、Kakao 即時訊息、自動回覆的 when / flag 用）

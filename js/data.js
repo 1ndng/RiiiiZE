@@ -25,14 +25,17 @@ window.SITE_DATA = {
   /* ---------- 手機首頁 ---------- */
   home: {
     wallpaper: PH,
-    // 上方的行事曆小工具：日期、月曆跟著現實的日期走
-    //   events = 左邊顯示的行程（只顯示「今天」的）：title = 文字、color = 顏色
-    //   date 可寫 "10-1"（每年 10/1）、"2026-10-1"（只有那天）、"fri"（每個星期五）；不寫 = 每天都顯示
-    //   noEvents = 今天沒有行程時顯示的字（不寫 = 空白）
-    //   想改成中文：weekdays（星期日～六）、months（1～12 月）、weekHeads（一～日）
+    // 上方的行事曆小工具：日期、月曆跟著現實的日期走；點月曆上的日期 → 左邊顯示那天的行程
+    //   events = 行程：title = 文字、color = 顏色條、textColor = 文字顏色
+    //   date 可寫 "10-1"（每年 10/1）、"2026-10-1"（只有那天）、"15"（每個月 15 號）、
+    //        "星期五" 或 "fri"（每個星期五）；不寫 = 每天都顯示
+    //   noEvents = 那天沒有行程時顯示的字（不寫 = 空白）
+    //   想改顯示的字：weekdays（星期日～六）、months（一月～十二月）、weekHeads（一～日）
     calendar: {
       events: [
-        { title: "boring-day", color: "#b36ad9", textColor: "#7b3f9e" }
+        { title: "boring-day", color: "#b36ad9", textColor: "#7b3f9e" },
+        { title: "每月 15 號的行程", date: "15", color: "#ff9500" },
+        { title: "星期五的行程", date: "星期五", color: "#34c759" }
       ]
     },
     // Dock 上的 App（最多 4 個、不顯示名稱）

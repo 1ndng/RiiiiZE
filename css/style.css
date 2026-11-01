@@ -91,9 +91,9 @@ img { display: block; max-width: 100%; }
   background: #fff; border-radius: 22px; box-shadow: 0 4px 16px rgba(0,0,0,.14);
   color: #000; font-family: -apple-system, "SF Pro Text", "Helvetica Neue", sans-serif;
 }
-.cal-l { flex: 1; min-width: 0; }
+.cal-l { flex: 1; min-width: 0; overflow: hidden; }
 .cal-r { flex: none; width: 150px; }
-.cal-red { display: block; color: #e5534b; font-size: 12.5px; font-weight: 600; letter-spacing: .2px; line-height: 1; }
+.cal-red { display: block; color: #e5534b; font-size: 13px; font-weight: 600; letter-spacing: .5px; line-height: 1; }
 .cal-big { font-size: 46px; font-weight: 300; line-height: 1; margin: 6px 0 9px; letter-spacing: -1px; }
 .cal-ev { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
 .cal-ev i { flex: none; width: 4px; height: 20px; border-radius: 2px; }
@@ -107,6 +107,12 @@ img { display: block; max-width: 100%; }
 .cal-grid .today { position: relative; color: #fff; z-index: 0; }
 .cal-grid .today::before { content: ""; position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: #e5534b; z-index: -1; }
 .cal-grid.six .today::before { width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; }
+/* 點選的日期：淺灰圓圈；日期可以點 */
+.cal-grid [data-calday] { cursor: pointer; }
+.cal-grid .pick { position: relative; z-index: 0; }
+.cal-grid .pick::before { content: ""; position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: #e5e5ea; z-index: -1; }
+.cal-grid.six .pick::before { width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; }
+.cal-l { cursor: default; }
 .app-icon { display: block; }
 .app-icon img { width: 62px; height: 62px; border-radius: 15px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
 .app-icon:active img { filter: brightness(.7); }
