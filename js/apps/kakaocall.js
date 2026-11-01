@@ -1,5 +1,5 @@
-/* KakaoTalk 通話（語音通話／FaceTalk 視訊通話）
- *   打出去：聊天室右上角的電話鍵 → 選語音或視訊 → 對方有寫 call 劇本就會接，沒有就「對方未接聽」
+/* KakaoTalk 語音通話
+ *   打出去：聊天室右上角的電話鍵 → 對方有寫 call 劇本就會接，沒有就「對方未接聽」
  *   打進來：data.js 的 kakao.incoming（達成旗標後過幾秒對方打來，任何畫面都會跳出來）
  *   通話結束後，聊天室會多一則通話紀錄
  * 劇本格式（call / incoming 共用）：nodes 裡每一段有 lines（逐句字幕）和 choices（選項）
@@ -12,9 +12,7 @@
   var ICON = {
     mic: '<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
     speaker: '<svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
-    flip: '<svg viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h2l1.5-2h4l1.5 2h2A2.5 2.5 0 0 1 20 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5z" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M9 12.5a3 3 0 0 1 5.4-1.8M15 13.5a3 3 0 0 1-5.4 1.8" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M14.6 9.2v1.7h-1.7M9.4 16.8v-1.7h1.7" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     call: '<svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" fill="currentColor"/></svg>',
-    video: '<svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="13" height="12" rx="2.5" fill="currentColor"/><path d="M16.5 10.5 21.5 7.5v9l-5-3z" fill="currentColor"/></svg>'
   };
   ICON.end = ICON.call.replace('<svg viewBox="0 0 24 24">', '<svg viewBox="0 0 24 24" style="transform:rotate(135deg)">');
 
@@ -22,9 +20,9 @@
   function K() { return S().data.kakao || {}; }
   function TX() {
     var t = K().text || {}, d = {
-      voiceTalk: 'KakaoTalk 語音通話', faceTalk: 'FaceTalk', calling: '正在撥號⋯', incoming: '來電中⋯',
-      noAnswer: '對方未接聽', ended: '通話結束', mute: '靜音', speaker: '擴音', flip: '切換鏡頭', end: '結束',
-      accept: '接聽', decline: '拒絕', callSheetVoice: '語音通話', callSheetVideo: '視訊通話（FaceTalk）', cancel: '取消'
+      voiceTalk: 'KakaoTalk 語音通話', calling: '正在撥號⋯', incoming: '來電中⋯',
+      noAnswer: '對方未接聽', ended: '通話結束', mute: '靜音', speaker: '擴音', end: '結束',
+      accept: '接聽', decline: '拒絕'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
     return d;
@@ -38,13 +36,13 @@
   function el(id) { return document.getElementById(id); }
 
   // 通話畫面：對方頭貼放大模糊當背景（和 KakaoTalk 一樣）
-  function overlay(f, type, incoming) {
+  function overlay(f, incoming) {
     var t = TX(), ov = document.createElement('div');
-    ov.className = 'kc' + (type === 'video' ? ' kc-video' : '');
+    ov.className = 'kc';
     ov.id = 'kc';
     ov.innerHTML =
       '<div class="kc-bg" style="background-image:url(&quot;' + esc(f.avatar) + '&quot;)"></div>' +
-      '<div class="kc-top">' + (type === 'video' ? ICON.video : ICON.call) + '<span>' + esc(type === 'video' ? t.faceTalk : t.voiceTalk) + '</span></div>' +
+      '<div class="kc-top">' + ICON.call + '<span>' + esc(t.voiceTalk) + '</span></div>' +
       '<div class="kc-who">' +
         '<img src="' + esc(f.avatar) + '" alt="">' +
         '<b>' + esc(f.name) + '</b>' +
@@ -55,21 +53,19 @@
       (incoming
         ? '<div class="kc-btns kc-in">' +
             '<div><button type="button" class="kc-red" data-kc-decline>' + ICON.end + '</button><span>' + esc(t.decline) + '</span></div>' +
-            '<div><button type="button" class="kc-green" data-kc-accept>' + (type === 'video' ? ICON.video : ICON.call) + '</button><span>' + esc(t.accept) + '</span></div>' +
+            '<div><button type="button" class="kc-green" data-kc-accept>' + ICON.call + '</button><span>' + esc(t.accept) + '</span></div>' +
           '</div>'
-        : controls(type));
+        : controls());
     document.getElementById('phone').appendChild(ov);
     void ov.offsetWidth; ov.classList.add('show');
     S().setDarkStatus(true);
     return ov;
   }
-  function controls(type) {
+  function controls() {
     var t = TX();
     return '<div class="kc-btns">' +
       '<div><button type="button" class="kc-tog" data-kc-tog>' + ICON.mic + '</button><span>' + esc(t.mute) + '</span></div>' +
-      (type === 'video'
-        ? '<div><button type="button" class="kc-tog" data-kc-tog>' + ICON.flip + '</button><span>' + esc(t.flip) + '</span></div>'
-        : '<div><button type="button" class="kc-tog" data-kc-tog>' + ICON.speaker + '</button><span>' + esc(t.speaker) + '</span></div>') +
+      '<div><button type="button" class="kc-tog" data-kc-tog>' + ICON.speaker + '</button><span>' + esc(t.speaker) + '</span></div>' +
       '<div><button type="button" class="kc-red" data-kc-end>' + ICON.end + '</button><span>' + esc(t.end) + '</span></div>' +
     '</div>';
   }
@@ -84,15 +80,14 @@
   }
 
   /* ---- 打出去 ---- */
-  function start(id, type) {
+  function start(id) {
     if (call) return;
     var f = KK().friend(id);
     if (!f || f.group || f.self) return;
-    type = type || 'voice';
     var sc = scriptOf(f);
-    call = { f: f, type: type, out: true, ov: overlay(f, type, false), secs: 0 };
+    call = { f: f, out: true, ov: overlay(f, false), secs: 0 };
     status(TX().calling);
-    if (sc && (!sc.type || sc.type === type)) {
+    if (sc) {
       call.timer = setTimeout(function () { connect(sc); }, sc.ringMs || 3000);
     } else {
       call.timer = setTimeout(function () {
@@ -124,8 +119,7 @@
   function ring(c) {
     var f = KK().friend(c.room);
     if (!f) return;
-    var type = c.type || 'voice';
-    call = { f: f, type: type, out: false, cfg: c, ov: overlay(f, type, true), secs: 0, incoming: true };
+    call = { f: f, out: false, cfg: c, ov: overlay(f, true), secs: 0, incoming: true };
     status(TX().incoming);
     // 一直不接 → 當作沒接
     call.timer = setTimeout(decline, c.ringFor || 30000);
@@ -134,7 +128,7 @@
     if (!call || !call.incoming) return;
     var c = call.cfg;
     S().setFlag(c.declineFlag);
-    KK().addCall(call.f.id, { from: 'them', call: call.type });   // 未接來電
+    KK().addCall(call.f.id, { from: 'them', call: 'voice' });   // 未接來電
     close();
   }
   function accept() {
@@ -143,7 +137,7 @@
     var c = call.cfg, b = c.branch || {};
     var startNode = b.replied || b.notReplied ? (KK().replied(c.room) ? b.replied : b.notReplied) : (c.start || 'start');
     call.incoming = false;
-    call.ov.querySelector('.kc-btns').outerHTML = controls(call.type);
+    call.ov.querySelector('.kc-btns').outerHTML = controls();
     connect({ start: startNode, nodes: c.nodes });
   }
 
@@ -213,7 +207,7 @@
   // 結束：在聊天室留通話紀錄（有接通 = 通話長度；打出去沒接通 = 已取消）
   function finish() {
     if (!call) return;
-    var msg = { from: call.out ? 'me' : 'them', call: call.type };
+    var msg = { from: call.out ? 'me' : 'them', call: 'voice' };
     if (call.connected) msg.duration = Math.floor(call.secs / 60) + ':' + String(call.secs % 60).padStart(2, '0');
     else if (call.out) msg.cancelled = true;
     KK().addCall(call.f.id, msg);

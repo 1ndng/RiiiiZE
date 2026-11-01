@@ -258,9 +258,11 @@ window.SITE_DATA = {
 
   /* ---------- X ----------
    * me = 玩家用的帳號（左上角頭貼、回覆、發文都是這個帳號）
-   * accounts：handle = @後面的 id、name、avatar、banner（封面）、bio、verified（藍勾勾）、
+   * accounts：handle = @後面的 id、name、avatar、banner（封面）、bio、
    *   protected（鎖帳：沒跟隨就看不到貼文，按跟隨會變「已提出要求」）、followed（玩家一開始就有跟隨）、
-   *   following / followers（顯示的數字）、joined（加入時間）
+   *   following / followers（顯示的數字）
+   *   likes / retweets：這個帳號按過喜歡／轉推的貼文 id（個人檔案的「喜歡」「轉推」分頁）；
+   *   玩家自己的帳號不用寫，會顯示玩家按過的
    * tweets：照時間軸順序（新的在上面）
    *   id（不要重複）、by（誰發的）、text（@帳號、#標籤 會變藍色）、images（最多 4 張）、
    *   time（時間軸上的「1小時」）、date（內頁的「下午 12:32 · 2026/9/1」）、retweets、likes、
@@ -271,10 +273,12 @@ window.SITE_DATA = {
   x: {
     me: "my_account",
     accounts: [
-      { handle: "my_account", name: "我的帳號", avatar: PH, bio: "簡介", following: 12, followers: 3, joined: "2025年1月" },
-      { handle: "user_a", name: "使用者 A", avatar: PH, banner: PH, verified: true, followed: true,
-        bio: "使用者 A 的簡介 #標籤", following: 120, followers: "1.2萬", joined: "2020年5月" },
-      { handle: "user_b", name: "使用者 B", avatar: PH, protected: true, followed: true, bio: "鎖帳", following: 30, followers: 41 },
+      { handle: "my_account", name: "我的帳號", avatar: PH, bio: "簡介", following: 12, followers: 3 },
+      { handle: "user_a", name: "使用者 A", avatar: PH, banner: PH, followed: true,
+        bio: "使用者 A 的簡介 #標籤", following: 120, followers: "1.2萬",
+        likes: ["t2"], retweets: [] },
+      { handle: "user_b", name: "使用者 B", avatar: PH, protected: true, followed: true, bio: "鎖帳", following: 30, followers: 41,
+        likes: ["t1", "t4"] },
       { handle: "user_c", name: "使用者 C", avatar: PH, protected: true, bio: "鎖帳（沒跟隨）", following: 8, followers: 9 }
     ],
     tweets: [
@@ -327,13 +331,13 @@ window.SITE_DATA = {
       { id: "demo1", when: "phone_unlocked", delay: 8000, room: "f1", text: "即時訊息測試" }
     ],
     // 來電：達成 when 的旗標後過 delay 毫秒，room 這個好友打來（任何畫面都會跳出來；手機解鎖後才會響）
-    //   type: "voice" / "video"；ringFor = 響多久沒接就算未接（預設 30 秒）
+    //   ringFor = 響多久沒接就算未接（預設 30 秒）
     //   branch：依玩家有沒有在那個聊天室回過話，選開頭段落 { replied: "段落", notReplied: "段落" }；不寫 = 從 start 開始
     //   拒接或沒接 → 記錄 declineFlag，聊天室多一則未接來電
-    // 例：{ id: "call1", when: "chat_f2", delay: 10000, room: "f2", type: "voice", declineFlag: "call1_declined",
+    // 例：{ id: "call1", when: "chat_f2", delay: 10000, room: "f2", declineFlag: "call1_declined",
     //       start: "s", nodes: { s: { lines: [{ who: "them", text: "…" }] } } }
     incoming: [
-      { id: "demoCall", when: "chat_f2", delay: 6000, room: "f2", type: "voice",
+      { id: "demoCall", when: "chat_f2", delay: 6000, room: "f2",
         start: "s", nodes: { s: { lines: [{ who: "them", text: "來電測試" }, { who: "them", text: "掰掰" }] } } }
     ],
     noAnswerMs: 8000,              // 打給沒有劇本的好友，響多久後顯示「對方未接聽」
@@ -344,7 +348,7 @@ window.SITE_DATA = {
         status: "",
         avatar: PH,
         unread: 1,                    // 一開始顯示的未讀數
-        // 訊息種類：文字 text、照片 image、影片 video、通話 call: "video"/"voice"（duration 沒寫 = 未接）、
+        // 訊息種類：文字 text、照片 image、影片 video、語音通話 call: "voice"（duration 沒寫 = 未接；cancelled: true = 已取消）、
         // 收回 recalled: true、過期照片 expired: true、過期影片 expired: "video"、連結 link（＋ linkTitle、linkSite）
         // read: true = 對方已讀（我傳的訊息旁不顯示 1）
         messages: [
@@ -355,7 +359,7 @@ window.SITE_DATA = {
           { from: "them", expired: true, time: "下午 8:50" },
           { from: "them", recalled: true, time: "下午 8:51" },
           { from: "me", call: "voice", duration: "3:21", time: "下午 9:00" },
-          { from: "them", call: "video", time: "下午 9:10" },
+          { from: "them", call: "voice", time: "下午 9:10" },
           { date: "2025年12月31日" },
           { from: "them", link: "https://example.com", linkTitle: "連結標題", linkSite: "example.com", time: "上午 10:00" },
           { from: "me", text: "最後一則", time: "上午 10:05" }
@@ -367,7 +371,7 @@ window.SITE_DATA = {
           { keywords: ["你好", "hi"], read: true, typing: [1500], reply: ["你好！"] }
         ],
         // 打給這個好友時的通話劇本（沒寫 = 打過去會「對方未接聽」）
-        //   type: "voice" / "video" = 只接語音／視訊（不寫 = 都接）；ringMs = 響多久才接
+        //   ringMs = 響多久才接
         //   也可以寫成清單 [ { flag: "旗標", … }, { … } ]：用第一個 flag 已達成（或沒寫 flag）的那個
         //   nodes 的格式：lines（who = "them" / "me"、text、sub）、choices（label、next、hangup、say: false）、
         //   flag（走到這段記錄旗標）、沒有 choices 的段落講完自動掛斷（waitMs、endFlag）
@@ -447,7 +451,6 @@ window.SITE_DATA = {
       expiredVideoText: "影片已過期",
       voiceCall: "語音通話",
       cancelledCall: "已取消",
-      videoCall: "視訊通話",
       missedCall: "未接",
       yesterday: "昨天",
       now: "現在",

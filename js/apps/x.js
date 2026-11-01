@@ -16,9 +16,7 @@
     heartFill: '<svg viewBox="0 0 24 24"><path d="M12 20.5s-8-4.9-8-11A4.6 4.6 0 0 1 12 6.6a4.6 4.6 0 0 1 8 2.9c0 6.1-8 11-8 11z" fill="currentColor"/></svg>',
     share: '<svg viewBox="0 0 24 24"><path d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 13v6.5A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V13" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     lock: '<svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="currentColor"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" stroke="currentColor" stroke-width="2" fill="none"/></svg>',
-    verified: '<svg viewBox="0 0 24 24"><path d="m12 1.8 2.6 1.9 3.2-.1 1 3 2.6 1.9-1 3.1 1 3.1-2.6 1.9-1 3-3.2-.1L12 22.2l-2.6-1.9-3.2.1-1-3-2.6-1.9 1-3.1-1-3.1 2.6-1.9 1-3 3.2.1z" fill="#1d9bf0"/><path d="m8 12.3 2.7 2.7L16.2 9" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     compose: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>',
-    calendar: '<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="M3.5 9.5h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>'
   };
 
   function S() { return window.SOSHO; }
@@ -28,7 +26,7 @@
     postTitle: '貼文', replyingTo: '回覆', retweets: '轉推', likes: '喜歡', retweetedBy: '{name} 已轉推',
     replyPlaceholder: '發佈你的回覆', post: '發佈', reply: '回覆', cancel: '取消', composePlaceholder: '有什麼新鮮事？',
     following: '正在跟隨', followers: '跟隨者', follow: '跟隨', followingBtn: '正在跟隨', requested: '已提出要求',
-    posts: '貼文', noPosts: '還沒有貼文', justNow: '剛剛', joined: '加入時間：',
+    posts: '貼文', retweetsTab: '轉推', likesTab: '喜歡', noPosts: '還沒有貼文', noRetweets: '還沒有轉推', noLikes: '還沒有喜歡的貼文', justNow: '剛剛',
     protectedTitle: '這些貼文受到保護', protectedDesc: '只有獲准的跟隨者才能看到 @{handle} 的貼文。'
   };
   function T() {
@@ -74,7 +72,6 @@
   }
   function nameLine(a, extra) {
     return '<b class="x-name">' + esc(a.name) + '</b>' +
-      (a.verified ? '<span class="x-badge">' + ICON.verified + '</span>' : '') +
       (a.protected ? '<span class="x-lock">' + ICON.lock + '</span>' : '') +
       '<span class="x-handle">@' + esc(a.handle) + (extra || '') + '</span>';
   }
@@ -105,9 +102,10 @@
       '<button type="button" class="x-act" data-xshare>' + ICON.share + '</button>' +
     '</div>';
   }
-  function row(t) {
+  // rtAcc = 在個人檔案的「轉推」分頁：上面顯示「這個帳號 已轉推」
+  function row(t, rtAcc) {
     var a = acc(t.by) || { handle: t.by, name: t.by };
-    var rtBy = t.retweetedBy && acc(t.retweetedBy);
+    var rtBy = rtAcc || (t.retweetedBy && acc(t.retweetedBy));
     return '<article class="x-tw" data-xopen="' + esc(t.id) + '">' +
       (rtBy ? '<div class="x-rtby">' + ICON.rt + esc(T().retweetedBy.replace('{name}', rtBy.name)) + '</div>' : '') +
       '<div class="x-tw-in">' +
@@ -133,7 +131,7 @@
         '<a class="x-me" href="#/x/u/' + encodeURIComponent(m.handle) + '"><img src="' + esc(m.avatar) + '" alt=""></a>' +
         '<span class="x-logo">' + ICON.logo + '</span><span></span>' +
       '</div>' +
-      allTweets().filter(function (t) { return !hidden(acc(t.by)); }).map(row).join('');
+      allTweets().filter(function (t) { return !hidden(acc(t.by)); }).map(function (t) { return row(t); }).join('');
   }
 
   /* ---- 貼文內頁 ---- */
@@ -197,7 +195,7 @@
     var a = acc(handle), tt = T();
     if (!a) { S().replaceHash('#/x'); return; }
     var f = follows(a), locked = hidden(a);
-    var list = allTweets().filter(function (t) { return t.by === a.handle || t.retweetedBy === a.handle; });
+    var lists = profileLists(a);
     S().$('#x-overlay').innerHTML = isMe(a) ? fab() : '';
     S().$('#x-scroll').innerHTML =
       '<div class="x-banner"' + (a.banner ? ' style="background-image:url(&quot;' + esc(a.banner) + '&quot;)"' : '') + '>' +
@@ -209,14 +207,36 @@
         '</div>' +
         '<div class="x-prof-name">' + nameLine(a) + '</div>' +
         (a.bio ? '<div class="x-prof-bio">' + rich(a.bio) + '</div>' : '') +
-        (a.joined ? '<div class="x-prof-meta">' + ICON.calendar + esc(tt.joined + a.joined) + '</div>' : '') +
         '<div class="x-prof-cnt"><span><b>' + esc(a.following != null ? a.following : 0) + '</b> ' + esc(tt.following) + '</span>' +
           '<span><b>' + esc(a.followers != null ? a.followers : 0) + '</b> ' + esc(tt.followers) + '</span></div>' +
       '</div>' +
-      '<div class="x-ptabs"><span class="on">' + esc(tt.posts) + '</span></div>' +
+      // 貼文／轉推／喜歡 三個分頁
+      '<div class="x-ptabs">' + [['posts', tt.posts], ['rts', tt.retweetsTab], ['likes', tt.likesTab]].map(function (x) {
+        return '<button type="button" data-xtab="' + x[0] + '"' + (profTab === x[0] ? ' class="on"' : '') + '>' + esc(x[1]) + '</button>';
+      }).join('') + '</div>' +
       (locked
         ? '<div class="x-protected"><b>' + esc(tt.protectedTitle) + '</b><p>' + esc(tt.protectedDesc.replace('{handle}', a.handle)) + '</p></div>'
-        : list.length ? list.map(row).join('') : '<div class="x-empty">' + esc(tt.noPosts) + '</div>');
+        : ['posts', 'rts', 'likes'].map(function (k) {
+            var l = lists[k], empty = { posts: tt.noPosts, rts: tt.noRetweets, likes: tt.noLikes }[k];
+            return '<div data-xpane="' + k + '"' + (profTab === k ? '' : ' hidden') + '>' +
+              (l.length ? l.map(function (t) { return row(t, k === 'rts' ? a : null); }).join('') : '<div class="x-empty">' + esc(empty) + '</div>') +
+            '</div>';
+          }).join(''));
+  }
+  var profTab = 'posts', profHandle = null;
+  // 個人檔案的三個分頁：
+  //   貼文 = 這個帳號發的
+  //   轉推 = 自己：玩家按過轉推的；別人：data.js 帳號的 retweets（貼文 id）＋ 貼文寫 retweetedBy 是這個帳號的
+  //   喜歡 = 自己：玩家按過喜歡的；別人：data.js 帳號的 likes（貼文 id）
+  function profileLists(a) {
+    var all = allTweets().filter(function (t) { return !hidden(acc(t.by)); });
+    function byIds(ids) { return all.filter(function (t) { return (ids || []).indexOf(t.id) >= 0; }); }
+    return {
+      posts: all.filter(function (t) { return t.by === a.handle; }),
+      rts: isMe(a) ? all.filter(function (t) { return counts(t).rted; })
+        : all.filter(function (t) { return t.retweetedBy === a.handle || (a.retweets || []).indexOf(t.id) >= 0; }),
+      likes: isMe(a) ? all.filter(function (t) { return counts(t).liked; }) : byIds(a.likes)
+    };
   }
 
   /* ---- 發文 ---- */
@@ -250,6 +270,7 @@
   var current = [];
   function route(parts) {
     current = parts;
+    if (parts[0] === 'u' && parts[1] !== profHandle) { profHandle = parts[1]; profTab = 'posts'; }
     S().$('#x-scroll').scrollTop = 0;
     if (parts[0] === 't') renderTweet(parts[1]);
     else if (parts[0] === 'u') renderProfile(parts[1]);
@@ -276,6 +297,12 @@
       st = state(); var a = acc(el.dataset.xfollow), f = follows(a);
       st.follows[a.handle] = f ? 0 : (a.protected ? 'req' : 1);   // 鎖帳只會變「已提出要求」
       save(st); renderProfile(a.handle); return;
+    }
+    if ((el = e.target.closest('[data-xtab]'))) {
+      profTab = el.dataset.xtab;
+      app.querySelectorAll('[data-xtab]').forEach(function (b) { b.classList.toggle('on', b === el); });
+      app.querySelectorAll('[data-xpane]').forEach(function (p) { p.hidden = p.dataset.xpane !== profTab; });
+      return;
     }
     if (e.target.closest('[data-xcompose]')) { openCompose(); return; }
     if (e.target.closest('[data-xclose]')) { var w = e.target.closest('.x-compose'); w.remove(); return; }

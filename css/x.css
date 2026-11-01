@@ -23,8 +23,7 @@
 .x-body { flex: 1; min-width: 0; }
 .x-head { display: flex; align-items: center; gap: 3px; white-space: nowrap; overflow: hidden; }
 .x-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; }
-.x-badge, .x-lock { display: flex; flex: none; }
-.x-badge svg { width: 17px; height: 17px; }
+.x-lock { display: flex; flex: none; }
 .x-lock svg { width: 14px; height: 14px; }
 .x-handle { color: var(--x-gray); overflow: hidden; text-overflow: ellipsis; margin-left: 2px; }
 .x-text { margin-top: 2px; line-height: 1.4; word-break: break-word; }
@@ -88,13 +87,11 @@
 .x-prof-name .x-name { font-size: 20px; font-weight: 800; }
 .x-prof-name .x-handle { grid-column: 1 / -1; margin-left: 0; }
 .x-prof-bio { margin-top: 10px; line-height: 1.4; }
-.x-prof-meta { display: flex; align-items: center; gap: 4px; color: var(--x-gray); font-size: 14px; margin-top: 8px; }
-.x-prof-meta svg { width: 16px; height: 16px; }
 .x-prof-cnt { display: flex; gap: 16px; margin-top: 10px; font-size: 14px; color: var(--x-gray); }
 .x-prof-cnt b { color: #0f1419; }
 .x-ptabs { display: flex; border-bottom: 1px solid var(--x-line); }
-.x-ptabs span { padding: 12px 18px 10px; font-weight: 700; font-size: 15px; }
-.x-ptabs .on { border-bottom: 4px solid var(--x-blue); border-radius: 2px; }
+.x-ptabs button { flex: 1; padding: 12px 0 10px; font-weight: 500; font-size: 15px; color: var(--x-gray); border-bottom: 4px solid transparent; }
+.x-ptabs .on { font-weight: 700; color: #0f1419; border-bottom-color: var(--x-blue); }
 .x-empty { text-align: center; color: var(--x-gray); padding: 50px 20px; }
 .x-protected { padding: 40px 30px; }
 .x-protected b { font-size: 24px; font-weight: 800; display: block; }

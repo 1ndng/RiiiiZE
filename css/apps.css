@@ -148,20 +148,8 @@
 /* 通話紀錄泡泡可以點（再打一次） */
 button.kk-call { font: inherit; color: inherit; text-align: left; cursor: pointer; }
 
-/* 電話鍵的選單 */
-.kk-sheet-wrap { position: absolute; inset: 0; z-index: 8; }
-.kk-sheet-bg { position: absolute; inset: 0; background: rgba(0,0,0,0); transition: background .25s; }
-.kk-sheet { position: absolute; left: 8px; right: 8px; bottom: 34px; transform: translateY(130%); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
-.kk-sheet-wrap.show .kk-sheet-bg { background: rgba(0,0,0,.35); }
-.kk-sheet-wrap.show .kk-sheet { transform: none; }
-.kk-sheet-grp { background: #fff; border-radius: 14px; overflow: hidden; }
-.kk-sheet-grp button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 56px; font-size: 17px; color: #191919; }
-.kk-sheet-grp button + button { border-top: .5px solid #e5e5e5; }
-.kk-sheet-grp svg { width: 22px; height: 22px; }
-.kk-sheet-cancel { display: block; width: 100%; height: 56px; margin-top: 8px; border-radius: 14px; background: #fff; font-size: 17px; font-weight: 600; color: #191919; }
-
 /* =========================================================
- * KakaoTalk 通話畫面（語音／FaceTalk）
+ * KakaoTalk 語音通話畫面
  * ========================================================= */
 .kc { position: absolute; inset: 0; z-index: 45; overflow: hidden; color: #fff; background: #1c1c1e; display: flex; flex-direction: column; align-items: center; padding: 58px 0 54px; opacity: 0; transform: translateY(24px); transition: opacity .25s, transform .25s; }
 .kc.show { opacity: 1; transform: none; }
