@@ -26,7 +26,7 @@
     postTitle: '貼文', replyingTo: '回覆', retweets: '轉推', likes: '喜歡', retweetedBy: '{name} 已轉推',
     replyPlaceholder: '發佈你的回覆', post: '發佈', reply: '回覆', cancel: '取消', composePlaceholder: '有什麼新鮮事？',
     following: '正在跟隨', followers: '跟隨者', follow: '跟隨', followingBtn: '正在跟隨', requested: '已提出要求',
-    posts: '貼文', retweetsTab: '轉推', likesTab: '喜歡', noPosts: '還沒有貼文', noRetweets: '還沒有轉推', noLikes: '還沒有喜歡的貼文', justNow: '剛剛',
+    posts: '貼文', repliesTab: '回覆', retweetsTab: '轉推', likesTab: '喜歡', noPosts: '還沒有貼文', noReplies: '還沒有回覆', noRetweets: '還沒有轉推', noLikes: '還沒有喜歡的貼文', justNow: '剛剛',
     protectedTitle: '這些貼文受到保護', protectedDesc: '只有獲准的跟隨者才能看到 @{handle} 的貼文。'
   };
   function T() {
@@ -196,10 +196,10 @@
     if (!a) { S().replaceHash('#/x'); return; }
     var f = follows(a), locked = hidden(a);
     var lists = profileLists(a);
-    S().$('#x-overlay').innerHTML = isMe(a) ? fab() : '';
+    // 返回鍵放在最上層：封面往上滑、停在狀態列後面時也按得到
+    S().$('#x-overlay').innerHTML = '<a href="#/x" data-xback class="x-banner-back">' + ICON.back + '</a>' + (isMe(a) ? fab() : '');
     S().$('#x-scroll').innerHTML =
-      '<div class="x-banner"' + (a.banner ? ' style="background-image:url(&quot;' + esc(a.banner) + '&quot;)"' : '') + '>' +
-        '<a href="#/x" data-xback class="x-banner-back">' + ICON.back + '</a></div>' +
+      '<div class="x-banner"' + (a.banner ? ' style="background-image:url(&quot;' + esc(a.banner) + '&quot;)"' : '') + '></div>' +
       '<div class="x-prof">' +
         '<div class="x-prof-top"><img class="x-prof-av" src="' + esc(a.avatar) + '" alt="">' +
           (isMe(a) ? '' : '<button type="button" class="x-follow' + (f ? ' on' : '') + '" data-xfollow="' + esc(a.handle) + '">' +
@@ -210,22 +210,23 @@
         '<div class="x-prof-cnt"><span><b>' + esc(a.following != null ? a.following : 0) + '</b> ' + esc(tt.following) + '</span>' +
           '<span><b>' + esc(a.followers != null ? a.followers : 0) + '</b> ' + esc(tt.followers) + '</span></div>' +
       '</div>' +
-      // 貼文／轉推／喜歡 三個分頁
-      '<div class="x-ptabs">' + [['posts', tt.posts], ['rts', tt.retweetsTab], ['likes', tt.likesTab]].map(function (x) {
+      // 貼文／回覆／轉推／喜歡 四個分頁
+      '<div class="x-ptabs">' + [['posts', tt.posts], ['replies', tt.repliesTab], ['rts', tt.retweetsTab], ['likes', tt.likesTab]].map(function (x) {
         return '<button type="button" data-xtab="' + x[0] + '"' + (profTab === x[0] ? ' class="on"' : '') + '>' + esc(x[1]) + '</button>';
       }).join('') + '</div>' +
       (locked
         ? '<div class="x-protected"><b>' + esc(tt.protectedTitle) + '</b><p>' + esc(tt.protectedDesc.replace('{handle}', a.handle)) + '</p></div>'
-        : ['posts', 'rts', 'likes'].map(function (k) {
-            var l = lists[k], empty = { posts: tt.noPosts, rts: tt.noRetweets, likes: tt.noLikes }[k];
+        : ['posts', 'replies', 'rts', 'likes'].map(function (k) {
+            var l = lists[k], empty = { posts: tt.noPosts, replies: tt.noReplies, rts: tt.noRetweets, likes: tt.noLikes }[k];
             return '<div data-xpane="' + k + '"' + (profTab === k ? '' : ' hidden') + '>' +
-              (l.length ? l.map(function (t) { return row(t, k === 'rts' ? a : null); }).join('') : '<div class="x-empty">' + esc(empty) + '</div>') +
+              (l.length ? l.map(function (t) { return k === 'replies' ? replyRow(t) : row(t, k === 'rts' ? a : null); }).join('') : '<div class="x-empty">' + esc(empty) + '</div>') +
             '</div>';
           }).join(''));
   }
   var profTab = 'posts', profHandle = null;
-  // 個人檔案的三個分頁：
+  // 個人檔案的四個分頁：
   //   貼文 = 這個帳號發的
+  //   回覆 = 這個帳號在任何貼文底下的回覆（data.js 的 replies by 是這個帳號；自己的帳號再加上玩家留的回覆）
   //   轉推 = 自己：玩家按過轉推的；別人：data.js 帳號的 retweets（貼文 id）＋ 貼文寫 retweetedBy 是這個帳號的
   //   喜歡 = 自己：玩家按過喜歡的；別人：data.js 帳號的 likes（貼文 id）
   function profileLists(a) {
@@ -233,10 +234,38 @@
     function byIds(ids) { return all.filter(function (t) { return (ids || []).indexOf(t.id) >= 0; }); }
     return {
       posts: all.filter(function (t) { return t.by === a.handle; }),
+      replies: repliesOf(a, all),
       rts: isMe(a) ? all.filter(function (t) { return counts(t).rted; })
         : all.filter(function (t) { return t.retweetedBy === a.handle || (a.retweets || []).indexOf(t.id) >= 0; }),
       likes: isMe(a) ? all.filter(function (t) { return counts(t).liked; }) : byIds(a.likes)
     };
+  }
+
+  // 某帳號的回覆：[{ t: 被回覆的貼文, r: 回覆 }]（玩家剛留的排最前面）
+  function repliesOf(a, all) {
+    var st = state(), mine = [], data = [];
+    all.forEach(function (t) {
+      if (isMe(a)) (st.replies[t.id] || []).forEach(function (r) {
+        mine.push({ t: t, r: { by: a.handle, text: r.text, time: T().justNow, replyTo: t.by } });
+      });
+      (t.replies || []).forEach(function (r) { if (r.by === a.handle) data.push({ t: t, r: r }); });
+    });
+    return mine.reverse().concat(data);
+  }
+  // 回覆分頁的一列：點了打開被回覆的那則貼文
+  function replyRow(x) {
+    var r = x.r, a = acc(r.by) || { handle: r.by, name: r.by }, to = r.replyTo || x.t.by;
+    return '<article class="x-tw" data-xopen="' + esc(x.t.id) + '">' +
+      '<div class="x-tw-in">' +
+        '<a class="x-av" href="#/x/u/' + encodeURIComponent(a.handle) + '"><img src="' + esc(a.avatar) + '" alt=""></a>' +
+        '<div class="x-body">' +
+          '<div class="x-head">' + nameLine(a, ' · ' + esc(r.time || '')) + '</div>' +
+          '<div class="x-replying">' + esc(T().replyingTo) + ' <span class="x-blue">@' + esc(to) + '</span></div>' +
+          '<div class="x-text">' + rich(r.text) + '</div>' +
+          images(r.images) +
+        '</div>' +
+      '</div>' +
+    '</article>';
   }
 
   /* ---- 發文 ---- */
@@ -266,6 +295,11 @@
       route(current);
     });
   }
+
+  // 個人檔案往下捲 → 頭貼移到封面後面
+  document.addEventListener('scroll', function (e) {
+    if (e.target.id === 'x-scroll') e.target.classList.toggle('x-scrolled', e.target.scrollTop > 40);
+  }, true);
 
   var current = [];
   function route(parts) {

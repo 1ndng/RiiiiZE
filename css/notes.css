@@ -26,6 +26,7 @@
 
 /* 單則：上方「‹ 備忘錄」 */
 .notes-app .app-scroll:has(.nt-text), .notes-app .app-scroll:has(.nt-locked) { background: #fff; }
+.nt-nav::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 44px; background: #fff; }
 .nt-nav { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px 0 6px; background: #fff; }
 .nt-nav a { display: flex; align-items: center; color: var(--nt-yellow); font-size: 17px; }
 .nt-nav a svg { width: 24px; height: 24px; }
