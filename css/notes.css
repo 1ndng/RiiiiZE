@@ -1,0 +1,51 @@
+/* =========================================================
+ * 備忘錄（iPhone 內建「備忘錄」風格）
+ * ========================================================= */
+.notes-app { --nt-yellow: #e0a800; }
+.notes-app .app-scroll { background: #f2f2f7; color: #000; padding-bottom: 90px; }
+.notes-app button { font: inherit; }
+.nt-h1 { margin: 0; padding: 8px 18px 6px; font-size: 32px; font-weight: 700; letter-spacing: -.5px; }
+.nt-sec { padding: 14px 20px 6px; font-size: 20px; font-weight: 700; }
+.nt-group { margin: 0 16px; background: #fff; border-radius: 12px; overflow: hidden; }
+.nt-row { display: block; padding: 11px 16px 11px 0; margin-left: 16px; border-bottom: .5px solid #d8d8dc; }
+.nt-row:last-child { border-bottom: 0; }
+.nt-row:active { background: #e9e9ee; }
+.nt-row b { display: flex; align-items: center; gap: 4px; font-size: 16px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nt-row span { display: block; font-size: 14px; color: #8a8a8e; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nt-row em { font-style: normal; color: #3a3a3c; margin-right: 8px; }
+.nt-lockico { display: flex; color: #8a8a8e; }
+.nt-lockico svg { width: 14px; height: 14px; }
+.nt-empty { text-align: center; color: #8a8a8e; padding: 80px 20px; }
+
+/* 下方工具列：數量＋新增 */
+.nt-bottom { position: absolute; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 8px 16px 38px; background: rgba(242,242,247,.94); border-top: .5px solid rgba(0,0,0,.12); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.nt-bottom small { font-size: 12px; color: #3a3a3c; }
+.nt-bottom .nt-ico { justify-self: end; }
+.nt-ico { display: flex; color: var(--nt-yellow); }
+.nt-ico svg { width: 25px; height: 25px; }
+
+/* 單則：上方「‹ 備忘錄」 */
+.notes-app .app-scroll:has(.nt-text), .notes-app .app-scroll:has(.nt-locked) { background: #fff; }
+.nt-nav { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 12px 0 6px; background: #fff; }
+.nt-nav a { display: flex; align-items: center; color: var(--nt-yellow); font-size: 17px; }
+.nt-nav a svg { width: 24px; height: 24px; }
+.nt-nav-r { display: flex; align-items: center; gap: 18px; }
+.nt-done { color: var(--nt-yellow); font-size: 17px; font-weight: 600; }
+.nt-date { text-align: center; color: #8a8a8e; font-size: 13px; padding: 4px 0 10px; }
+.nt-text { display: block; width: 100%; border: 0; outline: none; resize: none; background: none; padding: 0 20px; font: inherit; font-size: 17px; line-height: 1.45; color: #000; overflow: hidden; }
+
+/* 鎖住的備忘錄 */
+.nt-locked { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 90px 40px 0; color: #000; }
+.nt-locked > svg { width: 46px; height: 46px; color: #8a8a8e; }
+.nt-locked b { font-size: 20px; margin-top: 16px; }
+.nt-locked p { color: #8a8a8e; font-size: 15px; margin: 8px 0 18px; }
+.nt-locked button { color: var(--nt-yellow); font-size: 17px; font-weight: 600; }
+.nt-alert-wrap { position: absolute; inset: 0; z-index: 8; background: rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center; }
+.nt-alert { width: 272px; background: rgba(245,245,247,.97); border-radius: 14px; text-align: center; overflow: hidden; }
+.nt-alert b { display: block; padding: 18px 16px 2px; font-size: 17px; }
+.nt-alert p { margin: 2px 16px 12px; font-size: 13px; color: #3a3a3c; }
+.nt-alert input { width: calc(100% - 32px); margin: 0 16px 16px; padding: 7px 8px; border: .5px solid #c7c7cc; border-radius: 7px; font: inherit; font-size: 15px; background: #fff; outline: none; }
+.nt-alert-btns { display: grid; grid-template-columns: 1fr 1fr; border-top: .5px solid #c7c7cc; }
+.nt-alert-btns button { height: 44px; color: #007aff; font-size: 17px; }
+.nt-alert-btns button + button { border-left: .5px solid #c7c7cc; font-weight: 600; }
+.nt-alert.shake { animation: lockshake .4s; }

@@ -147,8 +147,9 @@
     // 通話紀錄：{ from, call: "video" 或 "voice", duration: "1:02:33" }（沒寫 duration = 未接）
     if (m.call) {
       var t = TX(), label = m.call === 'voice' ? (t.voiceCall || '語音通話') : (t.videoCall || '視訊通話');
-      return '<div class="kk-bubble kk-call' + (first ? ' tail' : '') + '">' + (m.call === 'voice' ? ICON.phone : ICON.video) +
-        '<span><b>' + esc(label) + '</b><small>' + esc(m.duration || t.missedCall || '未接') + '</small></span></div>';
+      // 點通話紀錄 → 再打一次（和 KakaoTalk 一樣）
+      return '<button type="button" class="kk-bubble kk-call' + (first ? ' tail' : '') + '" data-kcall="' + esc(m.call) + '">' + (m.call === 'voice' ? ICON.phone : ICON.video) +
+        '<span><b>' + esc(label) + '</b><small>' + esc(m.duration || (m.cancelled ? t.cancelledCall || '已取消' : t.missedCall || '未接')) + '</small></span></button>';
     }
     // 過期的照片：{ from, expired: true }；過期的影片：{ from, expired: "video" }（灰色方塊，點了沒反應）
     if (m.expired) return m.expired === 'video'
@@ -229,6 +230,8 @@
         '<div class="kk-chat-head">' +
           '<a href="#/kakao" data-kback>' + ICON.back + '</a>' +
           '<b>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b>' +
+          // 右上角電話鍵：和好友 1:1 通話（群組、自己的聊天室沒有）
+          (f.group || f.self || !window.SOSHO_KAKAO_CALL ? '<span></span>' : '<button type="button" class="kk-callbtn" data-kcallmenu aria-label="call">' + ICON.phone + '</button>') +
         '</div>' +
         '<div class="kk-msgs" id="kk-msgs"></div>' +
         '<form class="kk-input" id="kk-form" autocomplete="off">' +
@@ -348,17 +351,20 @@
     if (changed) S().save(KEY, st);
   }
   setInterval(liveTick, 1000);
-  // 給電話用：玩家有沒有在這個聊天室回過話
+  // 給通話（kakaocall.js）用
   window.SOSHO_KAKAO = {
+    friend: function (id) { return friend(id); },
     replied: function (id) { return (state().msgs[id] || []).some(function (m) { return m.from === 'me'; }); },
-    // 電話打完 → 聊天室多一則通話紀錄（只是紀錄，不能點）；沒接的算未讀
+    // 通話結束 → 聊天室多一則通話紀錄；對方打來沒接的算未讀
     addCall: function (id, msg) {
       var st = state();
       msg.time = nowTime();
       (st.msgs[id] = st.msgs[id] || []).push(msg);
-      if (!msg.duration) st.unread[id] = (st.unread[id] != null ? st.unread[id] : ((friend(id) || {}).unread || 0)) + 1;
+      var viewing = openChatId === id && location.hash.indexOf('#/kakao/chat/') === 0;
+      if (msg.from !== 'me' && !msg.duration && !viewing) st.unread[id] = (st.unread[id] != null ? st.unread[id] : ((friend(id) || {}).unread || 0)) + 1;
       S().save(KEY, st);
-      if (location.hash.indexOf('#/kakao') === 0) route(current);
+      if (viewing) paintChat();
+      else if (location.hash.indexOf('#/kakao') === 0) route(current);
     }
   };
 
@@ -434,6 +440,22 @@
     }
   }
 
+  // 電話鍵的選單（從下面滑出）
+  function callSheet() {
+    var t = Object.assign({ callSheetVoice: '語音通話', callSheetVideo: '視訊通話（FaceTalk）', cancel: '取消' }, TX());
+    var w = document.createElement('div');
+    w.className = 'kk-sheet-wrap';
+    w.innerHTML = '<div class="kk-sheet-bg" data-ksheet-close></div><div class="kk-sheet">' +
+      '<div class="kk-sheet-grp">' +
+        '<button type="button" data-kcall="voice">' + ICON.phone + esc(t.callSheetVoice) + '</button>' +
+        '<button type="button" data-kcall="video">' + ICON.video + esc(t.callSheetVideo) + '</button>' +
+      '</div>' +
+      '<button type="button" class="kk-sheet-cancel" data-ksheet-close>' + esc(t.cancel) + '</button></div>';
+    S().$('#kakao-overlay').appendChild(w);
+    void w.offsetWidth; w.classList.add('show');
+  }
+  function closeSheet() { var w = document.querySelector('.kk-sheet-wrap'); if (w) w.remove(); }
+
   var current = [];
   function route(parts) {
     current = parts;
@@ -446,6 +468,11 @@
   document.addEventListener('click', function (e) {
     var app = document.getElementById('app-kakao');
     if (!app || !app.contains(e.target)) return;
+    // 通話：電話鍵 → 選語音／視訊；點通話紀錄 → 直接再打
+    if (e.target.closest('[data-kcallmenu]')) { callSheet(); return; }
+    var kc = e.target.closest('[data-kcall]');
+    if (kc && openChatId) { closeSheet(); window.SOSHO_KAKAO_CALL.start(openChatId, kc.dataset.kcall); return; }
+    if (e.target.closest('[data-ksheet-close]')) { closeSheet(); return; }
     var pin = e.target.closest('[data-kpin]');
     if (pin) { pressPin(pin.dataset.kpin); return; }
     var back = e.target.closest('[data-kback]');

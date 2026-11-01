@@ -1,0 +1,117 @@
+/* =========================================================
+ * X
+ * ========================================================= */
+.x-app { --x-blue: #1d9bf0; --x-gray: #536471; --x-line: #eff3f4; }
+.x-app .app-scroll { background: #fff; color: #0f1419; font-size: 15px; font-family: -apple-system, "Helvetica Neue", "PingFang TC", sans-serif; padding-bottom: 90px; }
+.x-app .app-scroll:has(.x-replybox) { padding-bottom: 0; }
+.x-app button { font: inherit; }
+.x-blue { color: var(--x-blue); }
+
+/* 首頁上方：頭貼＋X 標誌 */
+.x-top { position: sticky; top: 0; z-index: 3; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; height: 50px; padding: 0 16px; background: rgba(255,255,255,.92); border-bottom: 1px solid var(--x-line); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.x-me img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; display: block; }
+.x-logo svg { width: 26px; height: 26px; display: block; color: #0f1419; }
+
+/* 一則貼文 */
+.x-tw { border-bottom: 1px solid var(--x-line); padding: 10px 14px 4px; cursor: pointer; }
+.x-tw:active { background: #f7f9f9; }
+.x-rtby { display: flex; align-items: center; gap: 6px; margin: 0 0 4px 30px; color: var(--x-gray); font-size: 13px; font-weight: 600; }
+.x-rtby svg { width: 15px; height: 15px; }
+.x-tw-in { display: flex; gap: 10px; }
+.x-av { flex: none; }
+.x-av img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; display: block; background: #eee; }
+.x-body { flex: 1; min-width: 0; }
+.x-head { display: flex; align-items: center; gap: 3px; white-space: nowrap; overflow: hidden; }
+.x-name { font-weight: 700; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; }
+.x-badge, .x-lock { display: flex; flex: none; }
+.x-badge svg { width: 17px; height: 17px; }
+.x-lock svg { width: 14px; height: 14px; }
+.x-handle { color: var(--x-gray); overflow: hidden; text-overflow: ellipsis; margin-left: 2px; }
+.x-text { margin-top: 2px; line-height: 1.4; word-break: break-word; }
+.x-replying { color: var(--x-gray); font-size: 14px; }
+.x-imgs { margin-top: 10px; border-radius: 16px; overflow: hidden; border: 1px solid #cfd9de; display: grid; gap: 2px; }
+.x-imgs img { width: 100%; height: 100%; object-fit: cover; display: block; cursor: zoom-in; }
+.x-imgs.n1 img { max-height: 380px; }
+.x-imgs.n2, .x-imgs.n3, .x-imgs.n4 { grid-template-columns: 1fr 1fr; aspect-ratio: 16 / 9; }
+.x-imgs.n3 img:first-child { grid-row: span 2; }
+.x-imgs.n2 img, .x-imgs.n3 img, .x-imgs.n4 img { min-height: 0; }
+.x-imgs.n4 { grid-template-rows: 1fr 1fr; }
+
+/* 回覆／轉推／喜歡／分享 */
+.x-acts { display: flex; justify-content: space-between; max-width: 340px; margin: 6px 0 0 -6px; }
+.x-act { display: flex; align-items: center; gap: 2px; color: var(--x-gray); font-size: 13px; padding: 6px; }
+.x-act svg { width: 18px; height: 18px; }
+.x-act span { min-width: 18px; }
+.x-act.on-like { color: #f91880; }
+.x-act.on-rt { color: #00ba7c; }
+.x-acts.big { max-width: none; margin: 0; padding: 4px 6px; border-top: 1px solid var(--x-line); border-bottom: 1px solid var(--x-line); }
+.x-acts.big svg { width: 22px; height: 22px; }
+
+/* 內頁上方 */
+.x-bar { position: sticky; top: 0; z-index: 3; display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; height: 50px; padding: 0 6px; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.x-bar a { display: flex; align-items: center; justify-content: center; height: 44px; color: #0f1419; }
+.x-bar svg { width: 22px; height: 22px; }
+.x-bar b { text-align: center; font-size: 17px; }
+
+/* 貼文內頁 */
+.x-detail { padding: 6px 14px 0; }
+.x-dhead { display: flex; align-items: center; gap: 10px; }
+.x-dhead img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; }
+.x-dhead .x-handle { margin-left: 0; }
+.x-dhead > div { min-width: 0; display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; column-gap: 3px; }
+.x-dhead .x-handle { grid-column: 1 / -1; }
+.x-dtext { font-size: 18px; line-height: 1.4; margin-top: 12px; word-break: break-word; }
+.x-date { color: var(--x-gray); font-size: 14px; padding: 14px 0; }
+.x-stats { display: flex; gap: 18px; font-size: 14px; color: var(--x-gray); padding: 12px 0; border-top: 1px solid var(--x-line); }
+.x-stats b { color: #0f1419; }
+.x-replies { padding: 0 14px; }
+.x-rep { position: relative; display: flex; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--x-line); }
+/* 回覆串：上下兩則用直線連起來 */
+.x-rep.thread { border-bottom: 0; padding-bottom: 6px; }
+.x-rep.thread::before { content: ""; position: absolute; left: 19px; top: 56px; bottom: -6px; width: 2px; background: #cfd9de; }
+.x-replybox { position: sticky; bottom: 0; z-index: 3; display: flex; align-items: center; gap: 10px; padding: 10px 14px 34px; margin-top: 8px; background: #fff; border-top: 1px solid var(--x-line); }
+.x-replybox img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.x-replybox input { flex: 1; min-width: 0; border: 0; outline: none; font: inherit; font-size: 16px; background: none; }
+.x-replybox button, .x-post { background: var(--x-blue); color: #fff; border-radius: 18px; padding: 6px 16px; font-weight: 700; }
+.x-replybox button:disabled, .x-post:disabled { opacity: .5; }
+
+/* 個人檔案 */
+.x-banner { position: relative; height: 120px; margin-top: -44px; background: #cfd9de center / cover no-repeat; }
+.x-banner-back { position: absolute; left: 12px; top: 50px; width: 32px; height: 32px; border-radius: 50%; background: rgba(15,20,25,.6); color: #fff; display: flex; align-items: center; justify-content: center; }
+.x-banner-back svg { width: 18px; height: 18px; }
+.x-prof { padding: 0 14px 10px; }
+.x-prof-top { display: flex; justify-content: space-between; align-items: flex-end; margin-top: -34px; }
+.x-prof-av { width: 76px; height: 76px; border-radius: 50%; border: 4px solid #fff; object-fit: cover; background: #eee; }
+.x-follow { background: #0f1419; color: #fff; border-radius: 18px; padding: 7px 18px; font-weight: 700; border: 1px solid #0f1419; }
+.x-follow.on { background: #fff; color: #0f1419; border-color: #cfd9de; }
+.x-prof-name { display: grid; grid-template-columns: auto auto auto 1fr; align-items: center; column-gap: 3px; margin-top: 8px; }
+.x-prof-name .x-name { font-size: 20px; font-weight: 800; }
+.x-prof-name .x-handle { grid-column: 1 / -1; margin-left: 0; }
+.x-prof-bio { margin-top: 10px; line-height: 1.4; }
+.x-prof-meta { display: flex; align-items: center; gap: 4px; color: var(--x-gray); font-size: 14px; margin-top: 8px; }
+.x-prof-meta svg { width: 16px; height: 16px; }
+.x-prof-cnt { display: flex; gap: 16px; margin-top: 10px; font-size: 14px; color: var(--x-gray); }
+.x-prof-cnt b { color: #0f1419; }
+.x-ptabs { display: flex; border-bottom: 1px solid var(--x-line); }
+.x-ptabs span { padding: 12px 18px 10px; font-weight: 700; font-size: 15px; }
+.x-ptabs .on { border-bottom: 4px solid var(--x-blue); border-radius: 2px; }
+.x-empty { text-align: center; color: var(--x-gray); padding: 50px 20px; }
+.x-protected { padding: 40px 30px; }
+.x-protected b { font-size: 24px; font-weight: 800; display: block; }
+.x-protected p { color: var(--x-gray); margin: 8px 0 0; }
+
+/* 右下角發文鍵 */
+.x-fab { position: absolute; right: 18px; bottom: 54px; width: 56px; height: 56px; border-radius: 50%; background: var(--x-blue); color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,.2); pointer-events: auto; }
+.x-fab svg { width: 26px; height: 26px; }
+
+/* 發文畫面 */
+.x-compose { position: absolute; inset: 0; z-index: 6; background: #fff; padding-top: 44px; transform: translateY(100%); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+.x-compose.show { transform: none; }
+.x-compose-top { display: flex; justify-content: space-between; align-items: center; padding: 6px 14px; }
+.x-compose-top > button:first-child { font-size: 16px; color: #0f1419; }
+.x-compose-body { display: flex; gap: 10px; padding: 10px 14px; }
+.x-compose-body img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.x-compose-body textarea { flex: 1; border: 0; outline: none; resize: none; font: inherit; font-size: 19px; padding-top: 6px; }
+
+.x-viewer { position: absolute; inset: 0; z-index: 7; background: #000; display: flex; align-items: center; justify-content: center; }
+.x-viewer img { max-width: 100%; max-height: 100%; object-fit: contain; }

@@ -110,6 +110,10 @@ img { display: block; max-width: 100%; }
 .app-icon { display: block; }
 .app-icon img { width: 62px; height: 62px; border-radius: 15px; object-fit: cover; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
 .app-icon:active img { filter: brightness(.7); }
+/* 行事曆下面的 App 圖示（四欄，下面有名稱） */
+.home-grid { position: absolute; left: 22px; right: 22px; top: 252px; display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 22px; justify-items: center; }
+.home-grid .app-icon { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+.home-grid .app-icon span { color: #fff; font-size: 12px; text-shadow: 0 1px 3px rgba(0,0,0,.4); white-space: nowrap; }
 
 /* ============ App 容器（開/關動畫） ============ */
 .app {

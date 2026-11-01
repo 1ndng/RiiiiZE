@@ -38,9 +38,13 @@ window.SITE_DATA = {
     // Dock 上的 App（最多 4 個、不顯示名稱）
     apps: [
       { id: "ig",    label: "Instagram", icon: "images/icon_insta.png" },
-      { id: "phone", label: "電話",      icon: "images/icon_phone.png" },
       { id: "kakao", label: "KakaoTalk", icon: "images/icon_kakao.png" },
       { id: "photos", label: "相簿",     icon: "images/icon_photos.png" }
+    ],
+    // 行事曆下面的 App 圖示（有名稱；一排 4 個）
+    icons: [
+      { id: "x",     label: "X",     icon: "images/icon_x.png" },
+      { id: "notes", label: "備忘錄", icon: "images/icon_notes.png" }
     ]
   },
 
@@ -225,55 +229,6 @@ window.SITE_DATA = {
     searchOnlyAccounts: []
   },
 
-  /* ---------- 電話（數字鍵盤） ---------- */
-  phone: {
-    // 可以接通的號碼；不在清單裡的號碼一樣能撥，但只會「無人接聽」
-    // script.nodes 裡每一段有 lines（逐句字幕）和 choices（選項）
-    //   lines：who = "them" 對方 / "me" 玩家；text = 字幕；sub = 字幕下的小字（例如翻譯）
-    //   choices：label = 按鈕文字；next = 接到哪一段；hangup: true = 直接掛斷；say: false = 不顯示成玩家說的話
-    //   flag = 走到這段時記錄的旗標；沒有 choices 的段落講完就自動掛斷（waitMs = 等多久、endFlag = 掛斷時記錄的旗標）
-    dialable: [
-      {
-        number: "0000",
-        name: "測試",               // 沒寫 name → 只顯示號碼
-        script: {
-          start: "greet",
-          nodes: {
-            greet: {
-              lines: [
-                { who: "them", text: "對方的第一句", sub: "字幕下的小字" }
-              ],
-              choices: [
-                { label: "選項 A", next: "a" },
-                { label: "選項 B（不說出口）", say: false, next: "b" },
-                { label: "（直接掛斷）", hangup: true }
-              ]
-            },
-            a: { lines: [{ who: "them", text: "選了 A" }, { who: "me", text: "玩家的話" }] },
-            b: { lines: [{ who: "them", text: "選了 B" }] }
-          }
-        }
-      }
-    ],
-    // 來電：達成 when 的旗標後過 delay 毫秒打來（手機解鎖後才會響）
-    //   branch：依玩家有沒有在 room 這個 Kakao 聊天室回過話，選開頭段落（replied / notReplied）
-    //   拒接或沒接 → 記錄 declineFlag，並在 room 的聊天室留下未接來電
-    // 例：
-    // { id: "call1", when: "login_account_b", delay: 10000,
-    //   name: "好友 A", avatar: PH, label: "KakaoTalk 語音通話",
-    //   declineFlag: "call1_declined",
-    //   branch: { room: "f1", replied: "r1", notReplied: "n1" },
-    //   nodes: { r1: { lines: [{ who: "them", text: "…" }] }, n1: { lines: [{ who: "them", text: "…" }] } } }
-    incoming: [],
-    acceptLabel: "接聽",
-    declineLabel: "拒絕",
-    endedText: "通話結束",
-    callingText: "正在撥號⋯",
-    noAnswerText: "無人接聽",
-    callButtons: ["靜音", "鍵盤", "擴音", "加入通話", "FaceTime", "聯絡人"],
-    endLabel: "結束"
-  },
-
   /* ---------- 相簿（iPhone「照片」風格） ----------
    * photos：所有照片，照時間「舊 → 新」排（圖庫最下面是最新的）；每張的編號 = 在這個清單的位置（從 0 開始）
    *   image = 圖片或影片路徑（.mp4 = 影片，再寫 duration: "0:15" 顯示長度）
@@ -301,6 +256,56 @@ window.SITE_DATA = {
     // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/photos.js 的 T_DEFAULT）
   },
 
+  /* ---------- X ----------
+   * me = 玩家用的帳號（左上角頭貼、回覆、發文都是這個帳號）
+   * accounts：handle = @後面的 id、name、avatar、banner（封面）、bio、verified（藍勾勾）、
+   *   protected（鎖帳：沒跟隨就看不到貼文，按跟隨會變「已提出要求」）、followed（玩家一開始就有跟隨）、
+   *   following / followers（顯示的數字）、joined（加入時間）
+   * tweets：照時間軸順序（新的在上面）
+   *   id（不要重複）、by（誰發的）、text（@帳號、#標籤 會變藍色）、images（最多 4 張）、
+   *   time（時間軸上的「1小時」）、date（內頁的「下午 12:32 · 2026/9/1」）、retweets、likes、
+   *   liked / retweeted: true = 玩家一開始就按過、retweetedBy = 顯示「xxx 已轉推」
+   *   replies：[{ by, text, time, replyTo, images }]；replyTo = 回覆誰（不寫 = 回覆發文的人），
+   *     下一則回覆的是上一則的人時，兩則會用直線連起來（回覆串）
+   */
+  x: {
+    me: "my_account",
+    accounts: [
+      { handle: "my_account", name: "我的帳號", avatar: PH, bio: "簡介", following: 12, followers: 3, joined: "2025年1月" },
+      { handle: "user_a", name: "使用者 A", avatar: PH, banner: PH, verified: true, followed: true,
+        bio: "使用者 A 的簡介 #標籤", following: 120, followers: "1.2萬", joined: "2020年5月" },
+      { handle: "user_b", name: "使用者 B", avatar: PH, protected: true, followed: true, bio: "鎖帳", following: 30, followers: 41 },
+      { handle: "user_c", name: "使用者 C", avatar: PH, protected: true, bio: "鎖帳（沒跟隨）", following: 8, followers: 9 }
+    ],
+    tweets: [
+      { id: "t1", by: "user_a", text: "貼文內容\n第二行 @user_b #標籤", images: [PH], time: "1小時", date: "下午 12:32 · 2026/9/1",
+        retweets: 18, likes: 457,
+        replies: [
+          { by: "user_b", text: "回覆 1", time: "6秒" },
+          { by: "user_a", text: "回覆 2（回覆串）", time: "2秒", replyTo: "user_b" }
+        ] },
+      { id: "t2", by: "user_b", text: "鎖帳的貼文", time: "3小時", date: "上午 9:15 · 2026/9/1", likes: 4, liked: true },
+      { id: "t3", by: "user_c", text: "看不到的貼文", time: "5小時", date: "上午 7:00 · 2026/9/1" },
+      { id: "t4", by: "user_a", text: "多張照片", images: [PH, PH], time: "1天", date: "下午 8:00 · 2026/8/31", retweets: 2, likes: 30, retweetedBy: "user_b" }
+    ]
+    // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/x.js 的 T_DEFAULT）
+  },
+
+  /* ---------- 備忘錄 ----------
+   * notes：第一行 = 標題；date = "2026年1月1日"、time = "下午 3:20"
+   *   pinned: true = 放在「已釘選」；locked: true = 要輸入 passcode 才看得到（解開時記錄旗標 note_備忘錄id）
+   *   lockedTitle：鎖住時列表上顯示的標題（不寫 = 照樣顯示第一行）
+   * 玩家可以直接改內容、新增、刪除（存在瀏覽器）
+   */
+  notes: {
+    passcode: "0000",
+    notes: [
+      { id: "n1", text: "釘選的備忘錄\n第二行會顯示在列表上", date: "2026年1月1日", time: "上午 10:00", pinned: true },
+      { id: "n2", text: "鎖住的備忘錄\n要輸入密碼才看得到", date: "2025年12月31日", time: "下午 11:00", locked: true },
+      { id: "n3", text: "一般備忘錄\n內容", date: "2025年12月1日", time: "下午 3:20" }
+    ]
+  },
+
   /* ---------- KakaoTalk ---------- */
   kakao: {
     passcode: "0000",              // 進入 KakaoTalk 的密碼；留空 "" = 不用密碼
@@ -321,6 +326,17 @@ window.SITE_DATA = {
     live: [
       { id: "demo1", when: "phone_unlocked", delay: 8000, room: "f1", text: "即時訊息測試" }
     ],
+    // 來電：達成 when 的旗標後過 delay 毫秒，room 這個好友打來（任何畫面都會跳出來；手機解鎖後才會響）
+    //   type: "voice" / "video"；ringFor = 響多久沒接就算未接（預設 30 秒）
+    //   branch：依玩家有沒有在那個聊天室回過話，選開頭段落 { replied: "段落", notReplied: "段落" }；不寫 = 從 start 開始
+    //   拒接或沒接 → 記錄 declineFlag，聊天室多一則未接來電
+    // 例：{ id: "call1", when: "chat_f2", delay: 10000, room: "f2", type: "voice", declineFlag: "call1_declined",
+    //       start: "s", nodes: { s: { lines: [{ who: "them", text: "…" }] } } }
+    incoming: [
+      { id: "demoCall", when: "chat_f2", delay: 6000, room: "f2", type: "voice",
+        start: "s", nodes: { s: { lines: [{ who: "them", text: "來電測試" }, { who: "them", text: "掰掰" }] } } }
+    ],
+    noAnswerMs: 8000,              // 打給沒有劇本的好友，響多久後顯示「對方未接聽」
     friends: [
       {
         id: "f1",                     // 不要重複（用於網址）
@@ -350,6 +366,27 @@ window.SITE_DATA = {
         replies: [
           { keywords: ["你好", "hi"], read: true, typing: [1500], reply: ["你好！"] }
         ],
+        // 打給這個好友時的通話劇本（沒寫 = 打過去會「對方未接聽」）
+        //   type: "voice" / "video" = 只接語音／視訊（不寫 = 都接）；ringMs = 響多久才接
+        //   也可以寫成清單 [ { flag: "旗標", … }, { … } ]：用第一個 flag 已達成（或沒寫 flag）的那個
+        //   nodes 的格式：lines（who = "them" / "me"、text、sub）、choices（label、next、hangup、say: false）、
+        //   flag（走到這段記錄旗標）、沒有 choices 的段落講完自動掛斷（waitMs、endFlag）
+        call: {
+          ringMs: 3000,
+          start: "greet",
+          nodes: {
+            greet: {
+              lines: [{ who: "them", text: "喂？", sub: "字幕下的小字" }],
+              choices: [
+                { label: "選項 A", next: "a" },
+                { label: "選項 B（不說出口）", say: false, next: "b" },
+                { label: "（直接掛斷）", hangup: true }
+              ]
+            },
+            a: { lines: [{ who: "them", text: "選了 A" }, { who: "me", text: "玩家的話" }] },
+            b: { lines: [{ who: "them", text: "選了 B" }], endFlag: "call_f1_done" }
+          }
+        },
         defaultReply: []              // 沒有符合任何關鍵字時的回覆；空的 = 不回
       },
       {
@@ -409,6 +446,7 @@ window.SITE_DATA = {
       expiredText: "照片已過期",
       expiredVideoText: "影片已過期",
       voiceCall: "語音通話",
+      cancelledCall: "已取消",
       videoCall: "視訊通話",
       missedCall: "未接",
       yesterday: "昨天",
