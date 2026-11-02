@@ -1534,6 +1534,7 @@
       '<div class="lock-shade"></div>' +
       '<div class="lock-cover" id="lock-cover">' +
         '<div class="lc-hint"><svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2.5" fill="currentColor"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="2" fill="none"/></svg>' + esc(L.swipeText || '滑動以解鎖') + '</div>' +
+        '<div class="lc-date" id="lc-date"></div>' +
         '<div class="lc-time" id="lc-time"></div>' +
         '<div class="lc-notes" id="lc-notes"></div>' +
       '</div>' +
@@ -1550,10 +1551,11 @@
     var target = null;   // 點了哪則通知：解鎖後直接打開那個聊天室
     var cover = $('#lock-cover');
 
-    // 時間（跟著現實走）
+    // 日期、時間（跟著現實走）：「11月2日 星期一」
     function paintTime() {
-      var el = $('#lc-time'), d = new Date();
+      var el = $('#lc-time'), de = $('#lc-date'), d = new Date();
       if (el) el.textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+      if (de) de.textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + WEEKDAYS[d.getDay()];
     }
     // 通知：KakaoTalk 有未讀訊息的聊天室，一個聊天室一張；同一個聊天室有好幾則時後面疊著卡片
     function kakaoIcon() {
@@ -1599,9 +1601,15 @@
         cover.style.transform = '';
         // 點一下通知（沒有滑動）→ 記住要打開的聊天室，再出現輸入密碼（和 iPhone 一樣要先解鎖）
         var note = !moved && e && e.target && e.target.closest && e.target.closest('[data-lock-open]');
-        if (note) { target = note.dataset.lockOpen; showPin(); }
+        if (note) { target = note.dataset.lockOpen; showPin(); return; }
+        // 在空白處點兩下 → 也會出現輸入密碼
+        if (!moved && e) {
+          var now = Date.now();
+          if (now - lastTap < 350) { lastTap = 0; showPin(); } else lastTap = now;
+        }
       }
     }
+    var lastTap = 0;
     cover.addEventListener('pointerup', endDrag);
     cover.addEventListener('pointercancel', function () { endDrag(null); });
     $('#phone').classList.add('locked');

@@ -410,7 +410,8 @@ div.ig-frow-main { cursor: default; }
 .lock-cover { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; align-items: center; padding: 50px 14px 60px; touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; transition: transform .35s cubic-bezier(.2,.8,.2,1), opacity .3s; }
 .lc-hint { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; text-shadow: 0 1px 4px rgba(0,0,0,.18); }
 .lc-hint svg { width: 15px; height: 15px; }
-.lc-time { margin-top: 26px; font-family: "New York", "Iowan Old Style", Georgia, "Times New Roman", serif; font-size: 96px; font-weight: 700; line-height: 1; letter-spacing: -2px; font-variant-numeric: lining-nums; text-shadow: 0 2px 12px rgba(0,0,0,.12); }
+.lc-date { margin-top: 22px; font-size: 21px; font-weight: 600; letter-spacing: .5px; text-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.lc-time { margin-top: 2px; font-family: "New York", "Iowan Old Style", Georgia, "Times New Roman", serif; font-size: 96px; font-weight: 700; line-height: 1; letter-spacing: -2px; font-variant-numeric: lining-nums; text-shadow: 0 2px 12px rgba(0,0,0,.12); }
 .lc-notes { width: 100%; margin-top: 34px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; min-height: 0; flex: 1; padding-bottom: 12px; scrollbar-width: none; }
 .lc-notes::-webkit-scrollbar { display: none; }
 .lc-note { position: relative; flex: none; display: flex; align-items: center; gap: 12px; width: 100%; padding: 13px 14px; border-radius: 22px; text-align: left; color: #fff; font: inherit; background: rgba(70,50,110,.42); backdrop-filter: blur(20px) saturate(1.3); -webkit-backdrop-filter: blur(20px) saturate(1.3); }
@@ -448,7 +449,7 @@ div.ig-frow-main { cursor: default; }
 .phone.locked .sb-time { visibility: hidden; }   /* 鎖定畫面中間已經有大時鐘 */
 .phone.locked .home-gesture { z-index: 90; }
 .phone.locked .home-gesture { pointer-events: none; }
-.phone.locked .home-indicator { background: #fff; }
+.phone.locked .home-indicator { background: #fff; visibility: visible; }   /* 鎖定畫面一定要有上滑橫條（主畫面那條規則不適用） */
 @media (max-height: 700px) { .lock-inner { padding-bottom: 30px; } .lock-dots { margin-bottom: 34px; } .lock-keys { grid-template-columns: repeat(3, 70px); gap: 14px 24px; } .lock-key { width: 70px; height: 70px; } }
 
 /* 非公開帳號 */
