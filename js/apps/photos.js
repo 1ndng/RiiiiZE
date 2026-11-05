@@ -65,7 +65,9 @@
   function isDeleted(i) { var st = state(); return !!st.deleted[i] && !st.gone[i]; }
   function isGone(i) { return !!state().gone[i]; }
   // 一般看得到的照片：沒刪除、沒隱藏
-  function visible(i) { return !isDeleted(i) && !isGone(i) && !list()[i].hidden; }
+  // 照片什麼時候出現：from: "09-15"（那天起）或 if（條件）；js/game.js 的 GAME.unlocked
+  function unlocked(i) { return !window.GAME || window.GAME.unlocked(list()[i]); }
+  function visible(i) { return unlocked(i) && !isDeleted(i) && !isGone(i) && !list()[i].hidden; }
 
   // 日期「2026年1月1日」→ [年, 月, 日]
   function ymd(p) {
@@ -79,8 +81,8 @@
     if (id === 'all') return { title: t.recents, items: all.filter(visible) };
     if (id === 'fav') return { title: t.favorites, items: all.filter(function (i) { return visible(i) && isFav(i); }) };
     if (id === 'videos') return { title: t.videos, items: all.filter(function (i) { return visible(i) && isVideo(list()[i]); }) };
-    if (id === 'hidden') return { title: t.hidden, items: all.filter(function (i) { return list()[i].hidden && !isDeleted(i) && !isGone(i); }) };
-    if (id === 'deleted') return { title: t.deleted, items: all.filter(isDeleted) };
+    if (id === 'hidden') return { title: t.hidden, items: all.filter(function (i) { return unlocked(i) && list()[i].hidden && !isDeleted(i) && !isGone(i); }) };
+    if (id === 'deleted') return { title: t.deleted, items: all.filter(function (i) { return unlocked(i) && isDeleted(i); }) };
     var a = (P().albums || []).filter(function (x) { return String(x.id) === String(id); })[0];
     if (!a) return null;
     return { title: a.name, items: (a.photos || []).filter(function (i) { return list()[i] && visible(i); }) };

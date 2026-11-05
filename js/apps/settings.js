@@ -37,6 +37,7 @@
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
+    loopSave: '循環前的存檔', loopSaveName: '第 {n} 輪結束時', loopNote: 'DREAM END 之後回到 9/1 之前自動存的檔，只能讀取。讀取後在 8/31 晚上睡覺，就會再次回到 9/1。', loopNo: '第 {n} 輪',
     wallpaper: '背景圖片', wpLock: '鎖定畫面', wpHome: '主畫面', wpChange: '更換', wpDefault: '恢復預設',
     wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。存在這個瀏覽器裡，「重新開始」也不會清掉。', wpTooBig: '照片太大了，換一張試試看。',
     resetStats: '數值全部歸零', resetTitle: '要把數值全部歸零嗎？', resetText: '好感度、關係、覺醒度都會變回 0（旗標和天數不變）。', reset: '歸零'
@@ -96,6 +97,10 @@
       '<div class="st-sec">' + esc(t.autoSave) + '</div>' +
       '<div class="st-group"><button type="button" class="st-slot" data-slot="auto"' + (s.auto ? '' : ' disabled') + '><b>' + esc(t.autoSave) + '</b>' + slotText(s.auto) + '</button></div>' +
       '<div class="st-note">' + esc(t.autoNote) + '</div>' +
+      // 時間循環：DREAM END 之後回到 9/1 前自動存的檔（最近一次）
+      (s.loop ? '<div class="st-sec">' + esc(t.loopSave) + '</div>' +
+        '<div class="st-group"><button type="button" class="st-slot" data-slot="loop"><b>' + esc(t.loopSaveName.replace('{n}', s.loop.meta.loop || 1)) + '</b>' + slotText(s.loop) + '</button></div>' +
+        '<div class="st-note">' + esc(t.loopNote) + '</div>' : '') +
       '<div class="st-sec">' + esc(t.manual) + '</div>' +
       '<div class="st-group">' + rows + '</div>';
   }
@@ -129,12 +134,12 @@
 
   var pickedSlot = null;
   function openSlot(id) {
-    var t = T(), s = G().saves(), has = id === 'auto' ? !!s.auto : !!s.slots[id];
+    var t = T(), s = G().saves(), fixed = id === 'auto' || id === 'loop', has = id === 'auto' ? !!s.auto : id === 'loop' ? !!s.loop : !!s.slots[id];
     pickedSlot = id;
     var acts = [];
-    if (id !== 'auto') acts.push({ act: 'save', label: t.saveHere });
+    if (!fixed) acts.push({ act: 'save', label: t.saveHere });
     if (has) acts.push({ act: 'load', label: t.loadThis });
-    if (has && id !== 'auto') acts.push({ act: 'delete', label: t.deleteThis, red: true });
+    if (has && !fixed) acts.push({ act: 'delete', label: t.deleteThis, red: true });
     sheet(acts);
   }
   function doAct(act) {
@@ -166,7 +171,7 @@
       '<h1 class="st-h1 st-h1-s">' + esc(t.statsTitle) + '</h1>' +
       '<div class="st-note st-note-top">' + esc(t.statsNote) + '</div>' +
       '<div class="st-sec">' + esc(t.day) + '</div>' +
-      '<div class="st-group">' + stepper('day', '', esc(g.dateText(null, true))) + '</div>' +
+      '<div class="st-group">' + stepper('day', '', esc(g.dateText(null, true) + '（' + t.loopNo.replace('{n}', g.loop ? g.loop() : 1) + '）')) + '</div>' +
       '<div class="st-sec">' + esc(t.aff) + '</div>' +
       '<div class="st-group">' + cast.map(function (c) { return stepper('aff', c.id, '<img class="st-av" src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt="">' + esc(c.name)); }).join('') + '</div>' +
       '<div class="st-sec">' + esc(t.awake) + '</div>' +
@@ -302,7 +307,7 @@
       });
       return;
     }
-    if ((el = e.target.closest('[data-slot]'))) { openSlot(el.dataset.slot === 'auto' ? 'auto' : +el.dataset.slot); return; }
+    if ((el = e.target.closest('[data-slot]'))) { openSlot(el.dataset.slot === 'auto' || el.dataset.slot === 'loop' ? el.dataset.slot : +el.dataset.slot); return; }
     if ((el = e.target.closest('[data-sheet-act]'))) { e.target.closest('.st-sheet-wrap').remove(); doAct(el.dataset.sheetAct); return; }
     if (e.target.closest('[data-sheet-close]')) { e.target.closest('.st-sheet-wrap').remove(); return; }
   });

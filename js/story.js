@@ -9,6 +9,7 @@
  *   { who: "m1", text: "台詞" }               who = 成員 id（顯示 cast 的名字）、"me"（玩家的名字）或直接寫名字
  *   { bg: "images/xxx.jpg" }                 換背景；"phone" = 直接看到手機畫面；"phone-dim" = 看得到手機但變暗
  *   { text: "咚！", shake: true }            這句出現時畫面晃動
+ *   { text: "頭好痛……", headache: true }     這句出現時畫面模糊（頭痛：想起原本的世界時）
  *   { wait: 1000 }                           停頓（毫秒）：對話框先收起來，時間到自動接下一句
  *   { choices: [ { text, effects, flag, goto, if }, … ] }   選項；goto = 跳到哪個 label（不寫 = 接著往下）
  *   { label: "名稱" }                         標記，給 goto 用
@@ -144,6 +145,7 @@
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
       if (s.choices) { showChoices(s.choices); return; }
       if (s.shake) shake();
+      if (s.headache) headache();
       if (s.text != null) { say(s.who, s.text, resumed); return; }
     }
     finish();
@@ -153,6 +155,13 @@
     var el = cur.el;
     el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
     setTimeout(function () { el.classList.remove('shake'); }, 600);
+  }
+  // 頭痛：背景（或後面的手機畫面）一陣一陣地模糊，再慢慢恢復
+  function headache() {
+    var el = cur.el, b = el.querySelector('.vn-ache');
+    if (!b) { b = document.createElement('div'); b.className = 'vn-ache'; el.insertBefore(b, el.querySelector('.vn-choices')); }
+    b.classList.remove('on'); void b.offsetWidth; b.classList.add('on');
+    setTimeout(function () { b.classList.remove('on'); }, 2600);
   }
   // 停頓：對話框收起來，這段時間點畫面沒反應
   function pause(ms) {

@@ -72,7 +72,11 @@
     var mine = state().posts.slice().reverse().map(function (p) {
       return { id: p.id, by: me().handle, text: p.text, time: T().justNow, date: p.date, mine: true };
     });
-    return mine.concat(X().tweets || []);
+    // 貼文什麼時候出現：from: "09-15"（那天起）或 if（條件）；回覆也可以寫
+    var un = function (t) { return !window.GAME || window.GAME.unlocked(t); };
+    return mine.concat((X().tweets || []).filter(un).map(function (t) {
+      return t.replies && t.replies.some(function (r) { return !un(r); }) ? Object.assign({}, t, { replies: t.replies.filter(un) }) : t;
+    }));
   }
   function tweet(id) { return allTweets().filter(function (t) { return String(t.id) === String(id); })[0] || null; }
 

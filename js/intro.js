@@ -108,6 +108,8 @@
   function setup(done) {
     function photoThenStart() { askPhoto(function () { askStart(photoThenStart, done); }); }
     var pl = player();
+    // 時間循環的第二輪以後：名字、生日、頭貼都還在 → 直接響鬧鐘
+    if (pl.name && pl.birthday && window.GAME && window.GAME.loop() > 1) { done(); return; }
     if (pl.name && pl.birthday) photoThenStart();
     else window.STORY.askName(photoThenStart);
   }

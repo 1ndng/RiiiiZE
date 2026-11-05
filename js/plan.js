@@ -447,6 +447,8 @@
   }
   function go() {
     if (going) return;
+    // 8/31 晚上睡覺 = 一年結束 → 時間循環，回到 9/1（例如讀了「循環前的存檔」之後）
+    if (G().day >= G().totalDays() && !G().ended) { going = true; G().newLoop(); return; }
     going = true;
     var f = fadeEl();
     setTimeout(function () {

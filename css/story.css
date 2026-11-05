@@ -102,3 +102,13 @@
   60% { transform: translate(5px, -2px); }
   75% { transform: translate(-3px, 1px); }
 }
+/* { headache: true }：頭痛，後面的畫面一陣一陣模糊（對話框不受影響） */
+.vn-ache { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.vn-ache.on { animation: vnAche 2.6s ease-in-out; }
+@keyframes vnAche {
+  0%   { backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); background: rgba(255,255,255,0); }
+  15%  { backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); background: rgba(255,255,255,.12); }
+  35%  { backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); background: rgba(255,255,255,0); }
+  55%  { backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px); background: rgba(255,255,255,.15); }
+  100% { backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); background: rgba(255,255,255,0); }
+}

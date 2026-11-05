@@ -66,6 +66,8 @@
     el.addEventListener('click', function () {
       if (el.dataset.closing) return;
       el.dataset.closing = 1;
+      // after: "loop" = 時間循環：存一個檔，回到 9/1 重新過這一年（js/game.js 的 newLoop）
+      if (en.after === 'loop') { running = false; window.GAME.newLoop(); return; }
       window.GAME.setEnded(en.after === 'explore' ? 'explore' : 'continue');
       el.classList.remove('show');
       setTimeout(function () { el.remove(); }, 800);

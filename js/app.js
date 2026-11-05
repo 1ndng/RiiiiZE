@@ -367,7 +367,10 @@
     return allProfiles().filter(function (a) { return a.username === name; })[0] || null;
   }
   // 摯友限時動態：只有自己或在 closeFriendsList 裡的帳號看得到
+  // 貼文、限動、精選什麼時候出現：寫 from: "09-15"（那天起）或 if（條件）；js/game.js 的 GAME.unlocked
+  function unlocked(item) { return !window.GAME || window.GAME.unlocked(item); }
   function canSee(owner, item) {
+    if (!unlocked(item)) return false;
     if (!item || !item.closeFriends) return true;
     var me = currentAccount();
     return me === owner || (owner.closeFriendsList || []).indexOf(me.username) >= 0;
@@ -424,7 +427,7 @@
     var bio = g.bio || [], posts = g.posts || [];
     // 精選裡的內容全部看不到（都是摯友限時、又不是摯友）就不顯示這個精選
     var highlights = (g.highlights || []).map(function (h, i) { return { h: h, i: i }; })
-      .filter(function (x) { return visibleHighlight(g, x.h).length; });
+      .filter(function (x) { return unlocked(x.h) && visibleHighlight(g, x.h).length; });
     var na = ' data-na';   // 標記：點擊後跳出「尚未更新」
 
     $('#ig-scroll').innerHTML =
@@ -572,7 +575,7 @@
   // 玩家自己典藏的貼文（從個人頁拿掉、移到 設定 → 典藏）
   function isArchived(owner, idx) { return !!(store.archived || {})[postKey(owner, idx)]; }
   function shownPosts(g) {
-    return (g.posts || []).map(function (_, i) { return i; }).filter(function (i) { return !isArchived(g, i); });
+    return (g.posts || []).map(function (_, i) { return i; }).filter(function (i) { return !isArchived(g, i) && unlocked(g.posts[i]); });
   }
   function actKey(k) { return currentAccount().username + '|' + k; }
   function postHref(owner, idx) {
@@ -623,7 +626,7 @@
     var out = [];
     allProfiles().forEach(function (o) {
       (o.posts || []).forEach(function (p, i) {
-        if (postObj(p).tagged.indexOf(g.username) >= 0) out.push({ owner: o, idx: i });
+        if (unlocked(p) && postObj(p).tagged.indexOf(g.username) >= 0) out.push({ owner: o, idx: i });
       });
     });
     return out;

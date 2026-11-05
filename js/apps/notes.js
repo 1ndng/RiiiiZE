@@ -45,7 +45,8 @@
   // 全部備忘錄（玩家改過的內容、新增的、刪除的都算進去），新的在前
   function all() {
     var st = state();
-    var base = (N().notes || []).map(function (n, i) {
+    // 備忘錄什麼時候出現：from: "09-15"（那天起）或 if（條件）
+    var base = (N().notes || []).filter(function (n) { return !window.GAME || window.GAME.unlocked(n); }).map(function (n, i) {
       var e = st.edits[n.id];
       return { id: String(n.id), text: e ? e.text : n.text || '', date: e ? e.date : n.date, time: e ? e.time : n.time, pinned: !!n.pinned, locked: !!n.locked, order: e ? e.ts : -i };
     });

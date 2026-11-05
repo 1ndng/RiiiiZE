@@ -96,7 +96,7 @@ window.SITE_DATA = {
       { who: "me", text: "啊！" },
       { text: "回憶如海水般灌進腦袋，你終於想起了自己的身份。" },
       { text: "你，{name}，是拉完子學院的學生，今年就讀的第二年，而今天則是開學日。" },
-      { text: "你感到頭一陣劇痛，好像想起了什麼，同時有什麼被遺忘了。" },
+      { text: "你感到頭一陣劇痛，好像想起了什麼，同時有什麼被遺忘了。", headache: true },
       { who: "me", text: "呃......" },
       { who: "me", text: "不管了......趕緊出門吧。" },
       { who: "me", text: "我可不想開學第一天就遲到啊啊啊" }
@@ -116,7 +116,7 @@ window.SITE_DATA = {
       { who: "me", text: "好個屁^^！我屁股要爛了55555" },
       { text: "怨天尤人了好一陣子之後，你才緩緩抬頭——" },
       { who: "me", text: "喔天吶是朴、朴元彬！" },
-      { text: "你的頭又傳來一陣劇痛。" },
+      { text: "你的頭又傳來一陣劇痛。", headache: true },
       { who: "me", text: "是元彬啊......好久沒見了！拍謝啦剛剛太急了才(<ゝω・)☆" },
       { who: "m4", text: "......" },
       { text: "認出是你後，你感覺朴元彬好像翻了你一個白眼。" }
@@ -257,7 +257,8 @@ window.SITE_DATA = {
   /* ---------- 結局 ----------
    * 主線劇情裡寫 { ending: "結局id" } → 那段劇情結束後進入結局：
    *   播 scene（結局劇情）→ 依序播 epilogues 裡條件成立的後日談 → 結局畫面（END＋title；點一下畫面回到手機，重新開始只能在設定裡選）
-   *   after："explore" = 回到手機後只能探索 App、不再換天；"continue" = 照常過日子
+   *   after："explore" = 回到手機後只能探索 App、不再換天；"continue" = 照常過日子；
+   *         "loop" = 時間循環：自動存一個「循環前的存檔」，回到 2025/9/1 重新過這一年（第二輪起，條件可以寫 loop: ">=2"）
    *   epilogues：[{ id, title（結局畫面、圖鑑顯示的名稱）, scene, if }]
    * 看過的結局、後日談記在「設定 → 結局圖鑑」，重新開始也不會清掉；結局會記錄旗標 ending_結局id
    */
@@ -269,12 +270,12 @@ window.SITE_DATA = {
     },
     // 六人都覺醒、選擇留下：七人繼續留在學院的一年
     dream1: {
-      title: "DREAM END 1", text: "七人選擇留在這段美好的時光。", scene: "ending_dream1", after: "continue",
+      title: "DREAM END 1", text: "七人選擇留在這段美好的時光。", scene: "ending_dream1", after: "loop",
       epilogues: []
     },
     // 8/31 時有人還沒覺醒：沒有選擇，直接進入這個結局
     dream2: {
-      title: "DREAM END 2", text: "還有人沒有醒來。", scene: "ending_dream2", after: "continue",
+      title: "DREAM END 2", text: "還有人沒有醒來。", scene: "ending_dream2", after: "loop",
       epilogues: []
     }
   },
@@ -338,6 +339,7 @@ window.SITE_DATA = {
   },
 
   /* ---------- Instagram ----------
+   * 貼文、限時動態、精選都可以寫 from: "09-15"（那天起才出現）或 if: 條件（例如 { awakened: "m1" }、{ loop: ">=2" }）
    * 這一段本身 = 帳號「shotaroo0」，同時放全部帳號共用的文字設定。
    * otherAccounts = 其他帳號；有寫 password 的可以從「新增帳號」登入。
    */
@@ -454,6 +456,7 @@ window.SITE_DATA = {
    *   image = 圖片或影片路徑（.mp4 = 影片，再寫 duration: "0:15" 顯示長度）
    *   date = "2026年1月1日"（年／月分組用）、time = "下午 3:20"、place = 地點、device = 拍攝裝置、caption = 說明
    *   favorite: true = 預設在「個人收藏」；hidden: true = 只在「已隱藏」相簿
+   *   from: "09-15" = 那天起才出現；if: 條件 = 條件成立才出現（例如 { awakened: "m3" }）
    * albums：自己建的相簿（photos 寫照片編號）
    * hiddenPasscode：打開「已隱藏」相簿要輸入的密碼（留空 "" = 不鎖）；解開時記錄旗標 photos_hidden_unlocked
    */
@@ -475,7 +478,7 @@ window.SITE_DATA = {
    *     x_private_帳號 / x_public_帳號
    *   likes / retweets：這個帳號按過喜歡／轉推的貼文 id（個人檔案的「喜歡」「轉推」分頁）；
    *   玩家自己的帳號不用寫，會顯示玩家按過的
-   * tweets：照時間軸順序（新的在上面）
+   * tweets：照時間軸順序（新的在上面）；每則（和回覆）都可以寫 from: "09-15"（那天起才出現）或 if: 條件
    *   id（不要重複）、by（誰發的）、text（@帳號、#標籤 會變藍色）、images（最多 4 張）、
    *   time（時間軸上的「1小時」）、date（內頁的「下午 12:32 · 2026/9/1」）、retweets、likes、
    *   liked / retweeted: true = 玩家一開始就按過、retweetedBy = 顯示「xxx 已轉推」
@@ -501,6 +504,7 @@ window.SITE_DATA = {
    * notes：第一行 = 標題；date = "2026年1月1日"、time = "下午 3:20"
    *   pinned: true = 放在「已釘選」；locked: true = 要輸入 passcode 才看得到（解開時記錄旗標 note_備忘錄id）
    *   lockedTitle：鎖住時列表上顯示的標題（不寫 = 照樣顯示第一行）
+   *   from: "09-15" = 那天起才出現；if: 條件 = 條件成立才出現
    * 玩家可以直接改內容、新增、刪除（存在瀏覽器）
    */
   notes: {

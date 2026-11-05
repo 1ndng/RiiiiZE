@@ -152,6 +152,7 @@
    *     flag: "旗標" 或 ["旗標", …]（全部要有）, notFlag: "旗標" 或 [...]（全部不能有）,
    *     aff: { m1: ">=10" }, pair: { "m1-m2": ">=5" }, awake: { m3: ">=3" },
    *     lover: "m1"（是戀人）, notLover: "m1", couple: "m1-m2"（兩位是一對）, notCouple: "m1-m2",
+   *     loop: ">=2"（第幾輪，時間循環）,
    *     allAwake: true（六位都覺醒）／false, awakened: "m1"（這位已覺醒）, notAwakened: "m1", awakeCount: ">=3",
    *     any: [ 條件, 條件 ]（其中一個成立就好）, not: 條件（不成立才算） }
    *   數字比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，或只寫數字（= 至少這個數字）
@@ -190,6 +191,14 @@
     return cast().length > 0 && cast().every(function (c) { return isAwake(c.id); });
   }
   function awakeCount() { return cast().filter(function (c) { return isAwake(c.id); }).length; }
+  // 第幾輪（時間循環）：第一次玩 = 1；DREAM END 之後回到 9/1 就 +1（「重新開始」會回到 1）
+  function loopNo() { return load('riiiize-loop', 1) || 1; }
+  // App 裡的內容（貼文、限動、照片、備忘錄…）什麼時候出現：from: "09-15" = 那天起；if = 條件；都沒寫 = 一開始就有
+  function unlocked(item) {
+    if (!item || typeof item !== 'object') return true;
+    if (item.from != null && st.day < dayOfMD(item.from)) return false;
+    return !item.if || check(item.if);
+  }
   function check(c) {
     if (c == null || c === true) return true;
     if (typeof c === 'string') return hasFlag(c);
@@ -218,7 +227,8 @@
     if (c.allAwake != null && !!c.allAwake !== allAwake()) return false;
     if (c.awakened && ![].concat(c.awakened).every(isAwake)) return false;      // awakened: "m1" = 這位已經覺醒
     if (c.notAwakened && [].concat(c.notAwakened).some(isAwake)) return false;
-    if (c.awakeCount != null && !cmp(awakeCount(), c.awakeCount)) return false;   // awakeCount: ">=3" = 已經覺醒幾位
+    if (c.awakeCount != null && !cmp(awakeCount(), c.awakeCount)) return false;
+    if (c.loop != null && !cmp(loopNo(), c.loop)) return false;                     // loop: ">=2" = 第二輪以後   // awakeCount: ">=3" = 已經覺醒幾位
     if (c.any && !c.any.some(check)) return false;
     if (c.not && check(c.not)) return false;
     return true;
@@ -283,9 +293,24 @@
     saves: function () { return saves(); },
     save: function (id) { writeSlot(id); },
     remove: function (id) { var s = saves(); delete s.slots[id]; store(SAVES, s); },
+    loop: function () { return loopNo(); },
+    unlocked: unlocked,
+    /* 時間循環：回到 2025/9/1 重新過這一年（DREAM END 之後）
+     *   先把現在的進度存成「循環前的存檔」（設定 → 存檔與讀檔，只能讀取），
+     *   再清掉這一輪的進度；保留：玩家的名字、生日、頭貼，輪數 +1，存檔、結局圖鑑、背景圖片 */
+    newLoop: function () {
+      var s = saves(), n = loopNo();
+      var m = meta(); m.loop = n;
+      s.loop = { meta: m, data: snapshot() }; store(SAVES, s);
+      var player = localStorage.getItem('riiiize-player');
+      try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf(PREFIX) === 0) localStorage.removeItem(k); }); } catch (e) {}
+      if (player) localStorage.setItem('riiiize-player', player);
+      store('riiiize-loop', n + 1);
+      location.href = location.pathname;
+    },
     // 讀檔：換成那個存檔的進度後重新整理（回到鎖定畫面）
     load: function (id) {
-      var s = saves(), slot = id === 'auto' ? s.auto : s.slots[id];
+      var s = saves(), slot = id === 'auto' ? s.auto : id === 'loop' ? s.loop : s.slots[id];
       if (!slot) return;
       restore(slot.data);
       location.href = location.pathname;
