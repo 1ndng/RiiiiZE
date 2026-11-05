@@ -166,6 +166,38 @@ window.SITE_DATA = {
       { label: "dream1" }, { text: "（選擇留下：待寫）" }, { ending: "dream1" },
       { label: "dream2" }, { text: "（還有人沒有醒來，一年又要結束了：待寫）" }, { ending: "dream2" }
     ],
+    /* ---- 六人的三階段覺醒（空白樣板，待寫） ----
+     *   awake_成員id_階段：1 = 異常察覺、2 = 記憶浮現、3 = 認知與接受
+     *   每段最後 effects 覺醒度 +1；三段都看過（覺醒度 3＋看過第 3 段）才算這個人覺醒（romance.awake）
+     *   這些劇情還沒有排進遊戲，寫好後再決定什麼時候播，例如：
+     *     特殊事件（plan.specials）：{ activity: "sports", scene: "awake_m6_1", if: { date: ["09-15", "10-31"], visits: { sports: ">=2" } } }
+     *     固定日期（story）：{ date: "07-20", phase: "afterschool", scene: "awake_m6_3" }
+     *   想用不同背景就在第一步寫 { bg: "images/bg/xxx.jpg" }；頭痛寫 headache: true
+     */
+    // 大﨑将太郎（身體跟不上自己）
+    awake_m1_1: [ { text: "（大﨑将太郎・第一階段：異常察覺。待寫）" }, { effects: { awake: { m1: 1 } } } ],
+    awake_m1_2: [ { text: "（大﨑将太郎・第二階段：記憶浮現。待寫）" }, { effects: { awake: { m1: 1 } } } ],
+    awake_m1_3: [ { text: "（大﨑将太郎・第三階段：認知與接受。待寫）" }, { effects: { awake: { m1: 1 } } } ],
+    // 宋恩奭（看見憾事卻無能為力）
+    awake_m2_1: [ { text: "（宋恩奭・第一階段：異常察覺。待寫）" }, { effects: { awake: { m2: 1 } } } ],
+    awake_m2_2: [ { text: "（宋恩奭・第二階段：記憶浮現。待寫）" }, { effects: { awake: { m2: 1 } } } ],
+    awake_m2_3: [ { text: "（宋恩奭・第三階段：認知與接受。待寫）" }, { effects: { awake: { m2: 1 } } } ],
+    // 鄭成燦（失去生活中的火花）
+    awake_m3_1: [ { text: "（鄭成燦・第一階段：異常察覺。待寫）" }, { effects: { awake: { m3: 1 } } } ],
+    awake_m3_2: [ { text: "（鄭成燦・第二階段：記憶浮現。待寫）" }, { effects: { awake: { m3: 1 } } } ],
+    awake_m3_3: [ { text: "（鄭成燦・第三階段：認知與接受。待寫）" }, { effects: { awake: { m3: 1 } } } ],
+    // 朴元彬（善良成為被利用的理由）
+    awake_m4_1: [ { text: "（朴元彬・第一階段：異常察覺。待寫）" }, { effects: { awake: { m4: 1 } } } ],
+    awake_m4_2: [ { text: "（朴元彬・第二階段：記憶浮現。待寫）" }, { effects: { awake: { m4: 1 } } } ],
+    awake_m4_3: [ { text: "（朴元彬・第三階段：認知與接受。待寫）" }, { effects: { awake: { m4: 1 } } } ],
+    // 李炤熙（努力與成果不再屬於自己）
+    awake_m5_1: [ { text: "（李炤熙・第一階段：異常察覺。待寫）" }, { effects: { awake: { m5: 1 } } } ],
+    awake_m5_2: [ { text: "（李炤熙・第二階段：記憶浮現。待寫）" }, { effects: { awake: { m5: 1 } } } ],
+    awake_m5_3: [ { text: "（李炤熙・第三階段：認知與接受。待寫）" }, { effects: { awake: { m5: 1 } } } ],
+    // 李燦榮（無法突破極限，也無法被看見）
+    awake_m6_1: [ { text: "（李燦榮・第一階段：異常察覺。待寫）" }, { effects: { awake: { m6: 1 } } } ],
+    awake_m6_2: [ { text: "（李燦榮・第二階段：記憶浮現。待寫）" }, { effects: { awake: { m6: 1 } } } ],
+    awake_m6_3: [ { text: "（李燦榮・第三階段：認知與接受。待寫）" }, { effects: { awake: { m6: 1 } } } ],
     // 三個結局的劇情（endings 的 scene）
     ending_true: [ { text: "（TRUE END：六人重新面對現實。待寫）" } ],
     ending_dream1: [ { text: "（DREAM END 1：七人選擇留在這段時光。待寫）" } ],
