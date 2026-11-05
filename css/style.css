@@ -526,7 +526,7 @@ div.ig-frow-main { cursor: default; }
 .day-fade span { display: block; margin-top: 8px; font-size: 15px; opacity: .75; }
 
 /* 不能用手機的日子：黑底日期畫面（劇情在上面播） */
-.day-stage { position: absolute; inset: 0; z-index: 47; background: #0e0c14; color: #fff; display: flex; align-items: center; justify-content: center; text-align: center; }
+.day-stage { position: absolute; inset: 0; z-index: 47; background: linear-gradient(rgba(14,12,20,.55), rgba(14,12,20,.55)), url("../images/bg/school.jpg") center / cover no-repeat, #0e0c14; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; text-align: center; }
 .day-stage b { display: block; font-size: 30px; font-weight: 600; letter-spacing: 2px; }
 .day-stage span { display: block; margin-top: 8px; font-size: 15px; opacity: .7; }
 

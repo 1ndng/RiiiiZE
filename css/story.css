@@ -79,3 +79,8 @@
 .vn-bday { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .vn-bday select { flex: 1; max-width: 110px; padding: 12px 10px; border: 0; border-radius: 14px; font: inherit; font-size: 18px; text-align: center; background: rgba(255,255,255,.95); color: #222; }
 .vn-bday span { font-size: 16px; }
+
+/* 背景寫 "phone"：沒有背景，直接看到後面的手機畫面 */
+.vn.see-phone { background: transparent; }
+.vn.see-phone::after { display: none; }
+.vn.see-phone .vn-bg { display: none; }

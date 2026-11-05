@@ -135,7 +135,7 @@
   /* ---- 一句話帶過（用對話框） ---- */
   function narrate(text, done) {
     D().scenes = D().scenes || {};
-    D().scenes.__narrate = [{ bg: C().narrateBg || (D().home || {}).wallpaper || '' }, { text: text }];
+    D().scenes.__narrate = [{ bg: C().narrateBg || D().storyBg || (D().home || {}).wallpaper || '' }, { text: text }];
     window.STORY.play('__narrate', done);
   }
   function playIf(id, done) { if (id && scene(id)) window.STORY.play(id, done); else done(); }
@@ -462,7 +462,12 @@
    *   往右滑「滑動來停止」→ 鎖定畫面（時間顯示鬧鐘的時間）→ 解鎖後開始第 1 天
    *   「稍後提醒」→ 畫面暗掉，過幾秒再響一次（時間 +9 分鐘） */
   function boot() {
-    if (G().day === 1 && G().phase === 'morning' && S() && !S().hasFlag('alarm_done')) alarm(); else startDay();
+    var fresh = G().day === 1 && G().phase === 'morning' && S();
+    if (fresh && !S().hasFlag('alarm_done')) {   // 新遊戲：名字、生日、照片、是否開始 → 鬧鐘
+      if (window.INTRO) window.INTRO.setup(alarm); else alarm();
+    } else if (fresh && window.INTRO && !S().hasFlag('intro_done')) {   // 開場還沒結束就重新整理：回到鎖定畫面
+      if (S().lock) S().lock({ time: ((D().game || {}).alarm || {}).time, onUnlock: window.INTRO.afterUnlock });
+    } else startDay();
   }
   function alarm() {
     var a = (D().game || {}).alarm || {}, base = a.time || '7:00', snoozes = 0;
@@ -485,7 +490,8 @@
       el.classList.add('off');
       setTimeout(function () { el.remove(); }, 400);
       document.getElementById('phone').classList.remove('alarming');
-      if (S().lock) S().lock({ time: timeNow() });   // 鎖定畫面的時間 = 鬧鐘的時間
+      // 鎖定畫面的時間 = 鬧鐘的時間；解鎖後先播開場（js/intro.js），再開始第 1 天
+      if (S().lock) S().lock({ time: timeNow(), onUnlock: window.INTRO ? window.INTRO.afterUnlock : null });
     }
     function bindSlide() {
       var track = el.querySelector('#alarm-slide'), knob = el.querySelector('#alarm-knob'), x0 = null, dx = 0;

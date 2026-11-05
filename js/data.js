@@ -58,10 +58,35 @@ window.SITE_DATA = {
    * 下面「（待寫）」的都是空白劇情，直接把台詞寫進去就好
    */
   storySpeed: 38,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
+  storyBg: "images/bg/school.jpg",   // 劇情的預設背景（手機以外的畫面都用這張）；劇情裡寫 { bg: "…" } 可以換，{ bg: "phone" } = 直接看到手機畫面
+  // 第一次遊玩的開場（js/intro.js）：打開這些 App 就結束自由探索、開始 9/1
+  intro: { endApps: ["ig", "photos", "kakao"] },
   scenes: {
+    // ↓ 開場：解鎖手機後在主畫面上播（bg: "phone" = 看得到手機畫面）
+    intro_wake: [
+      { bg: "phone" },
+      { who: "me", text: "？？？" },
+      { who: "me", text: "這是我手機沒錯啊......我睡懵了嗎......破塔呢怎麼被刪了......" },
+      { who: "me", text: "頭好痛......" },
+      { text: "尚未清醒的你勉強將自己身子從床上撐起，抬眼環顧四周，發現不只是手機畫面，身旁是充滿熟悉感、讓人安心，卻又完全陌生的裝潢。" },
+      { who: "me", text: "還是睡回去好了這看起來也不是有錢人家啊抱歉我穿越錯地方了系統呢你在哪。" },
+      { text: "雖然這麼想著，但你還是摸索你手機，試圖從中找出一些線索。" }
+    ],
+    // 開場自由探索時，點行事曆上成員生日的那天
+    intro_bday: [ { bg: "phone" }, { who: "me", text: "怎麼在這個世界我還在追拉完子==" } ],
+    // 開場自由探索時，打開 IG、相簿、KakaoTalk → 播完開始 9/1 主線
+    intro_end: [
+      { bg: "phone" },
+      { text: "你被手機畫面中的照片吸引了注意力。" },
+      { who: "me", text: "我去" },
+      { text: "回憶如海水般灌進腦袋，你終於想起自己的身份。" },
+      { text: "你是拉完子學院的學生，今年是你就讀的第二年，恰好今天還是開學日。" },
+      { text: "你感到頭一陣劇痛，好像想起了什麼，同時有什麼被遺忘了。" },
+      { who: "me", text: "呃......" },
+      { who: "me", text: "不管了......趕緊出門吧我可不想開學第一天就遲到啊啊啊。" }
+    ],
     // ↓ 主線：開學第一週（9/1～9/7）
     d0901: [
-      { bg: PH },
       { text: "九月一日，開學。" },
       { text: "這是我在拉完子學院的第二年。" },
       { who: "m4", text: "{name}！我們又同班了。" },
@@ -69,39 +94,39 @@ window.SITE_DATA = {
       { who: "m4", text: "幹嘛那個表情，我們不是已經同班一年了嗎？" },
       { text: "（9/1 開學：待寫）" }
     ],
-    d0902: [ { bg: PH }, { text: "（9/2 放學：學生會（強制日程）待寫）" } ],
+    d0902: [ { text: "（9/2 放學：學生會（強制日程）待寫）" } ],
     d0903_club: [
-      { bg: PH }, { text: "（9/3 早上：選社團　待寫）" },
+      { text: "（9/3 早上：選社團　待寫）" },
       { choices: [ { text: "（選項待寫）" }, { text: "（選項待寫）" } ] }
     ],
-    d0903: [ { bg: PH }, { text: "（9/3 放學：志工活動（強制日程）待寫）" } ],
-    d0904: [ { bg: PH }, { text: "（9/4 放學：體育館（強制日程）待寫）" } ],
-    d0905: [ { bg: PH }, { text: "（9/5 放學：社團活動（強制日程）待寫）" } ],
-    d0906: [ { bg: PH }, { text: "（9/6 放學：網咖（強制日程）待寫）" } ],
-    d0907: [ { bg: PH }, { text: "（9/7 放學：KTV（強制日程）待寫）" } ],
+    d0903: [ { text: "（9/3 放學：志工活動（強制日程）待寫）" } ],
+    d0904: [ { text: "（9/4 放學：體育館（強制日程）待寫）" } ],
+    d0905: [ { text: "（9/5 放學：社團活動（強制日程）待寫）" } ],
+    d0906: [ { text: "（9/6 放學：網咖（強制日程）待寫）" } ],
+    d0907: [ { text: "（9/7 放學：KTV（強制日程）待寫）" } ],
 
     // ↓ 節日（plan.holidays）
-    h0101: [ { bg: PH }, { text: "（1/1 元旦：待寫）" } ],
-    h1224: [ { bg: PH }, { text: "（12/24 平安夜：待寫）" } ],
-    h1225: [ { bg: PH }, { text: "（12/25 聖誕節：待寫）" } ],
-    h0214: [ { bg: PH }, { text: "（2/14 情人節：待寫）" } ],
-    h0314: [ { bg: PH }, { text: "（3/14 白色情人節：待寫）" } ],
+    h0101: [ { text: "（1/1 元旦：待寫）" } ],
+    h1224: [ { text: "（12/24 平安夜：待寫）" } ],
+    h1225: [ { text: "（12/25 聖誕節：待寫）" } ],
+    h0214: [ { text: "（2/14 情人節：待寫）" } ],
+    h0314: [ { text: "（3/14 白色情人節：待寫）" } ],
 
     // ↓ 生日（birthday_成員id；玩家是 birthday_me）
-    birthday_m1: [ { bg: PH }, { text: "（11/25 大﨑将太郎生日：待寫）" } ],
-    birthday_m2: [ { bg: PH }, { text: "（3/19 宋恩奭生日：待寫）" } ],
-    birthday_m3: [ { bg: PH }, { text: "（9/13 鄭成燦生日：待寫）" } ],
-    birthday_m4: [ { bg: PH }, { text: "（3/2 朴元彬生日：待寫）" } ],
-    birthday_m5: [ { bg: PH }, { text: "（11/21 李炤熙生日：待寫）" } ],
-    birthday_m6: [ { bg: PH }, { text: "（3/21 李燦榮生日：待寫）" } ],
-    birthday_me: [ { bg: PH }, { text: "（{name}的生日：待寫）" } ],
+    birthday_m1: [ { text: "（11/25 大﨑将太郎生日：待寫）" } ],
+    birthday_m2: [ { text: "（3/19 宋恩奭生日：待寫）" } ],
+    birthday_m3: [ { text: "（9/13 鄭成燦生日：待寫）" } ],
+    birthday_m4: [ { text: "（3/2 朴元彬生日：待寫）" } ],
+    birthday_m5: [ { text: "（11/21 李炤熙生日：待寫）" } ],
+    birthday_m6: [ { text: "（3/21 李燦榮生日：待寫）" } ],
+    birthday_me: [ { text: "（{name}的生日：待寫）" } ],
 
     // ↓ 星期日：選要見誰之前的劇情樣式開場（plan.weekend.intro）
-    weekend_intro: [ { bg: PH }, { text: "星期日。" } ],
+    weekend_intro: [ { text: "星期日。" } ],
 
     // ↓ 結局（8/31 早上）
     final_choice: [
-      { bg: PH }, { text: "——全部都想起來了。" },
+      { text: "——全部都想起來了。" },
       { text: "這裡不是真正的高中。他們早就長大了，只是被困在這段時間裡。" },
       { text: "（只有六位的覺醒度都夠，才能選「喚醒」）", if: { allAwake: false } },
       { choices: [
@@ -111,11 +136,11 @@ window.SITE_DATA = {
       { label: "wake" }, { text: "你握住了他們的手。" }, { ending: "awaken" },
       { label: "stay" }, { text: "你決定什麼都不說。" }, { ending: "stay" }
     ],
-    ending_awaken: [ { bg: PH }, { text: "睜開眼睛，窗外是另一個季節。" } ],
-    ending_stay: [ { bg: PH }, { text: "隔天早上，鐘聲照常響起。" } ],
-    ep_m1_lover: [ { bg: PH }, { who: "m1", text: "{name}，這次換我來找你。" } ],
-    ep_m1_friend: [ { bg: PH }, { who: "m1", text: "以後也要常常聯絡喔。" } ],
-    ep_m2_m3: [ { bg: PH }, { text: "宋恩奭和鄭成燦並肩走在街上。" } ]
+    ending_awaken: [ { text: "睜開眼睛，窗外是另一個季節。" } ],
+    ending_stay: [ { text: "隔天早上，鐘聲照常響起。" } ],
+    ep_m1_lover: [ { who: "m1", text: "{name}，這次換我來找你。" } ],
+    ep_m1_friend: [ { who: "m1", text: "以後也要常常聯絡喔。" } ],
+    ep_m2_m3: [ { text: "宋恩奭和鄭成燦並肩走在街上。" } ]
   },
   story: [
     { date: "09-01", phase: "morning",     scene: "d0901" },                          // 開學
@@ -155,7 +180,6 @@ window.SITE_DATA = {
     affTotal: 6,
     pairTotal: 15,
     wanderMeet: 2,
-    narrateBg: PH,               // 「一句話帶過」時的背景（不寫 = 桌布）
     activities: [
       { id: "club",      label: "社團活動" },
       { id: "volunteer", label: "志工活動" },
@@ -241,7 +265,7 @@ window.SITE_DATA = {
 
   /* ---------- 手機密碼鎖（每次打開網址都要先輸入；留空 "" = 不鎖） ---------- */
   lock: {
-    passcode: "0000",
+    passcode: "birthday",        // "birthday" = 玩家的生日（月月日日，例如 10/14 → 1014）；也可以直接寫數字
     title: "輸入密碼",
     deleteLabel: "刪除",
     cancelLabel: "取消",

@@ -112,6 +112,7 @@
     void el.offsetWidth; el.classList.add('show');
     if (S()) S().setDarkStatus(true);
     cur = { id: id, steps: steps, i: 0, el: el, log: [], done: done };
+    setBg(D().storyBg || '');   // 預設背景（data.js 的 storyBg）；劇情裡寫 { bg } 會換掉
     if (resume) {
       cur.i = resume.at || 0; cur.log = resume.log || []; cur.resuming = true;
       if (resume.bg) setBg(resume.bg);
@@ -142,8 +143,11 @@
     }
     finish();
   }
+  // 背景：寫圖片路徑；"phone" = 不放背景，直接看到後面的手機畫面
   function setBg(src) {
     var bg = cur.el.querySelector('#vn-bg');
+    cur.el.classList.toggle('see-phone', src === 'phone');
+    if (src === 'phone') src = '';
     bg.classList.remove('in'); void bg.offsetWidth;
     bg.style.backgroundImage = src ? 'url("' + src + '")' : 'none';
     cur.bg = src;
@@ -324,6 +328,7 @@
 
   window.STORY = {
     play: play, fill: fill, playerName: playerName,
+    askName: askName, askBirthday: askBirthday,
     playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },
     // 劇情、輸入名字、日程選單、結局畫面進行中（KakaoTalk 橫幅、來電會等這些結束）
     playing: function () { return !!cur || !!document.querySelector('.vn-name, .sch, .end-card, .day-stage, .pl, .alarm'); },

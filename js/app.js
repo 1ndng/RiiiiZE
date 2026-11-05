@@ -122,7 +122,7 @@
    * 點月曆上的日期 → 左邊換成那天的星期、日期和行程；再點今天（或點左邊）回到今天
    * 日期是遊戲裡的日期（data.js 的 game.startDate 是第 1 天） */
   var calDay = '', calPick = null;   // calPick = 玩家點的那天（幾號），null = 今天
-  var calShift = 0;                  // 往前／往後翻了幾個月（0 = 今天這個月；範圍：學年的 9 月～隔年 8 月）
+  var calShift = 0, calY = 0, calM = 0;                  // 往前／往後翻了幾個月（0 = 今天這個月；範圍：學年的 9 月～隔年 8 月）
   var WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
   var MONTHS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
   var WEEK_EN = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -147,6 +147,7 @@
     var vm = Math.max(mi(first), Math.min(mi(last), mi(g) + calShift));
     calShift = vm - mi(g);
     var y = Math.floor(vm / 12), m = vm % 12, same = calShift === 0;
+    calY = y; calM = m;
     var today = same ? g.getDate() : -1;   // 只有翻到這個月才標出今天
     var pd = calPick ? new Date(y, m, calPick) : g, pick = calPick || (same ? today : 0);   // 左邊顯示的那天（沒點 = 今天）
     var wd = c.weekdays || WEEKDAYS, mn = c.months || MONTHS, heads = c.weekHeads || ['一', '二', '三', '四', '五', '六', '日'];
@@ -197,7 +198,10 @@
     var day = e.target.closest('[data-calday]');
     var nav = e.target.closest('[data-calnav]');
     if (nav) { calShift += +nav.dataset.calnav; calPick = null; renderCalendar(); return; }   // 翻月份
-    if (day) { calPick = calShift === 0 && +day.dataset.calday === gameDate().getDate() ? null : +day.dataset.calday; renderCalendar(); }
+    if (day) {
+      calPick = calShift === 0 && +day.dataset.calday === gameDate().getDate() ? null : +day.dataset.calday; renderCalendar();
+      if (window.INTRO) window.INTRO.onCalendar(new Date(calY, calM, +day.dataset.calday));   // 開場：點到成員生日
+    }
     else if (e.target.closest('[data-caltoday]') && (calPick || calShift)) { calPick = null; calShift = 0; renderCalendar(); }   // 點左邊 = 回到今天
   });
 
@@ -1561,6 +1565,8 @@
   function renderLock(opt) {
     opt = opt || {};
     var L = D.lock || {}, code = String(L.passcode || ''), typed = '';
+    // passcode: "birthday" = 玩家生日（月月日日，例如 10/14 → 1014）
+    if (code === 'birthday') code = (window.INTRO && window.INTRO.passcode()) || '0000';
     if (!code) { if (window.GAME) window.GAME.start(); return; }   // 沒設密碼就不鎖，直接開始這一天
     var keys = [['1', ''], ['2', 'A B C'], ['3', 'D E F'], ['4', 'G H I'], ['5', 'J K L'], ['6', 'M N O'],
                 ['7', 'P Q R S'], ['8', 'T U V'], ['9', 'W X Y Z'], ['', ''], ['0', ''], ['del', '']];
@@ -1672,7 +1678,9 @@
               $('#phone').classList.remove('locked');
               if (target) location.hash = target;   // 點通知解鎖 → 打開那個聊天室
               setTimeout(function () { lock.remove(); }, 450);
-              if (window.GAME) window.GAME.start();   // 開始這一天（早上、放學的劇情之後會接在這裡）
+              // 開始這一天；遊戲開場（opt.onUnlock）會先播完開場再開始
+              if (opt.onUnlock) opt.onUnlock(function () { if (window.GAME) window.GAME.start(); });
+              else if (window.GAME) window.GAME.start();
             }, 120);
           } else {
             var dots = $('#lock-dots');

@@ -117,3 +117,17 @@
 .pl-blk.on { outline: 3px solid #a3487f; }
 .pl-clear { background: rgba(255, 240, 248, .75) !important; }
 .pl-ghost { background: var(--pk-plate); color: #7a3d66; border: 2px solid var(--pk-plate-line); }
+
+/* ---------- 第一次遊玩：上傳照片、是否開始 ---------- */
+.ob-photo { display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
+.ob-photo img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid var(--pk-plate-line); background: #fff; box-shadow: 0 6px 16px rgba(120, 50, 95, .25); }
+.ob-photo span { padding: 7px 16px; border-radius: 14px; background: rgba(255, 240, 248, .85); color: #7a3d66; font-size: 14px; font-weight: 700; border: 1.5px solid var(--pk-plate-line); }
+.ob-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; }
+.ob-btns button { margin-top: 0 !important; }
+.ob-btns button:first-child { background: rgba(255, 240, 248, .75) !important; }
+.ob-sum { display: flex; align-items: center; justify-content: center; gap: 14px; margin: 18px 0 6px; }
+.ob-sum img { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid var(--pk-plate-line); background: #fff; }
+.ob-sum span { text-align: left; }
+.ob-sum strong { display: block; font-size: 20px; color: #7a3d66; }
+.ob-sum small { display: block; font-size: 14px; color: var(--pk-text); margin-top: 2px; }
+.ob-photo input[type=file] { display: none !important; }
