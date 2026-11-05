@@ -16,6 +16,9 @@
   };
 
   function S() { return window.SOSHO; }
+  function ok(c) { return !window.GAME || window.GAME.check(c); }   // 條件（if）：js/game.js 的 GAME.check
+  function fx(e) { if (window.GAME) window.GAME.apply(e); }           // 效果（effects）：好感度、關係、覺醒度、旗標
+
   function K() { return S().data.kakao || { friends: [], text: {} }; }
   function TX() { return K().text || {}; }
   function esc(s) { return S().esc(s); }
@@ -279,10 +282,11 @@
     var lower = text.toLowerCase(), lines = null, rule = null;
     (f.replies || []).some(function (r) {
       if (r.flag && !S().hasFlag(r.flag)) return false;
+      if (!ok(r.if)) return false;
       var kws = r.keywords || [];
       var hit = !kws.length || kws.some(function (k) { return k && lower.indexOf(String(k).toLowerCase()) >= 0; });
       if (hit && (r.exclude || []).some(function (k) { return lower.indexOf(String(k).toLowerCase()) >= 0; })) hit = false;
-      if (hit) { rule = r; lines = [].concat(r.reply || []); }
+      if (hit) { rule = r; lines = [].concat(r.reply || []); fx(r.effects); }
       return hit;
     });
     if (!lines) lines = [].concat(f.defaultReply || []);
@@ -334,7 +338,7 @@
     evs.forEach(function (ev) {
       // when 可以寫一個旗標，或好幾個（全部達成才算）；unless = 有這個旗標就不傳
       var need = [].concat(ev.when), key = need.join('+');
-      if (st.fired[ev.id] || !need.every(S().hasFlag)) return;
+      if (st.fired[ev.id] || !need.every(S().hasFlag) || !ok(ev.if)) return;
       if (!st.since[key]) { st.since[key] = now; changed = true; }
       if (now - st.since[key] < (ev.delay || 0)) return;
       st.fired[ev.id] = 1; changed = true;

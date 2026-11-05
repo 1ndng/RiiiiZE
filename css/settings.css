@@ -41,3 +41,15 @@
 .st-sheet-grp button.st-red { color: #ff3b30; }
 .st-sheet-grp button + button { border-top: .5px solid #d8d8dc; }
 .st-sheet-cancel { display: block; width: 100%; height: 56px; margin-top: 8px; border-radius: 14px; background: #fff; font-size: 19px; font-weight: 600; color: #007aff; }
+
+/* 數值（開發用） */
+.st-note-top { margin: -6px 32px 18px; }
+.st-stat { position: relative; display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 12px 0 16px; }
+.st-stat + .st-stat::before { content: ""; position: absolute; left: 16px; right: 0; top: 0; border-top: .5px solid #d8d8dc; }
+.st-stat span { flex: 1; font-size: 16px; }
+.st-stat b { min-width: 34px; text-align: center; font-size: 17px; font-variant-numeric: tabular-nums; }
+.st-stat button { width: 34px; height: 30px; border-radius: 8px; background: #eeeef0; color: #007aff; font-size: 19px; line-height: 1; }
+.st-stat button:active { background: #dcdce0; }
+.st-flags { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; }
+.st-flags i { font-style: normal; font-size: 13px; padding: 4px 9px; border-radius: 12px; background: #eeeef0; color: #3a3a3c; }
+.st-flags small { color: #8a8a8e; font-size: 14px; padding: 2px 4px; }

@@ -156,7 +156,7 @@
     calDay = y + '-' + m + '-' + today;
     var pick = calPick || today, pd = new Date(y, m, pick);   // 左邊顯示的那天
     var wd = c.weekdays || WEEKDAYS, mn = c.months || MONTHS, heads = c.weekHeads || ['一', '二', '三', '四', '五', '六', '日'];
-    var events = (c.events || []).filter(function (ev) { return eventToday(ev, pd); });
+    var events = (c.events || []).filter(function (ev) { return eventToday(ev, pd) && (!ev.if || !window.GAME || window.GAME.check(ev.if)); });
     var lead = (new Date(y, m, 1).getDay() + 6) % 7;   // 這個月 1 號前面空幾格（星期一開頭）
     var days = new Date(y, m + 1, 0).getDate(), cells = [];
     for (var i = 0; i < lead; i++) cells.push('<i></i>');

@@ -5,7 +5,8 @@
  * 劇本格式（call / incoming 共用）：nodes 裡每一段有 lines（逐句字幕）和 choices（選項）
  *   lines：who = "them" / "me"；text = 字幕；sub = 字幕下的小字；ms = 這句停留多久
  *   choices：label；next = 接到哪一段；hangup: true = 直接掛斷；say: false = 不顯示成玩家說的話
- *   段落可寫 flag（走到這段記錄旗標）；沒有 choices 的段落講完自動掛斷（waitMs、endFlag） */
+ *   段落可寫 flag（走到這段記錄旗標）、effects（走到這段套用效果）；沒有 choices 的段落講完自動掛斷（waitMs、endFlag）
+ *   選項可寫 effects（選了就套用）、if（條件不成立就不出現）；劇本、來電都可以寫 if（條件，格式見 js/game.js） */
 (function () {
   'use strict';
 
@@ -17,6 +18,9 @@
   ICON.end = ICON.call.replace('<svg viewBox="0 0 24 24">', '<svg viewBox="0 0 24 24" style="transform:rotate(135deg)">');
 
   function S() { return window.SOSHO; }
+  function ok(c) { return !window.GAME || window.GAME.check(c); }   // 條件（if）：js/game.js 的 GAME.check
+  function fx(e) { if (window.GAME) window.GAME.apply(e); }           // 效果（effects）：好感度、關係、覺醒度、旗標
+
   function K() { return S().data.kakao || {}; }
   function TX() {
     var t = K().text || {}, d = {
@@ -76,7 +80,7 @@
     var c = f.call;
     if (!c) return null;
     var list = [].concat(c);
-    return list.filter(function (x) { return !x.flag || S().hasFlag(x.flag); })[0] || null;
+    return list.filter(function (x) { return (!x.flag || S().hasFlag(x.flag)) && ok(x.if); })[0] || null;
   }
 
   /* ---- 打出去 ---- */
@@ -106,7 +110,7 @@
     st.fired = st.fired || {}; st.since = st.since || {};
     list.some(function (c) {
       var need = [].concat(c.when || []);
-      if (st.fired[c.id] || !need.every(S().hasFlag)) return false;
+      if (st.fired[c.id] || !need.every(S().hasFlag) || !ok(c.if)) return false;
       if (!st.since[c.id]) { st.since[c.id] = now; S().save(IKEY, st); }
       if (now - st.since[c.id] < (c.delay || 0)) return false;
       st.fired[c.id] = 1; S().save(IKEY, st);
@@ -157,6 +161,7 @@
     if (!node) { hangUp(); return; }
     call.node = node; call.line = 0;
     if (node.flag) S().setFlag(node.flag);
+    fx(node.effects);   // 走到這段 → 套用效果
     el('kc-choices').innerHTML = '';
     nextLine();
   }
@@ -180,7 +185,9 @@
   function afterLines() {
     var node = call.node;
     if (node.choices && node.choices.length) {
+      // 選項可以寫 if：條件不成立的選項不會出現
       el('kc-choices').innerHTML = node.choices.map(function (c, i) {
+        if (!ok(c.if)) return '';
         return '<button type="button" data-kc-choice="' + i + '">' + esc(c.label) +
           (c.sub && c.sub !== c.label ? '<small>' + esc(c.sub) + '</small>' : '') + '</button>';
       }).join('');
@@ -194,6 +201,7 @@
     var c = (call.node.choices || [])[i];
     if (!c) return;
     el('kc-choices').innerHTML = '';
+    fx(c.effects);   // 選了這個選項 → 套用效果
     if (c.hangup) { hangUp(); return; }
     if (c.say !== false) addCap('me', c.say || c.label, c.sub);
     call.timer = setTimeout(function () { goNode(c.next); }, 900);

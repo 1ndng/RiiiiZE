@@ -12,6 +12,28 @@ window.SITE_DATA = {
   /* ---------- 共用 ---------- */
   notUpdatedText: "尚未更新",   // 點到未開放功能時跳出的文字
 
+  /* ---------- 角色（六位成員） ----------
+   * id 用在數值、條件、效果裡（例如 aff: { m1: 2 }、pair: { "m1-m2": 1 }），之後不要改；name 可以隨時換
+   * 隱藏數值（玩家看不到）：
+   *   aff   好感度：玩家對每位成員
+   *   pair  成員之間的關係：每兩位一組（"m1-m2"，順序不拘）
+   *   awake 覺醒度：每位成員對「自己其實已經長大」的察覺程度
+   * 效果 effects（選項、訊息回覆、電話段落）：{ aff: { m1: 2 }, pair: { "m1-m2": 1 }, awake: { m3: 1 }, flag: "旗標" }
+   * 條件 if（劇情、訊息、電話、行事曆行程…）：
+   *   { day: ">=5" 或 [3, 7], phase: "night", flag: "旗標", notFlag: "旗標",
+   *     aff: { m1: ">=10" }, pair: { "m1-m2": ">=5" }, awake: { m3: ">=3" },
+   *     any: [條件, 條件]（其中一個成立）, not: 條件（不成立才算） }
+   *   比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，只寫數字 = 至少這個數字
+   */
+  cast: [
+    { id: "m1", name: "成員 1" },
+    { id: "m2", name: "成員 2" },
+    { id: "m3", name: "成員 3" },
+    { id: "m4", name: "成員 4" },
+    { id: "m5", name: "成員 5" },
+    { id: "m6", name: "成員 6" }
+  ],
+
   /* ---------- 遊戲時間與存檔 ----------
    * 一天一天推進：早上 → 放學 → 晚上；晚上主畫面出現「睡覺」，睡了就是隔天早上（並自動存檔）
    * startDate = 第 1 天的日期（行事曆、鎖定畫面、KakaoTalk 的「今天」都照這個算）
@@ -19,6 +41,7 @@ window.SITE_DATA = {
    * saveSlots = 手動存檔的格數（設定 → 存檔與讀檔）
    */
   game: {
+    debug: true,                 // true = 設定裡出現「數值（開發用）」；正式公開前改成 false
     startDate: "2026-03-02",
     saveSlots: 10,
     sleepLabel: "睡覺",
@@ -45,6 +68,7 @@ window.SITE_DATA = {
     wallpaper: PH,
     // 上方的行事曆小工具：日期、月曆跟著現實的日期走；點月曆上的日期 → 左邊顯示那天的行程
     //   events = 行程：title = 文字、color = 顏色條、textColor = 文字顏色
+    //   if = 條件（格式見上面 cast 的說明），不成立就不顯示這個行程
     //   date 可寫 "10-1"（每年 10/1）、"2026-10-1"（只有那天）、"15"（每個月 15 號）、
     //        "星期五" 或 "fri"（每個星期五）；不寫 = 每天都顯示
     //   noEvents = 那天沒有行程時顯示的字（不寫 = 空白）
@@ -352,6 +376,7 @@ window.SITE_DATA = {
     // 即時訊息：達成 when 的旗標後，過 delay 毫秒對方傳來（會跳通知橫幅）
     //   when 可寫一個旗標或陣列（全部達成）；unlessReplied: true = 玩家在那個聊天室回過話就不傳
     //   unless = 有這個旗標就不傳；unlessSent = 某則即時訊息已傳過就不傳
+    //   if = 條件（好感度、天數…，格式見 cast 的說明），成立才會傳
     //   常用旗標：phone_unlocked（解鎖手機）、kakao_unlocked、chat_聊天室id、login_帳號、public_帳號
     live: [
       { id: "demo1", when: "phone_unlocked", delay: 8000, room: "f1", text: "即時訊息測試" }
@@ -360,6 +385,7 @@ window.SITE_DATA = {
     //   ringFor = 響多久沒接就算未接（預設 30 秒）
     //   branch：依玩家有沒有在那個聊天室回過話，選開頭段落 { replied: "段落", notReplied: "段落" }；不寫 = 從 start 開始
     //   拒接或沒接 → 記錄 declineFlag，聊天室多一則未接來電
+    //   if = 條件，成立才會打來；段落、選項可以寫 effects（套用效果），選項可以寫 if（條件不成立就不出現）
     // 例：{ id: "call1", when: "chat_f2", delay: 10000, room: "f2", declineFlag: "call1_declined",
     //       start: "s", nodes: { s: { lines: [{ who: "them", text: "…" }] } } }
     incoming: [
@@ -392,13 +418,15 @@ window.SITE_DATA = {
         ],
         // 關鍵字自動回覆：玩家傳的訊息「包含」任一個 keywords 就回 reply（可多句，依序送出）
         //   flag = 達成這個旗標後才有效；exclude = 包含這些字就不算；keywords 留空 = 任何訊息都算
+        //   if = 條件（格式見 cast 的說明）；effects = 回覆成立時套用的效果（好感度…）
         //   read: true = 秒讀；typing: [毫秒, 毫秒…] = 「輸入中」顯示／消失輪流
         replies: [
-          { keywords: ["你好", "hi"], read: true, typing: [1500], reply: ["你好！"] }
+          { keywords: ["你好", "hi"], read: true, typing: [1500], reply: ["你好！"], effects: { aff: { m1: 1 } } }
         ],
         // 打給這個好友時的通話劇本（沒寫 = 打過去會「對方未接聽」）
         //   ringMs = 響多久才接
         //   也可以寫成清單 [ { flag: "旗標", … }, { … } ]：用第一個 flag 已達成（或沒寫 flag）的那個
+        //   每個劇本也可以寫 if（條件）；段落、選項可以寫 effects，選項可以寫 if（不成立就不出現）
         //   nodes 的格式：lines（who = "them" / "me"、text、sub）、choices（label、next、hangup、say: false）、
         //   flag（走到這段記錄旗標）、沒有 choices 的段落講完自動掛斷（waitMs、endFlag）
         call: {
@@ -408,13 +436,14 @@ window.SITE_DATA = {
             greet: {
               lines: [{ who: "them", text: "喂？", sub: "字幕下的小字" }],
               choices: [
-                { label: "選項 A", next: "a" },
+                { label: "選項 A", next: "a", effects: { aff: { m1: 2 } } },          // 選了 → 成員 1 好感 +2
                 { label: "選項 B（不說出口）", say: false, next: "b" },
-                { label: "（直接掛斷）", hangup: true }
+                { label: "只有成員 1 好感 ≥ 5 才出現的選項", next: "a", if: { aff: { m1: ">=5" } } },
+                { label: "（直接掛斷）", hangup: true, effects: { aff: { m1: -1 } } }
               ]
             },
             a: { lines: [{ who: "them", text: "選了 A" }, { who: "me", text: "玩家的話" }] },
-            b: { lines: [{ who: "them", text: "選了 B" }], endFlag: "call_f1_done" }
+            b: { lines: [{ who: "them", text: "選了 B" }], endFlag: "call_f1_done", effects: { pair: { "m1-m2": 1 } } }
           }
         },
         defaultReply: []              // 沒有符合任何關鍵字時的回覆；空的 = 不回
