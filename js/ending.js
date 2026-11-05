@@ -78,6 +78,7 @@
 
   window.ENDING = {
     run: run,
+    running: function () { return running; },
     gallery: load,
     list: function () { return E(); }
   };

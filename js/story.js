@@ -27,7 +27,9 @@
   function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function T() {
     var t = (D().storyText || {}), d = {
-      log: '紀錄', close: '關閉', nameTitle: '你的名字是？', nameHint: '之後大家都會這樣叫你。', namePlaceholder: '輸入名字', nameOk: '確定',
+      log: '紀錄', close: '關閉', save: '存檔', saveTitle: '存檔', back: '返回劇情', slot: '存檔 {n}', empty: '空的',
+      dayLabel: '第 {n} 天', saved: '已存檔', overwrite: '要覆蓋這個存檔嗎？', overwriteOk: '覆蓋', cancel: '取消',
+      saveNote: '讀取這個存檔時，會從現在這句話繼續。', nameTitle: '你的名字是？', nameHint: '之後大家都會這樣叫你。', namePlaceholder: '輸入名字', nameOk: '確定',
       defaultName: '轉學生', logEmpty: '還沒有對話'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -67,20 +69,27 @@
   }
   function ok(c) { return !c || !window.GAME || window.GAME.check(c); }
 
-  function play(id, done) {
-    var steps = (D().scenes || {})[id];
+  // resume = 讀取劇情中的存檔時，從存檔的那一句繼續：{ at, bg, log, steps }
+  function play(id, done, resume) {
+    var steps = (resume && resume.steps) || (D().scenes || {})[id];
     if (!steps || !steps.length || cur) { done && done(); return; }
     var t = T(), el = document.createElement('div');
     el.className = 'vn';
     el.innerHTML =
       '<div class="vn-bg" id="vn-bg"></div>' +
-      '<button type="button" class="vn-logbtn" data-vn-log>' + esc(t.log) + '</button>' +
+      // 右上角：紀錄、存檔（結局進行中不能存檔）
+      '<div class="vn-tools"><button type="button" data-vn-log>' + esc(t.log) + '</button>' +
+        (window.ENDING && window.ENDING.running() ? '' : '<button type="button" data-vn-save>' + esc(t.save) + '</button>') + '</div>' +
       '<div class="vn-choices" id="vn-choices"></div>' +
       '<div class="vn-box" id="vn-box"><div class="vn-who" id="vn-who"></div><div class="vn-text" id="vn-text"></div><i class="vn-next"></i></div>';
     document.getElementById('phone').appendChild(el);
     void el.offsetWidth; el.classList.add('show');
     if (S()) S().setDarkStatus(true);
     cur = { id: id, steps: steps, i: 0, el: el, log: [], done: done };
+    if (resume) {
+      cur.i = resume.at || 0; cur.log = resume.log || []; cur.resuming = true;
+      if (resume.bg) setBg(resume.bg);
+    }
     step();
   }
 
@@ -91,17 +100,19 @@
   function step() {
     if (!cur) return;
     while (cur.i < cur.steps.length) {
-      var s = cur.steps[cur.i++];
-      if (!ok(s.if)) continue;
+      var s = cur.steps[cur.i++], resumed = cur.resuming;
+      cur.resuming = false;   // 從存檔繼續的那一句：效果、旗標存檔時已經套用過，不重複
+      if (!resumed && !ok(s.if)) continue;
       if (s.end) break;
       if (s.ending) { cur.ending = s.ending; break; }   // 進入結局（js/ending.js）
       if (s.label != null && s.text == null) continue;
       if (s.bg != null) setBg(s.bg);
-      if (s.effects && window.GAME) window.GAME.apply(s.effects);
-      if (s.flag && S()) [].concat(s.flag).forEach(function (f) { S().setFlag(f); });
+      if (!resumed && s.effects && window.GAME) window.GAME.apply(s.effects);
+      if (!resumed && s.flag && S()) [].concat(s.flag).forEach(function (f) { S().setFlag(f); });
       if (s.goto && s.text == null && !s.choices) { var k = findLabel(s.goto); if (k >= 0) cur.i = k; continue; }
+      cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
       if (s.choices) { showChoices(s.choices); return; }
-      if (s.text != null) { say(s.who, s.text); return; }
+      if (s.text != null) { say(s.who, s.text, resumed); return; }
     }
     finish();
   }
@@ -109,12 +120,13 @@
     var bg = cur.el.querySelector('#vn-bg');
     bg.classList.remove('in'); void bg.offsetWidth;
     bg.style.backgroundImage = src ? 'url("' + src + '")' : 'none';
+    cur.bg = src;
     bg.classList.add('in');
   }
   // 逐字出現：點一下 → 整句顯示；再點 → 下一句
-  function say(who, text) {
+  function say(who, text, resumed) {
     var name = nameOf(who), full = fill(text);
-    cur.log.push({ who: name, text: full });
+    if (!resumed || !cur.log.length) cur.log.push({ who: name, text: full });   // 從存檔繼續：這句已經在紀錄裡
     var box = cur.el.querySelector('#vn-box'), w = cur.el.querySelector('#vn-who'), tx = cur.el.querySelector('#vn-text');
     box.classList.toggle('narration', !name);
     box.classList.remove('done');
@@ -184,9 +196,57 @@
     var list = w.querySelector('.vn-log-list'); list.scrollTop = list.scrollHeight;
   }
 
+  /* ---- 劇情中存檔：存檔頁面蓋在劇情上，存完或按返回就回到劇情 ----
+   * 存檔時另外記下「現在播到哪一句」（riiiize-resume），讀檔後從這一句繼續 */
+  var RKEY = 'riiiize-resume';
+  function openSave() {
+    var t = T(), G = window.GAME, w = document.createElement('div');
+    w.className = 'vn-save';
+    function paint() {
+      var s = G.saves(), rows = '';
+      for (var i = 1; i <= G.slots(); i++) {
+        var sl = s.slots[i], m = sl && sl.meta;
+        rows += '<button type="button" data-vn-slot="' + i + '"><b>' + esc(t.slot.replace('{n}', i)) + '</b>' +
+          (m ? '<small>' + esc(t.dayLabel.replace('{n}', m.day)) + ' · ' + esc(m.date || '') + '</small><small class="dim">' + esc(m.savedAt || '') + '</small>'
+             : '<small class="dim">' + esc(t.empty) + '</small>') + '</button>';
+      }
+      w.innerHTML = '<div class="vn-save-head"><button type="button" data-vn-saveclose>‹ ' + esc(t.back) + '</button><b>' + esc(t.saveTitle) + '</b><span></span></div>' +
+        '<p class="vn-save-note">' + esc(t.saveNote) + '</p><div class="vn-save-list">' + rows + '</div>';
+    }
+    paint();
+    cur.el.appendChild(w);
+    w.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-vn-slot]');
+      if (e.target.closest('[data-vn-saveclose]')) { w.remove(); return; }
+      if (!b) return;
+      var id = +b.dataset.vnSlot;
+      function doSave() {
+        // 記下現在這一句，存進存檔裡，再拿掉（目前的進度不需要它）
+        store(RKEY, { scene: cur.id, at: cur.at || 0, bg: cur.bg || '', log: cur.log, day: G.day, phase: G.phase,
+          steps: cur.id.indexOf('__') === 0 ? cur.steps : null });
+        G.save(id);
+        try { localStorage.removeItem(RKEY); } catch (err) {}
+        if (S()) S().toast(t.saved);
+        w.remove();   // 存完回到劇情
+      }
+      if (G.saves().slots[id] && !confirm(t.overwrite)) return;
+      doSave();
+    });
+  }
+  // 讀檔後：如果存檔時正在播劇情，從那一句繼續
+  var resumedPhase = null;
+  function takeResume(phase) {
+    var r = load(RKEY, null);
+    try { localStorage.removeItem(RKEY); } catch (e) {}
+    if (!r || !window.GAME || r.day !== window.GAME.day || r.phase !== phase) return null;
+    return r;
+  }
+
   document.addEventListener('click', function (e) {
     if (!cur || !cur.el.contains(e.target)) return;
     var b;
+    if (e.target.closest('.vn-save')) return;
+    if (e.target.closest('[data-vn-save]')) { openSave(); return; }
     if (e.target.closest('[data-vn-logclose]')) { e.target.closest('.vn-log').remove(); return; }
     if (e.target.closest('.vn-log')) return;
     if (e.target.closest('[data-vn-log]')) { openLog(); return; }
@@ -213,6 +273,15 @@
     window.GAME.onPhase('morning', function (done) { if (playerName()) done(); else askName(done); });
     ['morning', 'afterschool'].forEach(function (ph) {
       window.GAME.onPhase(ph, function (done) {
+        var r = takeResume(ph);
+        if (r) {   // 讀檔：先把存檔時那段劇情播完，再接這個時段剩下的主線
+          resumedPhase = ph;
+          if (location.hash !== '#/home') location.hash = '#/home';
+          setTimeout(function () {
+            play(r.scene, function () { var rest = storyFor(ph); if (rest.length) playList(rest, done); else done(); }, r);
+          }, 300);
+          return;
+        }
         var list = storyFor(ph);
         if (!list.length) { done(); return; }
         if (location.hash !== '#/home') location.hash = '#/home';   // 劇情開始前先回主畫面
@@ -227,6 +296,8 @@
     playing: function () { return !!cur || !!document.querySelector('.vn-name, .sch, .end-card'); },
     setName: function (n) { store(PKEY, { name: n }); },
     // 這個時段有沒有主線劇情（日程用：放學有主線就不能選日程）
-    hasStory: function (phase) { return storyFor(phase).length > 0; }
+    hasStory: function (phase) { return storyFor(phase).length > 0; },
+    // 這個時段是讀檔後接著播的劇情（日程用：放學的活動劇情已經播完，就不再跳選單）
+    resumed: function (phase) { var r = resumedPhase === phase; if (r) resumedPhase = null; return r; }
   };
 })();

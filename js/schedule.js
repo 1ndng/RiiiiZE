@@ -136,6 +136,7 @@
   if (window.GAME) {
     window.GAME.onPhase('afterschool', function (done) {
       if (storyToday()) { done(); return; }   // 今天放學是主線劇情
+      if (window.STORY && window.STORY.resumed('afterschool')) { done(); return; }   // 讀檔：放學的活動劇情剛剛已經接著播完
       if (location.hash !== '#/home') location.hash = '#/home';
       setTimeout(function () { picker(done); }, 300);
     });
