@@ -42,7 +42,7 @@ window.SITE_DATA = {
     { id: "m3", name: "鄭成燦",     birthday: "09-13", activities: ["council", "sports", "karaoke"], avatar: "images/cast/m3.jpg" },
     { id: "m4", name: "朴元彬",     birthday: "03-02", activities: ["club", "council", "sports"], avatar: "images/cast/m4.jpg" },
     { id: "m5", name: "李炤熙",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"], avatar: "images/cast/m5.jpg" },
-    { id: "m6", name: "李燦榮",     birthday: "03-21", activities: ["volunteer", "council", "karaoke"], avatar: "images/cast/m6.jpg" }
+    { id: "m6", name: "李燦榮",     birthday: "03-21", activities: ["volunteer", "council", "sports", "karaoke"], avatar: "images/cast/m6.jpg" }
   ],
 
   /* ---------- 劇情（對話框） ----------
