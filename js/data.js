@@ -174,8 +174,8 @@ window.SITE_DATA = {
 
   /* ---------- 結局 ----------
    * 主線劇情裡寫 { ending: "結局id" } → 那段劇情結束後進入結局：
-   *   播 scene（結局劇情）→ 依序播 epilogues 裡條件成立的後日談 → 結局畫面（END＋title，按鈕「重新開始」「繼續」）
-   *   after："explore" = 按繼續之後只能探索 App、不再換天；"continue" = 照常過日子（日程、睡覺都還在）
+   *   播 scene（結局劇情）→ 依序播 epilogues 裡條件成立的後日談 → 結局畫面（END＋title；點一下畫面回到手機，重新開始只能在設定裡選）
+   *   after："explore" = 回到手機後只能探索 App、不再換天；"continue" = 照常過日子（日程、睡覺都還在）
    *   epilogues：[{ id, title（結局畫面、圖鑑顯示的名稱）, scene, if }]
    * 看過的結局、後日談記在「設定 → 結局圖鑑」，重新開始也不會清掉；結局會記錄旗標 ending_結局id
    */

@@ -58,6 +58,5 @@
 .end-eps { margin-top: 26px; display: flex; flex-direction: column; gap: 6px; }
 .end-eps i { font-style: normal; font-size: 12px; letter-spacing: 2px; opacity: .55; margin-bottom: 2px; }
 .end-eps span { font-size: 15px; color: #d9ccff; }
-.end-btns { margin-top: 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.end-btns button { height: 48px; border-radius: 14px; font: inherit; font-size: 16px; font-weight: 700; background: rgba(255,255,255,.12); color: #fff; }
-.end-btns button:last-child { background: #c9b8ff; color: #2b2340; }
+.end-card { cursor: pointer; }
+.end-tap { margin-top: 40px; font-size: 13px; letter-spacing: 1px; opacity: .45; animation: vnBlink 2s infinite; }
