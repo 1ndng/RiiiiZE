@@ -181,9 +181,10 @@ window.SITE_DATA = {
     affTotal: 6,
     pairTotal: 15,
     wanderMeet: 2,
+    // cell = 月曆格子裡顯示的名字（"|" = 換行），沒寫就用 label
     activities: [
-      { id: "club",      label: "社團活動" },
-      { id: "volunteer", label: "志工活動" },
+      { id: "club",      label: "社團活動", cell: "社團|活動" },
+      { id: "volunteer", label: "志工活動", cell: "志工|活動" },
       { id: "sports",    label: "體育館" },
       { id: "council",   label: "學生會" },
       { id: "games",     label: "網咖" },

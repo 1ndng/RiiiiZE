@@ -51,6 +51,8 @@
   function cast() { return D().cast || []; }
   function nameOf(id) { var c = cast().filter(function (x) { return x.id === id; })[0]; return c ? c.name : id; }
   function acts() { return C().activities || []; }
+  // 月曆格子裡的名字：data.js 的 cell（"|" = 換行）；沒寫就用 label
+  function cellOf(id) { var a = actOf(id); return esc(a.cell || a.label).replace(/\|/g, '<br>'); }
   function actOf(id) { return acts().filter(function (a) { return a.id === id; })[0] || { id: id, label: id }; }
   function dateOf(day) { return G().date(day); }
   // 只有星期日是假日（星期六可以排日程）
@@ -268,8 +270,8 @@
       var di = dayIdx(n), wd = new Date(y, m, n).getDay(), we = wd === 0, f = forcedOn(di), past = di < day;   // 只有星期日不能放
       var a = p.days[md(n)], cls = 'pl-day' + (we ? ' we' : '') + (past ? ' past' : '') + (f ? ' forced' : '');
       var can = !we && !past && !f;
-      var inner = '<b>' + n + '</b>' + (f ? '<i>' + esc(actOf(f.activity).label) + '</i>' : we ? '<i class="dim">' + esc(t.weekend) + '</i>'
-        : a ? '<i class="blk" data-act="' + esc(a) + '">' + esc(actOf(a).label) + '</i>' : '');
+      var inner = '<b>' + n + '</b>' + (f ? '<i>' + cellOf(f.activity) + '</i>' : we ? '<i class="dim">' + esc(t.weekend) + '</i>'
+        : a ? '<i class="blk" data-act="' + esc(a) + '">' + cellOf(a) + '</i>' : '');
       return '<div class="' + cls + '"' + (can ? ' data-pday="' + md(n) + '"' : '') + '>' + inner + '</div>';
     }
     function render() {

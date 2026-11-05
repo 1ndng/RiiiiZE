@@ -136,3 +136,8 @@
 .sch-cast button { display: flex; align-items: center; gap: 8px; padding: 0 10px; text-align: left; }
 .sch-cast button img { width: 36px; height: 36px; flex: none; border-radius: 50%; object-fit: cover; border: 2px solid #fff; background: #fff; }
 .sch-cast button span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+
+/* 每月安排：日程框框不超出格子，兩行字也放得下 */
+.pl-day { height: 58px; padding: 4px 2px; }
+.pl-day .blk, .pl-day i { box-sizing: border-box; max-width: 100%; }
+.pl-day .blk { padding: 2px 1px; line-height: 1.15; border-radius: 6px; }
