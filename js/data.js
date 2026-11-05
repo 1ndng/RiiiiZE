@@ -172,7 +172,7 @@ window.SITE_DATA = {
    *   那天安排的是這個日程、而且 if 成立（例如 visits: { council: ">=5" }、aff、pair…）→ 停下來播，那天不加好感
    *   寫 date 就只有那天會觸發；寫 title＋date 會顯示在行事曆上；看過就不再觸發（repeat: true 可以重複）
    * holidays：節日 { date, title, scene }
-   * gift：每月 14 日（2/14、3/14 是節日）跳出送禮選單：送給一位 → 好感 +aff；請 A 送給 B → 兩人關係 +pair
+   * gift：每月 14 日（2/14、3/14 是節日）跳出送禮選單：送給一位 → 好感 +aff；請別人送（先選送禮的人、再選收禮的人）→ 兩人關係 +pair
    * weekend：星期日選人：intro = 開場劇情；見一位 → 好感 +single；見兩位 → 各 +pairAff、兩人關係 +pairBond
    *   scenes：[{ with: ["m1"] 或 ["m1", "m2"], scene, if }]；沒寫到的組合用一句話帶過；home = 待在家的劇情
    */

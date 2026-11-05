@@ -39,8 +39,8 @@
       ok: '好', clear: '清除',
       weekendTitle: '今天要和誰見面？', weekendHint: '最多選兩位', go: '出門', stayHome: '待在家',
       single: '今天和{a}一起度過了。', pair: '今天和{a}、{b}一起度過了。', stayHomeText: '今天待在家裡，好好休息了一下。',
-      giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '我送禮物', giftAsk: '請 A 送給 B', giftNo: '不送',
-      giftPickOne: '要送給誰？', giftPickTwo: '請誰送給誰？（先選送禮的人）', giftOk: '確定', back: '返回',
+      giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '要', giftAsk: '請別人送', giftNo: '不要',
+      giftPickOne: '要送給誰？', giftPickGiver: '請誰送禮物？', giftPickTo: '要送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
       giftMeText: '你把禮物送給了{a}。', giftAskText: '你請{a}送禮物給{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
       dayLine: '{date}\n放學後去了{act}，遇到了{who}。'
@@ -151,7 +151,7 @@
       el.innerHTML = '<div class="sch-in"><small>' + esc(G().dateText(null, true)) + '</small><b>' + esc(opt.title) + '</b>' +
         (opt.hint ? '<p>' + esc(opt.hint) + '</p>' : '') +
         (opt.buttons ? '<div class="sch-col">' + opt.buttons.map(function (b, i) { return '<button type="button" data-btn="' + i + '">' + esc(b.label) + '</button>'; }).join('') + '</div>'
-          : '<div class="sch-cast">' + cast().map(function (c) {
+          : '<div class="sch-cast">' + cast().filter(function (c) { return (opt.exclude || []).indexOf(c.id) < 0; }).map(function (c) {
               var k = picked.indexOf(c.id);
               return '<button type="button" data-meet="' + esc(c.id) + '"' + (k >= 0 ? ' class="on"' : '') + '><img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""><span>' + esc(c.name) + '</span>' +
                 (opt.max === 2 && opt.ordered && k >= 0 ? '<i>' + (k === 0 ? 'A' : 'B') + '</i>' : '') + '</button>';
@@ -218,12 +218,17 @@
             narrate(t.giftMeText.replace('{a}', nameOf(ids[0])), done);
           } });
       } },
-      { label: t.giftAsk, run: function () {
-        chooser({ title: t.giftPickTwo, max: 2, min: 2, ordered: true, goLabel: t.giftOk, altLabel: t.back,
+      // 請別人送：先選送禮的人，再選收禮的人（不能選同一個人）
+      { label: t.giftAsk, run: function askGiver() {
+        chooser({ title: t.giftPickGiver, max: 1, min: 1, goLabel: t.next || '下一步', altLabel: t.back,
           onAlt: function () { gift(done); },
-          onGo: function (ids) {
-            var fx = { pair: {} }; fx.pair[ids[0] + '-' + ids[1]] = g.pair != null ? g.pair : 15; G().apply(fx);
-            narrate(t.giftAskText.replace('{a}', nameOf(ids[0])).replace('{b}', nameOf(ids[1])), done);
+          onGo: function (a) {
+            chooser({ title: t.giftPickTo, hint: t.giftFrom.replace('{a}', nameOf(a[0])), max: 1, min: 1, exclude: a, goLabel: t.giftOk, altLabel: t.back,
+              onAlt: askGiver,
+              onGo: function (b) {
+                var fx = { pair: {} }; fx.pair[a[0] + '-' + b[0]] = g.pair != null ? g.pair : 15; G().apply(fx);
+                narrate(t.giftAskText.replace('{a}', nameOf(a[0])).replace('{b}', nameOf(b[0])), done);
+              } });
           } });
       } },
       { label: t.giftNo, run: done }
