@@ -389,7 +389,10 @@ window.SITE_DATA = {
     editProfileLabel: "編輯個人檔案",
     shareProfileLabel: "分享個人檔案",
     highlights: [],
-    posts: [],                     // 例：{ images: [PH], caption: "內文", time: "1月2日", comments: [{ user: "帳號", text: "留言", time: "1天" }] }
+    // 例：{ images: [PH], caption: "內文", time: "1月2日", comments: [{ user: "帳號", text: "留言", time: "1天" }] }
+    posts: [
+      { images: ["images/ig/shotaro_20250716_1.jpg", "images/ig/shotaro_20250716_2.jpg"], caption: "", time: "7月16日" }   // 第一篇（2025/7/16）
+    ],
     reposts: [],
 
     // IG 互動時出現的文字（{user} 會自動換成帳號）
