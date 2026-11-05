@@ -53,3 +53,9 @@
 .st-flags { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; }
 .st-flags i { font-style: normal; font-size: 13px; padding: 4px 9px; border-radius: 12px; background: #eeeef0; color: #3a3a3c; }
 .st-flags small { color: #8a8a8e; font-size: 14px; padding: 2px 4px; }
+
+/* 結局圖鑑：後日談縮排 */
+.st-ep { padding-left: 30px !important; }
+.st-ep small { color: #8a8a8e !important; margin: 0 0 1px !important; font-size: 12px !important; }
+.st-ep b { font-weight: 500 !important; }
+.st-slot[disabled] small { color: #c4c4c7; }

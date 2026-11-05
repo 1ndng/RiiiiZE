@@ -64,7 +64,31 @@ window.SITE_DATA = {
     ],
     wander_a: [ { bg: PH }, { text: "在校園裡隨便走走，偶然遇到了成員 5。" }, { who: "m5", text: "你也在閒晃？" } ],
     wander_b: [ { bg: PH }, { text: "走到頂樓，成員 6 一個人在看天空。" }, { who: "m6", text: "……這裡的天空，好像一直都是這個顏色。" }, { effects: { awake: { m6: 1 } } } ],
-    weekend_m1: [ { bg: PH }, { text: "週末和成員 1 去了咖啡廳。" }, { who: "m1", text: "下次還要一起出來喔。" } ],
+    weekend_m1: [
+      { bg: PH }, { text: "週末和成員 1 去了咖啡廳。" }, { who: "m1", text: "下次還要一起出來喔。" },
+      // 告白：好感度夠高才會出現（戀人 = 好感度到門檻＋有 confess_m1 旗標）
+      { if: { aff: { m1: ">=8" } }, choices: [
+        { text: "其實……我喜歡你。", flag: "confess_m1", effects: { aff: { m1: 2 } } },
+        { text: "（什麼都沒說）" }
+      ] }
+    ],
+    // ↓ 結局範例
+    final_choice: [
+      { bg: PH }, { text: "——全部都想起來了。" },
+      { text: "這裡不是真正的高中。他們早就長大了，只是被困在這段時間裡。" },
+      { text: "（只有六位的覺醒度都夠，才能選「喚醒」）", if: { allAwake: false } },
+      { choices: [
+        { text: "喚醒大家", if: { allAwake: true }, goto: "wake" },
+        { text: "讓大家留在這裡", goto: "stay" }
+      ] },
+      { label: "wake" }, { text: "你握住了他們的手。" }, { ending: "awaken" },
+      { label: "stay" }, { text: "你決定什麼都不說。" }, { ending: "stay" }
+    ],
+    ending_awaken: [ { bg: PH }, { text: "睜開眼睛，窗外是另一個季節。" } ],
+    ending_stay: [ { bg: PH }, { text: "隔天早上，鐘聲照常響起。" } ],
+    ep_m1_lover: [ { bg: PH }, { who: "m1", text: "{name}，這次換我來找你。" } ],
+    ep_m1_friend: [ { bg: PH }, { who: "m1", text: "以後也要常常聯絡喔。" } ],
+    ep_m2_m3: [ { bg: PH }, { text: "成員 2 和成員 3 並肩走在街上。" } ],
     // ↓ 主線劇情範例
     day1_morning: [
       { bg: PH },
@@ -93,7 +117,8 @@ window.SITE_DATA = {
   },
   story: [
     { day: 1, phase: "morning", scene: "day1_morning" },
-    { day: 2, phase: "afterschool", scene: "day2_afterschool" }
+    { day: 2, phase: "afterschool", scene: "day2_afterschool" },
+    { day: 14, phase: "morning", scene: "final_choice" }      // 結局範例：第 14 天早上
   ],
 
   /* ---------- 日程（放學後要做什麼） ----------
@@ -112,13 +137,13 @@ window.SITE_DATA = {
   schedule: {
     narrateBg: PH,               // 「一句話帶過」時的背景（不寫 = 桌布）
     activities: [
-      { id: "club",      label: "社團",   icon: "🎸" },
-      { id: "council",   label: "學生會", icon: "📋" },
-      { id: "volunteer", label: "志工",   icon: "🤝" },
-      { id: "karaoke",   label: "K歌",    icon: "🎤" },
-      { id: "games",     label: "打遊戲", icon: "🎮" },
-      { id: "sports",    label: "運動",   icon: "🏀" },
-      { id: "wander",    label: "閒晃",   icon: "🚶" }
+      { id: "club",      label: "社團" },
+      { id: "council",   label: "學生會" },
+      { id: "volunteer", label: "志工" },
+      { id: "karaoke",   label: "K歌" },
+      { id: "games",     label: "打遊戲" },
+      { id: "sports",    label: "運動" },
+      { id: "wander",    label: "閒晃" }
     ],
     scenes: {
       club:   [ { scene: "club_first" }, { scene: "club_daily", repeat: true } ],
@@ -132,6 +157,43 @@ window.SITE_DATA = {
       singleAff: 2, pairBond: 2, pairAff: 1,
       scenes: [ { with: ["m1"], scene: "weekend_m1" } ],
       home: []
+    }
+  },
+
+  /* ---------- 戀愛與覺醒的門檻 ----------
+   * lover：玩家和成員是戀人 = 好感度到 aff，而且有 flag 旗標（{id} 換成成員 id，例如 confess_m1 = 和成員 1 告白過）
+   * couple：兩位成員是一對 = 關係到 pair，而且有 flag 旗標（{pair} 換成 "m1-m2"）
+   * awake：六位的覺醒度都到這個數字 = allAwake（才能選「喚醒」）
+   * 條件裡可以寫 lover: "m1"、notLover: "m1"、couple: "m1-m2"、notCouple、allAwake: true / false
+   */
+  romance: {
+    lover: { aff: 10, flag: "confess_{id}" },
+    couple: { pair: 5, flag: "couple_{pair}" },
+    awake: 3
+  },
+
+  /* ---------- 結局 ----------
+   * 主線劇情裡寫 { ending: "結局id" } → 那段劇情結束後進入結局：
+   *   播 scene（結局劇情）→ 依序播 epilogues 裡條件成立的後日談 → 結局畫面（END＋title，按鈕「重新開始」「繼續」）
+   *   after："explore" = 按繼續之後只能探索 App、不再換天；"continue" = 照常過日子（日程、睡覺都還在）
+   *   epilogues：[{ id, title（結局畫面、圖鑑顯示的名稱）, scene, if }]
+   * 看過的結局、後日談記在「設定 → 結局圖鑑」，重新開始也不會清掉；結局會記錄旗標 ending_結局id
+   */
+  endings: {
+    awaken: {
+      title: "醒來", text: "大家都回到了屬於自己的時間。", scene: "ending_awaken", after: "explore",
+      epilogues: [
+        { id: "m1_lover", title: "成員 1・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
+        { id: "m1_friend", title: "成員 1・朋友", scene: "ep_m1_friend", if: { notLover: "m1", aff: { m1: ">=3" } } },
+        { id: "m2_m3", title: "成員 2 × 成員 3", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
+      ]
+    },
+    stay: {
+      title: "留下", text: "這個春天，會一直持續下去。", scene: "ending_stay", after: "continue",
+      epilogues: [
+        { id: "m1_lover", title: "成員 1・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
+        { id: "m2_m3", title: "成員 2 × 成員 3", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
+      ]
     }
   },
 

@@ -8,8 +8,7 @@
 .sch-in > b { display: block; margin-top: 6px; font-size: 24px; font-weight: 700; }
 .sch-in > p { margin: 6px 0 0; font-size: 14px; opacity: .7; }
 .sch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 22px; }
-.sch-grid button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; height: 78px; border-radius: 18px; background: rgba(255,255,255,.92); color: #2b2340; font: inherit; font-size: 16px; font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.15); }
-.sch-grid button i { font-style: normal; font-size: 24px; line-height: 1; }
+.sch-grid button { display: flex; align-items: center; justify-content: center; height: 62px; border-radius: 18px; background: rgba(255,255,255,.92); color: #2b2340; font: inherit; font-size: 16px; font-weight: 700; box-shadow: 0 4px 14px rgba(0,0,0,.15); }
 .sch-grid button:last-child:nth-child(odd) { grid-column: 1 / -1; }   /* 單數個時，最後一個（閒晃）佔整排 */
 .sch-grid button:active { transform: scale(.97); background: #fff; }
 .sch-cast { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }

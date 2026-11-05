@@ -34,6 +34,7 @@
   var handlers = { morning: [], afterschool: [], night: [] }, listeners = [];
   function emit() { listeners.forEach(function (fn) { try { fn(st); } catch (e) { console.error(e); } }); }
   function runPhase() {
+    if (st.ended === 'explore') { emit(); return; }   // 喚醒結局之後：只能探索 App，不再換天
     var list = handlers[st.phase] || [], i = 0;
     (function next() {
       if (st.phase === 'night') { emit(); return; }   // 晚上：自由使用手機，等玩家去睡覺
@@ -108,6 +109,8 @@
    *   { day: ">=5" 或 [3, 7]（第 3～7 天）, phase: "night",
    *     flag: "旗標" 或 ["旗標", …]（全部要有）, notFlag: "旗標" 或 [...]（全部不能有）,
    *     aff: { m1: ">=10" }, pair: { "m1-m2": ">=5" }, awake: { m3: ">=3" },
+   *     lover: "m1"（是戀人）, notLover: "m1", couple: "m1-m2"（兩位是一對）, notCouple: "m1-m2",
+   *     allAwake: true（六位覺醒度都夠）／false,
    *     any: [ 條件, 條件 ]（其中一個成立就好）, not: 條件（不成立才算） }
    *   數字比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，或只寫數字（= 至少這個數字）
    *   只寫一個字串 = 有這個旗標 */
@@ -122,6 +125,23 @@
       case '=': case '==': return val === n; case '!=': return val !== n; default: return val >= n;
     }
   }
+  /* ---- 戀愛和覺醒：data.js 的 romance ----
+   *   lover：玩家和某位成員是戀人 = 好感度到 lover.aff，而且有 lover.flag 旗標（{id} = 成員 id，例如 confess_m1）
+   *   couple：兩位成員是一對 = 關係到 couple.pair，而且有 couple.flag 旗標（{pair} = "m1-m2"）
+   *   allAwake：六位的覺醒度都到 awake */
+  function R() { return D.romance || {}; }
+  function isLover(id) {
+    var r = R().lover || {};
+    return cmp(statGet('aff', id), r.aff != null ? r.aff : 20) && hasFlag(String(r.flag || 'confess_{id}').replace('{id}', id));
+  }
+  function isCouple(k) {
+    var r = R().couple || {}, key = pairKey(k);
+    return cmp(statGet('pair', key), r.pair != null ? r.pair : 10) && hasFlag(String(r.flag || 'couple_{pair}').replace('{pair}', key));
+  }
+  function allAwake() {
+    var need = R().awake != null ? R().awake : 10;
+    return cast().length > 0 && cast().every(function (c) { return cmp(statGet('awake', c.id), need); });
+  }
   function check(c) {
     if (c == null || c === true) return true;
     if (typeof c === 'string') return hasFlag(c);
@@ -134,6 +154,12 @@
       return Object.keys(c[kind] || {}).every(function (id) { return cmp(statGet(kind, id), c[kind][id]); });
     });
     if (!ok) return false;
+    // 戀愛、覺醒（門檻寫在 data.js 的 romance）
+    if (c.lover && ![].concat(c.lover).every(isLover)) return false;
+    if (c.notLover && [].concat(c.notLover).some(isLover)) return false;
+    if (c.couple && ![].concat(c.couple).every(isCouple)) return false;
+    if (c.notCouple && [].concat(c.notCouple).some(isCouple)) return false;
+    if (c.allAwake != null && !!c.allAwake !== allAwake()) return false;
     if (c.any && !c.any.some(check)) return false;
     if (c.not && check(c.not)) return false;
     return true;
@@ -156,6 +182,11 @@
     setDay: function (n) { st.day = Math.max(1, n | 0); persist(); emit(); },
     get day() { return st.day; },
     get phase() { return st.phase; },
+    get ended() { return st.ended || null; },   // 看完結局後：'explore'（不再換天）或 'continue'（照常過日子）
+    setEnded: function (mode) { st.ended = mode; if (mode !== 'explore') delete st.ended; persist(); emit(); },
+    isLover: function (id) { return isLover(id); },
+    isCouple: function (k) { return isCouple(k); },
+    allAwake: function () { return allAwake(); },
     date: function (day) { return dateOf(day); },
     dateText: function (day, withWeek) { return fmt(dateOf(day), withWeek); },
     weekday: function (d) { return WEEK[(d || dateOf()).getDay()]; },

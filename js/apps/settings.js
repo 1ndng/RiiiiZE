@@ -13,6 +13,7 @@
     globe: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="1.6" fill="none"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" stroke="#fff" stroke-width="1.6" fill="none"/></svg>',
     calendar: '<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5" fill="#fff"/><path d="M4 10h16" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 3.5v4M15.5 3.5v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
     wrench: '<svg viewBox="0 0 24 24"><path d="M14.5 3.5a5 5 0 0 0-4.7 6.7L3.6 16.4a1.9 1.9 0 0 0 2.7 2.7l6.2-6.2a5 5 0 0 0 6.7-4.7l-2.9 2.9-2.7-.7-.7-2.7z" fill="#fff"/></svg>',
+    star: '<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="#fff"/></svg>',
     restart: '<svg viewBox="0 0 24 24"><path d="M5.5 9A7.5 7.5 0 1 1 4.6 14" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M4 4.5v5h5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
 
@@ -30,6 +31,8 @@
     dayLabel: '第 {n} 天', savedAt: '存於 {t}',
     statsTitle: '數值（開發用）', statsNote: '玩家看不到這一頁。正式公開前把 data.js 的 game.debug 改成 false。',
     day: '第幾天', aff: '好感度', awake: '覺醒度', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
+    gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談',
+    galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
     resetStats: '數值全部歸零', resetTitle: '要把數值全部歸零嗎？', resetText: '好感度、關係、覺醒度都會變回 0（旗標和天數不變）。', reset: '歸零'
   };
@@ -58,6 +61,7 @@
       '<div class="st-group">' +
         row(ICON.calendar, '#ff3b30', esc(t.progress), esc(t.dayLabel.replace('{n}', g.day)) + ' · ' + esc(g.dateText(null, true)), 'data-st-na disabled', false) +
         row(ICON.save, '#007aff', esc(t.savesTitle), '', 'data-st-go="#/settings/saves"', true) +
+        (window.ENDING ? row(ICON.star, '#ff9500', esc(t.gallery), '', 'data-st-go="#/settings/gallery"', true) : '') +
       '</div>' +
       ((D().game || {}).debug ? '<div class="st-group">' + row(ICON.wrench, '#34c759', esc(t.statsTitle), '', 'data-st-go="#/settings/stats"', true) + '</div>' : '') +
       '<div class="st-group">' +
@@ -178,8 +182,33 @@
     S().$('#settings-scroll').scrollTop = top;
   }
 
+  /* ---- 結局圖鑑 ---- */
+  function renderGallery() {
+    var t = T(), all = window.ENDING.list(), g = window.ENDING.gallery(), got = 0, total = 0, body = '';
+    Object.keys(all).forEach(function (id) {
+      var en = all[id], has = (g.endings || {})[id];
+      total++; if (has) got++;
+      var eps = (en.epilogues || []).map(function (e) {
+        var k = id + '/' + e.id, open = (g.epilogues || {})[k];
+        total++; if (open) got++;
+        return '<button type="button" class="st-slot st-ep"' + (open ? ' data-replay="' + esc(e.scene) + '"' : ' disabled') + '>' +
+          '<small>' + esc(t.epilogue) + '</small><b>' + esc(open ? e.title || e.id : t.locked) + '</b></button>';
+      }).join('');
+      body += '<div class="st-group">' +
+        '<button type="button" class="st-slot"' + (has && en.scene ? ' data-replay="' + esc(en.scene) + '"' : (has ? '' : ' disabled')) + '>' +
+          '<b>' + esc(has ? en.title || id : t.locked) + '</b>' + (has && en.text ? '<small class="st-dim">' + esc(en.text) + '</small>' : '') + '</button>' +
+        eps + '</div>';
+    });
+    S().$('#settings-overlay').innerHTML = '';
+    S().$('#settings-scroll').innerHTML =
+      '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
+      '<h1 class="st-h1 st-h1-s">' + esc(t.gallery) + '</h1>' +
+      '<div class="st-note st-note-top">' + esc(t.galleryCount.replace('{n}', got).replace('{all}', total)) + '　' + esc(t.galleryNote) + '</div>' + body;
+  }
+
   function route(parts) {
     S().$('#settings-scroll').scrollTop = 0;
+    if (parts[0] === 'gallery' && window.ENDING) { renderGallery(); return; }
     if (parts[0] === 'stats' && (D().game || {}).debug) renderStats();
     else if (parts[0] === 'saves') renderSaves();
     else renderMain();
@@ -206,6 +235,7 @@
       if (a[0] === 'day') G().setDay(G().day + d); else G().addStat(a[0], a[1], d);
       renderStats(); return;
     }
+    if ((el = e.target.closest('[data-replay]'))) { window.STORY.play(el.dataset.replay); return; }
     if ((el = e.target.closest('[data-st-scene]'))) { window.STORY.play(el.dataset.stScene, renderStats); return; }
     if (e.target.closest('[data-st-rename]')) {
       var n = prompt(t.renameTitle, window.STORY.playerName());

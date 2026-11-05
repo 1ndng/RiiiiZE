@@ -90,7 +90,7 @@
   var ICON_MOON = '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="currentColor"/></svg>';
   function paintSleep() {
     var b = $('#home-sleep');
-    if (b) b.hidden = !window.GAME || window.GAME.phase !== 'night';
+    if (b) b.hidden = !window.GAME || window.GAME.phase !== 'night' || window.GAME.ended === 'explore';   // 喚醒結局之後不能再睡覺換天
   }
   if (window.GAME) window.GAME.onChange(paintSleep);
 

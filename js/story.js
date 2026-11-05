@@ -13,6 +13,7 @@
  *   { goto: "名稱" }                          跳過去（常和 if 一起用：條件成立才跳）
  *   { effects: { … } } / { flag: "旗標" }     套用效果、記錄旗標（不會顯示）
  *   { end: true }                            劇情在這裡結束
+ *   { ending: "結局id" }                      劇情在這裡結束，進入結局（data.js 的 endings）
  * 播完記錄旗標 scene_劇情id
  * ========================================================= */
 (function () {
@@ -93,6 +94,7 @@
       var s = cur.steps[cur.i++];
       if (!ok(s.if)) continue;
       if (s.end) break;
+      if (s.ending) { cur.ending = s.ending; break; }   // 進入結局（js/ending.js）
       if (s.label != null && s.text == null) continue;
       if (s.bg != null) setBg(s.bg);
       if (s.effects && window.GAME) window.GAME.apply(s.effects);
@@ -164,6 +166,8 @@
     c.el.classList.remove('show');
     setTimeout(function () { c.el.remove(); }, 400);
     if (S()) S().setDarkStatus(false);
+    // 這段劇情進入結局 → 結局播完、玩家按「繼續」後才接著往下
+    if (c.ending && window.ENDING) { window.ENDING.run(c.ending, c.done); return; }
     c.done && c.done();
   }
 
@@ -219,7 +223,8 @@
 
   window.STORY = {
     play: play, fill: fill, playerName: playerName,
-    playing: function () { return !!cur || !!document.querySelector('.vn-name'); },   // 劇情或輸入名字進行中
+    // 劇情、輸入名字、日程選單、結局畫面進行中（KakaoTalk 橫幅、來電會等這些結束）
+    playing: function () { return !!cur || !!document.querySelector('.vn-name, .sch, .end-card'); },
     setName: function (n) { store(PKEY, { name: n }); },
     // 這個時段有沒有主線劇情（日程用：放學有主線就不能選日程）
     hasStory: function (phase) { return storyFor(phase).length > 0; }

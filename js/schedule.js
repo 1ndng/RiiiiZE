@@ -100,7 +100,7 @@
     if (!weekend) {
       el.innerHTML = '<div class="sch-in"><small>' + dateLine + '</small><b>' + esc(t.title) + '</b>' +
         '<div class="sch-grid">' + (C().activities || []).map(function (a) {
-          return '<button type="button" data-act="' + esc(a.id) + '">' + (a.icon ? '<i>' + esc(a.icon) + '</i>' : '') + '<span>' + esc(a.label) + '</span></button>';
+          return '<button type="button" data-act="' + esc(a.id) + '"><span>' + esc(a.label) + '</span></button>';
         }).join('') + '</div></div>';
     } else {
       el.innerHTML = '<div class="sch-in"><small>' + dateLine + '</small><b>' + esc(t.weekendTitle) + '</b><p>' + esc(t.weekendHint) + '</p>' +

@@ -48,3 +48,16 @@
 .vn-name input { display: block; width: 100%; padding: 13px 16px; border: 0; border-radius: 14px; outline: none; font: inherit; font-size: 18px; text-align: center; background: rgba(255,255,255,.95); color: #222; }
 .vn-name button { margin-top: 14px; width: 100%; padding: 13px; border-radius: 14px; background: #c9b8ff; color: #2b2340; font: inherit; font-size: 17px; font-weight: 700; }
 .vn-name button:disabled { opacity: .45; }
+
+/* 結局畫面：END＋結局名稱＋這次看到的後日談 */
+.end-card { position: absolute; inset: 0; z-index: 49; display: flex; align-items: center; justify-content: center; padding: 0 28px; background: #0d0b14; color: #fff; text-align: center; opacity: 0; transition: opacity .8s; }
+.end-card.show { opacity: 1; }
+.end-in small { display: block; font-size: 14px; letter-spacing: 6px; opacity: .6; }
+.end-in > b { display: block; margin-top: 10px; font-size: 26px; font-weight: 700; letter-spacing: 1px; }
+.end-in > p { margin: 12px 0 0; font-size: 14px; line-height: 1.6; opacity: .8; }
+.end-eps { margin-top: 26px; display: flex; flex-direction: column; gap: 6px; }
+.end-eps i { font-style: normal; font-size: 12px; letter-spacing: 2px; opacity: .55; margin-bottom: 2px; }
+.end-eps span { font-size: 15px; color: #d9ccff; }
+.end-btns { margin-top: 34px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.end-btns button { height: 48px; border-radius: 14px; font: inherit; font-size: 16px; font-weight: 700; background: rgba(255,255,255,.12); color: #fff; }
+.end-btns button:last-child { background: #c9b8ff; color: #2b2340; }
