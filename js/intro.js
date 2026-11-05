@@ -28,7 +28,7 @@
   }
   var DEFAULT_AVATAR = 'images/default_avatar.png';
 
-  /* ---- 頭貼：玩家上傳的照片用在 KakaoTalk 自己的聊天室、X 自己的帳號、IG 登入中的帳號 ---- */
+  /* ---- 頭貼：玩家上傳的照片用在 X 自己的帳號、IG 登入中的帳號 ---- */
   function applyAvatar() {
     var a = player().avatar, d = D();
     if (!a) return;

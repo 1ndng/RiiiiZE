@@ -580,15 +580,6 @@ window.SITE_DATA = {
   kakao: {
     passcode: "0000",              // 進入 KakaoTalk 的密碼；留空 "" = 不用密碼
     // 「今天」= 遊戲裡的日期（game.startDate 開始，每睡一覺 +1 天）
-    // 나와의 채팅（自己傳給自己）
-    me: {
-      name: "我",
-      avatar: PH,
-      messages: [
-        { date: "2025年12月1日" },
-        { from: "me", text: "自己的筆記", time: "下午 11:33" }
-      ]
-    },
     // 即時訊息：達成 when 的旗標後，過 delay 毫秒對方傳來（會跳通知橫幅）
     //   when 可寫一個旗標或陣列（全部達成）；unlessReplied: true = 玩家在那個聊天室回過話就不傳
     //   unless = 有這個旗標就不傳；unlessSent = 某則即時訊息已傳過就不傳
@@ -610,6 +601,17 @@ window.SITE_DATA = {
     ],
     noAnswerMs: 8000,              // 打給沒有劇本的好友，響多久後顯示「對方未接聽」
     friends: [
+      // 客服小精靈：放提示、進度提醒（不是成員）；之後用 live（即時訊息）或 messages 放內容
+      {
+        id: "helper",
+        name: "客服小精靈",
+        status: "",
+        avatar: "images/default_avatar.png",
+        unread: 0,
+        messages: [],
+        replies: [],
+        defaultReply: []
+      },
       {
         id: "f1",                     // 不要重複（用於網址）
         cast: "m1",                   // 成員：名字、大頭照用 cast 的
