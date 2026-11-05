@@ -7,8 +7,8 @@
  * ========================================================= */
 var PH = "images/placeholder.jpg";   // 佔位照片（全部先用同一張）
 // 玩家和六位成員都互相追蹤（IG）／互相跟隨（X）：others("帳號") = 除了自己以外的所有人
-var IG_ALL = ["account_a", "shotaroo0", "seokkkk", "sungchan913", "bin032", "252525252_", "antonnie"];
-var X_ALL  = ["my_account", "shotaroo0", "seokkkk", "sungchan913", "bin032", "252525252_", "antonnie"];
+var IG_ALL = ["briiii1ze._", "shotaroo0", "seokkkk", "sungchan913", "bin032", "252525252_", "antonnie"];
+var X_ALL  = ["briiii1ze._", "shotaroo0", "seokkkk", "sungchan913", "bin032", "252525252_", "antonnie"];
 function others(list, me) { return list.filter(function (x) { return x !== me; }); }
 
 window.SITE_DATA = {
@@ -309,7 +309,7 @@ window.SITE_DATA = {
    * otherAccounts = 其他帳號；有寫 password 的可以從「新增帳號」登入。
    */
   instagram: {
-    defaultAccount: "account_a",   // 打開 IG 時已經登入的帳號（玩家）
+    defaultAccount: "briiii1ze._",   // 打開 IG 時已經登入的帳號（玩家）
     username: "shotaroo0",         // 成員帳號都不能登入（不寫 password）
     private: true,                 // 非公開帳號：沒追蹤的人看不到貼文、限時、名單
     cast: "m1",                    // 成員帳號：名字、大頭照用 cast 的（不寫 cast → 用 avatar、name；沒有名字 → 顯示帳號 id）
@@ -392,9 +392,9 @@ window.SITE_DATA = {
     otherAccounts: [
       // 玩家的帳號（名字＝玩家輸入的名字、頭貼＝玩家上傳的照片）
       {
-        username: "account_a",
+        username: "briiii1ze._",
         password: "0000",
-        following: others(IG_ALL, "account_a"),
+        following: others(IG_ALL, "briiii1ze._"),
         closeFriendsList: [],
         saved: [],
         archive: { stories: [], posts: [] },
@@ -449,9 +449,9 @@ window.SITE_DATA = {
    *     下一則回覆的是上一則的人時，兩則會用直線連起來（回覆串）
    */
   x: {
-    me: "my_account",              // 玩家的帳號（名字＝玩家輸入的名字、頭貼＝玩家上傳的照片）
+    me: "briiii1ze._",              // 玩家的帳號（名字＝玩家輸入的名字、頭貼＝玩家上傳的照片）
     accounts: [
-      { handle: "my_account", bio: "", followersList: others(X_ALL, "my_account") },
+      { handle: "briiii1ze._", bio: "", followersList: others(X_ALL, "briiii1ze._") },
       { handle: "shotaroo0",   cast: "m1", protected: true, followed: true, bio: "", followingList: others(X_ALL, "shotaroo0"),   followersList: others(X_ALL, "shotaroo0") },
       { handle: "seokkkk",     cast: "m2", protected: true, followed: true, bio: "", followingList: others(X_ALL, "seokkkk"),     followersList: others(X_ALL, "seokkkk") },
       { handle: "sungchan913", cast: "m3", protected: true, followed: true, bio: "", followingList: others(X_ALL, "sungchan913"), followersList: others(X_ALL, "sungchan913") },
