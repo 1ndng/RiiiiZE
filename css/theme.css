@@ -1,8 +1,6 @@
 /* =========================================================
- * 劇情與選單的外觀：粉紅格紋＋蕾絲＋捲草紋
+ * 劇情與選單的外觀：對話框直接用設計圖（images/ui/），其他選單照它的粉紅格紋風格
  *   對話框本體 85% 不透明（15% 透明），名字牌不透明
- *   選項、紀錄、存檔、輸入名字、選人／送禮、每月安排都用同一套風格
- *   花紋圖檔在 images/ui/
  * ========================================================= */
 :root {
   --pk-text: #6b3358;        /* 文字 */
@@ -17,47 +15,34 @@
     repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 1px, transparent 1px 4px);
 }
 
-/* ---------- 對話框 ---------- */
+/* ---------- 對話框：直接用設計圖（images/ui/dialog-box.png），比例固定不變形 ----------
+ *   dialog-box.png   整個對話框（85% 不透明 = 15% 透明）
+ *   dialog-plate.png 名字牌和上方的花紋（同一張圖切出來，疊在上面、完全不透明）
+ *   文字、名字的位置用百分比對齊圖上的位置 */
 .vn-box {
-  left: 10px; right: 10px; bottom: 40px; min-height: 176px;
-  padding: 36px 26px 50px;
-  border-radius: 20px;
-  background: var(--pk-gingham), rgba(226, 160, 202, .85);
-  border: 2px solid rgba(255, 220, 240, .9);
-  box-shadow: 0 8px 22px rgba(160, 80, 130, .3);
-  backdrop-filter: none; -webkit-backdrop-filter: none;
-  overflow: visible;
+  left: 8px; right: 8px; bottom: 34px; min-height: 0;
+  aspect-ratio: 618 / 282; padding: 0;
+  background: none; border: 0; border-radius: 0; box-shadow: none;
+  backdrop-filter: none; -webkit-backdrop-filter: none; overflow: visible;
 }
-/* 下方蕾絲帶＋左下、右上捲草紋＋下方中間花紋 */
-.vn-box::before {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 30%;
-  border-radius: 0 0 18px 18px;
-  background: url("../images/ui/lace.svg") repeat-x left top / auto 100%;
-  opacity: .85; pointer-events: none;
+.vn-box::before, .vn-box::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: no-repeat center / 100% 100%; }
+.vn-box::before { background-image: url("../images/ui/dialog-box.png"); opacity: .85; }
+.vn-box::after { background-image: url("../images/ui/dialog-plate.png"); }
+.vn-text {
+  position: absolute; z-index: 1; left: 9%; right: 8%; top: 30%; height: 46%; overflow: hidden;
+  color: var(--pk-text); font-size: 16px; font-weight: 500; line-height: 1.6; text-shadow: 0 1px 0 rgba(255,255,255,.45);
 }
-.vn-box::after {
-  content: ""; position: absolute; inset: -6px -4px -18px -4px; pointer-events: none;
-  background:
-    url("../images/ui/swirl-tr.svg") no-repeat right 8px top 10px / 34px auto,
-    url("../images/ui/swirl-bl.svg") no-repeat left 10px bottom 26px / 28px auto,
-    url("../images/ui/ornament.svg") no-repeat center bottom / 170px auto;
-}
-.vn-text { position: relative; z-index: 1; color: var(--pk-text); font-size: 17px; font-weight: 500; line-height: 1.7; text-shadow: 0 1px 0 rgba(255,255,255,.45); }
 .vn-box.narration .vn-text { color: var(--pk-text); }
-.vn-next { z-index: 1; border-top-color: var(--pk-deep); right: 22px; bottom: 30px; }
-
-/* 名字牌：不透明，左右有捲草 */
+.vn-next { z-index: 1; border-top-color: var(--pk-deep); right: 9%; bottom: 26%; }
+/* 名字：放在圖上名字牌的正中間 */
 .vn-who {
-  top: -24px; left: 52px; z-index: 2;
-  min-width: 112px; padding: 9px 24px; text-align: center;
-  border-radius: 18px;
-  background: var(--pk-plate);
-  border: 2px solid var(--pk-plate-line);
-  color: #7a3d66; font-size: 16px; font-weight: 700; letter-spacing: .5px;
-  box-shadow: 0 5px 12px rgba(185, 114, 159, .35), inset 0 -6px 10px rgba(201, 139, 179, .18);
+  position: absolute; z-index: 2; left: 10.6%; width: 21.4%; top: 12.4%; height: 16.6%;
+  display: flex; align-items: center; justify-content: center; padding: 0; min-width: 0;
+  background: none; border: 0; box-shadow: none; border-radius: 0;
+  color: #7a3d66; font-size: 15px; font-weight: 700; letter-spacing: .5px; white-space: nowrap;
 }
-.vn-who::before { content: ""; position: absolute; left: -54px; top: 4px; width: 58px; height: 32px; background: url("../images/ui/flourish-l.svg") no-repeat center / contain; pointer-events: none; }
-.vn-who::after { content: ""; position: absolute; right: -50px; top: -30px; width: 56px; height: 56px; background: url("../images/ui/flourish-r.svg") no-repeat center / contain; pointer-events: none; }
+.vn-who::before, .vn-who::after { content: none; }
+.vn-who[hidden] { display: none; }
 
 /* ---------- 共用：粉紅名字牌風格的按鈕 ---------- */
 .vn-choices button, .vn-name button, .sch-grid button, .sch-col button, .sch-cast button, .sch-actions button,

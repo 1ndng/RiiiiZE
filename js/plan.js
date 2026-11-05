@@ -42,7 +42,8 @@
       giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '我送禮物', giftAsk: '請 A 送給 B', giftNo: '不送',
       giftPickOne: '要送給誰？', giftPickTwo: '請誰送給誰？（先選送禮的人）', giftOk: '確定', back: '返回',
       giftMeText: '你把禮物送給了{a}。', giftAskText: '你請{a}送禮物給{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
-      skipped: '{from} ～ {to}'
+      skipped: '{from} ～ {to}',
+      dayLine: '{date}\n放學後去了{act}，遇到了{who}。'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
     return d;
@@ -92,14 +93,16 @@
   }
 
   /* ---- 好感度：日程每次的總量平分給在場的人 ---- */
+  // 這次去會遇到誰：從會出現在這個日程的成員裡隨機挑 1 位～全部（每次都重新抽）
+  //   閒晃 = 從全部成員裡隨機挑 1～wanderMeet 位
   function membersOf(act) {
-    var list = cast().filter(function (c) { return (c.activities || []).indexOf(act) >= 0; }).map(function (c) { return c.id; });
-    if (act === 'wander') {   // 閒晃：隨機遇到幾位
-      var all = cast().map(function (c) { return c.id; }), n = C().wanderMeet || 2, out = [];
-      while (out.length < Math.min(n, all.length)) { var k = all.splice(Math.floor(Math.random() * all.length), 1)[0]; out.push(k); }
-      return out;
-    }
-    return list;
+    var pool = act === 'wander' ? cast().map(function (c) { return c.id; })
+      : cast().filter(function (c) { return (c.activities || []).indexOf(act) >= 0; }).map(function (c) { return c.id; });
+    if (!pool.length) return [];
+    var max = act === 'wander' ? Math.min(C().wanderMeet || 2, pool.length) : pool.length;
+    var k = 1 + Math.floor(Math.random() * max), out = [];
+    while (out.length < k) out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+    return cast().map(function (c) { return c.id; }).filter(function (id) { return out.indexOf(id) >= 0; });   // 照 cast 的順序
   }
   function shareEffects(ids, affTotal, pairTotal) {
     var fx = { aff: {}, pair: {} }, pairs = [];
@@ -108,12 +111,25 @@
     pairs.forEach(function (k) { fx.pair[k] = pairTotal / pairs.length; });
     return fx;
   }
+  // 回傳這次遇到的人（日程的一句話用）
   function doActivity(act) {
-    if (!act) return;
+    if (!act) return [];
     var ids = membersOf(act);
     G().addStat('visits', act, 1);
     if (S()) S().setFlag('act_' + act);
     if (ids.length) G().apply(shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15));
+    return ids;
+  }
+  // 「9月8日（星期一）\n放學後去了學生會，遇到了鄭成燦和李炤熙。」（plan.text.dayLine 可以改；活動可以寫自己的 line）
+  function joinNames(ids) {
+    var n = ids.map(nameOf);
+    return n.length <= 1 ? (n[0] || '') : n.slice(0, -1).join('、') + '和' + n[n.length - 1];
+  }
+  function dayLine(day, act, ids) {
+    var t = T(), d = dateOf(day), a = actOf(act);
+    return (a.line || t.dayLine)
+      .replace('{date}', (d.getMonth() + 1) + '月' + d.getDate() + '日（' + G().weekday(d) + '）')
+      .replace('{act}', a.label).replace('{who}', joinNames(ids));
   }
 
   /* ---- 一句話帶過（用對話框） ---- */
@@ -224,7 +240,7 @@
       else if (!isWeekend(day)) {
         var act = plannedOn(day), sp = specialFor(day, act);
         if (sp) steps.push(function (next) { G().addStat('visits', act, 1); window.STORY.play(sp.scene, next); });
-        else doActivity(act);
+        else if (act) { var met = doActivity(act); steps.push(function (next) { narrate(dayLine(day, act, met), next); }); }
       }
       // 2. 節日、生日
       holidaysOn(day).forEach(function (h) { steps.push(function (next) { playIf(h.scene, next); }); });
@@ -340,7 +356,8 @@
 
   /* ---- 睡覺：往後跳到下一個有事的日子（沒事的日子照月曆加好感） ----
    * cb({ from, to })：from = 跳過的第一天，to = 停下來的那天 */
-  function sleep(cb) {
+  // onLine(day, text, next)：有安排日程、沒有劇情的日子，用一句話告訴玩家今天和誰做了什麼
+  function sleep(cb, onLine) {
     var day = G().day + 1, from = day;
     (function loop() {
       while (day <= G().totalDays()) {
@@ -351,10 +368,16 @@
           return;
         }
         if (isStop(day)) break;
-        // 沒事的日子：平日照月曆加好感
-        if (!isWeekend(day)) { G().setDay(day); doActivity(plannedOn(day)); }
         if (S()) S().setFlag('day_' + day);
-        day++;
+        var act = !isWeekend(day) && plannedOn(day);
+        if (act) {   // 有安排：加好感，顯示這天的一句話，點了才到下一天
+          G().setDay(day);
+          var met = doActivity(act), text = dayLine(day, act, met), d0 = day;
+          day++;
+          if (onLine) { onLine(d0, text, loop); return; }
+          continue;
+        }
+        day++;   // 沒安排（回家）：直接跳過
       }
       day = Math.min(day, G().totalDays());
       G().goTo(day);
@@ -412,9 +435,17 @@
     var f = fadeEl();
     setTimeout(function () {
       sleep(function () {
+        if (!f.parentNode) f = fadeEl();   // 中間播過一句話：重新變暗
         f.innerHTML = dateHTML(G().day);
         f.classList.add('text');
         startDayAfter(f);
+      }, function (day, text, next) {
+        // 一天一句：黑底日期畫面上用對話框顯示
+        if (f.parentNode) { f.classList.remove('show'); var old = f; setTimeout(function () { old.remove(); }, 600); }
+        var lk = document.getElementById('lock'); if (lk) lk.remove();
+        document.getElementById('phone').classList.remove('locked');
+        stage(day);
+        narrate(text, next);
       });
     }, 600);
   }
