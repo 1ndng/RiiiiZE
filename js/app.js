@@ -114,9 +114,13 @@
     $('#phone').appendChild(fade);
     void fade.offsetWidth; fade.classList.add('show');
     setTimeout(function () {
-      window.GAME.sleep();
-      fade.innerHTML = '<div><b>' + esc((g.dayLabel || '第 {n} 天').replace('{n}', window.GAME.day)) + '</b>' +
-        '<span>' + esc(window.GAME.dateText(null, true)) + '</span></div>';
+      // 往後跳到下一個有事的日子（js/plan.js；中間可能先跳出下個月的月曆安排）
+      if (window.PLAN) window.PLAN.sleep(arrive); else { window.GAME.sleep(); arrive(); }
+    }, 600);
+    function arrive() {
+      var d = window.GAME.date();
+      fade.innerHTML = '<div><b>' + esc((d.getMonth() + 1) + '月' + d.getDate() + '日') + '</b>' +
+        '<span>' + esc(window.GAME.weekday(d)) + '</span></div>';
       fade.classList.add('text');
       // 回到主畫面、鎖上手機
       if (location.hash !== '#/home') location.hash = '#/home';
@@ -125,7 +129,7 @@
         fade.classList.remove('show');
         setTimeout(function () { fade.remove(); }, 700);
       }, 1800);
-    }, 600);
+    }
   }
   $('#home').addEventListener('click', function (e) { if (e.target.closest('[data-sleep]')) askSleep(); });
 
@@ -159,8 +163,10 @@
     var events = (c.events || []).filter(function (ev) { return eventToday(ev, pd) && (!ev.if || !window.GAME || window.GAME.check(ev.if)); });
     // 日程的特殊事件（data.js 的 schedule.special）：只顯示名稱，不說要選哪個活動
     function gameDayOf(date) { return window.GAME ? Math.round((date - window.GAME.date(1)) / 864e5) + 1 : 0; }
-    function specials(date) { return window.SCHEDULE ? window.SCHEDULE.specialsOn(gameDayOf(date)) : []; }
-    events = events.concat(specials(pd).map(function (e) { return { title: e.title, color: e.color || '#ff9500' }; }));
+    // 節日、生日、送禮日、特殊事件、當天的安排（js/plan.js）
+    function dayEvents(date) { return window.PLAN ? window.PLAN.eventsOn(gameDayOf(date)) : []; }
+    function specials(date) { return dayEvents(date).filter(function (e) { return e.mark; }); }
+    events = events.concat(dayEvents(pd));
     var lead = (new Date(y, m, 1).getDay() + 6) % 7;   // 這個月 1 號前面空幾格（星期一開頭）
     var days = new Date(y, m + 1, 0).getDate(), cells = [];
     for (var i = 0; i < lead; i++) cells.push('<i></i>');

@@ -74,3 +74,8 @@
 .vn-save-list b { display: block; font-size: 15px; }
 .vn-save-list small { display: block; font-size: 13px; margin-top: 2px; }
 .vn-save-list .dim { opacity: .5; }
+
+/* 生日：月、日選單 */
+.vn-bday { display: flex; align-items: center; justify-content: center; gap: 8px; }
+.vn-bday select { flex: 1; max-width: 110px; padding: 12px 10px; border: 0; border-radius: 14px; font: inherit; font-size: 18px; text-align: center; background: rgba(255,255,255,.95); color: #222; }
+.vn-bday span { font-size: 16px; }

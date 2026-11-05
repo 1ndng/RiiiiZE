@@ -29,7 +29,7 @@
     var t = (D().storyText || {}), d = {
       log: '紀錄', close: '關閉', save: '存檔', saveTitle: '存檔', back: '返回劇情', slot: '存檔 {n}', empty: '空的',
       dayLabel: '第 {n} 天', saved: '已存檔', overwrite: '要覆蓋這個存檔嗎？', overwriteOk: '覆蓋', cancel: '取消',
-      saveNote: '讀取這個存檔時，會從現在這句話繼續。', nameTitle: '你的名字是？', nameHint: '之後大家都會這樣叫你。', namePlaceholder: '輸入名字', nameOk: '確定',
+      saveNote: '讀取這個存檔時，會從現在這句話繼續。', nameTitle: '你的名字是？', nameHint: '之後大家都會這樣叫你。', bdayTitle: '你的生日是？', bdayHint: '生日那天會有特別的事。', month: '月', dayUnit: '日', namePlaceholder: '輸入名字', nameOk: '確定',
       defaultName: '轉學生', logEmpty: '還沒有對話'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -53,7 +53,33 @@
       e.preventDefault();
       var v = f.n.value.trim();
       if (!v) return;
-      store(PKEY, { name: v });
+      var pl = load(PKEY, {}) || {}; pl.name = v; store(PKEY, pl);
+      w.remove();
+      if (pl.birthday) { done && done(); return; }
+      askBirthday(done);   // 名字之後接著填生日
+    });
+  }
+
+  // 玩家生日（月、日）：生日那天會停下來播 scenes.birthday_me
+  function askBirthday(done) {
+    var t = T(), w = document.createElement('div'), opts = function (n) { var o = ''; for (var i = 1; i <= n; i++) o += '<option value="' + i + '">' + i + '</option>'; return o; };
+    w.className = 'vn-name';
+    w.innerHTML = '<form autocomplete="off"><b>' + esc(t.bdayTitle) + '</b><p>' + esc(t.bdayHint) + '</p>' +
+      '<div class="vn-bday"><select name="m">' + opts(12) + '</select><span>' + esc(t.month) + '</span>' +
+      '<select name="d">' + opts(31) + '</select><span>' + esc(t.dayUnit) + '</span></div>' +
+      '<button type="submit">' + esc(t.nameOk) + '</button></form>';
+    document.getElementById('phone').appendChild(w);
+    var f = w.querySelector('form');
+    // 每個月的天數（2 月算 29 天）
+    f.m.addEventListener('change', function () {
+      var max = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][f.m.value - 1], cur = +f.d.value;
+      f.d.innerHTML = opts(max); f.d.value = Math.min(cur, max);
+    });
+    f.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var pl = load(PKEY, {}) || {};
+      pl.birthday = ('0' + f.m.value).slice(-2) + '-' + ('0' + f.d.value).slice(-2);
+      store(PKEY, pl);
       w.remove();
       done && done();
     });
@@ -207,7 +233,7 @@
       for (var i = 1; i <= G.slots(); i++) {
         var sl = s.slots[i], m = sl && sl.meta;
         rows += '<button type="button" data-vn-slot="' + i + '"><b>' + esc(t.slot.replace('{n}', i)) + '</b>' +
-          (m ? '<small>' + esc(t.dayLabel.replace('{n}', m.day)) + ' · ' + esc(m.date || '') + '</small><small class="dim">' + esc(m.savedAt || '') + '</small>'
+          (m ? '<small>' + esc(m.date || '') + '</small><small class="dim">' + esc(m.savedAt || '') + '</small>'
              : '<small class="dim">' + esc(t.empty) + '</small>') + '</button>';
       }
       w.innerHTML = '<div class="vn-save-head"><button type="button" data-vn-saveclose>‹ ' + esc(t.back) + '</button><b>' + esc(t.saveTitle) + '</b><span></span></div>' +
@@ -260,7 +286,9 @@
   function storyFor(phase) {
     var g = window.GAME;
     return (D().story || []).filter(function (s) {
-      return (s.phase || 'morning') === phase && (s.day == null || +s.day === g.day) && ok(s.if) &&
+      // date: "09-01"（學年裡的那一天）或 day: 第幾天
+      var onDay = s.date ? g.dayOf(s.date) === g.day : (s.day == null || +s.day === g.day);
+      return (s.phase || 'morning') === phase && onDay && ok(s.if) &&
         !(S() && S().hasFlag('scene_' + s.scene) && !s.repeat);
     });
   }
@@ -270,7 +298,11 @@
   }
   if (window.GAME) {
     // 第一次開始：先輸入名字
-    window.GAME.onPhase('morning', function (done) { if (playerName()) done(); else askName(done); });
+    window.GAME.onPhase('morning', function (done) {
+      if (!playerName()) askName(done);
+      else if (!(load(PKEY, {}) || {}).birthday) askBirthday(done);
+      else done();
+    });
     ['morning', 'afterschool'].forEach(function (ph) {
       window.GAME.onPhase(ph, function (done) {
         var r = takeResume(ph);
@@ -292,9 +324,10 @@
 
   window.STORY = {
     play: play, fill: fill, playerName: playerName,
+    playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },
     // 劇情、輸入名字、日程選單、結局畫面進行中（KakaoTalk 橫幅、來電會等這些結束）
     playing: function () { return !!cur || !!document.querySelector('.vn-name, .sch, .end-card'); },
-    setName: function (n) { store(PKEY, { name: n }); },
+    setName: function (n) { var pl = load(PKEY, {}) || {}; pl.name = n; store(PKEY, pl); },
     // 這個時段有沒有主線劇情（日程用：放學有主線就不能選日程）
     hasStory: function (phase) { return storyFor(phase).length > 0; },
     // 這個時段是讀檔後接著播的劇情（日程用：放學的活動劇情已經播完，就不再跳選單）

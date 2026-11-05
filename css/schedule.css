@@ -19,3 +19,41 @@
 .sch-home { background: rgba(255,255,255,.12); color: #fff; }
 .sch-go { background: #c9b8ff; color: #2b2340; }
 .sch-go:disabled { opacity: .4; }
+
+/* 選單：一排一個按鈕（送禮） */
+.sch-col { display: flex; flex-direction: column; gap: 10px; margin-top: 22px; }
+.sch-col button { height: 54px; border-radius: 16px; background: rgba(255,255,255,.92); color: #2b2340; font: inherit; font-size: 16px; font-weight: 700; }
+.sch-col button:last-child { background: rgba(255,255,255,.12); color: #fff; }
+.sch-cast button { position: relative; }
+.sch-cast button i { position: absolute; top: 4px; right: 8px; font-style: normal; font-size: 11px; font-weight: 800; color: #7b5cff; }
+
+/* =========================================================
+ * 每月安排（月曆＋拖曳日程方塊）
+ * ========================================================= */
+.pl { position: absolute; inset: 0; z-index: 101; display: flex; flex-direction: column; justify-content: center; padding: 50px 12px 40px; background: #17131f; color: #fff; opacity: 0; transition: opacity .3s; user-select: none; -webkit-user-select: none; touch-action: none; }
+.pl.show { opacity: 1; }
+.pl-in { width: 100%; }
+.pl-title { display: block; text-align: center; font-size: 22px; font-weight: 700; }
+.pl-in > p { margin: 6px 0 14px; text-align: center; font-size: 13px; opacity: .65; }
+.pl-head, .pl-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.pl-head span { text-align: center; font-size: 12px; opacity: .6; padding-bottom: 4px; }
+.pl-day { height: 50px; border-radius: 10px; background: rgba(255,255,255,.1); padding: 4px 3px; display: flex; flex-direction: column; align-items: center; gap: 2px; overflow: hidden; }
+.pl-day b { font-size: 12px; font-weight: 600; line-height: 1; }
+.pl-day i { font-style: normal; font-size: 10px; line-height: 1.2; text-align: center; word-break: break-all; }
+.pl-day .blk { width: 100%; padding: 3px 2px; border-radius: 6px; background: #c9b8ff; color: #2b2340; font-weight: 700; touch-action: none; }
+.pl-day .dim { opacity: .45; }
+.pl-day.we, .pl-day.past, .pl-day.forced { background: rgba(255,255,255,.04); }
+.pl-day.past { opacity: .35; }
+.pl-day.forced i { color: #ffd479; }
+.pl-day.blank { background: none; }
+.pl-day.over { outline: 2px solid #c9b8ff; }
+.pl-blocks { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+.pl-blk { padding: 9px 14px; border-radius: 14px; background: #c9b8ff; color: #2b2340; font: inherit; font-size: 14px; font-weight: 700; touch-action: none; cursor: grab; }
+.pl-blk.on { outline: 3px solid #fff; }
+.pl-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 16px; }
+.pl-actions button { height: 48px; border-radius: 14px; font: inherit; font-size: 16px; font-weight: 700; }
+.pl-clear { background: rgba(255,255,255,.12); color: #fff; }
+.pl-ok { background: #fff; color: #2b2340; }
+.pl-ghost { position: fixed; z-index: 1000; transform: translate(-50%, -50%); padding: 8px 12px; border-radius: 12px; background: #c9b8ff; color: #2b2340; font-size: 14px; font-weight: 700; pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,.3); }
+.pl-tip { z-index: 102; }
+.ios-alert-btns.one { grid-template-columns: 1fr; }

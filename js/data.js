@@ -14,26 +14,30 @@ window.SITE_DATA = {
 
   /* ---------- 角色（六位成員） ----------
    * id 用在數值、條件、效果裡（例如 aff: { m1: 2 }、pair: { "m1-m2": 1 }），之後不要改；name 可以隨時換
-   * activities = 平日放學在哪些活動會遇到他（參考用：寫日程劇情時照這個安排誰出現；閒晃可以遇到任何人）
-   *   club 社團、council 學生會、volunteer 志工、karaoke K歌、games 打遊戲、sports 運動
+   * birthday = 生日（"11-25"）：那天會停下來播 scenes.birthday_成員id（行事曆也會顯示）
+   * activities = 平日放學在哪些日程會遇到他（月曆安排加好感時，照這個決定誰在場）
+   *   club 社團活動、volunteer 志工活動、sports 體育館、council 學生會、games 網咖、karaoke KTV
    * 隱藏數值（玩家看不到）：
    *   aff   好感度：玩家對每位成員
    *   pair  成員之間的關係：每兩位一組（"m1-m2"，順序不拘）
    *   awake 覺醒度：每位成員對「自己其實已經長大」的察覺程度
+   *   visits 每個日程去過幾次
    * 效果 effects（選項、訊息回覆、電話段落）：{ aff: { m1: 2 }, pair: { "m1-m2": 1 }, awake: { m3: 1 }, flag: "旗標" }
-   * 條件 if（劇情、訊息、電話、行事曆行程…）：
-   *   { day: ">=5" 或 [3, 7], phase: "night", flag: "旗標", notFlag: "旗標",
-   *     aff: { m1: ">=10" }, pair: { "m1-m2": ">=5" }, awake: { m3: ">=3" },
+   * 條件 if（劇情、訊息、電話、行事曆行程、特殊劇情…）：
+   *   { date: "12-24" 或 ["10-01", "10-31"], weekday: 0（星期日）～6, month: 9 或 [9, 10],
+   *     day: ">=5"（學年第幾天）, phase: "night", flag: "旗標", notFlag: "旗標",
+   *     aff: { m1: ">=10" }, pair: { "m1-m2": ">=5" }, awake: { m3: ">=3" }, visits: { council: ">=3" },
+   *     lover: "m1", notLover: "m1", couple: "m1-m2", notCouple: "m1-m2", allAwake: true / false,
    *     any: [條件, 條件]（其中一個成立）, not: 條件（不成立才算） }
    *   比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，只寫數字 = 至少這個數字
    */
   cast: [
-    { id: "m1", name: "大﨑将太郎", activities: ["club", "council", "games"] },
-    { id: "m2", name: "宋恩奭", activities: ["volunteer", "council", "games"] },
-    { id: "m3", name: "鄭成燦", activities: ["council", "sports", "karaoke"] },
-    { id: "m4", name: "朴元彬", activities: ["club", "council", "sports"] },
-    { id: "m5", name: "李炤熙", activities: ["club", "council", "karaoke", "games"] },
-    { id: "m6", name: "李燦榮", activities: ["volunteer", "council", "karaoke"] }
+    { id: "m1", name: "大﨑将太郎", birthday: "11-25", activities: ["club", "council", "games"] },
+    { id: "m2", name: "宋恩奭",     birthday: "03-19", activities: ["volunteer", "council", "games"] },
+    { id: "m3", name: "鄭成燦",     birthday: "09-13", activities: ["council", "sports", "karaoke"] },
+    { id: "m4", name: "朴元彬",     birthday: "03-02", activities: ["club", "council", "sports"] },
+    { id: "m5", name: "李炤熙",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"] },
+    { id: "m6", name: "李燦榮",     birthday: "03-21", activities: ["volunteer", "council", "karaoke"] }
   ],
 
   /* ---------- 劇情（對話框） ----------
@@ -45,36 +49,57 @@ window.SITE_DATA = {
    *   { label: "名稱" } / { goto: "名稱" }   標記／跳過去（goto 加 if = 條件成立才跳）
    *   { effects: { … } } / { flag: "旗標" }  套用效果、記錄旗標（畫面上不顯示）
    *   { end: true }                         劇情到這裡結束
-   *   文字裡寫 {name} = 玩家的名字（第一次開始遊戲時輸入；KakaoTalk、通話裡也可以用）
+   *   { ending: "結局id" }                   劇情到這裡結束，進入結局
+   *   文字裡寫 {name} = 玩家的名字（第一次開始遊戲時輸入，接著輸入生日）
    *   播完會記錄旗標 scene_劇情id
-   * story：主線劇情排程。到了那天（day）的那個時段（phase："morning" 早上、"afterschool" 放學）自動播
+   * story：主線劇情。date = 哪一天（"09-01"）、phase = "morning" 早上／"afterschool" 放學
+   *   activity = 主線強制日程（那天照這個日程加好感，月曆上不能放方塊）
    *   可以加 if；同一段看過就不會再播（repeat: true 可以重播）
+   * 下面「（待寫）」的都是空白劇情，直接把台詞寫進去就好
    */
   storySpeed: 38,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
   scenes: {
-    // ↓ 日程用的範例劇情
-    club_first: [
-      { bg: PH }, { text: "第一次走進社團教室。" },
-      { who: "m1", text: "咦，{name}也加入社團了？" }, { effects: { aff: { m1: 1 } } }
+    // ↓ 主線：開學第一週（9/1～9/7）
+    d0901: [
+      { bg: PH },
+      { text: "九月一日，開學。" },
+      { text: "這是我在拉完子學院的第二年。" },
+      { who: "m4", text: "{name}！我們又同班了。" },
+      { who: "me", text: "……元彬？" },
+      { who: "m4", text: "幹嘛那個表情，我們不是已經同班一年了嗎？" },
+      { text: "（9/1 開學：待寫）" }
     ],
-    club_daily: [ { bg: PH }, { text: "今天的社團活動很平常地結束了。" } ],
-    sports_daily: [ { bg: PH }, { text: "在操場跑了幾圈，流了一身汗。" }, { who: "m4", text: "{name}，跑得不錯嘛！" } ],
-    special_basketball: [
-      { bg: PH }, { text: "今天是籃球友誼賽。" },
-      { who: "m3", text: "你來看比賽了！" }, { who: "m4", text: "那就幫我們加油吧。" },
-      { effects: { pair: { "m3-m4": 1 }, aff: { m3: 1, m4: 1 } } }
+    d0902: [ { bg: PH }, { text: "（9/2 放學：學生會（強制日程）待寫）" } ],
+    d0903_club: [
+      { bg: PH }, { text: "（9/3 早上：選社團　待寫）" },
+      { choices: [ { text: "（選項待寫）" }, { text: "（選項待寫）" } ] }
     ],
-    wander_a: [ { bg: PH }, { text: "在校園裡隨便走走，偶然遇到了李炤熙。" }, { who: "m5", text: "你也在閒晃？" } ],
-    wander_b: [ { bg: PH }, { text: "走到頂樓，李燦榮 一個人在看天空。" }, { who: "m6", text: "……這裡的天空，好像一直都是這個顏色。" }, { effects: { awake: { m6: 1 } } } ],
-    weekend_m1: [
-      { bg: PH }, { text: "週末和大﨑将太郎 去了咖啡廳。" }, { who: "m1", text: "下次還要一起出來喔。" },
-      // 告白：好感度夠高才會出現（戀人 = 好感度到門檻＋有 confess_m1 旗標）
-      { if: { aff: { m1: ">=8" } }, choices: [
-        { text: "其實……我喜歡你。", flag: "confess_m1", effects: { aff: { m1: 2 } } },
-        { text: "（什麼都沒說）" }
-      ] }
-    ],
-    // ↓ 結局範例
+    d0903: [ { bg: PH }, { text: "（9/3 放學：志工活動（強制日程）待寫）" } ],
+    d0904: [ { bg: PH }, { text: "（9/4 放學：體育館（強制日程）待寫）" } ],
+    d0905: [ { bg: PH }, { text: "（9/5 放學：社團活動（強制日程）待寫）" } ],
+    d0906: [ { bg: PH }, { text: "（9/6 放學：網咖（強制日程）待寫）" } ],
+    d0907: [ { bg: PH }, { text: "（9/7 放學：KTV（強制日程）待寫）" } ],
+
+    // ↓ 節日（plan.holidays）
+    h0101: [ { bg: PH }, { text: "（1/1 元旦：待寫）" } ],
+    h1224: [ { bg: PH }, { text: "（12/24 平安夜：待寫）" } ],
+    h1225: [ { bg: PH }, { text: "（12/25 聖誕節：待寫）" } ],
+    h0214: [ { bg: PH }, { text: "（2/14 情人節：待寫）" } ],
+    h0314: [ { bg: PH }, { text: "（3/14 白色情人節：待寫）" } ],
+
+    // ↓ 生日（birthday_成員id；玩家是 birthday_me）
+    birthday_m1: [ { bg: PH }, { text: "（11/25 大﨑将太郎生日：待寫）" } ],
+    birthday_m2: [ { bg: PH }, { text: "（3/19 宋恩奭生日：待寫）" } ],
+    birthday_m3: [ { bg: PH }, { text: "（9/13 鄭成燦生日：待寫）" } ],
+    birthday_m4: [ { bg: PH }, { text: "（3/2 朴元彬生日：待寫）" } ],
+    birthday_m5: [ { bg: PH }, { text: "（11/21 李炤熙生日：待寫）" } ],
+    birthday_m6: [ { bg: PH }, { text: "（3/21 李燦榮生日：待寫）" } ],
+    birthday_me: [ { bg: PH }, { text: "（{name}的生日：待寫）" } ],
+
+    // ↓ 星期日：選要見誰之前的劇情樣式開場（plan.weekend.intro）
+    weekend_intro: [ { bg: PH }, { text: "星期日。" } ],
+
+    // ↓ 結局（8/31 早上）
     final_choice: [
       { bg: PH }, { text: "——全部都想起來了。" },
       { text: "這裡不是真正的高中。他們早就長大了，只是被困在這段時間裡。" },
@@ -90,94 +115,85 @@ window.SITE_DATA = {
     ending_stay: [ { bg: PH }, { text: "隔天早上，鐘聲照常響起。" } ],
     ep_m1_lover: [ { bg: PH }, { who: "m1", text: "{name}，這次換我來找你。" } ],
     ep_m1_friend: [ { bg: PH }, { who: "m1", text: "以後也要常常聯絡喔。" } ],
-    ep_m2_m3: [ { bg: PH }, { text: "宋恩奭 和鄭成燦 並肩走在街上。" } ],
-    // ↓ 主線劇情範例
-    day1_morning: [
-      { bg: PH },
-      { text: "……好亮。" },
-      { text: "睜開眼睛，是完全陌生的天花板。" },
-      { who: "m1", text: "啊，醒了嗎？你就是今天要來的轉學生吧？" },
-      { who: "me", text: "……這裡是哪裡？" },
-      { who: "m1", text: "拉完子學院啊。你叫{name}，對吧？" },
-      { choices: [
-        { text: "對，請多指教。", effects: { aff: { m1: 1 } } },
-        { text: "你怎麼知道我的名字？", goto: "ask", effects: { awake: { m1: 1 } } }
-      ] },
-      { who: "m1", text: "走吧，我帶你去教室。" },
-      { end: true },
-      { label: "ask" },
-      { who: "m1", text: "……奇怪，我怎麼會知道呢？" },
-      { text: "他愣了一下，好像想起什麼，又很快地笑了。" },
-      { who: "m1", text: "算了，走吧，要遲到了。" }
-    ],
-    day2_afterschool: [
-      { bg: PH },
-      { text: "放學後的走廊。" },
-      { who: "m2", text: "{name}，今天要不要一起走？" },
-      { text: "（只有大﨑将太郎 好感 ≥ 1 才會出現這句）", if: { aff: { m1: ">=1" } } }
-    ]
+    ep_m2_m3: [ { bg: PH }, { text: "宋恩奭和鄭成燦並肩走在街上。" } ]
   },
   story: [
-    { day: 1, phase: "morning", scene: "day1_morning" },
-    { day: 2, phase: "afterschool", scene: "day2_afterschool" },
-    { day: 28, phase: "morning", scene: "final_choice" }      // 最後一天（第 28 天）早上：喚醒或留下 → 結局
+    { date: "09-01", phase: "morning",     scene: "d0901" },                          // 開學
+    { date: "09-02", phase: "afterschool", scene: "d0902", activity: "council" },     // 強制日程：學生會
+    { date: "09-03", phase: "morning",     scene: "d0903_club" },                     // 選社團
+    { date: "09-03", phase: "afterschool", scene: "d0903", activity: "volunteer" },   // 強制日程：志工活動
+    { date: "09-04", phase: "afterschool", scene: "d0904", activity: "sports" },      // 強制日程：體育館
+    { date: "09-05", phase: "afterschool", scene: "d0905", activity: "club" },        // 強制日程：社團活動
+    { date: "09-06", phase: "afterschool", scene: "d0906", activity: "games" },       // 強制日程：網咖
+    { date: "09-07", phase: "afterschool", scene: "d0907", activity: "karaoke" },     // 強制日程：KTV（之後開始每月安排）
+    { date: "08-31", phase: "morning",     scene: "final_choice" }                    // 最後一天：喚醒或留下 → 結局
   ],
 
-  /* ---------- 日程（放學後要做什麼） ----------
-   * 平日放學自動跳出 activities 讓玩家選一個（今天放學有主線劇情就不跳）
-   *   選了之後：今天有這個活動的特殊事件（special）→ 先播那段；
-   *   不然從 scenes.活動id 的清單，從上往下挑第一段「if 成立、還沒看過」的（repeat: true = 可以重複看）；
-   *   閒晃（wander）= 從符合條件的裡面隨機挑；都沒有 → 用 text.nothing 一句話帶過
-   *   每個活動做過會記錄旗標 act_活動id
-   * special：特殊事件 { day: 第幾天, title: 行事曆上顯示的名稱, activity: 要選哪個活動才會遇到, scene, if, color }
-   *   行事曆只顯示名稱（日期下面有小點）；那天沒選對活動就錯過了
-   * weekend：週六、週日改成選要和誰見面（一位或兩位），或待在家
-   *   singleAff = 只選一位時好感 +幾；pairBond = 選兩位時他們的關係 +幾；pairAff = 選兩位時各自好感 +幾
-   *   scenes：[{ with: ["m1"] 或 ["m1", "m2"], scene, if, repeat }]；沒有寫到的組合用 text.single / text.pair 一句話帶過
-   *   home：待在家的劇情 [{ scene, if, repeat }]；沒有就用 text.stayHome
+  /* ---------- 每月安排與日程 ----------
+   * 9/7 之後（planFrom 那天起）每個月開始時跳出月曆：把日程方塊拖到平日上，一天一個；沒放 = 回家
+   *   週末、過去的日子、主線強制日程的日子不能放
+   * 確認後自動往後跳、照安排加好感，停在有事的日子：主線、特殊劇情、節日、生日、送禮日（每月 14 日）、每個星期日
+   *   有事的日子那天可以自由使用手機；星期日先播 weekend.intro，再選這個週末要見誰
+   * 好感度（每個日程每次的總量一樣，平分給在場的人；在場 = cast 的 activities 有這個日程）：
+   *   每人好感 = affTotal ÷ 在場人數；每一對關係 = pairTotal ÷ 在場的對數
+   *   學生會 6 人：各 +1、每對 +1｜社團／KTV／網咖 3 人：各 +2、每對 +5｜志工／體育館 2 人：各 +3、那一對 +15
+   *   閒晃：隨機遇到 wanderMeet 位（預設 2 位：各 +3、那一對 +15）｜回家：沒有
+   * specials：特殊劇情 { activity, scene, if, date, title, repeat }
+   *   那天安排的是這個日程、而且 if 成立（例如 visits: { council: ">=5" }、aff、pair…）→ 停下來播，那天不加好感
+   *   寫 date 就只有那天會觸發；寫 title＋date 會顯示在行事曆上；看過就不再觸發（repeat: true 可以重複）
+   * holidays：節日 { date, title, scene }
+   * gift：每月 14 日（2/14、3/14 是節日）跳出送禮選單：送給一位 → 好感 +aff；請 A 送給 B → 兩人關係 +pair
+   * weekend：星期日選人：intro = 開場劇情；見一位 → 好感 +single；見兩位 → 各 +pairAff、兩人關係 +pairBond
+   *   scenes：[{ with: ["m1"] 或 ["m1", "m2"], scene, if }]；沒寫到的組合用一句話帶過；home = 待在家的劇情
    */
-  schedule: {
+  plan: {
+    planFrom: "09-08",
+    affTotal: 6,
+    pairTotal: 15,
+    wanderMeet: 2,
     narrateBg: PH,               // 「一句話帶過」時的背景（不寫 = 桌布）
     activities: [
-      { id: "club",      label: "社團" },
+      { id: "club",      label: "社團活動" },
+      { id: "volunteer", label: "志工活動" },
+      { id: "sports",    label: "體育館" },
       { id: "council",   label: "學生會" },
-      { id: "volunteer", label: "志工" },
-      { id: "karaoke",   label: "K歌" },
-      { id: "games",     label: "打遊戲" },
-      { id: "sports",    label: "運動" },
+      { id: "games",     label: "網咖" },
+      { id: "karaoke",   label: "KTV" },
       { id: "wander",    label: "閒晃" }
     ],
-    scenes: {
-      club:   [ { scene: "club_first" }, { scene: "club_daily", repeat: true } ],
-      sports: [ { scene: "sports_daily", repeat: true } ],
-      wander: [ { scene: "wander_a", repeat: true }, { scene: "wander_b", repeat: true, if: { day: ">=3" } } ]
-    },
-    special: [
-      { day: 3, title: "籃球友誼賽", activity: "sports", scene: "special_basketball" }
+    specials: [
+      // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },
+      //     { activity: "sports", if: { pair: { "m3-m4": ">=100" } }, scene: "sp_m3_m4" },
+      //     { activity: "club", date: "10-15", title: "社團發表會", scene: "sp_club_show" }
     ],
-    weekend: {
-      singleAff: 2, pairBond: 2, pairAff: 1,
-      scenes: [ { with: ["m1"], scene: "weekend_m1" } ],
-      home: []
-    }
+    holidays: [
+      { date: "01-01", title: "元旦",       scene: "h0101" },
+      { date: "12-24", title: "平安夜",     scene: "h1224" },
+      { date: "12-25", title: "聖誕節",     scene: "h1225" },
+      { date: "02-14", title: "情人節",     scene: "h0214" },
+      { date: "03-14", title: "白色情人節", scene: "h0314" }
+    ],
+    gift: { aff: 6, pair: 15 },
+    weekend: { intro: "weekend_intro", single: 6, pairAff: 3, pairBond: 15, scenes: [], home: [] }
   },
 
   /* ---------- 戀愛與覺醒的門檻 ----------
-   * lover：玩家和成員是戀人 = 好感度到 aff，而且有 flag 旗標（{id} 換成成員 id，例如 confess_m1 = 和大﨑将太郎 告白過）
+   * lover：玩家和成員是戀人 = 好感度到 aff，而且有 flag 旗標（{id} 換成成員 id，例如 confess_m1 = 和大﨑将太郎告白過）
    * couple：兩位成員是一對 = 關係到 pair，而且有 flag 旗標（{pair} 換成 "m1-m2"）
    * awake：六位的覺醒度都到這個數字 = allAwake（才能選「喚醒」）
    * 條件裡可以寫 lover: "m1"、notLover: "m1"、couple: "m1-m2"、notCouple、allAwake: true / false
+   * （一年下來的好感度很高，下面的數字是暫定，之後照試玩結果調）
    */
   romance: {
-    lover: { aff: 10, flag: "confess_{id}" },
-    couple: { pair: 5, flag: "couple_{pair}" },
+    lover: { aff: 120, flag: "confess_{id}" },
+    couple: { pair: 150, flag: "couple_{pair}" },
     awake: 3
   },
 
   /* ---------- 結局 ----------
    * 主線劇情裡寫 { ending: "結局id" } → 那段劇情結束後進入結局：
    *   播 scene（結局劇情）→ 依序播 epilogues 裡條件成立的後日談 → 結局畫面（END＋title；點一下畫面回到手機，重新開始只能在設定裡選）
-   *   after："explore" = 回到手機後只能探索 App、不再換天；"continue" = 照常過日子（日程、睡覺都還在）
+   *   after："explore" = 回到手機後只能探索 App、不再換天；"continue" = 照常過日子
    *   epilogues：[{ id, title（結局畫面、圖鑑顯示的名稱）, scene, if }]
    * 看過的結局、後日談記在「設定 → 結局圖鑑」，重新開始也不會清掉；結局會記錄旗標 ending_結局id
    */
@@ -186,12 +202,12 @@ window.SITE_DATA = {
       title: "醒來", text: "大家都回到了屬於自己的時間。", scene: "ending_awaken", after: "explore",
       epilogues: [
         { id: "m1_lover", title: "大﨑将太郎・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
-        { id: "m1_friend", title: "大﨑将太郎・朋友", scene: "ep_m1_friend", if: { notLover: "m1", aff: { m1: ">=3" } } },
+        { id: "m1_friend", title: "大﨑将太郎・朋友", scene: "ep_m1_friend", if: { notLover: "m1", aff: { m1: ">=30" } } },
         { id: "m2_m3", title: "宋恩奭 × 鄭成燦", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
       ]
     },
     stay: {
-      title: "留下", text: "這個春天，會一直持續下去。", scene: "ending_stay", after: "continue",
+      title: "留下", text: "這段時光，會一直持續下去。", scene: "ending_stay", after: "continue",
       epilogues: [
         { id: "m1_lover", title: "大﨑将太郎・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
         { id: "m2_m3", title: "宋恩奭 × 鄭成燦", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
@@ -200,20 +216,20 @@ window.SITE_DATA = {
   },
 
   /* ---------- 遊戲時間與存檔 ----------
-   * 一天一天推進：早上 → 放學 → 晚上；晚上主畫面出現「睡覺」，睡了就是隔天早上（並自動存檔）
-   * startDate = 第 1 天的日期（行事曆、鎖定畫面、KakaoTalk 的「今天」都照這個算）
-   * 每天開始時記錄旗標 day_天數（例如 day_2）
+   * 一學年：startDate（2025-09-01，星期一）～ endDate（2026-08-31）
+   * 有事的日子才會停下來；晚上主畫面出現「睡覺」，睡了就往後跳到下一個有事的日子（並自動存檔）
+   * 每天記錄旗標 day_學年第幾天（例如 day_2）
    * saveSlots = 手動存檔的格數（設定 → 存檔與讀檔）
    */
   game: {
     debug: true,                 // true = 設定裡出現「數值（開發用）」；正式公開前改成 false
-    startDate: "2026-03-02",     // 第 1 天（星期一）；遊戲共 28 天，第 28 天 = 2026/3/29（星期日）是結局
+    startDate: "2025-09-01",
+    endDate: "2026-08-31",
     saveSlots: 10,
     sleepLabel: "睡覺",
     sleepTitle: "要睡覺了嗎？",
-    sleepText: "今天就會結束，進入隔天早上。",
-    cancelLabel: "取消",
-    dayLabel: "第 {n} 天"
+    sleepText: "今天就會結束，接著會照安排往後過日子，直到下一個有事的日子。",
+    cancelLabel: "取消"
     // 設定 App 的文字可以在 settingsText: { … } 裡改（預設值寫在 js/apps/settings.js 的 T_DEFAULT）
   },
 

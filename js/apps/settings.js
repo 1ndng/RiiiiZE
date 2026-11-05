@@ -33,6 +33,7 @@
     day: '第幾天', aff: '好感度', awake: '覺醒度', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
     gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談',
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
+    visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
     resetStats: '數值全部歸零', resetTitle: '要把數值全部歸零嗎？', resetText: '好感度、關係、覺醒度都會變回 0（旗標和天數不變）。', reset: '歸零'
   };
@@ -59,7 +60,7 @@
     S().$('#settings-scroll').innerHTML =
       '<h1 class="st-h1">' + esc(t.title) + '</h1>' +
       '<div class="st-group">' +
-        row(ICON.calendar, '#ff3b30', esc(t.progress), esc(t.dayLabel.replace('{n}', g.day)) + ' · ' + esc(g.dateText(null, true)), 'data-st-na disabled', false) +
+        row(ICON.calendar, '#ff3b30', esc(t.progress), esc(g.dateText(null, true)), 'data-st-na disabled', false) +
         row(ICON.save, '#007aff', esc(t.savesTitle), '', 'data-st-go="#/settings/saves"', true) +
         (window.ENDING ? row(ICON.star, '#ff9500', esc(t.gallery), '', 'data-st-go="#/settings/gallery"', true) : '') +
       '</div>' +
@@ -75,7 +76,7 @@
     var t = T();
     if (!slot) return '<small class="st-empty">' + esc(t.empty) + '</small>';
     var m = slot.meta || {};
-    return '<small>' + esc(t.dayLabel.replace('{n}', m.day)) + ' · ' + esc(m.date || '') + '</small>' +
+    return '<small>' + esc(m.date || '') + '</small>' +
       '<small class="st-dim">' + esc(t.savedAt.replace('{t}', m.savedAt || '')) + '</small>';
   }
   function renderSaves() {
@@ -170,8 +171,11 @@
         var ab = k.split('-');
         return stepper('pair', k, esc(nameOf(ab[0])) + ' × ' + esc(nameOf(ab[1])));
       }).join('') + '</div>' +
+      '<div class="st-sec">' + esc(t.visits) + '</div>' +
+      '<div class="st-group">' + ((D().plan || {}).activities || []).map(function (a) { return stepper('visits', a.id, esc(a.label)); }).join('') + '</div>' +
       '<div class="st-sec">' + esc(t.flags) + '</div>' +
       '<div class="st-group st-flags">' + (flags.length ? flags.map(function (f) { return '<i>' + esc(f) + '</i>'; }).join('') : '<small>' + esc(t.noFlags) + '</small>') + '</div>' +
+      (window.PLAN ? '<div class="st-group">' + row('', '', esc(t.planNow), '', 'data-st-plan', true) + '</div>' : '') +
       '<div class="st-sec">' + esc(t.scenes) + '</div>' +
       '<div class="st-group">' + Object.keys(D().scenes || {}).filter(function (id) { return id.indexOf('__') !== 0; }).map(function (id) {
         return row('', '', esc(id), S().hasFlag('scene_' + id) ? '✓' : '', 'data-st-scene="' + esc(id) + '"', true);
@@ -235,6 +239,7 @@
       if (a[0] === 'day') G().setDay(G().day + d); else G().addStat(a[0], a[1], d);
       renderStats(); return;
     }
+    if (e.target.closest('[data-st-plan]')) { window.PLAN.openPlanner(renderStats); return; }
     if ((el = e.target.closest('[data-replay]'))) { window.STORY.play(el.dataset.replay); return; }
     if ((el = e.target.closest('[data-st-scene]'))) { window.STORY.play(el.dataset.stScene, renderStats); return; }
     if (e.target.closest('[data-st-rename]')) {
