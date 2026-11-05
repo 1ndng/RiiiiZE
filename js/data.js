@@ -257,7 +257,6 @@ window.SITE_DATA = {
     //   想改顯示的字：weekdays（星期日～六）、months（一月～十二月）、weekHeads（一～日）
     calendar: {
       events: [
-        { title: "boring-day", color: "#b36ad9", textColor: "#7b3f9e" },
         { title: "每月 15 號的行程", date: "15", color: "#ff9500" },
         { title: "星期五的行程", date: "星期五", color: "#34c759" }
       ]
