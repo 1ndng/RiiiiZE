@@ -11,6 +11,22 @@
   'use strict';
 
   var D = window.SITE_DATA || {}, G = D.game || {};
+
+  /* ---- KakaoTalk 好友、IG 帳號、X 帳號寫 cast: "m1" = 這個帳號是那位成員：
+   *      大頭照一律用 cast 的 avatar；名字沒寫的話用 cast 的 name ---- */
+  (function linkCast() {
+    var map = {};
+    (D.cast || []).forEach(function (c) { map[c.id] = c; });
+    function fill(o) {
+      var c = o && map[o.cast];
+      if (!c) return;
+      if (c.avatar) o.avatar = c.avatar;
+      if (!o.name) o.name = c.name;
+    }
+    if (D.kakao) (D.kakao.friends || []).forEach(fill);
+    if (D.instagram) [D.instagram].concat(D.instagram.otherAccounts || [], D.instagram.searchOnlyAccounts || []).forEach(fill);
+    if (D.x) (D.x.accounts || []).forEach(fill);
+  })();
   var KEY = 'riiiize-game', SAVES = 'riiiizeSaves', PREFIX = 'riiiize-';
   var PHASES = ['morning', 'afterschool', 'night'];
   var WEEK = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];

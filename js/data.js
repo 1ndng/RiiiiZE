@@ -33,7 +33,7 @@ window.SITE_DATA = {
    */
   // avatar = 大頭照（沒寫就用預設頭貼 images/default_avatar.png）
   cast: [
-    { id: "m1", name: "大﨑将太郎", birthday: "11-25", activities: ["club", "council", "games"] },
+    { id: "m1", name: "大﨑将太郎", birthday: "11-25", activities: ["club", "council", "games"], avatar: "images/cast/m1.jpg" },
     { id: "m2", name: "宋恩奭",     birthday: "03-19", activities: ["volunteer", "council", "games"], avatar: "images/cast/m2.jpg" },
     { id: "m3", name: "鄭成燦",     birthday: "09-13", activities: ["council", "sports", "karaoke"], avatar: "images/cast/m3.jpg" },
     { id: "m4", name: "朴元彬",     birthday: "03-02", activities: ["club", "council", "sports"], avatar: "images/cast/m4.jpg" },
@@ -310,8 +310,7 @@ window.SITE_DATA = {
     username: "account_b",
     password: "0000",              // 從「新增帳號」輸入對的帳號＋密碼才登得進去
     private: true,                 // 非公開帳號：沒追蹤的人看不到貼文、限時、名單
-    avatar: "images/default_avatar.png",
-    name: "",                      // 沒有名字 → 顯示帳號 id
+    cast: "m1",                    // 成員帳號：名字、大頭照用 cast 的（不寫 cast → 用 avatar、name；沒有名字 → 顯示帳號 id）
     // 貼文數、粉絲、追蹤會自動計算；想顯示固定數字就加 postsCount / followersCount / followingCount
     closeFriendsList: [],
     following: ["account_a"],
@@ -466,8 +465,7 @@ window.SITE_DATA = {
       {
         username: "account_c",
         password: "0000",
-        avatar: PH,
-        name: "帳號 C",
+        cast: "m2",
         following: ["account_a"],
         closeFriendsList: ["account_a"],
         bio: ["帳號 C 的簡介"],
@@ -479,7 +477,12 @@ window.SITE_DATA = {
       }
     ],
     // 只能從名單點進去看、不能登入的帳號（不寫 password）
-    searchOnlyAccounts: []
+    searchOnlyAccounts: [
+      { username: "account_m3", cast: "m3", private: true, posts: [] },
+      { username: "account_m4", cast: "m4", private: true, posts: [] },
+      { username: "account_m5", cast: "m5", private: true, posts: [] },
+      { username: "account_m6", cast: "m6", private: true, posts: [] }
+    ]
   },
 
   /* ---------- 相簿（iPhone「照片」風格） ----------
@@ -532,14 +535,17 @@ window.SITE_DATA = {
     accounts: [
       { handle: "my_account", name: "我的帳號", avatar: PH, bio: "簡介",
         followersList: ["user_a", { handle: "passerby_1", name: "路人 1", avatar: PH, bio: "路人的簡介" }] },
-      { handle: "user_a", name: "使用者 A", avatar: PH, banner: PH, followed: true,
+      { handle: "user_a", cast: "m1", banner: PH, followed: true,
         bio: "使用者 A 的簡介 #標籤", following: 120, followers: "1.2萬",
         followingList: ["my_account", "user_b", { handle: "passerby_1", name: "路人 1", avatar: PH }],
         followersList: ["user_b", { handle: "passerby_2", name: "路人 2" }],
         likes: ["t2"], retweets: [] },
-      { handle: "user_b", name: "使用者 B", avatar: PH, protected: true, followed: true, bio: "鎖帳", following: 30, followers: 41,
+      { handle: "user_b", cast: "m2", protected: true, followed: true, bio: "鎖帳", following: 30, followers: 41,
         likes: ["t1", "t4"] },
-      { handle: "user_c", name: "使用者 C", avatar: PH, protected: true, bio: "鎖帳（沒跟隨）", following: 8, followers: 9 }
+      { handle: "user_c", cast: "m3", protected: true, bio: "鎖帳（沒跟隨）", following: 8, followers: 9 },
+      { handle: "user_m4", cast: "m4", protected: true, bio: "", following: 0, followers: 0 },
+      { handle: "user_m5", cast: "m5", protected: true, bio: "", following: 0, followers: 0 },
+      { handle: "user_m6", cast: "m6", protected: true, bio: "", following: 0, followers: 0 }
     ],
     tweets: [
       { id: "t1", by: "user_a", text: "貼文內容\n第二行 @user_b #標籤", images: [PH], time: "1小時", date: "下午 12:32 · 2026/9/1",
@@ -606,9 +612,8 @@ window.SITE_DATA = {
     friends: [
       {
         id: "f1",                     // 不要重複（用於網址）
-        name: "好友 A",
+        cast: "m1",                   // 成員：名字、大頭照用 cast 的
         status: "",
-        avatar: PH,
         unread: 1,                    // 一開始顯示的未讀數
         // 訊息種類：文字 text、照片 image、影片 video、語音通話 call: "voice"（duration 沒寫 = 未接；cancelled: true = 已取消）、
         // 收回 recalled: true、過期照片 expired: true、過期影片 expired: "video"、連結 link（＋ linkTitle、linkSite）
@@ -660,9 +665,8 @@ window.SITE_DATA = {
       },
       {
         id: "f2",
-        name: "好友 B",
+        cast: "m2",                   // 成員：名字、大頭照用 cast 的
         status: "",
-        avatar: PH,
         unread: 0,
         messages: [
           { date: "2025年12月1日" },
@@ -674,9 +678,8 @@ window.SITE_DATA = {
       },
       {
         id: "f3",
-        name: "好友 C",
+        cast: "m3",                   // 成員：名字、大頭照用 cast 的
         status: "",
-        avatar: PH,
         unread: 0,
         messages: [],
         // 選項式回覆：從上往下找第一組「還沒用過、if 成立」的選項，顯示在輸入框上面
@@ -696,6 +699,33 @@ window.SITE_DATA = {
             { text: "晚安", effects: { aff: { m3: 1 } }, reply: ["晚安😊"] }
           ] }
         ],
+        replies: [],
+        defaultReply: []
+      },
+      {
+        id: "f4",
+        cast: "m4",
+        status: "",
+        unread: 0,
+        messages: [],
+        replies: [],
+        defaultReply: []
+      },
+      {
+        id: "f5",
+        cast: "m5",
+        status: "",
+        unread: 0,
+        messages: [],
+        replies: [],
+        defaultReply: []
+      },
+      {
+        id: "f6",
+        cast: "m6",
+        status: "",
+        unread: 0,
+        messages: [],
         replies: [],
         defaultReply: []
       }
