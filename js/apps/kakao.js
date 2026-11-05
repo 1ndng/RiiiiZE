@@ -68,29 +68,37 @@
     });
     return day + mins * 60000;
   }
+  // 遊戲裡的「今天」（js/game.js 的日期；沒有的話用 data.js 的 kakao.today）
+  //   day = 第幾天（玩家傳的訊息會記住是第幾天傳的）
+  function dayText(day) { return window.GAME ? window.GAME.dateText(day) : K().today; }
+  function gameDay() { return window.GAME ? window.GAME.day : 0; }
   // 聊天列表右邊的時間（和 KakaoTalk 一樣）：今天 → 時間（h:mm）；昨天 →「昨天」；更早 → 日期
   function listTime(f, last) {
     var tm = /(\d{1,2}:\d{2})/.exec(last.time || ''), hm = tm ? tm[1] : '';
-    if ((state().msgs[f.id] || []).length) return hm;   // 玩家剛傳的訊息 = 今天
     var day = null;
-    (f.messages || []).forEach(function (m) {
+    messagesOf(f).forEach(function (m) {
       var d = m.date && /(\d{4})\s*[年년]\s*(\d+)\s*[月월]\s*(\d+)/.exec(m.date);
       if (d) day = [+d[1], +d[2], +d[3]];
     });
-    var t = /(\d{4})\D+(\d+)\D+(\d+)/.exec(K().today || '');
+    var t = /(\d{4})\D+(\d+)\D+(\d+)/.exec(dayText() || '');
     if (!day || !t) return hm;
     var diff = Math.round((Date.UTC(+t[1], t[2] - 1, +t[3]) - Date.UTC(day[0], day[1] - 1, day[2])) / 864e5);
     if (diff <= 0) return hm;
     if (diff === 1) return TX().yesterday || '昨天';
     return day[0] === +t[1] ? day[1] + '月' + day[2] + '日' : day[0] + '/' + day[1] + '/' + day[2];
   }
-  // 玩家傳的訊息、即時訊息都是「今天」：前面補一條今天的日期線
+  // 玩家傳的訊息、即時訊息、通話紀錄：照傳的那天補上日期線
   function messagesOf(f) {
     var base = f.messages || [], extra = state().msgs[f.id] || [];
     if (!extra.length) return base;
     var lastDate = ''; base.forEach(function (m) { if (m.date) lastDate = m.date; });
-    var today = K().today;
-    return base.concat(today && lastDate !== today ? [{ date: today }] : [], extra);
+    var out = base.slice();
+    extra.forEach(function (m) {
+      var d = dayText(m.day || undefined);   // 舊的紀錄沒有 day → 當作今天
+      if (d && d !== lastDate) { out.push({ date: d }); lastDate = d; }
+      out.push(m);
+    });
+    return out;
   }
   function unreadOf(f) {
     if (f.self) return 0;
@@ -256,6 +264,7 @@
 
   function push(id, msg) {
     var st = state();
+    msg.day = msg.day || gameDay();
     (st.msgs[id] = st.msgs[id] || []).push(msg);
     S().save(KEY, st);
   }
@@ -337,6 +346,7 @@
       st.sent[ev.id] = 1;
       var msg = { from: ev.from || 'them', time: nowTime() };
       ['text', 'link', 'linkTitle', 'linkSite', 'image'].forEach(function (k) { if (ev[k]) msg[k] = ev[k]; });
+      msg.day = gameDay();
       (st.msgs[ev.room] = st.msgs[ev.room] || []).push(msg);
       var viewing = openChatId === ev.room && location.hash.indexOf('#/kakao/chat/') === 0;
       if (!viewing) st.unread[ev.room] = (st.unread[ev.room] != null ? st.unread[ev.room] : ((friend(ev.room) || {}).unread || 0)) + 1;
@@ -370,7 +380,7 @@
     // 通話結束 → 聊天室多一則通話紀錄；對方打來沒接的算未讀
     addCall: function (id, msg) {
       var st = state();
-      msg.time = nowTime();
+      msg.time = nowTime(); msg.day = gameDay();
       (st.msgs[id] = st.msgs[id] || []).push(msg);
       var viewing = openChatId === id && location.hash.indexOf('#/kakao/chat/') === 0;
       if (msg.from !== 'me' && !msg.duration && !viewing) st.unread[id] = (st.unread[id] != null ? st.unread[id] : ((friend(id) || {}).unread || 0)) + 1;
@@ -384,6 +394,7 @@
   var bannerTimer = null;
   function banner(f, ev) {
     if (!f) return;
+    if (document.getElementById('lock')) return;   // 手機鎖著：不跳橫幅，直接變成鎖定畫面上的通知
     var phone = document.getElementById('phone'), old = document.getElementById('kk-banner');
     if (!phone) return;
     if (old) old.remove();

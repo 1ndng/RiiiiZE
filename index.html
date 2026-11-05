@@ -6,11 +6,12 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#000000">
   <title>RiiiiZE</title>
-  <link rel="stylesheet" href="css/style.css?v=1">
-  <link rel="stylesheet" href="css/apps.css?v=1">
-  <link rel="stylesheet" href="css/photos.css?v=1">
-  <link rel="stylesheet" href="css/x.css?v=1">
-  <link rel="stylesheet" href="css/notes.css?v=1">
+  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/apps.css?v=2">
+  <link rel="stylesheet" href="css/photos.css?v=2">
+  <link rel="stylesheet" href="css/x.css?v=2">
+  <link rel="stylesheet" href="css/notes.css?v=2">
+  <link rel="stylesheet" href="css/settings.css?v=2">
 </head>
 <body>
   <div class="phone" id="phone">
@@ -57,6 +58,12 @@
         <div class="app-scroll" id="notes-scroll"></div>
         <div class="app-overlay" id="notes-overlay"></div>
       </section>
+
+      <!-- 設定 -->
+      <section class="app settings-app" id="app-settings" data-app="settings">
+        <div class="app-scroll" id="settings-scroll"></div>
+        <div class="app-overlay" id="settings-overlay"></div>
+      </section>
     </div>
 
     <!-- 手機密碼鎖 -->
@@ -74,14 +81,16 @@
   <!-- data.js 每次都重新下載，改完內容不會被手機快取卡住 -->
   <script>
     document.write('<script src="js/data.js?t=' + Date.now() + '"><\/script>');
+    document.write('<script src="js/game.js?t=' + Date.now() + '"><\/script>');
   </script>
-  <script src="js/vendor/opencc-t2cn.js?v=1"></script>
-  <script src="js/lang.js?v=1"></script>
-  <script src="js/apps/kakao.js?v=1"></script>
-  <script src="js/apps/kakaocall.js?v=1"></script>
-  <script src="js/apps/photos.js?v=1"></script>
-  <script src="js/apps/x.js?v=1"></script>
-  <script src="js/apps/notes.js?v=1"></script>
-  <script src="js/app.js?v=1"></script>
+  <script src="js/vendor/opencc-t2cn.js?v=2"></script>
+  <script src="js/lang.js?v=2"></script>
+  <script src="js/apps/kakao.js?v=2"></script>
+  <script src="js/apps/kakaocall.js?v=2"></script>
+  <script src="js/apps/photos.js?v=2"></script>
+  <script src="js/apps/x.js?v=2"></script>
+  <script src="js/apps/notes.js?v=2"></script>
+  <script src="js/apps/settings.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
 </body>
 </html>

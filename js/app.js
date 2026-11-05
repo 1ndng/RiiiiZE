@@ -81,15 +81,60 @@
       ((h.icons || []).length ? '<div class="home-grid">' + h.icons.map(function (a) {
         return '<a class="app-icon" href="#/' + esc(a.id) + '" aria-label="' + esc(a.label) + '">' +
           '<img src="' + esc(a.icon) + '" alt=""><span>' + esc(a.label) + '</span></a>';
-      }).join('') + '</div>' : '');
+      }).join('') + '</div>' : '') +
+      // 晚上才有「睡覺」：結束這一天
+      (window.GAME ? '<button type="button" class="home-sleep" id="home-sleep" data-sleep>' + ICON_MOON + '<span>' + esc((D.game || {}).sleepLabel || '睡覺') + '</span></button>' : '');
     renderCalendar();
+    paintSleep();
   }
+  var ICON_MOON = '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" fill="currentColor"/></svg>';
+  function paintSleep() {
+    var b = $('#home-sleep');
+    if (b) b.hidden = !window.GAME || window.GAME.phase !== 'night';
+  }
+  if (window.GAME) window.GAME.onChange(paintSleep);
+
+  /* ---------------- 睡覺：確認 → 畫面變暗、顯示隔天日期 → 鎖定畫面 ---------------- */
+  function askSleep() {
+    var g = D.game || {}, w = document.createElement('div');
+    w.className = 'ios-alert-wrap';
+    w.innerHTML = '<div class="ios-alert"><b>' + esc(g.sleepTitle || '要睡覺了嗎？') + '</b>' +
+      '<p>' + esc(g.sleepText || '今天就會結束，進入隔天早上。') + '</p>' +
+      '<div class="ios-alert-btns"><button type="button" data-alert-no>' + esc(g.cancelLabel || '取消') + '</button>' +
+      '<button type="button" data-alert-yes>' + esc(g.sleepLabel || '睡覺') + '</button></div></div>';
+    $('#phone').appendChild(w);
+    w.addEventListener('click', function (e) {
+      if (e.target.closest('[data-alert-no]')) w.remove();
+      else if (e.target.closest('[data-alert-yes]')) { w.remove(); sleep(); }
+    });
+  }
+  function sleep() {
+    var g = D.game || {}, fade = document.createElement('div');
+    fade.className = 'day-fade';
+    $('#phone').appendChild(fade);
+    void fade.offsetWidth; fade.classList.add('show');
+    setTimeout(function () {
+      window.GAME.sleep();
+      fade.innerHTML = '<div><b>' + esc((g.dayLabel || '第 {n} 天').replace('{n}', window.GAME.day)) + '</b>' +
+        '<span>' + esc(window.GAME.dateText(null, true)) + '</span></div>';
+      fade.classList.add('text');
+      // 回到主畫面、鎖上手機
+      if (location.hash !== '#/home') location.hash = '#/home';
+      renderLock();
+      setTimeout(function () {
+        fade.classList.remove('show');
+        setTimeout(function () { fade.remove(); }, 700);
+      }, 1800);
+    }, 600);
+  }
+  $('#home').addEventListener('click', function (e) { if (e.target.closest('[data-sleep]')) askSleep(); });
 
   /* ---------------- 行事曆小工具 ----------------
    * 左邊：星期、今天幾號、今天的行程；右邊：這個月的月曆（星期一開頭，週末灰色，今天紅色圓圈）
    * events：{ title, color, date }；date 可寫 "10-1"（每年 10/1）、"2026-10-1"（那一天）、"15"（每個月 15 號）、
    *   "fri" 或 "星期五"（每個星期五），不寫 = 每天
-   * 點月曆上的日期 → 左邊換成那天的星期、日期和行程；再點今天（或點左邊）回到今天 */
+   * 點月曆上的日期 → 左邊換成那天的星期、日期和行程；再點今天（或點左邊）回到今天
+   * 日期是遊戲裡的日期（data.js 的 game.startDate 是第 1 天） */
   var calDay = '', calPick = null;   // calPick = 玩家點的那天（幾號），null = 今天
   var WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
   var MONTHS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
@@ -107,7 +152,7 @@
   function renderCalendar() {
     var box = $('#cal-widget'), c = D.home.calendar;
     if (!box || !c) return;
-    var d = new Date(), y = d.getFullYear(), m = d.getMonth(), today = d.getDate();
+    var d = gameDate(), y = d.getFullYear(), m = d.getMonth(), today = d.getDate();
     calDay = y + '-' + m + '-' + today;
     var pick = calPick || today, pd = new Date(y, m, pick);   // 左邊顯示的那天
     var wd = c.weekdays || WEEKDAYS, mn = c.months || MONTHS, heads = c.weekHeads || ['一', '二', '三', '四', '五', '六', '日'];
@@ -137,15 +182,17 @@
         '</div>' +
       '</div>';
   }
-  // 過了午夜自動換日期（選的日期也回到今天）
-  setInterval(function () {
-    var d = new Date();
+  // 遊戲裡的「今天」（js/game.js；沒有的話用現實日期）
+  function gameDate() { return window.GAME ? window.GAME.date() : new Date(); }
+  // 換到隔天（睡覺）→ 行事曆回到今天
+  if (window.GAME) window.GAME.onChange(function () {
+    var d = gameDate();
     if (d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() !== calDay) { calPick = null; renderCalendar(); }
-  }, 30000);
+  });
   document.addEventListener('click', function (e) {
     if (!e.target.closest('#cal-widget')) return;
     var day = e.target.closest('[data-calday]');
-    if (day) { calPick = +day.dataset.calday === new Date().getDate() ? null : +day.dataset.calday; renderCalendar(); }
+    if (day) { calPick = +day.dataset.calday === gameDate().getDate() ? null : +day.dataset.calday; renderCalendar(); }
     else if (e.target.closest('[data-caltoday]') && calPick) { calPick = null; renderCalendar(); }
   });
 
@@ -597,13 +644,7 @@
               : '<button class="ig-set-row" data-na>' + inner + '</button>';
           }).join('') +
         '</section>';
-      }).join('') +
-      // 最下面：重新開始、繁體／简体切換
-      '<div class="ig-set-foot">' +
-        (D.restartLabel ? '<button type="button" data-restart>' + esc(D.restartLabel) + '</button>' : '') +
-        (window.SOSHO_LANG ? '<button type="button" data-lang data-noconv>' +
-          (window.SOSHO_LANG.lang === 'cn' ? '繁體中文' : '简体中文') + '</button>' : '') +
-      '</div>';
+      }).join('');
   }
 
   // 設定 → 帳號隱私設定：不公開帳號開關
@@ -1208,17 +1249,6 @@
   $('#app-ig').addEventListener('click', function (e) {
     var el;
     if (e.target.closest('[data-share-profile]')) { copyLink(); return; }
-    // 語言切換（繁體／简体）
-    if (e.target.closest('[data-lang]')) { window.SOSHO_LANG.toggle(); return; }
-    // 重新開始：清除所有進度與紀錄（追蹤、典藏、登入、聊天、備忘錄…），回到手機密碼鎖
-    if (e.target.closest('[data-restart]')) {
-      if (!confirm(D.restartConfirm || '要清除所有進度、從頭開始嗎？')) return;
-      try {
-        Object.keys(localStorage).forEach(function (k) { if (k.indexOf('riiiize-') === 0) localStorage.removeItem(k); });
-      } catch (err) {}
-      location.href = location.pathname;
-      return;
-    }
     if ((el = e.target.closest('[data-back]'))) {
       e.preventDefault();
       goBack(el.getAttribute('href'));
@@ -1524,10 +1554,15 @@
   /* ---------------- 手機密碼鎖 ---------------- */
   function renderLock() {
     var L = D.lock || {}, code = String(L.passcode || ''), typed = '';
-    if (!code) return;   // 沒設密碼就不鎖
+    if (!code) { if (window.GAME) window.GAME.start(); return; }   // 沒設密碼就不鎖，直接開始這一天
     var keys = [['1', ''], ['2', 'A B C'], ['3', 'D E F'], ['4', 'G H I'], ['5', 'J K L'], ['6', 'M N O'],
                 ['7', 'P Q R S'], ['8', 'T U V'], ['9', 'W X Y Z'], ['', ''], ['0', ''], ['del', '']];
     var lock = $('#lock');
+    if (!lock) {   // 睡覺後再鎖一次：重新放一個鎖定畫面
+      lock = document.createElement('div');
+      lock.className = 'lock'; lock.id = 'lock';
+      $('#phone').insertBefore(lock, $('#toast'));
+    }
     lock.style.backgroundImage = 'url("' + (D.home && D.home.wallpaper) + '")';
     // 先是鎖定畫面（滑動以解鎖、時間、未讀訊息通知），往上滑才出現輸入密碼
     lock.innerHTML =
@@ -1553,9 +1588,9 @@
 
     // 日期、時間（跟著現實走）：「11月2日 星期一」
     function paintTime() {
-      var el = $('#lc-time'), de = $('#lc-date'), d = new Date();
+      var el = $('#lc-time'), de = $('#lc-date'), d = new Date(), gd = gameDate();
       if (el) el.textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
-      if (de) de.textContent = (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + WEEKDAYS[d.getDay()];
+      if (de) de.textContent = (gd.getMonth() + 1) + '月' + gd.getDate() + '日 ' + WEEKDAYS[gd.getDay()];   // 日期 = 遊戲裡的今天
     }
     // 通知：KakaoTalk 有未讀訊息的聊天室，一個聊天室一張；同一個聊天室有好幾則時後面疊著卡片
     function kakaoIcon() {
@@ -1631,6 +1666,7 @@
               $('#phone').classList.remove('locked');
               if (target) location.hash = target;   // 點通知解鎖 → 打開那個聊天室
               setTimeout(function () { lock.remove(); }, 450);
+              if (window.GAME) window.GAME.start();   // 開始這一天（早上、放學的劇情之後會接在這裡）
             }, 120);
           } else {
             var dots = $('#lock-dots');

@@ -494,6 +494,28 @@ div.ig-frow-main { cursor: default; }
 /* 限時動態裡的「⋯」選單 */
 .ig-story .ig-sheet-wrap { z-index: 10; color: #000; }
 
-/* IG 設定頁最下面：重新開始、繁體／简体 */
-.ig-set-foot { display: flex; justify-content: center; gap: 22px; padding: 22px 0 40px; }
-.ig-set-foot button { color: #8e8e8e; font-size: 13px; text-decoration: underline; text-underline-offset: 2px; }
+
+
+/* 主畫面：晚上才出現的「睡覺」 */
+.home-sleep { position: absolute; left: 50%; bottom: 46px; transform: translateX(-50%); display: flex; align-items: center; gap: 7px; padding: 11px 22px; border-radius: 24px; color: #fff; font: inherit; font-size: 16px; font-weight: 600; background: rgba(40,30,70,.35); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 4px 16px rgba(0,0,0,.12); }
+.home-sleep svg { width: 18px; height: 18px; }
+.home-sleep:active { filter: brightness(.85); }
+.home-sleep[hidden] { display: none; }
+
+/* iPhone 置中的確認視窗（睡覺、存檔共用） */
+.ios-alert-wrap { position: absolute; inset: 0; z-index: 95; background: rgba(0,0,0,.3); display: flex; align-items: center; justify-content: center; }
+.ios-alert { width: 270px; background: rgba(245,245,247,.97); border-radius: 14px; text-align: center; overflow: hidden; color: #000; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.ios-alert b { display: block; padding: 19px 16px 2px; font-size: 17px; }
+.ios-alert p { margin: 2px 16px 18px; font-size: 13px; line-height: 1.4; color: #3a3a3c; }
+.ios-alert-btns { display: grid; grid-template-columns: 1fr 1fr; border-top: .5px solid #c7c7cc; }
+.ios-alert-btns button { height: 44px; color: #007aff; font: inherit; font-size: 17px; }
+.ios-alert-btns button + button { border-left: .5px solid #c7c7cc; font-weight: 600; }
+.ios-alert-btns .st-red { color: #ff3b30; }
+
+/* 睡覺 → 隔天：畫面變暗，顯示第幾天 */
+.day-fade { position: absolute; inset: 0; z-index: 100; background: #000; color: #fff; opacity: 0; transition: opacity .6s; display: flex; align-items: center; justify-content: center; text-align: center; pointer-events: auto; }
+.day-fade.show { opacity: 1; }
+.day-fade > div { opacity: 0; transition: opacity .5s .1s; }
+.day-fade.text > div { opacity: 1; }
+.day-fade b { display: block; font-size: 30px; font-weight: 600; letter-spacing: 2px; }
+.day-fade span { display: block; margin-top: 8px; font-size: 15px; opacity: .75; }

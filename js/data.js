@@ -11,9 +11,23 @@ window.SITE_DATA = {
 
   /* ---------- 共用 ---------- */
   notUpdatedText: "尚未更新",   // 點到未開放功能時跳出的文字
-  // IG 設定頁最下面的「重新開始」：清除所有進度、回到手機密碼鎖
-  restartLabel: "重新開始",
-  restartConfirm: "要清除所有進度、從頭開始嗎？",
+
+  /* ---------- 遊戲時間與存檔 ----------
+   * 一天一天推進：早上 → 放學 → 晚上；晚上主畫面出現「睡覺」，睡了就是隔天早上（並自動存檔）
+   * startDate = 第 1 天的日期（行事曆、鎖定畫面、KakaoTalk 的「今天」都照這個算）
+   * 每天開始時記錄旗標 day_天數（例如 day_2）
+   * saveSlots = 手動存檔的格數（設定 → 存檔與讀檔）
+   */
+  game: {
+    startDate: "2026-03-02",
+    saveSlots: 10,
+    sleepLabel: "睡覺",
+    sleepTitle: "要睡覺了嗎？",
+    sleepText: "今天就會結束，進入隔天早上。",
+    cancelLabel: "取消",
+    dayLabel: "第 {n} 天"
+    // 設定 App 的文字可以在 settingsText: { … } 裡改（預設值寫在 js/apps/settings.js 的 T_DEFAULT）
+  },
 
   /* ---------- 手機密碼鎖（每次打開網址都要先輸入；留空 "" = 不鎖） ---------- */
   lock: {
@@ -48,7 +62,8 @@ window.SITE_DATA = {
       { id: "notes",  label: "備忘錄",    icon: "images/icon_notes.png" },
       { id: "kakao",  label: "KakaoTalk", icon: "images/icon_kakao.png" },
       { id: "ig",     label: "Instagram", icon: "images/icon_insta.png" },
-      { id: "x",      label: "X",         icon: "images/icon_x.png" }
+      { id: "x",      label: "X",         icon: "images/icon_x.png" },
+      { id: "settings", label: "設定",     icon: "images/icon_settings.png" }
     ]
   },
 
@@ -324,7 +339,7 @@ window.SITE_DATA = {
   /* ---------- KakaoTalk ---------- */
   kakao: {
     passcode: "0000",              // 進入 KakaoTalk 的密碼；留空 "" = 不用密碼
-    today: "2026年1月1日",          // 遊戲裡的「今天」（聊天列表顯示「昨天」、日期用）
+    // 「今天」= 遊戲裡的日期（game.startDate 開始，每睡一覺 +1 天）
     // 나와의 채팅（自己傳給自己）
     me: {
       name: "我",

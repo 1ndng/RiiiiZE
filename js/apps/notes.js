@@ -36,9 +36,11 @@
   }
   function save(st) { S().save(KEY, st); }
 
+  // 日期 = 遊戲裡的今天；時間 = 現在的時間
+  function gdate() { return window.GAME ? window.GAME.date() : new Date(); }
   function stamp() {
-    var d = new Date(), h = d.getHours();
-    return { date: d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日', time: (h < 12 ? '上午 ' : '下午 ') + (h % 12 || 12) + ':' + String(d.getMinutes()).padStart(2, '0'), ts: d.getTime() };
+    var d = new Date(), h = d.getHours(), g = gdate();
+    return { date: g.getFullYear() + '年' + (g.getMonth() + 1) + '月' + g.getDate() + '日', time: (h < 12 ? '上午 ' : '下午 ') + (h % 12 || 12) + ':' + String(d.getMinutes()).padStart(2, '0'), ts: d.getTime() };
   }
   // 全部備忘錄（玩家改過的內容、新增的、刪除的都算進去），新的在前
   function all() {
@@ -67,7 +69,7 @@
   }
   // 列表上的日期：今天 → 時間；其他 → 年/月/日
   function shortDate(n) {
-    var m = /(\d{4})\D+(\d+)\D+(\d+)/.exec(n.date || ''), d = new Date();
+    var m = /(\d{4})\D+(\d+)\D+(\d+)/.exec(n.date || ''), d = gdate();
     if (!m) return n.time || '';
     if (+m[1] === d.getFullYear() && +m[2] === d.getMonth() + 1 && +m[3] === d.getDate()) return (n.time || '').replace(/^(上午|下午)\s*/, '$1');
     return m[1] + '/' + m[2] + '/' + m[3];
