@@ -420,7 +420,8 @@
   function dayChatStart(def, done, free) {
     var st = state(); st.dayChat = st.dayChat || {};
     dc = { def: def, room: def.room, i: st.dayChat[dcId(def)] || 0, ask: null, done: done, free: free };
-    location.hash = '#/kakao/chat/' + encodeURIComponent(def.room);
+    // 用「取代」打開聊天室：不留在上一頁的紀錄裡，聊完按返回 = 回到 KakaoTalk 聊天列表（不會回到前一段強制聊天）
+    S().replaceHash('#/kakao/chat/' + encodeURIComponent(def.room));
     // intro：打開聊天室後，先用劇情對話框播一段（背景 = 變暗的手機畫面），播完才開始聊天
     if (def.intro && dc.i === 0 && window.STORY) {
       setTimeout(function () { window.STORY.play(def.intro, function () { setTimeout(dayChatNext, 500); }, null, 'phone-dim'); }, 700);
