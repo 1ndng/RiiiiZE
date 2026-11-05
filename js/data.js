@@ -482,7 +482,10 @@ window.SITE_DATA = {
         posts: [
           { images: ["images/ig/sohee_20250121_1.jpg", "images/ig/sohee_20250121_2.jpg", "images/ig/sohee_20250121_3.jpg"], caption: "", time: "1月21日" }   // 第一篇（2025/1/21）
         ] },
-      { username: "antonnie",    cast: "m6", name: "Anton", private: true, following: others(IG_ALL, "antonnie"),    bio: [], highlights: [], posts: [], reposts: [] }
+      { username: "antonnie",    cast: "m6", name: "Anton", private: true, following: others(IG_ALL, "antonnie"),    bio: [], highlights: [], reposts: [],
+        posts: [
+          { images: ["images/ig/chanyoung_20250811_1.jpg", "images/ig/chanyoung_20250811_2.jpg", "images/ig/chanyoung_20250811_3.jpg", "images/ig/chanyoung_20250811_4.jpg"], caption: "", time: "8月11日" }   // 第一篇（2025/8/11）
+        ] }
     ]
   },
 
