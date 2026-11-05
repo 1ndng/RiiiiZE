@@ -302,12 +302,12 @@ window.SITE_DATA = {
   },
 
   /* ---------- Instagram ----------
-   * 這一段本身 = 帳號「account_b」，同時放全部帳號共用的文字設定。
+   * 這一段本身 = 帳號「shotaroo0」，同時放全部帳號共用的文字設定。
    * otherAccounts = 其他帳號；有寫 password 的可以從「新增帳號」登入。
    */
   instagram: {
     defaultAccount: "account_a",   // 打開 IG 時已經登入的帳號
-    username: "account_b",
+    username: "shotaroo0",
     password: "0000",              // 從「新增帳號」輸入對的帳號＋密碼才登得進去
     private: true,                 // 非公開帳號：沒追蹤的人看不到貼文、限時、名單
     cast: "m1",                    // 成員帳號：名字、大頭照用 cast 的（不寫 cast → 用 avatar、name；沒有名字 → 顯示帳號 id）
@@ -405,20 +405,20 @@ window.SITE_DATA = {
         password: "0000",
         avatar: PH,
         name: "帳號 A",
-        following: ["account_c"],
+        following: ["seokkkk"],
         // 粉絲／追蹤中名單：寫帳號 id = 遊戲裡的帳號（可點進去）；{ username, name, avatar } = 路人
         followersList: [
-          "account_b",
-          "account_c",
+          "shotaroo0",
+          "seokkkk",
           { username: "passerby_1", name: "路人 1", avatar: PH },
           { username: "passerby_2", name: "路人 2" }
         ],
         followingList: [
-          "account_c",
+          "seokkkk",
           { username: "passerby_1", name: "路人 1", avatar: PH }
         ],
         // 摯友名單：寫在這裡的帳號才看得到 closeFriends: true 的限時動態
-        closeFriendsList: ["account_c", "passerby_1"],
+        closeFriendsList: ["seokkkk", "passerby_1"],
         saved: [],
         // 典藏：stories = 過期的限時動態；posts = 下架的貼文
         archive: {
@@ -435,7 +435,7 @@ window.SITE_DATA = {
         // 目前的限時動態（頭像外圈）
         story: [
           { image: PH, time: "1小時" },
-          { image: PH, time: "30分鐘", closeFriends: true, likedBy: ["account_c"] }
+          { image: PH, time: "30分鐘", closeFriends: true, likedBy: ["seokkkk"] }
         ],
         highlights: [
           { image: PH, label: "精選 1",
@@ -450,12 +450,12 @@ window.SITE_DATA = {
             images: [PH, PH, PH],
             caption: "貼文內文\n第二行",
             time: "1月3日",
-            likedBy: { name: "account_c" },   // 「account_c 說讚」
+            likedBy: { name: "seokkkk" },   // 「seokkkk 說讚」
             comments: [
-              { user: "account_c", text: "留言", time: "1天" },
+              { user: "seokkkk", text: "留言", time: "1天" },
               { user: "passerby_1", avatar: PH, text: "路人的留言", time: "1天" }
             ],
-            tagged: ["account_c"]
+            tagged: ["seokkkk"]
           },
           { images: [PH], caption: "", time: "1月2日" },
           { images: [PH], caption: "", time: "1月1日" }
@@ -463,7 +463,7 @@ window.SITE_DATA = {
         reposts: []
       },
       {
-        username: "account_c",
+        username: "seokkkk",
         password: "0000",
         cast: "m2",
         following: ["account_a"],
@@ -478,10 +478,10 @@ window.SITE_DATA = {
     ],
     // 只能從名單點進去看、不能登入的帳號（不寫 password）
     searchOnlyAccounts: [
-      { username: "account_m3", cast: "m3", private: true, posts: [] },
-      { username: "account_m4", cast: "m4", private: true, posts: [] },
-      { username: "account_m5", cast: "m5", private: true, posts: [] },
-      { username: "account_m6", cast: "m6", private: true, posts: [] }
+      { username: "sungchan913", cast: "m3", private: true, posts: [] },
+      { username: "bin032", cast: "m4", private: true, posts: [] },
+      { username: "252525252_", cast: "m5", private: true, posts: [] },
+      { username: "antonnie", cast: "m6", private: true, posts: [] }
     ]
   },
 
@@ -534,29 +534,29 @@ window.SITE_DATA = {
     me: "my_account",
     accounts: [
       { handle: "my_account", name: "我的帳號", avatar: PH, bio: "簡介",
-        followersList: ["user_a", { handle: "passerby_1", name: "路人 1", avatar: PH, bio: "路人的簡介" }] },
-      { handle: "user_a", cast: "m1", banner: PH, followed: true,
+        followersList: ["shotaroo0", { handle: "passerby_1", name: "路人 1", avatar: PH, bio: "路人的簡介" }] },
+      { handle: "shotaroo0", cast: "m1", banner: PH, followed: true,
         bio: "使用者 A 的簡介 #標籤", following: 120, followers: "1.2萬",
-        followingList: ["my_account", "user_b", { handle: "passerby_1", name: "路人 1", avatar: PH }],
-        followersList: ["user_b", { handle: "passerby_2", name: "路人 2" }],
+        followingList: ["my_account", "seokkkk", { handle: "passerby_1", name: "路人 1", avatar: PH }],
+        followersList: ["seokkkk", { handle: "passerby_2", name: "路人 2" }],
         likes: ["t2"], retweets: [] },
-      { handle: "user_b", cast: "m2", protected: true, followed: true, bio: "鎖帳", following: 30, followers: 41,
+      { handle: "seokkkk", cast: "m2", protected: true, followed: true, bio: "鎖帳", following: 30, followers: 41,
         likes: ["t1", "t4"] },
-      { handle: "user_c", cast: "m3", protected: true, bio: "鎖帳（沒跟隨）", following: 8, followers: 9 },
-      { handle: "user_m4", cast: "m4", protected: true, bio: "", following: 0, followers: 0 },
-      { handle: "user_m5", cast: "m5", protected: true, bio: "", following: 0, followers: 0 },
-      { handle: "user_m6", cast: "m6", protected: true, bio: "", following: 0, followers: 0 }
+      { handle: "sungchan913", cast: "m3", protected: true, bio: "鎖帳（沒跟隨）", following: 8, followers: 9 },
+      { handle: "bin032", cast: "m4", protected: true, bio: "", following: 0, followers: 0 },
+      { handle: "252525252_", cast: "m5", protected: true, bio: "", following: 0, followers: 0 },
+      { handle: "antonnie", cast: "m6", protected: true, bio: "", following: 0, followers: 0 }
     ],
     tweets: [
-      { id: "t1", by: "user_a", text: "貼文內容\n第二行 @user_b #標籤", images: [PH], time: "1小時", date: "下午 12:32 · 2026/9/1",
+      { id: "t1", by: "shotaroo0", text: "貼文內容\n第二行 @seokkkk #標籤", images: [PH], time: "1小時", date: "下午 12:32 · 2026/9/1",
         retweets: 18, likes: 457,
         replies: [
-          { by: "user_b", text: "回覆 1", time: "6秒" },
-          { by: "user_a", text: "回覆 2（回覆串）", time: "2秒", replyTo: "user_b" }
+          { by: "seokkkk", text: "回覆 1", time: "6秒" },
+          { by: "shotaroo0", text: "回覆 2（回覆串）", time: "2秒", replyTo: "seokkkk" }
         ] },
-      { id: "t2", by: "user_b", text: "鎖帳的貼文", time: "3小時", date: "上午 9:15 · 2026/9/1", likes: 4, liked: true },
-      { id: "t3", by: "user_c", text: "看不到的貼文", time: "5小時", date: "上午 7:00 · 2026/9/1" },
-      { id: "t4", by: "user_a", text: "多張照片", images: [PH, PH], time: "1天", date: "下午 8:00 · 2026/8/31", retweets: 2, likes: 30, retweetedBy: "user_b" }
+      { id: "t2", by: "seokkkk", text: "鎖帳的貼文", time: "3小時", date: "上午 9:15 · 2026/9/1", likes: 4, liked: true },
+      { id: "t3", by: "sungchan913", text: "看不到的貼文", time: "5小時", date: "上午 7:00 · 2026/9/1" },
+      { id: "t4", by: "shotaroo0", text: "多張照片", images: [PH, PH], time: "1天", date: "下午 8:00 · 2026/8/31", retweets: 2, likes: 30, retweetedBy: "seokkkk" }
     ]
     // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/x.js 的 T_DEFAULT）
   },
@@ -730,23 +730,16 @@ window.SITE_DATA = {
         defaultReply: []
       }
     ],
-    // 群組：members 寫好友 id；訊息的 from 寫好友 id（或 "me"）；name 留空 = 自動用成員名字
+    // 群組：activity 寫日程 id = 自動放進那個日程會出現的成員（cast 的 activities），名字用日程名稱
+    //   也可以不寫 activity，改寫 members（好友 id）；訊息的 from 寫好友 id（或 "me"）；name 留空 = 自動用成員名字
     // replies 的 reply 可以寫 { from: "f3", text: "..." } 指定誰回
     groups: [
-      {
-        id: "g1",
-        name: "",
-        members: ["f2", "f3"],
-        unread: 0,
-        messages: [
-          { date: "2025年11月1日" },
-          { from: "f2", text: "群組訊息", time: "下午 10:07" },
-          { from: "me", text: "我的訊息", time: "下午 10:13" },
-          { from: "f3", image: PH, time: "下午 10:16" }
-        ],
-        replies: [],
-        defaultReply: []
-      }
+      { id: "g_club", activity: "club", unread: 0, messages: [], replies: [], defaultReply: [] },   // 社團活動
+      { id: "g_volunteer", activity: "volunteer", unread: 0, messages: [], replies: [], defaultReply: [] },   // 志工活動
+      { id: "g_sports", activity: "sports", unread: 0, messages: [], replies: [], defaultReply: [] },   // 體育館
+      { id: "g_council", activity: "council", unread: 0, messages: [], replies: [], defaultReply: [] },   // 學生會
+      { id: "g_games", activity: "games", unread: 0, messages: [], replies: [], defaultReply: [] },   // 網咖
+      { id: "g_karaoke", activity: "karaoke", unread: 0, messages: [], replies: [], defaultReply: [] }   // KTV
     ],
     // 介面文字
     text: {

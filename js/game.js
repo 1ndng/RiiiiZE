@@ -26,6 +26,17 @@
     if (D.kakao) (D.kakao.friends || []).forEach(fill);
     if (D.instagram) [D.instagram].concat(D.instagram.otherAccounts || [], D.instagram.searchOnlyAccounts || []).forEach(fill);
     if (D.x) (D.x.accounts || []).forEach(fill);
+    // KakaoTalk 群組寫 activity: "club" = 自動放進這個日程會出現的成員（cast 的 activities），名字用日程名稱
+    if (D.kakao) (D.kakao.groups || []).forEach(function (g) {
+      if (!g.activity) return;
+      var friends = D.kakao.friends || [];
+      g.members = (D.cast || []).filter(function (c) { return (c.activities || []).indexOf(g.activity) >= 0; })
+        .map(function (c) { return (friends.filter(function (f) { return f.cast === c.id; })[0] || {}).id; }).filter(Boolean);
+      if (!g.name) {
+        var act = ((D.plan || {}).activities || []).filter(function (x) { return x.id === g.activity; })[0];
+        g.name = act ? act.label : g.activity;
+      }
+    });
   })();
   var KEY = 'riiiize-game', SAVES = 'riiiizeSaves', PREFIX = 'riiiize-';
   var PHASES = ['morning', 'afterschool', 'night'];
