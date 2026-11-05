@@ -1,5 +1,6 @@
 /* KakaoTalk 語音通話
  *   打出去：聊天室右上角的電話鍵 → 對方有寫 call 劇本就會接，沒有就「對方未接聽」
+ *   群組也可以打（群組寫 call 劇本；lines 的 who 寫好友 id = 那位成員說的話）；好友寫 noCall: true = 沒有電話鍵
  *   打進來：data.js 的 kakao.incoming（達成旗標後過幾秒對方打來，任何畫面都會跳出來）
  *   通話結束後，聊天室會多一則通話紀錄
  * 劇本格式（call / incoming 共用）：nodes 裡每一段有 lines（逐句字幕）和 choices（選項）
@@ -48,8 +49,11 @@
       '<div class="kc-bg" style="background-image:url(&quot;' + esc(f.avatar) + '&quot;)"></div>' +
       '<div class="kc-top">' + ICON.call + '<span>' + esc(t.voiceTalk) + '</span></div>' +
       '<div class="kc-who">' +
-        '<img src="' + esc(f.avatar) + '" alt="">' +
-        '<b>' + esc(f.name) + '</b>' +
+        (f.group
+          // 群組通話：成員的頭貼排成一排
+          ? '<span class="kc-group">' + f.members.slice(0, 5).map(function (m) { return '<img src="' + esc(m.avatar) + '" alt="">'; }).join('') + '</span>'
+          : '<img src="' + esc(f.avatar) + '" alt="">') +
+        '<b>' + esc(f.name) + (f.group ? ' <small>' + (f.members.length + 1) + '</small>' : '') + '</b>' +
         '<span id="kc-status"></span>' +
       '</div>' +
       '<div class="kc-caps" id="kc-caps"></div>' +
@@ -87,7 +91,7 @@
   function start(id) {
     if (call) return;
     var f = KK().friend(id);
-    if (!f || f.group || f.self) return;
+    if (!f || f.self || f.noCall) return;
     var sc = scriptOf(f);
     call = { f: f, out: true, ov: overlay(f, false), secs: 0 };
     status(TX().calling);
@@ -133,7 +137,7 @@
     if (!call || !call.incoming) return;
     var c = call.cfg;
     S().setFlag(c.declineFlag);
-    KK().addCall(call.f.id, { from: 'them', call: 'voice' });   // 未接來電
+    KK().addCall(call.f.id, { from: themId(), call: 'voice' });   // 未接來電
     close();
   }
   function accept() {
@@ -170,7 +174,9 @@
     var box = el('kc-caps'), d = document.createElement('div');
     d.className = 'kc-cap ' + (who === 'me' ? 'me' : 'them');
     var F = window.STORY ? window.STORY.fill : function (x) { return x; };   // {name} → 玩家的名字
-    d.innerHTML = '<div>' + esc(F(text)) + '</div>' + (sub ? '<small>' + esc(F(sub)) + '</small>' : '');
+    // 群組通話：who 寫好友 id → 字幕上面顯示是誰在說話
+    var m = call.f.group && who !== 'me' && (call.f.members || []).filter(function (x) { return x.id === who; })[0];
+    d.innerHTML = (m ? '<i>' + esc(m.name) + '</i>' : '') + '<div>' + esc(F(text)) + '</div>' + (sub ? '<small>' + esc(F(sub)) + '</small>' : '');
     box.appendChild(d);
     box.scrollTop = box.scrollHeight;
   }
@@ -217,11 +223,16 @@
   // 結束：在聊天室留通話紀錄（有接通 = 通話長度；打出去沒接通 = 已取消）
   function finish() {
     if (!call) return;
-    var msg = { from: call.out ? 'me' : 'them', call: 'voice' };
+    var msg = { from: call.out ? 'me' : themId(), call: 'voice' };
     if (call.connected) msg.duration = Math.floor(call.secs / 60) + ':' + String(call.secs % 60).padStart(2, '0');
     else if (call.out) msg.cancelled = true;
     KK().addCall(call.f.id, msg);
     close();
+  }
+  // 對方：1:1 是 "them"；群組是打來的人（incoming 寫 from: 好友 id，沒寫 = 第一位成員）
+  function themId() {
+    if (!call.f.group) return 'them';
+    return (call.cfg && call.cfg.from) || ((call.f.members || [])[0] || {}).id;
   }
   function close() {
     if (!call) return;

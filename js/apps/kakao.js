@@ -12,6 +12,7 @@
     video: '<svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="13" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M15.5 10.5 21 7.5v9l-5.5-3z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     phone: '<svg viewBox="0 0 24 24"><path d="M6.6 3.5c.7-.3 1.5 0 1.9.6l1.6 2.8c.4.7.2 1.5-.4 2l-1.3 1c.9 1.9 2.4 3.4 4.3 4.3l1-1.3c.5-.6 1.3-.8 2-.4l2.8 1.6c.6.4.9 1.2.6 1.9-.6 1.6-2.1 2.6-3.8 2.4C9.6 17.8 5.2 13.4 4.6 7.7c-.2-1.7.8-3.4 2-4.2z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     photo: '<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="8.5" cy="9.5" r="1.6" fill="currentColor"/><path d="M3.5 17l5-5 4 4 3-3 5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>',
+    menu: '<svg viewBox="0 0 24 24"><path d="M4 6.5h16M4 12h16M4 17.5h16" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/></svg>',
     send: '<svg viewBox="0 0 24 24"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
 
@@ -38,7 +39,8 @@
       id: g.id, group: true, members: members,
       name: g.name || members.map(function (m) { return m.name; }).join(', '),
       avatar: (members[0] || {}).avatar,
-      messages: g.messages || [], replies: g.replies || [], defaultReply: g.defaultReply || [], unread: g.unread || 0
+      messages: g.messages || [], replies: g.replies || [], defaultReply: g.defaultReply || [], unread: g.unread || 0,
+      call: g.call, noCall: g.noCall
     };
   }
   function groups() { return (K().groups || []).map(groupRoom); }
@@ -242,8 +244,11 @@
         '<div class="kk-chat-head">' +
           '<a href="#/kakao" data-kback>' + ICON.back + '</a>' +
           '<b>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b>' +
-          // 右上角電話鍵：和好友 1:1 通話（群組、自己的聊天室沒有）
-          (f.group || f.self || !window.SOSHO_KAKAO_CALL ? '<span></span>' : '<button type="button" class="kk-callbtn" data-kcall aria-label="call">' + ICON.phone + '</button>') +
+          // 右上角：電話鍵（1:1 或群組通話；noCall: true = 沒有）＋群組的選單鍵（看聊天室成員）
+          '<span class="kk-head-btns">' +
+            (f.self || f.noCall || !window.SOSHO_KAKAO_CALL ? '' : '<button type="button" class="kk-callbtn" data-kcall aria-label="call">' + ICON.phone + '</button>') +
+            (f.group ? '<button type="button" class="kk-callbtn" data-kmembers aria-label="members">' + ICON.menu + '</button>' : '') +
+          '</span>' +
         '</div>' +
         '<div class="kk-msgs" id="kk-msgs"></div>' +
         '<div class="kk-choices" id="kk-choices"></div>' +
@@ -531,6 +536,35 @@
     else renderChats();
   }
 
+  // 群組的聊天室成員（和 KakaoTalk 一樣從右邊滑出來）：自己在最上面，點成員打開和他的聊天室
+  function me() {
+    var pl = S().load('riiiize-player', null) || {};
+    return { name: pl.name || TX().meName || '我', avatar: pl.avatar || 'images/default_avatar.png' };
+  }
+  function openMembers(f) {
+    var t = TX(), m = me(), d = document.createElement('div');
+    d.className = 'kk-drawer';
+    d.innerHTML = '<div class="kk-drawer-bg" data-kdclose></div>' +
+      '<div class="kk-drawer-panel">' +
+        '<div class="kk-drawer-head"><b>' + esc(t.membersTitle || '聊天室成員') + '</b><span>' + (f.members.length + 1) + '</span></div>' +
+        '<div class="kk-drawer-list">' +
+          '<div class="kk-mem"><img src="' + esc(m.avatar) + '" alt=""><b>' + esc(m.name) + '</b><i class="kk-me-tag">' + esc(t.meTag || '我') + '</i></div>' +
+          f.members.map(function (x) {
+            return '<a class="kk-mem" href="#/kakao/chat/' + encodeURIComponent(x.id) + '" data-kdclose><img src="' + esc(x.avatar) + '" alt=""><b>' + esc(x.name) + '</b></a>';
+          }).join('') +
+        '</div>' +
+      '</div>';
+    S().$('#kakao-overlay').appendChild(d);
+    void d.offsetWidth; d.classList.add('show');
+  }
+  function closeMembers() {
+    var d = document.querySelector('.kk-drawer');
+    if (!d) return;
+    d.classList.remove('show');
+    setTimeout(function () { d.remove(); }, 250);
+  }
+  window.addEventListener('hashchange', function () { var d = document.querySelector('.kk-drawer'); if (d) d.remove(); });
+
   document.addEventListener('click', function (e) {
     var app = document.getElementById('app-kakao');
     if (!app || !app.contains(e.target)) return;
@@ -542,6 +576,8 @@
       return;
     }
     // 通話：電話鍵或點通話紀錄 → 語音通話
+    if (e.target.closest('[data-kmembers]') && openChatId) { openMembers(friend(openChatId)); return; }
+    if (e.target.closest('[data-kdclose]')) { closeMembers(); return; }
     var kc = e.target.closest('[data-kcall]');
     if (kc && openChatId) { window.SOSHO_KAKAO_CALL.start(openChatId); return; }
     var pin = e.target.closest('[data-kpin]');

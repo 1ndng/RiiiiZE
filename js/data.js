@@ -605,6 +605,7 @@ window.SITE_DATA = {
       {
         id: "helper",
         name: "客服小精靈",
+        noCall: true,                 // 沒有電話鍵
         status: "",
         avatar: "images/default_avatar.png",
         unread: 0,
@@ -738,9 +739,7 @@ window.SITE_DATA = {
     groups: [
       { id: "g_club", activity: "club", unread: 0, messages: [], replies: [], defaultReply: [] },   // 社團活動
       { id: "g_volunteer", activity: "volunteer", unread: 0, messages: [], replies: [], defaultReply: [] },   // 志工活動
-      { id: "g_sports", activity: "sports", unread: 0, messages: [], replies: [], defaultReply: [] },   // 體育館
       { id: "g_council", activity: "council", unread: 0, messages: [], replies: [], defaultReply: [] },   // 學生會
-      { id: "g_games", activity: "games", unread: 0, messages: [], replies: [], defaultReply: [] },   // 網咖
       { id: "g_karaoke", activity: "karaoke", unread: 0, messages: [], replies: [], defaultReply: [] }   // KTV
     ],
     // 介面文字

@@ -198,3 +198,29 @@ button.kk-call { font: inherit; color: inherit; text-align: left; cursor: pointe
 .kk-chip:active { background: #f4f4f4; }
 .kk-chip.on { background: #fff8c4; border-color: #f2d600; }
 .kk-field input[readonly] { cursor: default; }
+
+/* 聊天室右上角按鈕（電話、群組選單） */
+.kk-chat-head { grid-template-columns: 80px 1fr 80px; }
+.kk-chat-head b { text-align: center; }
+.kk-head-btns { display: flex; justify-content: flex-end; }
+.kk-head-btns .kk-callbtn { width: 38px; }
+/* 群組的聊天室成員：從右邊滑出來 */
+.kk-drawer { position: absolute; inset: 0; z-index: 30; }
+.kk-drawer-bg { position: absolute; inset: 0; background: rgba(0,0,0,.35); opacity: 0; transition: opacity .25s; }
+.kk-drawer-panel { position: absolute; top: 0; right: 0; bottom: 0; width: 78%; padding-top: 54px; background: #fff; transform: translateX(100%); transition: transform .25s; display: flex; flex-direction: column; }
+.kk-drawer.show .kk-drawer-bg { opacity: 1; }
+.kk-drawer.show .kk-drawer-panel { transform: none; }
+.kk-drawer-head { display: flex; align-items: baseline; gap: 6px; padding: 10px 18px 12px; border-bottom: .5px solid #e5e5e5; }
+.kk-drawer-head b { font-size: 16px; font-weight: 600; }
+.kk-drawer-head span { font-size: 14px; color: #999; }
+.kk-drawer-list { flex: 1; overflow-y: auto; padding: 6px 0 40px; }
+.kk-mem { display: flex; align-items: center; gap: 12px; padding: 8px 18px; color: #191919; text-decoration: none; }
+.kk-mem img { width: 40px; height: 40px; border-radius: 15px; object-fit: cover; }
+.kk-mem b { font-size: 15px; font-weight: 500; }
+.kk-mem .kk-me-tag { margin-left: -4px; }
+/* 群組通話 */
+.kc-group { display: flex; justify-content: center; }
+.kc-group img { width: 64px; height: 64px; border-radius: 24px; object-fit: cover; margin: 0 -6px; border: 2px solid rgba(255,255,255,.25); box-shadow: 0 4px 14px rgba(0,0,0,.3); }
+.kc.connected .kc-group img { width: 48px; height: 48px; border-radius: 18px; }
+.kc-who b small { font-size: .7em; opacity: .65; font-weight: 500; }
+.kc-cap i { display: block; font-style: normal; font-size: 12px; opacity: .65; margin-bottom: 2px; }
