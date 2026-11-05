@@ -429,6 +429,7 @@
   function startDay() {
     var day = G().day;
     if (location.hash !== '#/home') location.hash = '#/home';
+    if (G().phase !== 'night') G().setClock(null);
     // 喚醒結局之後（只能探索 App）：直接鎖定畫面
     if (G().ended === 'explore') { stage(null); if (S() && S().lock) S().lock(); }
     // 其他日子（包括星期日）：黑底日期畫面上先跑完今天的劇情；能用手機的日子到晚上才出現鎖定畫面（onNight）
@@ -497,6 +498,7 @@
     }
     function stop() {
       S().setFlag('alarm_done');
+      G().setClock(timeNow());   // 手機上的時間從鬧鐘的時間開始走
       el.classList.add('off');
       setTimeout(function () { el.remove(); }, 400);
       document.getElementById('phone').classList.remove('alarming');
@@ -534,7 +536,10 @@
   // 晚上：不能用手機的日子 → 直接往後跳
   if (window.GAME) G().onNight(function () {
     // 能用手機的日子（星期日、最後一天、結局後）：劇情、出去玩都結束 → 鎖定畫面，解鎖後自由使用手機
-    if (phoneDay(G().day)) { stage(null); if (S() && S().lock) S().lock({ onUnlock: function () {} }); return; }
+    if (phoneDay(G().day)) {
+      G().setClock((D().game || {}).nightTime || '22:00');   // 手機上的時間從晚上 22:00 開始（data.js 的 game.nightTime）
+      stage(null); if (S() && S().lock) S().lock({ onUnlock: function () {} }); return;
+    }
     setTimeout(go, 400);
   });
 

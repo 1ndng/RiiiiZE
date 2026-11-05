@@ -39,7 +39,7 @@
   // 日期 = 遊戲裡的今天；時間 = 現在的時間
   function gdate() { return window.GAME ? window.GAME.date() : new Date(); }
   function stamp() {
-    var d = new Date(), h = d.getHours(), g = gdate();
+    var d = (window.GAME && window.GAME.clock ? window.GAME.clock() : new Date()), h = d.getHours(), g = gdate();
     return { date: g.getFullYear() + '年' + (g.getMonth() + 1) + '月' + g.getDate() + '日', time: (h < 12 ? '上午 ' : '下午 ') + (h % 12 || 12) + ':' + String(d.getMinutes()).padStart(2, '0'), ts: d.getTime() };
   }
   // 全部備忘錄（玩家改過的內容、新增的、刪除的都算進去），新的在前

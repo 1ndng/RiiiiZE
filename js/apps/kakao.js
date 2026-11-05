@@ -112,7 +112,7 @@
     return st.unread[f.id] != null ? st.unread[f.id] : (f.unread || 0);
   }
   function nowTime() {
-    var d = new Date(), h = d.getHours(), ap = TX().ampm || ['上午', '下午'];
+    var d = (window.GAME && window.GAME.clock ? window.GAME.clock() : new Date()), h = d.getHours(), ap = TX().ampm || ['上午', '下午'];
     return ap[h < 12 ? 0 : 1] + ' ' + (h % 12 || 12) + ':' + String(d.getMinutes()).padStart(2, '0');
   }
 

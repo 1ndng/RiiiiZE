@@ -64,7 +64,7 @@
   function hidden(a) { return a && a.protected && !isMe(a) && follows(a) !== 1; }
 
   function nowTime() {
-    var d = new Date(), h = d.getHours(), g = window.GAME ? window.GAME.date() : d;   // 日期 = 遊戲裡的今天
+    var d = (window.GAME && window.GAME.clock ? window.GAME.clock() : new Date()), h = d.getHours(), g = window.GAME ? window.GAME.date() : d;   // 日期 = 遊戲裡的今天
     return (h < 12 ? '上午 ' : '下午 ') + (h % 12 || 12) + ':' + String(d.getMinutes()).padStart(2, '0') + ' · ' + g.getFullYear() + '/' + (g.getMonth() + 1) + '/' + g.getDate();
   }
   // 全部貼文：玩家發的（新的在前）＋ data.js 的

@@ -28,16 +28,16 @@
   }
   var DEFAULT_AVATAR = 'images/default_avatar.png';
 
-  /* ---- 頭貼：玩家上傳的照片用在 X 自己的帳號、IG 登入中的帳號 ---- */
+  /* ---- 玩家自己的帳號：名字＝輸入的名字、頭貼＝上傳的照片（沒上傳就用預設頭貼）
+   *      用在 KakaoTalk、X 自己的帳號、IG 登入中的帳號 ---- */
   function applyAvatar() {
-    var a = player().avatar, d = D();
-    if (!a) return;
+    var pl = player(), a = pl.avatar || DEFAULT_AVATAR, n = pl.name || '', d = D();
     if (d.kakao && d.kakao.me) d.kakao.me.avatar = a;
-    if (d.x) (d.x.accounts || []).forEach(function (acc) { if (acc.handle === d.x.me) acc.avatar = a; });
+    if (d.x) (d.x.accounts || []).forEach(function (acc) { if (acc.handle === d.x.me) { acc.avatar = a; acc.name = n || acc.name || '我'; } });
     if (d.instagram) {
       var ig = d.instagram, def = ig.defaultAccount;
       var acc = def === ig.username ? ig : (ig.otherAccounts || []).filter(function (x) { return x.username === def; })[0];
-      if (acc) acc.avatar = a;
+      if (acc) { acc.avatar = a; if (n) acc.name = n; }
     }
   }
   applyAvatar();

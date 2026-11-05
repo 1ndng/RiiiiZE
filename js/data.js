@@ -6,6 +6,10 @@
  * - 影片：路徑寫 .mp4（限時動態、Kakao 都能放）；同名的 xxx_poster.jpg 會當作封面。
  * ========================================================= */
 var PH = "images/placeholder.jpg";   // 佔位照片（全部先用同一張）
+// 玩家和六位成員都互相追蹤（IG）／互相跟隨（X）：others("帳號") = 除了自己以外的所有人
+var IG_ALL = ["account_a", "shotaroo0", "seokkkk", "sungchan913", "bin032", "252525252_", "antonnie"];
+var X_ALL  = ["my_account", "shotaroo0", "seokkkk", "sungchan913", "bin032", "252525252_", "antonnie"];
+function others(list, me) { return list.filter(function (x) { return x !== me; }); }
 
 window.SITE_DATA = {
 
@@ -261,6 +265,7 @@ window.SITE_DATA = {
     sleepText: "今天就會結束，接著會照安排往後過日子，直到下一個有事的日子。",
     cancelLabel: "取消",
     // 遊戲開頭的鬧鐘：往右滑停止 → 鎖定畫面；稍後提醒 = 過 snoozeMs 毫秒再響一次（時間 +9 分鐘）
+    nightTime: "22:00",            // 星期日（能用手機的日子）晚上，手機上的時間從這裡開始走
     alarm: { time: "7:00", label: "鬧鐘", snooze: "稍後提醒", stop: "滑動來停止", snoozeMs: 4000 }
     // 設定 App 的文字可以在 settingsText: { … } 裡改（預設值寫在 js/apps/settings.js 的 T_DEFAULT）
   },
@@ -286,10 +291,7 @@ window.SITE_DATA = {
     //   noEvents = 那天沒有行程時顯示的字（不寫 = 空白）
     //   想改顯示的字：weekdays（星期日～六）、months（一月～十二月）、weekHeads（一～日）
     calendar: {
-      events: [
-        { title: "每月 15 號的行程", date: "15", color: "#ff9500" },
-        { title: "星期五的行程", date: "星期五", color: "#34c759" }
-      ]
+      events: []
     },
     // 行事曆下面的 App 圖示（有名稱；一排 4 個，照這裡的順序上到下、左到右排）
     icons: [
@@ -307,35 +309,22 @@ window.SITE_DATA = {
    * otherAccounts = 其他帳號；有寫 password 的可以從「新增帳號」登入。
    */
   instagram: {
-    defaultAccount: "account_a",   // 打開 IG 時已經登入的帳號
-    username: "shotaroo0",
-    password: "0000",              // 從「新增帳號」輸入對的帳號＋密碼才登得進去
+    defaultAccount: "account_a",   // 打開 IG 時已經登入的帳號（玩家）
+    username: "shotaroo0",         // 成員帳號都不能登入（不寫 password）
     private: true,                 // 非公開帳號：沒追蹤的人看不到貼文、限時、名單
     cast: "m1",                    // 成員帳號：名字、大頭照用 cast 的（不寫 cast → 用 avatar、name；沒有名字 → 顯示帳號 id）
     // 貼文數、粉絲、追蹤會自動計算；想顯示固定數字就加 postsCount / followersCount / followingCount
+    following: others(IG_ALL, "shotaroo0"),
     closeFriendsList: [],
-    following: ["account_a"],
     postsLabel: "貼文",
     followersLabel: "位粉絲",
     followingLabel: "追蹤中",
-    bio: ["簡介第一行", "簡介第二行 @account_a"],   // @帳號 會變成連結
-    music: { title: "歌名", artist: "歌手" },        // 個人頁音樂列；加 file: "audio/xxx.mp3" 才能播放
-    saved: ["account_a/0"],        // 預先儲存的貼文（"帳號/貼文編號"，從 0 開始）
+    bio: [],                       // 簡介（一行一個字串；@帳號 會變成連結）
+    // 也可以加：music: { title, artist, file }、highlights（精選動態）、story（限時動態）、saved（已儲存）
     editProfileLabel: "編輯個人檔案",
     shareProfileLabel: "分享個人檔案",
-    // 精選動態：image = 圓圈封面，stories = 點進去看到的內容
-    highlights: [
-      { image: PH, label: "精選",
-        stories: [
-          // notes：好幾則留言輪流顯示，點一下打開全部（by 不寫 = 帳號主人自己）
-          { image: PH, time: "1月1日", notes: [{ text: "留言 1" }, { text: "留言 2", by: "account_a" }] },
-          { image: PH, time: "1月2日", note: "單則留言" }
-        ] }
-    ],
-    posts: [
-      { images: [PH], caption: "貼文內文", time: "1月2日" },
-      { images: [PH, PH], caption: "多張照片的貼文（左右滑）", time: "1月1日" }
-    ],
+    highlights: [],
+    posts: [],                     // 例：{ images: [PH], caption: "內文", time: "1月2日", comments: [{ user: "帳號", text: "留言", time: "1天" }] }
     reposts: [],
 
     // IG 互動時出現的文字（{user} 會自動換成帳號）
@@ -401,88 +390,28 @@ window.SITE_DATA = {
     },
 
     otherAccounts: [
+      // 玩家的帳號（名字＝玩家輸入的名字、頭貼＝玩家上傳的照片）
       {
         username: "account_a",
         password: "0000",
-        avatar: PH,
-        name: "帳號 A",
-        following: ["seokkkk"],
-        // 粉絲／追蹤中名單：寫帳號 id = 遊戲裡的帳號（可點進去）；{ username, name, avatar } = 路人
-        followersList: [
-          "shotaroo0",
-          "seokkkk",
-          { username: "passerby_1", name: "路人 1", avatar: PH },
-          { username: "passerby_2", name: "路人 2" }
-        ],
-        followingList: [
-          "seokkkk",
-          { username: "passerby_1", name: "路人 1", avatar: PH }
-        ],
-        // 摯友名單：寫在這裡的帳號才看得到 closeFriends: true 的限時動態
-        closeFriendsList: ["seokkkk", "passerby_1"],
+        following: others(IG_ALL, "account_a"),
+        closeFriendsList: [],
         saved: [],
-        // 典藏：stories = 過期的限時動態；posts = 下架的貼文
-        archive: {
-          stories: [
-            { image: PH, time: "2025年12月31日" },
-            { image: PH, time: "2025年12月31日", closeFriends: true }
-          ],
-          posts: [
-            { images: [PH], caption: "典藏的貼文", time: "2025年12月1日" }
-          ]
-        },
-        bio: ["帳號 A 的簡介"],
-        music: { title: "歌名", artist: "歌手" },
-        // 目前的限時動態（頭像外圈）
-        story: [
-          { image: PH, time: "1小時" },
-          { image: PH, time: "30分鐘", closeFriends: true, likedBy: ["seokkkk"] }
-        ],
-        highlights: [
-          { image: PH, label: "精選 1",
-            stories: [
-              { image: PH, time: "2025年12月1日" },
-              { image: PH, time: "2025年12月2日", note: "限動留言", pos: "50% 50%" }
-            ] },
-          { image: PH, label: "精選 2", stories: [{ image: PH, time: "2025年12月3日" }] }
-        ],
-        posts: [
-          {
-            images: [PH, PH, PH],
-            caption: "貼文內文\n第二行",
-            time: "1月3日",
-            likedBy: { name: "seokkkk" },   // 「seokkkk 說讚」
-            comments: [
-              { user: "seokkkk", text: "留言", time: "1天" },
-              { user: "passerby_1", avatar: PH, text: "路人的留言", time: "1天" }
-            ],
-            tagged: ["seokkkk"]
-          },
-          { images: [PH], caption: "", time: "1月2日" },
-          { images: [PH], caption: "", time: "1月1日" }
-        ],
-        reposts: []
-      },
-      {
-        username: "seokkkk",
-        password: "0000",
-        cast: "m2",
-        following: ["account_a"],
-        closeFriendsList: ["account_a"],
-        bio: ["帳號 C 的簡介"],
+        archive: { stories: [], posts: [] },
+        bio: [],
+        story: [],
         highlights: [],
-        posts: [
-          { images: [PH], caption: "帳號 C 的貼文", time: "1月1日" }
-        ],
-        reposts: ["account_a/1"]   // 轉發的貼文（"帳號/貼文編號"）
+        posts: [],
+        reposts: []
       }
     ],
-    // 只能從名單點進去看、不能登入的帳號（不寫 password）
+    // 其他成員的帳號：只能從名單、搜尋點進去看，不能登入（不寫 password）
     searchOnlyAccounts: [
-      { username: "sungchan913", cast: "m3", private: true, posts: [] },
-      { username: "bin032", cast: "m4", private: true, posts: [] },
-      { username: "252525252_", cast: "m5", private: true, posts: [] },
-      { username: "antonnie", cast: "m6", private: true, posts: [] }
+      { username: "seokkkk",     cast: "m2", private: true, following: others(IG_ALL, "seokkkk"),     bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "sungchan913", cast: "m3", private: true, following: others(IG_ALL, "sungchan913"), bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "bin032",      cast: "m4", private: true, following: others(IG_ALL, "bin032"),      bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "252525252_",  cast: "m5", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "antonnie",    cast: "m6", private: true, following: others(IG_ALL, "antonnie"),    bio: [], highlights: [], posts: [], reposts: [] }
     ]
   },
 
@@ -496,20 +425,8 @@ window.SITE_DATA = {
    */
   photos: {
     hiddenPasscode: "0000",
-    photos: [
-      { image: PH, date: "2025年6月1日", time: "上午 10:12", place: "地點 A" },
-      { image: PH, date: "2025年6月1日", time: "上午 10:15" },
-      { image: PH, date: "2025年8月20日", time: "下午 6:40", favorite: true },
-      { image: PH, date: "2025年12月24日", time: "下午 8:03", place: "地點 B", caption: "照片說明" },
-      { image: PH, date: "2025年12月31日", time: "下午 11:59", hidden: true },
-      { image: PH, date: "2026年1月1日", time: "上午 12:00", favorite: true },
-      { image: PH, date: "2026年1月1日", time: "上午 9:30", device: "iPhone" },
-      { image: PH, date: "2026年1月1日", time: "下午 2:45" }
-    ],
-    albums: [
-      { id: "a1", name: "相簿 1", photos: [0, 1, 3] },
-      { id: "a2", name: "相簿 2", photos: [5, 6, 7] }
-    ]
+    photos: [],                    // 例：{ image: PH, date: "2025年8月20日", time: "下午 6:40", place: "地點" }
+    albums: []                     // 例：{ id: "a1", name: "相簿名稱", photos: [0, 1] }
     // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/photos.js 的 T_DEFAULT）
   },
 
@@ -532,33 +449,17 @@ window.SITE_DATA = {
    *     下一則回覆的是上一則的人時，兩則會用直線連起來（回覆串）
    */
   x: {
-    me: "my_account",
+    me: "my_account",              // 玩家的帳號（名字＝玩家輸入的名字、頭貼＝玩家上傳的照片）
     accounts: [
-      { handle: "my_account", name: "我的帳號", avatar: PH, bio: "簡介",
-        followersList: ["shotaroo0", { handle: "passerby_1", name: "路人 1", avatar: PH, bio: "路人的簡介" }] },
-      { handle: "shotaroo0", cast: "m1", banner: PH, followed: true,
-        bio: "使用者 A 的簡介 #標籤", following: 120, followers: "1.2萬",
-        followingList: ["my_account", "seokkkk", { handle: "passerby_1", name: "路人 1", avatar: PH }],
-        followersList: ["seokkkk", { handle: "passerby_2", name: "路人 2" }],
-        likes: ["t2"], retweets: [] },
-      { handle: "seokkkk", cast: "m2", protected: true, followed: true, bio: "鎖帳", following: 30, followers: 41,
-        likes: ["t1", "t4"] },
-      { handle: "sungchan913", cast: "m3", protected: true, bio: "鎖帳（沒跟隨）", following: 8, followers: 9 },
-      { handle: "bin032", cast: "m4", protected: true, bio: "", following: 0, followers: 0 },
-      { handle: "252525252_", cast: "m5", protected: true, bio: "", following: 0, followers: 0 },
-      { handle: "antonnie", cast: "m6", protected: true, bio: "", following: 0, followers: 0 }
+      { handle: "my_account", bio: "", followersList: others(X_ALL, "my_account") },
+      { handle: "shotaroo0",   cast: "m1", protected: true, followed: true, bio: "", followingList: others(X_ALL, "shotaroo0"),   followersList: others(X_ALL, "shotaroo0") },
+      { handle: "seokkkk",     cast: "m2", protected: true, followed: true, bio: "", followingList: others(X_ALL, "seokkkk"),     followersList: others(X_ALL, "seokkkk") },
+      { handle: "sungchan913", cast: "m3", protected: true, followed: true, bio: "", followingList: others(X_ALL, "sungchan913"), followersList: others(X_ALL, "sungchan913") },
+      { handle: "bin032",      cast: "m4", protected: true, followed: true, bio: "", followingList: others(X_ALL, "bin032"),      followersList: others(X_ALL, "bin032") },
+      { handle: "252525252_",  cast: "m5", protected: true, followed: true, bio: "", followingList: others(X_ALL, "252525252_"),  followersList: others(X_ALL, "252525252_") },
+      { handle: "antonnie",    cast: "m6", protected: true, followed: true, bio: "", followingList: others(X_ALL, "antonnie"),    followersList: others(X_ALL, "antonnie") }
     ],
-    tweets: [
-      { id: "t1", by: "shotaroo0", text: "貼文內容\n第二行 @seokkkk #標籤", images: [PH], time: "1小時", date: "下午 12:32 · 2026/9/1",
-        retweets: 18, likes: 457,
-        replies: [
-          { by: "seokkkk", text: "回覆 1", time: "6秒" },
-          { by: "shotaroo0", text: "回覆 2（回覆串）", time: "2秒", replyTo: "seokkkk" }
-        ] },
-      { id: "t2", by: "seokkkk", text: "鎖帳的貼文", time: "3小時", date: "上午 9:15 · 2026/9/1", likes: 4, liked: true },
-      { id: "t3", by: "sungchan913", text: "看不到的貼文", time: "5小時", date: "上午 7:00 · 2026/9/1" },
-      { id: "t4", by: "shotaroo0", text: "多張照片", images: [PH, PH], time: "1天", date: "下午 8:00 · 2026/8/31", retweets: 2, likes: 30, retweetedBy: "seokkkk" }
-    ]
+    tweets: []                     // 例：{ id: "t1", by: "shotaroo0", text: "內容", time: "1小時", date: "下午 12:32 · 2025/9/1" }
     // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/x.js 的 T_DEFAULT）
   },
 
@@ -570,25 +471,19 @@ window.SITE_DATA = {
    */
   notes: {
     passcode: "0000",
-    notes: [
-      { id: "n1", text: "釘選的備忘錄\n第二行會顯示在列表上", date: "2026年1月1日", time: "上午 10:00", pinned: true },
-      { id: "n2", text: "鎖住的備忘錄\n要輸入密碼才看得到", date: "2025年12月31日", time: "下午 11:00", locked: true },
-      { id: "n3", text: "一般備忘錄\n內容", date: "2025年12月1日", time: "下午 3:20" }
-    ]
+    notes: []                      // 例：{ id: "n1", text: "標題\n內容", date: "2025年9月1日", time: "下午 3:20", pinned: true }
   },
 
   /* ---------- KakaoTalk ---------- */
   kakao: {
-    passcode: "0000",              // 進入 KakaoTalk 的密碼；留空 "" = 不用密碼
+    passcode: "",                  // 進入 KakaoTalk 的密碼；留空 "" = 不用密碼
     // 「今天」= 遊戲裡的日期（game.startDate 開始，每睡一覺 +1 天）
     // 即時訊息：達成 when 的旗標後，過 delay 毫秒對方傳來（會跳通知橫幅）
     //   when 可寫一個旗標或陣列（全部達成）；unlessReplied: true = 玩家在那個聊天室回過話就不傳
     //   unless = 有這個旗標就不傳；unlessSent = 某則即時訊息已傳過就不傳
     //   if = 條件（好感度、天數…，格式見 cast 的說明），成立才會傳
     //   常用旗標：phone_unlocked（解鎖手機）、kakao_unlocked、chat_聊天室id、login_帳號、public_帳號
-    live: [
-      { id: "demo1", when: "phone_unlocked", delay: 8000, room: "f1", text: "即時訊息測試" }
-    ],
+    live: [],
     // 來電：達成 when 的旗標後過 delay 毫秒，room 這個好友打來（任何畫面都會跳出來；手機解鎖後才會響）
     //   ringFor = 響多久沒接就算未接（預設 30 秒）
     //   branch：依玩家有沒有在那個聊天室回過話，選開頭段落 { replied: "段落", notReplied: "段落" }；不寫 = 從 start 開始
@@ -596,10 +491,7 @@ window.SITE_DATA = {
     //   if = 條件，成立才會打來；段落、選項可以寫 effects（套用效果），選項可以寫 if（條件不成立就不出現）
     // 例：{ id: "call1", when: "chat_f2", delay: 10000, room: "f2", declineFlag: "call1_declined",
     //       start: "s", nodes: { s: { lines: [{ who: "them", text: "…" }] } } }
-    incoming: [
-      { id: "demoCall", when: "chat_f2", delay: 6000, room: "f2",
-        start: "s", nodes: { s: { lines: [{ who: "them", text: "來電測試" }, { who: "them", text: "掰掰" }] } } }
-    ],
+    incoming: [],
     noAnswerMs: 8000,              // 打給沒有劇本的好友，響多久後顯示「對方未接聽」
     friends: [
       // 客服小精靈：放提示、進度提醒（不是成員）；之後用 live（即時訊息）或 messages 放內容
@@ -618,91 +510,26 @@ window.SITE_DATA = {
         id: "f1",                     // 不要重複（用於網址）
         cast: "m1",                   // 成員：名字、大頭照用 cast 的
         status: "",
-        unread: 1,                    // 一開始顯示的未讀數
-        // 訊息種類：文字 text、照片 image、影片 video、語音通話 call: "voice"（duration 沒寫 = 未接；cancelled: true = 已取消）、
-        // 收回 recalled: true、過期照片 expired: true、過期影片 expired: "video"、連結 link（＋ linkTitle、linkSite）
-        // read: true = 對方已讀（我傳的訊息旁不顯示 1）
-        messages: [
-          { date: "2025年12月30日" },
-          { from: "them", text: "文字訊息", time: "下午 8:34" },
-          { from: "me", image: PH, time: "下午 8:48" },
-          { from: "me", text: "我傳的訊息", time: "下午 8:48" },
-          { from: "them", expired: true, time: "下午 8:50" },
-          { from: "them", recalled: true, time: "下午 8:51" },
-          { from: "me", call: "voice", duration: "3:21", time: "下午 9:00" },
-          { from: "them", call: "voice", time: "下午 9:10" },
-          { date: "2025年12月31日" },
-          { from: "them", link: "https://example.com", linkTitle: "連結標題", linkSite: "example.com", time: "上午 10:00" },
-          { from: "me", text: "最後一則", time: "上午 10:05" }
-        ],
-        // 關鍵字自動回覆：玩家傳的訊息「包含」任一個 keywords 就回 reply（可多句，依序送出）
-        //   flag = 達成這個旗標後才有效；exclude = 包含這些字就不算；keywords 留空 = 任何訊息都算
-        //   if = 條件（格式見 cast 的說明）；effects = 回覆成立時套用的效果（好感度…）
-        //   read: true = 秒讀；typing: [毫秒, 毫秒…] = 「輸入中」顯示／消失輪流
-        replies: [
-          { keywords: ["你好", "hi"], read: true, typing: [1500], reply: ["你好！"], effects: { aff: { m1: 1 } } }
-        ],
-        // 打給這個好友時的通話劇本（沒寫 = 打過去會「對方未接聽」）
-        //   ringMs = 響多久才接
-        //   也可以寫成清單 [ { flag: "旗標", … }, { … } ]：用第一個 flag 已達成（或沒寫 flag）的那個
-        //   每個劇本也可以寫 if（條件）；段落、選項可以寫 effects，選項可以寫 if（不成立就不出現）
-        //   nodes 的格式：lines（who = "them" / "me"、text、sub）、choices（label、next、hangup、say: false）、
-        //   flag（走到這段記錄旗標）、沒有 choices 的段落講完自動掛斷（waitMs、endFlag）
-        call: {
-          ringMs: 3000,
-          start: "greet",
-          nodes: {
-            greet: {
-              lines: [{ who: "them", text: "喂？", sub: "字幕下的小字" }],
-              choices: [
-                { label: "選項 A", next: "a", effects: { aff: { m1: 2 } } },          // 選了 → 大﨑将太郎 好感 +2
-                { label: "選項 B（不說出口）", say: false, next: "b" },
-                { label: "只有大﨑将太郎 好感 ≥ 5 才出現的選項", next: "a", if: { aff: { m1: ">=5" } } },
-                { label: "（直接掛斷）", hangup: true, effects: { aff: { m1: -1 } } }
-              ]
-            },
-            a: { lines: [{ who: "them", text: "選了 A" }, { who: "me", text: "玩家的話" }] },
-            b: { lines: [{ who: "them", text: "選了 B" }], endFlag: "call_f1_done", effects: { pair: { "m1-m2": 1 } } }
-          }
-        },
-        defaultReply: []              // 沒有符合任何關鍵字時的回覆；空的 = 不回
+        unread: 0,
+        messages: [],
+        replies: [],
+        defaultReply: []
       },
       {
         id: "f2",
-        cast: "m2",                   // 成員：名字、大頭照用 cast 的
-        status: "",
-        unread: 0,
-        messages: [
-          { date: "2025年12月1日" },
-          { from: "me", text: "訊息", time: "下午 4:24" },
-          { from: "them", text: "訊息", time: "下午 4:30" }
-        ],
-        replies: [],
-        defaultReply: ["自動回覆"]
-      },
-      {
-        id: "f3",
-        cast: "m3",                   // 成員：名字、大頭照用 cast 的
+        cast: "m2",
         status: "",
         unread: 0,
         messages: [],
-        // 選項式回覆：從上往下找第一組「還沒用過、if 成立」的選項，顯示在輸入框上面
-        //   選項排成一行（太多可以左右滑）；點選項 → 文字放進輸入框（不能修改；點別的選項 = 換掉），按送出才傳
-        //   有選項時玩家不能自己打字；每組只能選一次
-        //   options：text = 回覆的文字、effects = 效果、flag = 選了記錄的旗標、
-        //            reply = 對方的回覆（可多句；寫 { text, flag } 可以在那句傳來時記錄旗標）、read: true = 秒讀、typing = 輸入中的時間
-        //   即時訊息（live）也可以寫 flag：傳來時記錄旗標，用來讓下一組選項出現
-        choices: [
-          { id: "c3_1", options: [
-            { text: "今天謝謝你！", effects: { aff: { m3: 2 } }, read: true, typing: [1500], reply: [{ text: "不客氣～", flag: "c3_round2" }] },
-            { text: "嗯", effects: { aff: { m3: -1 } }, reply: [{ text: "……好吧", flag: "c3_round2" }] },
-            { text: "你也是今天的值日生嗎？", reply: [{ text: "對啊ㅋㅋ", flag: "c3_round2" }] }
-          ] },
-          { id: "c3_2", if: { flag: "c3_round2" }, options: [
-            { text: "明天見", reply: ["明天見！"] },
-            { text: "晚安", effects: { aff: { m3: 1 } }, reply: ["晚安😊"] }
-          ] }
-        ],
+        replies: [],
+        defaultReply: []
+      },
+      {
+        id: "f3",
+        cast: "m3",
+        status: "",
+        unread: 0,
+        messages: [],
         replies: [],
         defaultReply: []
       },

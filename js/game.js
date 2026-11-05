@@ -243,6 +243,17 @@
     onChange: function (fn) { listeners.push(fn); },
     onNight: function (fn) { nightFns.push(fn); },
     onPhase: function (phase, fn) { (handlers[phase] = handlers[phase] || []).push(fn); },
+    // 手機上的時鐘（狀態列、鎖定畫面、訊息時間）：setClock("22:00") = 從這個時間開始走；setClock(null) = 用現實時間
+    clock: function () {
+      var c = load('riiiize-clock', null);
+      return c ? new Date(c.at + (Date.now() - c.real)) : new Date();
+    },
+    setClock: function (hm) {
+      var m = /(\d+):(\d+)/.exec(hm || '');
+      if (!m) { try { localStorage.removeItem('riiiize-clock'); } catch (e) {} return; }
+      var d = new Date(); d.setHours(+m[1], +m[2], 0, 0);
+      store('riiiize-clock', { at: d.getTime(), real: Date.now() });
+    },
     // 解鎖手機後呼叫：從目前的時段開始跑（早上、放學沒有內容就直接到晚上）
     start: function () { runPhase(); },
     // 進入某一天的早上，並自動存檔（睡覺後由 js/plan.js 決定跳到哪一天）

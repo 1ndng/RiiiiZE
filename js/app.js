@@ -21,11 +21,11 @@
 
   /* ---------------- 狀態列時間 ---------------- */
   function tick() {
-    var d = new Date();
+    var d = (window.GAME && window.GAME.clock ? window.GAME.clock() : new Date());   // 遊戲裡的時鐘（星期日晚上從 22:00 開始）
     $('#sb-time').textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
   }
   tick();
-  setInterval(tick, 15000);
+  setInterval(tick, 2000);
 
   /* ---------------- 列表排序：照字首順序（數字 → 英文 → 韓文／中文，不分大小寫） ---------------- */
   var collator = window.Intl && Intl.Collator ? new Intl.Collator(['en', 'ko', 'zh-Hant'], { sensitivity: 'base', numeric: true }) : null;
@@ -1601,7 +1601,7 @@
 
     // 日期、時間（跟著現實走）：「11月2日 星期一」
     function paintTime() {
-      var el = $('#lc-time'), de = $('#lc-date'), d = new Date(), gd = gameDate();
+      var el = $('#lc-time'), de = $('#lc-date'), d = (window.GAME && window.GAME.clock ? window.GAME.clock() : new Date()), gd = gameDate();
       if (el) el.textContent = opt.time || (d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'));
       if (de) de.textContent = (gd.getMonth() + 1) + '月' + gd.getDate() + '日 ' + WEEKDAYS[gd.getDay()];   // 日期 = 遊戲裡的今天
     }
