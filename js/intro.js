@@ -20,7 +20,7 @@
   function player() { return load(PKEY, {}) || {}; }
   function T() {
     var t = (D().intro || {}).text || {}, d = {
-      photoTitle: '上傳你的照片', photoHint: '用作 App 的頭貼；不選則為預設頭貼。', pick: '選擇照片', next: '下一步', change: '換一張',
+      photoTitle: '上傳你的照片', photoHint: '用作 App 的頭貼；不選則為預設頭貼。', pick: '選擇照片', remove: '移除', next: '下一步', change: '換一張',
       startTitle: '準備好了嗎？', startHint: '開始之後，就回不去了。', back: '上一步', start: '開始遊戲'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -70,11 +70,21 @@
     var w = card('<b>' + esc(t.photoTitle) + '</b><p>' + esc(t.photoHint) + '</p>' +
       '<label class="ob-photo"><img id="ob-av" src="' + esc(chosen || DEFAULT_AVATAR) + '" alt=""><input type="file" accept="image/*" id="ob-file" hidden>' +
       '<span id="ob-pick">' + esc(chosen ? t.change : t.pick) + '</span></label>' +
+      // 選了照片之後：「移除」回到預設頭貼
+      '<button type="button" class="ob-remove" data-ob-remove' + (chosen ? '' : ' hidden') + '>' + esc(t.remove) + '</button>' +
       '<button type="submit">' + esc(t.next) + '</button>');
     w.querySelector('#ob-file').addEventListener('change', function (e) {
       var f = e.target.files && e.target.files[0];
       if (!f) return;
-      toAvatar(f, function (url) { chosen = url; w.querySelector('#ob-av').src = url; w.querySelector('#ob-pick').textContent = t.change; });
+      toAvatar(f, function (url) { chosen = url; paint(); });
+    });
+    function paint() {
+      w.querySelector('#ob-av').src = chosen || DEFAULT_AVATAR;
+      w.querySelector('#ob-pick').textContent = chosen ? t.change : t.pick;
+      w.querySelector('[data-ob-remove]').hidden = !chosen;
+    }
+    w.querySelector('[data-ob-remove]').addEventListener('click', function () {
+      chosen = ''; w.querySelector('#ob-file').value = ''; paint();
     });
     function finish(keep) {
       var pl = player();

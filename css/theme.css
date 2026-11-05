@@ -141,3 +141,6 @@
 .pl-day { height: 58px; padding: 4px 2px; }
 .pl-day .blk, .pl-day i { box-sizing: border-box; max-width: 100%; }
 .pl-day .blk { padding: 2px 1px; line-height: 1.15; border-radius: 6px; }
+/* 上傳照片：「移除」是小小的文字按鈕（不是大按鈕） */
+.vn-name .ob-remove { display: block; width: auto !important; margin: 8px auto 0 !important; padding: 4px 10px !important; background: none !important; border: 0 !important; box-shadow: none !important; color: #a3487f !important; font-size: 13px; font-weight: 700; text-decoration: underline; }
+.vn-name .ob-remove[hidden] { display: none; }
