@@ -282,6 +282,7 @@
         try {
           Object.keys(localStorage).forEach(function (k) { if (k.indexOf('riiiize-') === 0) localStorage.removeItem(k); });
         } catch (err) {}
+        try { sessionStorage.setItem('riiiizeSkipTitle', '1'); } catch (err) {}
         location.href = location.pathname;
       });
       return;

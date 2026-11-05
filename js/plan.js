@@ -43,7 +43,8 @@
       giftPickOne: '要送給誰？', giftPickGiver: '請誰送禮物？', giftPickTo: '要送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
       giftMeText: '你把禮物送給了{a}。', giftAskText: '你請{a}送禮物給{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
-      dayLine: '{date}\n放學後去了{act}，遇到了{who}。'
+      dayLine: '{date}\n放學後去了{act}，遇到了{who}。',
+      weekTitle: '這週的放學後', weekGo: '繼續', weekNobody: '沒遇到人', weekMet: '這幾天見到了{who}。'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
     return d;
@@ -368,31 +369,33 @@
   /* ---- 睡覺：往後跳到下一個有事的日子（沒事的日子照月曆加好感） ----
    * cb({ from, to })：from = 跳過的第一天，to = 停下來的那天 */
   // onLine(day, text, next)：有安排日程、沒有劇情的日子，用一句話告訴玩家今天和誰做了什麼
-  function sleep(cb, onLine) {
-    var day = G().day + 1, from = day;
+  // 跳過去的日子（有安排日程、沒有劇情）先收集起來，停下來之前用「這週的放學後」一次顯示（onWeek）
+  //   之後想在每週回顧裡加隨機事件、小劇情，就在 go() 的 onWeek 這裡加
+  function sleep(cb, onWeek) {
+    var day = G().day + 1, from = day, week = [];
+    function flush(next) { if (!week.length || !onWeek) { next(); return; } var w = week; week = []; onWeek(w, next); }
     (function loop() {
       while (day <= G().totalDays()) {
         if (needPlan(day)) {
           var first = !S().hasFlag('plan_tutorial');
           var open = function () { planner(day, loop); };
-          if (first) { S().setFlag('plan_tutorial'); tutorial(open); } else open();
+          flush(function () { if (first) { S().setFlag('plan_tutorial'); tutorial(open); } else open(); });
           return;
         }
         if (isStop(day)) break;
         if (S()) S().setFlag('day_' + day);
         var act = !isWeekend(day) && plannedOn(day);
-        if (act) {   // 有安排：加好感，顯示這天的一句話，點了才到下一天
+        if (act) {   // 有安排：加好感，記進這週的回顧
           G().setDay(day);
-          var met = doActivity(act), text = dayLine(day, act, met), d0 = day;
-          day++;
-          if (onLine) { onLine(d0, text, loop); return; }
-          continue;
+          week.push({ day: day, act: act, met: doActivity(act) });
         }
         day++;   // 沒安排（回家）：直接跳過
       }
       day = Math.min(day, G().totalDays());
-      G().goTo(day);
-      cb && cb({ from: from, to: day });
+      flush(function () {
+        G().goTo(day);
+        cb && cb({ from: from, to: day });
+      });
     })();
   }
 
@@ -457,15 +460,48 @@
         f.innerHTML = dateHTML(G().day);
         f.classList.add('text');
         startDayAfter(f);
-      }, function (day, text, next) {
-        // 一天一句：黑底日期畫面上用對話框顯示
+      }, function (week, next) {
+        // 這週的放學後：黑底日期畫面上一次列出這幾天去了哪裡、遇到誰
         if (f.parentNode) { f.classList.remove('show'); var old = f; setTimeout(function () { old.remove(); }, 600); }
         var lk = document.getElementById('lock'); if (lk) lk.remove();
         document.getElementById('phone').classList.remove('locked');
-        stage(day);
-        narrate(text, next);
+        stage(week[week.length - 1].day);
+        weekCard(week, next);
       });
     }, 600);
+  }
+  // 「這週的放學後」卡片：每天一行（日期、日程、遇到誰的大頭照），點「繼續」往下
+  function weekCard(week, next) {
+    var t = T(), el = document.createElement('div'), d0 = dateOf(week[0].day), d1 = dateOf(week[week.length - 1].day);
+    var md = function (d) { return (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
+    el.className = 'wk';
+    el.innerHTML = '<div class="wk-in">' +
+      '<small>' + esc(week.length > 1 ? md(d0) + '～' + md(d1) : md(d0)) + '</small>' +
+      '<b>' + esc(t.weekTitle) + '</b>' +
+      '<ul>' + week.map(function (w) {
+        var d = dateOf(w.day), a = actOf(w.act);
+        return '<li><span class="wk-d">' + (d.getMonth() + 1) + '/' + d.getDate() + '（' + esc(G().weekday(d).replace('星期', '')) + '）</span>' +
+          '<span class="wk-a">' + esc(a.label) + '</span>' +
+          '<span class="wk-m">' + (w.met.length ? w.met.map(function (id) {
+            var c = cast().filter(function (x) { return x.id === id; })[0] || {};
+            return '<i title="' + esc(c.name || id) + '"><img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""></i>';
+          }).join('') : '<em>' + esc(t.weekNobody) + '</em>') + '</span></li>';
+      }).join('') + '</ul>' +
+      '<p>' + esc(t.weekMet.replace('{who}', joinNames(uniq(week)))) + '</p>' +
+      '<button type="button" data-wk-go>' + esc(t.weekGo) + '</button>' +
+    '</div>';
+    document.getElementById('phone').appendChild(el);
+    document.getElementById('phone').classList.add('story-full');   // 不顯示上面的狀態列
+    void el.offsetWidth; el.classList.add('show');
+    el.querySelector('[data-wk-go]').addEventListener('click', function () {
+      document.getElementById('phone').classList.remove('story-full');
+      el.classList.remove('show');
+      setTimeout(function () { el.remove(); next(); }, 250);
+    });
+  }
+  function uniq(week) {
+    var all = [].concat.apply([], week.map(function (w) { return w.met; }));
+    return cast().map(function (c) { return c.id; }).filter(function (id) { return all.indexOf(id) >= 0; });
   }
   function startDayAfter(f) {
     setTimeout(function () {

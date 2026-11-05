@@ -1722,7 +1722,9 @@
 
   applyEdits();
   // 能用手機的日子（星期日等）先出現鎖定畫面；其他日子直接開始那天的劇情（js/plan.js）
-  if (window.PLAN && window.GAME) window.PLAN.boot(); else renderLock();
+  // 先顯示標題畫面（js/title.js），按了開始／繼續才進遊戲
+  if (window.PLAN && window.GAME) { if (window.TITLE) window.TITLE.show(function () { window.PLAN.boot(); }); else window.PLAN.boot(); }
+  else renderLock();
   renderHome();
   if (!location.hash) history.replaceState(null, '', '#/home');  // 一進網頁先到桌面
   navStack.push(location.hash);

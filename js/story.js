@@ -30,7 +30,7 @@
   function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function T() {
     var t = (D().storyText || {}), d = {
-      log: '紀錄', close: '關閉', save: '存檔', saveTitle: '存檔', back: '返回劇情', slot: '存檔 {n}', empty: '空的',
+      log: '紀錄', auto: '自動', skip: '快轉', close: '關閉', save: '存檔', saveTitle: '存檔', back: '返回劇情', slot: '存檔 {n}', empty: '空的',
       dayLabel: '第 {n} 天', saved: '已存檔', overwrite: '要覆蓋這個存檔嗎？', overwriteOk: '覆蓋', cancel: '取消',
       saveNote: '讀取這個存檔時，會從現在這句話繼續。', nameTitle: '你的名字是？', nameHint: '之後大家都會這樣叫你。', bdayTitle: '你的生日是？', bdayHint: '生日那天會有特別的事。', month: '月', dayUnit: '日', namePlaceholder: '輸入名字', nameOk: '確定',
       defaultName: '轉學生', logEmpty: '還沒有對話'
@@ -108,7 +108,10 @@
     el.innerHTML =
       '<div class="vn-bg" id="vn-bg"></div>' +
       // 右上角：紀錄、存檔（結局進行中不能存檔）
-      '<div class="vn-tools"><button type="button" data-vn-log>' + esc(t.log) + '</button>' +
+      // 自動：一句講完自己接下一句；快轉：看過的台詞直接跳過（遇到沒看過的、或要選擇時停下）
+      '<div class="vn-tools"><button type="button" data-vn-auto' + (mode === 'auto' ? ' class="on"' : '') + '>' + esc(t.auto) + '</button>' +
+        '<button type="button" data-vn-skip' + (mode === 'skip' ? ' class="on"' : '') + '>' + esc(t.skip) + '</button>' +
+        '<button type="button" data-vn-log>' + esc(t.log) + '</button>' +
         (window.ENDING && window.ENDING.running() ? '' : '<button type="button" data-vn-save>' + esc(t.save) + '</button>') + '</div>' +
       '<div class="vn-choices" id="vn-choices"></div>' +
       '<div class="vn-box" id="vn-box"><div class="vn-who" id="vn-who"></div><div class="vn-text" id="vn-text"></div><i class="vn-next"></i></div>';
@@ -128,8 +131,36 @@
     for (var k = 0; k < cur.steps.length; k++) if (cur.steps[k].label === name) return k;
     return -1;
   }
+  /* ---- 自動、快轉 ----
+   * 看過的台詞記在 riiiizeSeen（劇情 id＋那句話；「重新開始」、時間循環都不會清掉，所以第二輪看過的可以快轉） */
+  var mode = null, SEEN_KEY = 'riiiizeSeen', seen = load(SEEN_KEY, {}) || {}, seenDirty = false;
+  function seenKey(text) { return cur.id + '|' + text; }
+  function markSeen(k) { if (!seen[k]) { seen[k] = 1; seenDirty = true; } }
+  setInterval(function () { if (seenDirty) { seenDirty = false; store(SEEN_KEY, seen); } }, 2000);
+  window.addEventListener('pagehide', function () { if (seenDirty) store(SEEN_KEY, seen); });
+  function setMode(m) {
+    mode = m;
+    if (!cur) return;
+    var a = cur.el.querySelector('[data-vn-auto]'), k = cur.el.querySelector('[data-vn-skip]');
+    if (a) a.classList.toggle('on', mode === 'auto');
+    if (k) k.classList.toggle('on', mode === 'skip');
+    clearTimeout(cur.autoTimer);
+    if (mode && !cur.choices && !cur.waiting) {
+      if (cur.typing) { if (mode === 'skip' && cur.seen) finishTyping(); }
+      else afterLine();
+    }
+  }
+  // 一句顯示完之後：自動 → 等一下接下一句；快轉 → 馬上接下一句
+  function afterLine() {
+    if (!cur || cur.choices || cur.waiting) return;
+    clearTimeout(cur.autoTimer);
+    if (mode === 'skip') cur.autoTimer = setTimeout(step, 70);
+    else if (mode === 'auto') cur.autoTimer = setTimeout(step, 1100 + Array.from(cur.full || '').length * 45);
+  }
+
   function step() {
     if (!cur) return;
+    clearTimeout(cur.autoTimer);
     while (cur.i < cur.steps.length) {
       var s = cur.steps[cur.i++], resumed = cur.resuming;
       cur.resuming = false;   // 從存檔繼續的那一句：效果、旗標存檔時已經套用過，不重複
@@ -167,6 +198,7 @@
   function pause(ms) {
     var box = cur.el.querySelector('#vn-box'), mine = cur;
     cur.waiting = true; box.classList.add('hide');
+    if (mode === 'skip') ms = 60;   // 快轉：停頓也縮短
     setTimeout(function () {
       if (cur !== mine) return;
       cur.waiting = false; box.classList.remove('hide');
@@ -190,6 +222,9 @@
   function say(who, text, resumed) {
     var name = nameOf(who), full = fill(text);
     if (!resumed || !cur.log.length) cur.log.push({ who: name, text: full });   // 從存檔繼續：這句已經在紀錄裡
+    var k = seenKey(full);
+    cur.seen = !!seen[k]; markSeen(k);
+    if (mode === 'skip' && !cur.seen) setMode(null);   // 快轉遇到沒看過的台詞：停下來
     var box = cur.el.querySelector('#vn-box'), w = cur.el.querySelector('#vn-who'), tx = cur.el.querySelector('#vn-text');
     box.classList.toggle('narration', !name);
     box.classList.remove('done');
@@ -197,6 +232,7 @@
     w.hidden = !name;
     tx.textContent = '';
     cur.full = full; cur.typing = true;
+    if (mode === 'skip') { finishTyping(); return; }
     var chars = Array.from(full), n = 0;
     clearInterval(cur.timer);
     cur.timer = setInterval(function () {
@@ -211,9 +247,11 @@
     cur.typing = false;
     cur.el.querySelector('#vn-text').textContent = cur.full;
     cur.el.querySelector('#vn-box').classList.add('done');
+    afterLine();
   }
   function showChoices(list) {
     var box = cur.el.querySelector('#vn-choices');
+    if (mode === 'skip') setMode(null);   // 要選擇：快轉停下來（自動會在選完後繼續）
     cur.choices = list.filter(function (c) { return ok(c.if); });
     box.innerHTML = cur.choices.map(function (c, i) {
       return '<button type="button" data-vn-choice="' + i + '">' + esc(fill(c.text)) + '</button>';
@@ -314,6 +352,8 @@
     if (e.target.closest('[data-vn-logclose]')) { e.target.closest('.vn-log').remove(); return; }
     if (e.target.closest('.vn-log')) return;
     if (e.target.closest('[data-vn-log]')) { openLog(); return; }
+    if (e.target.closest('[data-vn-auto]')) { setMode(mode === 'auto' ? null : 'auto'); return; }
+    if (e.target.closest('[data-vn-skip]')) { setMode(mode === 'skip' ? null : 'skip'); return; }
     if ((b = e.target.closest('[data-vn-choice]'))) { choose(+b.dataset.vnChoice); return; }
     if (cur.choices || cur.waiting) return;   // 等玩家選／停頓中
     if (cur.typing) finishTyping(); else step();
@@ -370,7 +410,7 @@
     askName: askName, askBirthday: askBirthday,
     playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },
     // 劇情、輸入名字、日程選單、結局畫面進行中（KakaoTalk 橫幅、來電會等這些結束）
-    playing: function () { return !!cur || !!document.querySelector('.vn-name, .sch, .end-card, .day-stage, .pl, .alarm'); },
+    playing: function () { return !!cur || !!document.querySelector('.vn-name, .sch, .end-card, .day-stage, .pl, .alarm, .wk, .title-scr'); },
     setName: function (n) { var pl = load(PKEY, {}) || {}; pl.name = n; store(PKEY, pl); },
     // 這個時段有沒有主線劇情（日程用：放學有主線就不能選日程）
     hasStory: function (phase) { return storyFor(phase).length > 0; },

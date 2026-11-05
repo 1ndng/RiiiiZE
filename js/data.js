@@ -62,6 +62,8 @@ window.SITE_DATA = {
    *   可以加 if；同一段看過就不會再播（repeat: true 可以重播）
    * 下面「（待寫）」的都是空白劇情，直接把台詞寫進去就好
    */
+  // 標題畫面（js/title.js）：name = 遊戲名稱、subtitle = 副標、bg = 背景（不寫 = 主畫面桌布）
+  title: { name: "RiiiiZE", subtitle: "拉完子學院", bg: "" },
   storySpeed: 22,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
   storyBg: "images/bg/school.jpg",   // 劇情的預設背景（手機以外的畫面都用這張）；劇情裡寫 { bg: "…" } 可以換，{ bg: "phone" } = 直接看到手機畫面
   // 第一次遊玩的開場（js/intro.js）：打開這些 App 就結束自由探索、開始 9/1

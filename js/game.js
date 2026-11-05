@@ -306,6 +306,7 @@
       try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf(PREFIX) === 0) localStorage.removeItem(k); }); } catch (e) {}
       if (player) localStorage.setItem('riiiize-player', player);
       store('riiiize-loop', n + 1);
+      try { sessionStorage.setItem('riiiizeSkipTitle', '1'); } catch (e) {}   // 重新整理後不再顯示標題畫面
       location.href = location.pathname;
     },
     // 讀檔：換成那個存檔的進度後重新整理（回到鎖定畫面）
@@ -313,6 +314,7 @@
       var s = saves(), slot = id === 'auto' ? s.auto : id === 'loop' ? s.loop : s.slots[id];
       if (!slot) return;
       restore(slot.data);
+      try { sessionStorage.setItem('riiiizeSkipTitle', '1'); } catch (e) {}
       location.href = location.pathname;
     }
   };
