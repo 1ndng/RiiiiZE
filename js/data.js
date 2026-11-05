@@ -28,12 +28,12 @@ window.SITE_DATA = {
    *   比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，只寫數字 = 至少這個數字
    */
   cast: [
-    { id: "m1", name: "大﨑将太郎", activities: ["club", "council"] },
+    { id: "m1", name: "大﨑将太郎", activities: ["club", "council", "games"] },
     { id: "m2", name: "宋恩奭", activities: ["volunteer", "council", "games"] },
     { id: "m3", name: "鄭成燦", activities: ["council", "sports", "karaoke"] },
-    { id: "m4", name: "朴元彬", activities: ["club", "sports"] },
+    { id: "m4", name: "朴元彬", activities: ["club", "council", "sports"] },
     { id: "m5", name: "李炤熙", activities: ["club", "council", "karaoke", "games"] },
-    { id: "m6", name: "李燦榮", activities: ["volunteer", "karaoke"] }
+    { id: "m6", name: "李燦榮", activities: ["volunteer", "council", "karaoke"] }
   ],
 
   /* ---------- 劇情（對話框） ----------
