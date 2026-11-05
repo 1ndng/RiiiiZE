@@ -401,8 +401,9 @@
 
   /* ---- 一天一天的流程 ----
    * go()：畫面變暗 → 往後跳到下一個有事的日子 →
-   *   星期日（能用手機的日子）：鎖定畫面，解鎖後開始這一天
-   *   其他日子：黑底日期畫面上直接開始這一天，晚上自動再往後跳 */
+   *   每一天都在黑底日期畫面上直接開始（不用解鎖）
+   *   星期日（能用手機的日子）：劇情、跟成員出去玩都結束 → 鎖定畫面，解鎖後自由使用手機
+   *   其他日子：晚上自動再往後跳 */
   var going = false;
   function fadeEl() {
     var f = document.createElement('div');
@@ -423,7 +424,9 @@
   function startDay() {
     var day = G().day;
     if (location.hash !== '#/home') location.hash = '#/home';
-    if (phoneDay(day)) { stage(null); if (S() && S().lock) S().lock(); }   // 鎖定畫面，解鎖後才開始
+    // 喚醒結局之後（只能探索 App）：直接鎖定畫面
+    if (G().ended === 'explore') { stage(null); if (S() && S().lock) S().lock(); }
+    // 其他日子（包括星期日）：黑底日期畫面上先跑完今天的劇情；能用手機的日子到晚上才出現鎖定畫面（onNight）
     else {
       var lk = document.getElementById('lock');   // 頁面上原本放鎖定畫面的空位：不用鎖的日子拿掉
       if (lk) lk.remove();
@@ -525,7 +528,8 @@
 
   // 晚上：不能用手機的日子 → 直接往後跳
   if (window.GAME) G().onNight(function () {
-    if (phoneDay(G().day)) { stage(null); return; }
+    // 能用手機的日子（星期日、最後一天、結局後）：劇情、出去玩都結束 → 鎖定畫面，解鎖後自由使用手機
+    if (phoneDay(G().day)) { stage(null); if (S() && S().lock) S().lock({ onUnlock: function () {} }); return; }
     setTimeout(go, 400);
   });
 
