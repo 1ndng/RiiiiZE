@@ -473,9 +473,15 @@ window.SITE_DATA = {
     // 其他成員的帳號：只能從名單、搜尋點進去看，不能登入（不寫 password）
     searchOnlyAccounts: [
       { username: "seokkkk",     cast: "m2", name: "BLACK SHADOW", private: true, following: others(IG_ALL, "seokkkk"),     bio: [], highlights: [], posts: [], reposts: [] },
-      { username: "sungchan913", cast: "m3", name: "🦌", private: true, following: others(IG_ALL, "sungchan913"), bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "sungchan913", cast: "m3", name: "🦌", private: true, following: others(IG_ALL, "sungchan913"), bio: [], highlights: [], reposts: [],
+        posts: [
+          { images: ["images/ig/sungchan_20250503_1.jpg", "images/ig/sungchan_20250503_2.jpg"], caption: "", time: "5月3日" }   // 第一篇（2025/5/3）
+        ] },
       { username: "bin032",      cast: "m4", name: "원빈", private: true, following: others(IG_ALL, "bin032"),      bio: [], highlights: [], posts: [], reposts: [] },
-      { username: "252525252_",  cast: "m5", name: "이소희", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "252525252_",  cast: "m5", name: "이소희", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], reposts: [],
+        posts: [
+          { images: ["images/ig/sohee_20250121_1.jpg", "images/ig/sohee_20250121_2.jpg", "images/ig/sohee_20250121_3.jpg"], caption: "", time: "1月21日" }   // 第一篇（2025/1/21）
+        ] },
       { username: "antonnie",    cast: "m6", name: "Anton", private: true, following: others(IG_ALL, "antonnie"),    bio: [], highlights: [], posts: [], reposts: [] }
     ]
   },
