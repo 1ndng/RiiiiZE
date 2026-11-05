@@ -8,6 +8,7 @@
  *   { text: "旁白" }                         沒寫 who = 旁白
  *   { who: "m1", text: "台詞" }               who = 成員 id（顯示 cast 的名字）、"me"（玩家的名字）或直接寫名字
  *   { bg: "images/xxx.jpg" }                 換背景；"phone" = 直接看到手機畫面；"phone-dim" = 看得到手機但變暗
+ *   { text: "咚！", shake: true }            這句出現時畫面晃動
  *   { wait: 1000 }                           停頓（毫秒）：對話框先收起來，時間到自動接下一句
  *   { choices: [ { text, effects, flag, goto, if }, … ] }   選項；goto = 跳到哪個 label（不寫 = 接著往下）
  *   { label: "名稱" }                         標記，給 goto 用
@@ -142,9 +143,16 @@
       if (s.wait && s.text == null) { pause(s.wait); return; }
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
       if (s.choices) { showChoices(s.choices); return; }
+      if (s.shake) shake();
       if (s.text != null) { say(s.who, s.text, resumed); return; }
     }
     finish();
+  }
+  // 畫面晃動
+  function shake() {
+    var el = cur.el;
+    el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+    setTimeout(function () { el.classList.remove('shake'); }, 600);
   }
   // 停頓：對話框收起來，這段時間點畫面沒反應
   function pause(ms) {

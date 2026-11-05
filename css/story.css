@@ -92,3 +92,13 @@
 /* 劇情背景不是手機畫面時：不顯示最上面的狀態列 */
 .phone.story-full .statusbar { opacity: 0; }
 .statusbar { transition: color .3s, opacity .3s; }
+/* { shake: true }：畫面晃動 */
+.vn.shake { animation: vnShake .5s; }
+@keyframes vnShake {
+  0%, 100% { transform: translate(0, 0); }
+  15% { transform: translate(-10px, 4px); }
+  30% { transform: translate(9px, -5px); }
+  45% { transform: translate(-7px, 3px); }
+  60% { transform: translate(5px, -2px); }
+  75% { transform: translate(-3px, 1px); }
+}
