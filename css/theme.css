@@ -131,3 +131,8 @@
 .ob-sum strong { display: block; font-size: 20px; color: #7a3d66; }
 .ob-sum small { display: block; font-size: 14px; color: var(--pk-text); margin-top: 2px; }
 .ob-photo input[type=file] { display: none !important; }
+
+/* ---------- 成員大頭照（cast 的 avatar） ---------- */
+.sch-cast button { display: flex; align-items: center; gap: 8px; padding: 0 10px; text-align: left; }
+.sch-cast button img { width: 36px; height: 36px; flex: none; border-radius: 50%; object-fit: cover; border: 2px solid #fff; background: #fff; }
+.sch-cast button span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }

@@ -151,7 +151,7 @@
         (opt.buttons ? '<div class="sch-col">' + opt.buttons.map(function (b, i) { return '<button type="button" data-btn="' + i + '">' + esc(b.label) + '</button>'; }).join('') + '</div>'
           : '<div class="sch-cast">' + cast().map(function (c) {
               var k = picked.indexOf(c.id);
-              return '<button type="button" data-meet="' + esc(c.id) + '"' + (k >= 0 ? ' class="on"' : '') + '>' + esc(c.name) +
+              return '<button type="button" data-meet="' + esc(c.id) + '"' + (k >= 0 ? ' class="on"' : '') + '><img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""><span>' + esc(c.name) + '</span>' +
                 (opt.max === 2 && opt.ordered && k >= 0 ? '<i>' + (k === 0 ? 'A' : 'B') + '</i>' : '') + '</button>';
             }).join('') + '</div>' +
             '<div class="sch-actions"><button type="button" class="sch-home" data-alt>' + esc(opt.altLabel) + '</button>' +

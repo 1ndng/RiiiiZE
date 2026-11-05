@@ -47,6 +47,8 @@
 .st-stat { position: relative; display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 12px 0 16px; }
 .st-stat + .st-stat::before { content: ""; position: absolute; left: 16px; right: 0; top: 0; border-top: .5px solid #d8d8dc; }
 .st-stat span { flex: 1; font-size: 16px; }
+.st-stat span { display: flex; align-items: center; gap: 10px; }
+.st-av { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; flex: none; }
 .st-stat b { min-width: 34px; text-align: center; font-size: 17px; font-variant-numeric: tabular-nums; }
 .st-stat button { width: 34px; height: 30px; border-radius: 8px; background: #eeeef0; color: #007aff; font-size: 19px; line-height: 1; }
 .st-stat button:active { background: #dcdce0; }

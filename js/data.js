@@ -31,13 +31,14 @@ window.SITE_DATA = {
    *     any: [條件, 條件]（其中一個成立）, not: 條件（不成立才算） }
    *   比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，只寫數字 = 至少這個數字
    */
+  // avatar = 大頭照（沒寫就用預設頭貼 images/default_avatar.png）
   cast: [
     { id: "m1", name: "大﨑将太郎", birthday: "11-25", activities: ["club", "council", "games"] },
-    { id: "m2", name: "宋恩奭",     birthday: "03-19", activities: ["volunteer", "council", "games"] },
-    { id: "m3", name: "鄭成燦",     birthday: "09-13", activities: ["council", "sports", "karaoke"] },
-    { id: "m4", name: "朴元彬",     birthday: "03-02", activities: ["club", "council", "sports"] },
-    { id: "m5", name: "李炤熙",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"] },
-    { id: "m6", name: "李燦榮",     birthday: "03-21", activities: ["volunteer", "council", "karaoke"] }
+    { id: "m2", name: "宋恩奭",     birthday: "03-19", activities: ["volunteer", "council", "games"], avatar: "images/cast/m2.jpg" },
+    { id: "m3", name: "鄭成燦",     birthday: "09-13", activities: ["council", "sports", "karaoke"], avatar: "images/cast/m3.jpg" },
+    { id: "m4", name: "朴元彬",     birthday: "03-02", activities: ["club", "council", "sports"], avatar: "images/cast/m4.jpg" },
+    { id: "m5", name: "李炤熙",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"], avatar: "images/cast/m5.jpg" },
+    { id: "m6", name: "李燦榮",     birthday: "03-21", activities: ["volunteer", "council", "karaoke"], avatar: "images/cast/m6.jpg" }
   ],
 
   /* ---------- 劇情（對話框） ----------

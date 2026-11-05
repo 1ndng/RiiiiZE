@@ -163,9 +163,9 @@
       '<div class="st-sec">' + esc(t.day) + '</div>' +
       '<div class="st-group">' + stepper('day', '', esc(g.dateText(null, true))) + '</div>' +
       '<div class="st-sec">' + esc(t.aff) + '</div>' +
-      '<div class="st-group">' + cast.map(function (c) { return stepper('aff', c.id, esc(c.name)); }).join('') + '</div>' +
+      '<div class="st-group">' + cast.map(function (c) { return stepper('aff', c.id, '<img class="st-av" src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt="">' + esc(c.name)); }).join('') + '</div>' +
       '<div class="st-sec">' + esc(t.awake) + '</div>' +
-      '<div class="st-group">' + cast.map(function (c) { return stepper('awake', c.id, esc(c.name)); }).join('') + '</div>' +
+      '<div class="st-group">' + cast.map(function (c) { return stepper('awake', c.id, '<img class="st-av" src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt="">' + esc(c.name)); }).join('') + '</div>' +
       '<div class="st-sec">' + esc(t.pair) + '</div>' +
       '<div class="st-group">' + g.pairs().map(function (k) {
         var ab = k.split('-');
