@@ -67,8 +67,9 @@ window.SITE_DATA = {
   storySpeed: 22,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
   storyBg: "images/bg/school.jpg",   // 劇情的預設背景（手機以外的畫面都用這張）；劇情裡寫 { bg: "…" } 可以換，{ bg: "phone" } = 直接看到手機畫面
   // 第一次遊玩的開場（js/intro.js）：打開這些 App 就結束自由探索、開始 9/1
+  //   seeMs = 探索時看到成員的照片多久（毫秒）就想起來、結束探索（KakaoTalk 一打開、IG／X 成員主頁、相簿裡寫了 cast 的照片）
   //   dayTime = 開場結束、進入 9/1 時手機上的時間
-  intro: { endApps: ["ig", "photos", "kakao"], dayTime: "7:58" },
+  intro: { seeMs: 1000, dayTime: "7:58" },
   scenes: {
     // ↓ 開場：解鎖手機後在主畫面上播（bg: "phone-dim" = 看得到手機畫面但變暗）
     intro_wake: [

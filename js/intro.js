@@ -121,7 +121,7 @@
     nextFn = next;
     if (location.hash !== '#/home') location.hash = '#/home';
     setTimeout(function () {
-      window.STORY.play('intro_wake', function () { exploring = true; S().setFlag('intro_explore'); });
+      window.STORY.play('intro_wake', function () { exploring = true; S().setFlag('intro_explore'); watchSee(); });
     }, 500);
   }
   function endExplore() {
@@ -138,13 +138,31 @@
       });
     }, 500);
   }
-  // 打開 IG、相簿、KakaoTalk → 探索結束（data.js 的 intro.endApps 可以改）
-  window.addEventListener('hashchange', function () {
-    if (!exploring) return;
-    var apps = (D().intro || {}).endApps || ['ig', 'photos', 'kakao'];
-    var app = location.hash.replace(/^#\/?/, '').split('/')[0];
-    if (apps.indexOf(app) >= 0) endExplore();
-  });
+  /* 探索中「看到成員的照片」超過 1 秒（data.js 的 intro.seeMs）→ 想起來，探索結束
+   *   KakaoTalk：一打開就是（好友列表上有成員的大頭照）
+   *   IG：點進成員的主頁或成員的貼文（只打開 IG 看到自己的主頁不算）
+   *   X：點進成員的主頁
+   *   相簿：相簿裡有寫 cast 的照片（例如 { image: "…", cast: "m4" }）才算 */
+  var seeTimer = null;
+  function memberIG(name) {
+    var ig = D().instagram || {}, all = [ig].concat(ig.otherAccounts || [], ig.searchOnlyAccounts || []);
+    return all.some(function (a) { return a.username === name && a.cast; });
+  }
+  function memberX(handle) { return ((D().x || {}).accounts || []).some(function (a) { return a.handle === handle && a.cast; }); }
+  function seesMember() {
+    var parts = location.hash.replace(/^#\/?/, '').split('/').map(function (x) { try { return decodeURIComponent(x); } catch (e) { return x; } });
+    if (parts[0] === 'kakao') return true;
+    if (parts[0] === 'ig' && parts[1] === 'u') return memberIG(parts[2]);
+    if (parts[0] === 'x' && parts[1] === 'u') return memberX(parts[2]);
+    if (parts[0] === 'photos') return ((D().photos || {}).photos || []).some(function (ph) { return ph.cast && (!window.GAME || window.GAME.unlocked(ph)); });
+    return false;
+  }
+  function watchSee() {
+    clearTimeout(seeTimer);
+    if (!exploring || !seesMember()) return;
+    seeTimer = setTimeout(function () { if (exploring && seesMember()) endExplore(); }, (D().intro || {}).seeMs || 1000);
+  }
+  window.addEventListener('hashchange', watchSee);
   // 行事曆：點到成員生日那天
   function onCalendar(date) {
     if (!exploring || (window.STORY.playing && document.querySelector('.vn'))) return;
