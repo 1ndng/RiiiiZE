@@ -244,8 +244,7 @@ window.SITE_DATA = {
     deleteLabel: "刪除",
     cancelLabel: "取消",
     // 鎖定畫面（輸入密碼前）：上方的字；KakaoTalk 有未讀訊息時會顯示通知，點了解鎖後直接打開那個聊天室
-    swipeText: "滑動以解鎖",
-    moreText: "還有 {n} 則通知"
+    swipeText: "滑動以解鎖"
   },
 
   /* ---------- 手機首頁 ---------- */

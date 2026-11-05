@@ -1598,7 +1598,7 @@
       if (el) el.textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
       if (de) de.textContent = (gd.getMonth() + 1) + '月' + gd.getDate() + '日 ' + WEEKDAYS[gd.getDay()];   // 日期 = 遊戲裡的今天
     }
-    // 通知：KakaoTalk 有未讀訊息的聊天室，一個聊天室一張；同一個聊天室有好幾則時後面疊著卡片
+    // 通知：KakaoTalk 的每一則未讀訊息各一張，分開排（新的在上面）
     function kakaoIcon() {
       var hit = (D.home.icons || []).concat(D.home.apps || []).filter(function (a) { return a.id === 'kakao'; })[0];
       return hit ? hit.icon : 'images/icon_kakao.png';
@@ -1607,11 +1607,10 @@
       var box = $('#lc-notes');
       if (!box || !window.SOSHO_KAKAO) return;
       var list = window.SOSHO_KAKAO.unreadList(), html = list.map(function (n) {
-        return '<button type="button" class="lc-note' + (n.count > 1 ? ' stack' : '') + '" data-lock-open="#/kakao/chat/' + encodeURIComponent(n.id) + '">' +
+        return '<button type="button" class="lc-note" data-lock-open="#/kakao/chat/' + encodeURIComponent(n.id) + '">' +
           '<img src="' + esc(kakaoIcon()) + '" alt="">' +
           '<span class="lc-note-t"><b>' + esc(n.title) + '</b><span>' + esc(n.text) + '</span></span>' +
           '<small>' + esc(n.time) + '</small>' +
-          (n.count > 1 ? '<i class="lc-more">' + esc((L.moreText || '還有 {n} 則通知').replace('{n}', n.count - 1)) + '</i>' : '') +
         '</button>';
       }).join('');
       if (box.innerHTML !== html) box.innerHTML = html;

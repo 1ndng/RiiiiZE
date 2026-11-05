@@ -420,16 +420,19 @@
   window.SOSHO_KAKAO = {
     friend: function (id) { return friend(id); },
     // 鎖定畫面的通知：有未讀的聊天室 → [{ id, title, text, time, count }]（最新的在前）
+    // 鎖定畫面的通知：每一則未讀訊息各一張（不疊在一起）→ [{ id, title, text, time }]，新的在前
     unreadList: function () {
-      var rooms = groups().concat(K().friends || []);
-      return rooms.filter(function (f) { return unreadOf(f) > 0; }).sort(function (a, b) { return lastTime(b) - lastTime(a); }).map(function (f) {
+      var rooms = groups().concat(K().friends || []), t = TX(), out = [];
+      rooms.filter(function (f) { return unreadOf(f) > 0; }).sort(function (a, b) { return lastTime(b) - lastTime(a); }).forEach(function (f) {
         var msgs = messagesOf(f).filter(function (m) { return m.from !== 'me' && !m.date && (m.text || m.image || m.video || m.call || m.link || m.expired || m.recalled); });
-        var last = msgs[msgs.length - 1] || {}, t = TX();
-        var who = f.group ? (findFriend(last.from) || {}).name : '';
-        var text = F(last.text) || (last.link ? linkInfo(last).title : last.call ? (last.duration ? t.voiceCall || '語音通話' : t.missedCall || '未接來電')
-          : (last.video || last.expired === 'video') ? t.videoLabel || '影片' : (last.image || last.expired) ? t.photoLabel || '照片' : last.recalled ? t.recalledText || '已收回訊息' : '');
-        return { id: f.id, title: f.group ? (who ? who + ' · ' : '') + f.name : f.name, text: text, time: last.time || '', count: unreadOf(f) };
+        msgs.slice(-unreadOf(f)).reverse().forEach(function (m) {   // 這個聊天室的未讀訊息（新的在前）
+          var who = f.group ? (findFriend(m.from) || {}).name : '';
+          var text = F(m.text) || (m.link ? linkInfo(m).title : m.call ? (m.duration ? t.voiceCall || '語音通話' : t.missedCall || '未接來電')
+            : (m.video || m.expired === 'video') ? t.videoLabel || '影片' : (m.image || m.expired) ? t.photoLabel || '照片' : m.recalled ? t.recalledText || '已收回訊息' : '');
+          out.push({ id: f.id, title: f.group ? (who ? who + ' · ' : '') + f.name : f.name, text: text, time: m.time || '' });
+        });
       });
+      return out;
     },
     replied: function (id) { return (state().msgs[id] || []).some(function (m) { return m.from === 'me'; }); },
     // 通話結束 → 聊天室多一則通話紀錄；對方打來沒接的算未讀
