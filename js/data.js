@@ -50,6 +50,22 @@ window.SITE_DATA = {
    */
   storySpeed: 38,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
   scenes: {
+    // ↓ 日程用的範例劇情
+    club_first: [
+      { bg: PH }, { text: "第一次走進社團教室。" },
+      { who: "m1", text: "咦，{name}也加入社團了？" }, { effects: { aff: { m1: 1 } } }
+    ],
+    club_daily: [ { bg: PH }, { text: "今天的社團活動很平常地結束了。" } ],
+    sports_daily: [ { bg: PH }, { text: "在操場跑了幾圈，流了一身汗。" }, { who: "m4", text: "{name}，跑得不錯嘛！" } ],
+    special_basketball: [
+      { bg: PH }, { text: "今天是籃球友誼賽。" },
+      { who: "m2", text: "你來看比賽了！" }, { who: "m3", text: "那就幫我們加油吧。" },
+      { effects: { pair: { "m2-m3": 1 }, aff: { m2: 1, m3: 1 } } }
+    ],
+    wander_a: [ { bg: PH }, { text: "在校園裡隨便走走，偶然遇到了成員 5。" }, { who: "m5", text: "你也在閒晃？" } ],
+    wander_b: [ { bg: PH }, { text: "走到頂樓，成員 6 一個人在看天空。" }, { who: "m6", text: "……這裡的天空，好像一直都是這個顏色。" }, { effects: { awake: { m6: 1 } } } ],
+    weekend_m1: [ { bg: PH }, { text: "週末和成員 1 去了咖啡廳。" }, { who: "m1", text: "下次還要一起出來喔。" } ],
+    // ↓ 主線劇情範例
     day1_morning: [
       { bg: PH },
       { text: "……好亮。" },
@@ -79,6 +95,45 @@ window.SITE_DATA = {
     { day: 1, phase: "morning", scene: "day1_morning" },
     { day: 2, phase: "afterschool", scene: "day2_afterschool" }
   ],
+
+  /* ---------- 日程（放學後要做什麼） ----------
+   * 平日放學自動跳出 activities 讓玩家選一個（今天放學有主線劇情就不跳）
+   *   選了之後：今天有這個活動的特殊事件（special）→ 先播那段；
+   *   不然從 scenes.活動id 的清單，從上往下挑第一段「if 成立、還沒看過」的（repeat: true = 可以重複看）；
+   *   閒晃（wander）= 從符合條件的裡面隨機挑；都沒有 → 用 text.nothing 一句話帶過
+   *   每個活動做過會記錄旗標 act_活動id
+   * special：特殊事件 { day: 第幾天, title: 行事曆上顯示的名稱, activity: 要選哪個活動才會遇到, scene, if, color }
+   *   行事曆只顯示名稱（日期下面有小點）；那天沒選對活動就錯過了
+   * weekend：週六、週日改成選要和誰見面（一位或兩位），或待在家
+   *   singleAff = 只選一位時好感 +幾；pairBond = 選兩位時他們的關係 +幾；pairAff = 選兩位時各自好感 +幾
+   *   scenes：[{ with: ["m1"] 或 ["m1", "m2"], scene, if, repeat }]；沒有寫到的組合用 text.single / text.pair 一句話帶過
+   *   home：待在家的劇情 [{ scene, if, repeat }]；沒有就用 text.stayHome
+   */
+  schedule: {
+    narrateBg: PH,               // 「一句話帶過」時的背景（不寫 = 桌布）
+    activities: [
+      { id: "club",      label: "社團",   icon: "🎸" },
+      { id: "council",   label: "學生會", icon: "📋" },
+      { id: "volunteer", label: "志工",   icon: "🤝" },
+      { id: "karaoke",   label: "K歌",    icon: "🎤" },
+      { id: "games",     label: "打遊戲", icon: "🎮" },
+      { id: "sports",    label: "運動",   icon: "🏀" },
+      { id: "wander",    label: "閒晃",   icon: "🚶" }
+    ],
+    scenes: {
+      club:   [ { scene: "club_first" }, { scene: "club_daily", repeat: true } ],
+      sports: [ { scene: "sports_daily", repeat: true } ],
+      wander: [ { scene: "wander_a", repeat: true }, { scene: "wander_b", repeat: true, if: { day: ">=3" } } ]
+    },
+    special: [
+      { day: 3, title: "籃球友誼賽", activity: "sports", scene: "special_basketball" }
+    ],
+    weekend: {
+      singleAff: 2, pairBond: 2, pairAff: 1,
+      scenes: [ { with: ["m1"], scene: "weekend_m1" } ],
+      home: []
+    }
+  },
 
   /* ---------- 遊戲時間與存檔 ----------
    * 一天一天推進：早上 → 放學 → 晚上；晚上主畫面出現「睡覺」，睡了就是隔天早上（並自動存檔）

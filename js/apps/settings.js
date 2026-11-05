@@ -169,7 +169,7 @@
       '<div class="st-sec">' + esc(t.flags) + '</div>' +
       '<div class="st-group st-flags">' + (flags.length ? flags.map(function (f) { return '<i>' + esc(f) + '</i>'; }).join('') : '<small>' + esc(t.noFlags) + '</small>') + '</div>' +
       '<div class="st-sec">' + esc(t.scenes) + '</div>' +
-      '<div class="st-group">' + Object.keys(D().scenes || {}).map(function (id) {
+      '<div class="st-group">' + Object.keys(D().scenes || {}).filter(function (id) { return id.indexOf('__') !== 0; }).map(function (id) {
         return row('', '', esc(id), S().hasFlag('scene_' + id) ? '✓' : '', 'data-st-scene="' + esc(id) + '"', true);
       }).join('') + '</div>' +
       '<div class="st-sec">' + esc(t.playerName) + '</div>' +

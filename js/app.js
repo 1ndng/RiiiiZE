@@ -157,12 +157,17 @@
     var pick = calPick || today, pd = new Date(y, m, pick);   // 左邊顯示的那天
     var wd = c.weekdays || WEEKDAYS, mn = c.months || MONTHS, heads = c.weekHeads || ['一', '二', '三', '四', '五', '六', '日'];
     var events = (c.events || []).filter(function (ev) { return eventToday(ev, pd) && (!ev.if || !window.GAME || window.GAME.check(ev.if)); });
+    // 日程的特殊事件（data.js 的 schedule.special）：只顯示名稱，不說要選哪個活動
+    function gameDayOf(date) { return window.GAME ? Math.round((date - window.GAME.date(1)) / 864e5) + 1 : 0; }
+    function specials(date) { return window.SCHEDULE ? window.SCHEDULE.specialsOn(gameDayOf(date)) : []; }
+    events = events.concat(specials(pd).map(function (e) { return { title: e.title, color: e.color || '#ff9500' }; }));
     var lead = (new Date(y, m, 1).getDay() + 6) % 7;   // 這個月 1 號前面空幾格（星期一開頭）
     var days = new Date(y, m + 1, 0).getDate(), cells = [];
     for (var i = 0; i < lead; i++) cells.push('<i></i>');
     for (var n = 1; n <= days; n++) {
       var col = (lead + n - 1) % 7;
-      cells.push('<i data-calday="' + n + '" class="' + (col >= 5 ? 'we' : '') + (n === today ? ' today' : '') + (n === pick && n !== today ? ' pick' : '') + '">' + n + '</i>');
+      cells.push('<i data-calday="' + n + '" class="' + (col >= 5 ? 'we' : '') + (n === today ? ' today' : '') + (n === pick && n !== today ? ' pick' : '') +
+        (specials(new Date(y, m, n)).length ? ' has-ev' : '') + '">' + n + '</i>');
     }
     box.innerHTML =
       '<div class="cal-l" data-caltoday>' +
