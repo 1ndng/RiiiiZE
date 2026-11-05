@@ -12,6 +12,7 @@
     video: '<svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="13" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M15.5 10.5 21 7.5v9l-5.5-3z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     phone: '<svg viewBox="0 0 24 24"><path d="M6.6 3.5c.7-.3 1.5 0 1.9.6l1.6 2.8c.4.7.2 1.5-.4 2l-1.3 1c.9 1.9 2.4 3.4 4.3 4.3l1-1.3c.5-.6 1.3-.8 2-.4l2.8 1.6c.6.4.9 1.2.6 1.9-.6 1.6-2.1 2.6-3.8 2.4C9.6 17.8 5.2 13.4 4.6 7.7c-.2-1.7.8-3.4 2-4.2z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     photo: '<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="8.5" cy="9.5" r="1.6" fill="currentColor"/><path d="M3.5 17l5-5 4 4 3-3 5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>',
+    clear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
     send: '<svg viewBox="0 0 24 24"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
 
@@ -245,24 +246,74 @@
           (f.group || f.self || !window.SOSHO_KAKAO_CALL ? '<span></span>' : '<button type="button" class="kk-callbtn" data-kcall aria-label="call">' + ICON.phone + '</button>') +
         '</div>' +
         '<div class="kk-msgs" id="kk-msgs"></div>' +
+        '<div class="kk-choices" id="kk-choices"></div>' +
         '<form class="kk-input" id="kk-form" autocomplete="off">' +
-          '<label class="kk-field"><input name="m" placeholder="' + esc(TX().inputPlaceholder) + '" autocomplete="off"></label>' +
+          '<label class="kk-field"><input name="m" placeholder="' + esc(TX().inputPlaceholder) + '" autocomplete="off">' +
+            '<button type="button" class="kk-clear" id="kk-clear" data-kclear aria-label="clear" hidden>' + ICON.clear + '</button></label>' +
           '<button type="submit" class="kk-send" disabled>' + ICON.send + '</button>' +
         '</form>' +
       '</div>';
     paintChat();
     var form = S().$('#kk-form');
+    paintChoices();
     form.m.addEventListener('input', function () { form.querySelector('.kk-send').disabled = !form.m.value.trim(); });
+    // 選了選項之後：文字不能改；按刪除鍵 = 整句刪掉
+    form.m.addEventListener('keydown', function (e) {
+      if (picked && (e.key === 'Backspace' || e.key === 'Delete')) { e.preventDefault(); pick(null); }
+    });
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var text = form.m.value.trim();
       if (!text) return;
+      var chosen = picked, set = activeChoices(f);
       push(f.id, { from: 'me', text: text, time: nowTime() });
       form.m.value = '';
       form.querySelector('.kk-send').disabled = true;
-      paintChat();
-      scheduleReply(f, text);
+      if (chosen && set) {
+        // 選項式回覆：這組選項用掉了 → 套用效果、記錄旗標、照這個選項的回覆
+        var st = state(); st.usedChoices = st.usedChoices || {}; st.usedChoices[set.id] = chosen.i; S().save(KEY, st);
+        fx(chosen.o.effects);
+        [].concat(chosen.o.flag || []).forEach(function (fl) { S().setFlag(fl); });
+        pick(null);
+        paintChat(); paintChoices();
+        runReply(f, chosen.o, [].concat(chosen.o.reply || []));
+      } else {
+        paintChat();
+        scheduleReply(f, text);
+      }
     });
+  }
+
+  /* ---- 選項式回覆 ----
+   * data.js 好友（或群組）的 choices：[{ id, if, options: [{ text, effects, flag, reply, read, typing }] }]
+   *   從上往下找第一組「還沒用過、if 成立」的選項，顯示在輸入框上面
+   *   點選項 → 文字放進輸入框（不能修改；刪除 = 整句刪掉；點別的選項 = 換掉），按送出才傳
+   *   有選項時不能自己打字；沒有選項時照舊可以打字（關鍵字回覆） */
+  var picked = null;   // { i: 選項編號, o: 選項 }
+  function activeChoices(f) {
+    var used = state().usedChoices || {};
+    return (f.choices || []).filter(function (c) { return c.id && !(c.id in used) && ok(c.if); })[0] || null;
+  }
+  function paintChoices() {
+    var f = friend(openChatId), box = document.getElementById('kk-choices'), form = document.getElementById('kk-form');
+    if (!f || !box || !form) return;
+    var set = activeChoices(f), t = TX();
+    if (picked && (!set || set.options[picked.i] !== picked.o)) pick(null);
+    box.innerHTML = set ? set.options.map(function (o, i) {
+      return '<button type="button" class="kk-chip' + (picked && picked.i === i ? ' on' : '') + '" data-kchoice="' + i + '">' + esc(o.text) + '</button>';
+    }).join('') : '';
+    box.hidden = !set;
+    form.m.readOnly = !!set;
+    form.m.placeholder = set ? (t.choicePlaceholder || '選擇要回覆的內容') : t.inputPlaceholder;
+  }
+  function pick(choice) {
+    var form = document.getElementById('kk-form');
+    picked = choice;
+    if (!form) return;
+    form.m.value = choice ? choice.o.text : '';
+    form.querySelector('.kk-send').disabled = !choice;
+    var clr = document.getElementById('kk-clear'); if (clr) clr.hidden = !choice;
+    document.querySelectorAll('#kk-choices .kk-chip').forEach(function (b) { b.classList.toggle('on', !!choice && +b.dataset.kchoice === choice.i); });
   }
 
   function push(id, msg) {
@@ -290,6 +341,10 @@
       return hit;
     });
     if (!lines) lines = [].concat(f.defaultReply || []);
+    runReply(f, rule, lines);
+  }
+  // 回覆：rule.read = 秒讀、rule.typing = 輸入中的時間；lines = 依序傳來的訊息
+  function runReply(f, rule, lines) {
     var wait = 1500;
     if (rule && rule.read) {
       // 秒讀：玩家剛傳的訊息旁的「1」消失
@@ -318,7 +373,8 @@
         var msg = { from: from, time: nowTime() };
         if (line && typeof line === 'object') { if (line.image) msg.image = line.image; msg.text = line.text; } else msg.text = line;
         push(f.id, msg);
-        if (openChatId === f.id && location.hash.indexOf('#/kakao/chat/') === 0) paintChat();
+        if (line && typeof line === 'object' && line.flag) S().setFlag(line.flag);   // 這句回覆傳來時記錄旗標
+        if (openChatId === f.id && location.hash.indexOf('#/kakao/chat/') === 0) { paintChat(); paintChoices(); }
         else {
           var st = state(); st.unread[f.id] = unreadOf(f) + 1; S().save(KEY, st);
           if (location.hash.indexOf('#/kakao') === 0) route(current);
@@ -348,6 +404,7 @@
       st.sent = st.sent || {};
       if (ev.unlessSent && st.sent[ev.unlessSent]) return;   // 某則即時訊息已經傳過就不傳
       st.sent[ev.id] = 1;
+      if (ev.flag) S().setFlag(ev.flag);   // 傳來時記錄旗標（例如讓下一組選項出現）
       var msg = { from: ev.from || 'them', time: nowTime() };
       ['text', 'link', 'linkTitle', 'linkSite', 'image'].forEach(function (k) { if (ev[k]) msg[k] = ev[k]; });
       msg.day = gameDay();
@@ -470,7 +527,7 @@
   var current = [];
   function route(parts) {
     current = parts;
-    openChatId = null;
+    openChatId = null; picked = null;
     if (locked()) renderLock();
     else if (parts[0] === 'chat' && parts[1]) renderChat(parts[1]);
     else renderChats();
@@ -479,6 +536,14 @@
   document.addEventListener('click', function (e) {
     var app = document.getElementById('app-kakao');
     if (!app || !app.contains(e.target)) return;
+    // 選項式回覆：點選項 → 放進輸入框；點 × → 整句刪掉
+    var ch = e.target.closest('[data-kchoice]');
+    if (ch) {
+      var set = activeChoices(friend(openChatId)), i = +ch.dataset.kchoice;
+      if (set) pick({ i: i, o: set.options[i] });
+      return;
+    }
+    if (e.target.closest('[data-kclear]')) { e.preventDefault(); pick(null); return; }
     // 通話：電話鍵或點通話紀錄 → 語音通話
     var kc = e.target.closest('[data-kcall]');
     if (kc && openChatId) { window.SOSHO_KAKAO_CALL.start(openChatId); return; }

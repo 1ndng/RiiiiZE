@@ -469,6 +469,23 @@ window.SITE_DATA = {
         avatar: PH,
         unread: 0,
         messages: [],
+        // 選項式回覆：從上往下找第一組「還沒用過、if 成立」的選項，顯示在輸入框上面
+        //   點選項 → 文字放進輸入框（不能修改；刪除 = 整句刪掉；點別的選項 = 換掉），按送出才傳
+        //   有選項時玩家不能自己打字；每組只能選一次
+        //   options：text = 回覆的文字、effects = 效果、flag = 選了記錄的旗標、
+        //            reply = 對方的回覆（可多句；寫 { text, flag } 可以在那句傳來時記錄旗標）、read: true = 秒讀、typing = 輸入中的時間
+        //   即時訊息（live）也可以寫 flag：傳來時記錄旗標，用來讓下一組選項出現
+        choices: [
+          { id: "c3_1", options: [
+            { text: "今天謝謝你！", effects: { aff: { m3: 2 } }, read: true, typing: [1500], reply: [{ text: "不客氣～", flag: "c3_round2" }] },
+            { text: "嗯", effects: { aff: { m3: -1 } }, reply: [{ text: "……好吧", flag: "c3_round2" }] },
+            { text: "你也是今天的值日生嗎？", reply: [{ text: "對啊ㅋㅋ", flag: "c3_round2" }] }
+          ] },
+          { id: "c3_2", if: { flag: "c3_round2" }, options: [
+            { text: "明天見", reply: ["明天見！"] },
+            { text: "晚安", effects: { aff: { m3: 1 } }, reply: ["晚安😊"] }
+          ] }
+        ],
         replies: [],
         defaultReply: []
       }
@@ -498,6 +515,7 @@ window.SITE_DATA = {
       lockDelete: "刪除",
       chatsTitle: "聊天",
       inputPlaceholder: "輸入訊息",
+      choicePlaceholder: "選擇要回覆的內容",   // 有選項可以選時，輸入框裡的提示字
       ampm: ["上午", "下午"],
       photoLabel: "照片",
       videoLabel: "影片",

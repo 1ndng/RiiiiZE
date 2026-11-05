@@ -189,3 +189,14 @@ button.kk-call { font: inherit; color: inherit; text-align: left; cursor: pointe
 .kc-in { gap: 120px; }
 .kc-in .kc-green svg { animation: kcRing 1.2s infinite; }
 @keyframes kcRing { 0%, 60%, 100% { transform: none; } 10%, 30%, 50% { transform: rotate(-14deg); } 20%, 40% { transform: rotate(14deg); } }
+
+/* 選項式回覆：輸入框上面的選項；點了放進輸入框（不能修改，× 整句刪掉） */
+.kk-choices { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding: 10px 12px 8px; background: #fff; border-top: 1px solid #ececec; }
+.kk-choices[hidden] { display: none; }
+.kk-chip { max-width: 92%; padding: 9px 14px; border-radius: 16px; background: #fff; border: 1px solid #d9d9d9; color: #191919; font: inherit; font-size: 15px; line-height: 1.35; text-align: left; }
+.kk-chip:active { background: #f4f4f4; }
+.kk-chip.on { background: #fff8c4; border-color: #f2d600; }
+.kk-field input[readonly] { cursor: default; }
+.kk-clear { flex: none; display: flex; color: #b4b4b4; padding: 4px; }
+.kk-clear svg { width: 18px; height: 18px; }
+.kk-clear[hidden] { display: none; }
