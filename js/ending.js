@@ -54,7 +54,7 @@
     var t = T(), el = document.createElement('div');
     el.className = 'end-card';
     el.innerHTML = '<div class="end-in">' +
-      '<small>' + esc(t.end) + '</small><b>' + esc(en.title || id) + '</b>' +
+      (t.end ? '<small>' + esc(t.end) + '</small>' : '') + '<b>' + esc(en.title || id) + '</b>' +
       (en.text ? '<p>' + esc(en.text) + '</p>' : '') +
       (eps.length ? '<div class="end-eps"><i>' + esc(t.epilogues) + '</i>' + eps.map(function (e) { return '<span>' + esc(e.title || e.id) + '</span>'; }).join('') + '</div>' : '') +
       '<div class="end-tap">' + esc(t.tap) + '</div>' +

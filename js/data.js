@@ -147,21 +147,23 @@ window.SITE_DATA = {
 
     // ↓ 結局（8/31 早上）
     final_choice: [
+      // 有人還沒覺醒 → 直接進 DREAM END 2
+      { goto: "dream2", if: { allAwake: false } },
       { text: "——全部都想起來了。" },
       { text: "這裡不是真正的高中。他們早就長大了，只是被困在這段時間裡。" },
-      { text: "（只有六位的覺醒度都夠，才能選「喚醒」）", if: { allAwake: false } },
       { choices: [
-        { text: "喚醒大家", if: { allAwake: true }, goto: "wake" },
-        { text: "讓大家留在這裡", goto: "stay" }
+        { text: "喚醒大家", goto: "true" },
+        { text: "讓大家留在這裡", goto: "dream1" }
       ] },
-      { label: "wake" }, { text: "你握住了他們的手。" }, { ending: "awaken" },
-      { label: "stay" }, { text: "你決定什麼都不說。" }, { ending: "stay" }
+      { label: "true" }, { text: "（喚醒六人：待寫）" }, { ending: "true" },
+      { label: "dream1" }, { text: "（選擇留下：待寫）" }, { ending: "dream1" },
+      { label: "dream2" }, { text: "（還有人沒有醒來，一年又要結束了：待寫）" }, { ending: "dream2" }
     ],
-    ending_awaken: [ { text: "睜開眼睛，窗外是另一個季節。" } ],
-    ending_stay: [ { text: "隔天早上，鐘聲照常響起。" } ],
-    ep_m1_lover: [ { who: "m1", text: "{name}，這次換我來找你。" } ],
-    ep_m1_friend: [ { who: "m1", text: "以後也要常常聯絡喔。" } ],
-    ep_m2_m3: [ { text: "宋恩奭和鄭成燦並肩走在街上。" } ]
+    // 三個結局的劇情（endings 的 scene）
+    ending_true: [ { text: "（TRUE END：六人重新面對現實。待寫）" } ],
+    ending_dream1: [ { text: "（DREAM END 1：七人選擇留在這段時光。待寫）" } ],
+    ending_dream2: [ { text: "（DREAM END 2：沒能喚醒所有人。待寫）" } ]
+    // 後日談（endings 的 epilogues）也寫在這裡，例如 ep_xxx: [ … ]
   },
   story: [
     { date: "09-01", phase: "morning",     scene: "d0901" },                          // 開學
@@ -239,7 +241,10 @@ window.SITE_DATA = {
   romance: {
     lover: { aff: 120, flag: "confess_{id}" },
     couple: { pair: 150, flag: "couple_{pair}" },
-    awake: 3
+    // 個人覺醒 = 覺醒度到 value，而且看過必要劇情（flag；{id} = 成員 id）
+    //   預設：看過 scenes.awake_m1_3（第三階段「認知與接受」）就會有旗標 scene_awake_m1_3
+    //   六位都覺醒 → 8/31 可以選 TRUE END／DREAM END 1；有人沒覺醒 → DREAM END 2
+    awake: { value: 3, flag: "scene_awake_{id}_3" }
   },
 
   /* ---------- 結局 ----------
@@ -250,22 +255,24 @@ window.SITE_DATA = {
    * 看過的結局、後日談記在「設定 → 結局圖鑑」，重新開始也不會清掉；結局會記錄旗標 ending_結局id
    */
   endings: {
-    awaken: {
-      title: "醒來", text: "大家都回到了屬於自己的時間。", scene: "ending_awaken", after: "explore",
-      epilogues: [
-        { id: "m1_lover", title: "大﨑将太郎・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
-        { id: "m1_friend", title: "大﨑将太郎・朋友", scene: "ep_m1_friend", if: { notLover: "m1", aff: { m1: ">=30" } } },
-        { id: "m2_m3", title: "宋恩奭 × 鄭成燦", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
-      ]
+    // 六人都覺醒、選擇喚醒：六人回到成人世界，玩家留在這個世界
+    true: {
+      title: "TRUE END", text: "即使不確定未來是否幸福，仍願意繼續生活。", scene: "ending_true", after: "explore",
+      epilogues: []
     },
-    stay: {
-      title: "留下", text: "這段時光，會一直持續下去。", scene: "ending_stay", after: "continue",
-      epilogues: [
-        { id: "m1_lover", title: "大﨑将太郎・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
-        { id: "m2_m3", title: "宋恩奭 × 鄭成燦", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
-      ]
+    // 六人都覺醒、選擇留下：七人繼續留在學院的一年
+    dream1: {
+      title: "DREAM END 1", text: "七人選擇留在這段美好的時光。", scene: "ending_dream1", after: "continue",
+      epilogues: []
+    },
+    // 8/31 時有人還沒覺醒：沒有選擇，直接進入這個結局
+    dream2: {
+      title: "DREAM END 2", text: "還有人沒有醒來。", scene: "ending_dream2", after: "continue",
+      epilogues: []
     }
   },
+  // 結局畫面最上面的小字（結局名稱已經有 END，所以留空）
+  endingText: { end: "" },
 
   /* ---------- 遊戲時間與存檔 ----------
    * 一學年：startDate（2025-09-01，星期一）～ endDate（2026-08-31）

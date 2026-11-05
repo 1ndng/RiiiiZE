@@ -152,7 +152,7 @@
    *     flag: "旗標" 或 ["旗標", …]（全部要有）, notFlag: "旗標" 或 [...]（全部不能有）,
    *     aff: { m1: ">=10" }, pair: { "m1-m2": ">=5" }, awake: { m3: ">=3" },
    *     lover: "m1"（是戀人）, notLover: "m1", couple: "m1-m2"（兩位是一對）, notCouple: "m1-m2",
-   *     allAwake: true（六位覺醒度都夠）／false,
+   *     allAwake: true（六位都覺醒）／false, awakened: "m1"（這位已覺醒）, notAwakened: "m1", awakeCount: ">=3",
    *     any: [ 條件, 條件 ]（其中一個成立就好）, not: 條件（不成立才算） }
    *   數字比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，或只寫數字（= 至少這個數字）
    *   只寫一個字串 = 有這個旗標 */
@@ -170,7 +170,8 @@
   /* ---- 戀愛和覺醒：data.js 的 romance ----
    *   lover：玩家和某位成員是戀人 = 好感度到 lover.aff，而且有 lover.flag 旗標（{id} = 成員 id，例如 confess_m1）
    *   couple：兩位成員是一對 = 關係到 couple.pair，而且有 couple.flag 旗標（{pair} = "m1-m2"）
-   *   allAwake：六位的覺醒度都到 awake */
+   *   覺醒（個人）：覺醒度到 awake.value，而且有 awake.flag 旗標（{id} = 成員 id；預設 scene_awake_{id}_3 = 看過他第三階段的覺醒劇情）
+   *   allAwake：六位都覺醒 */
   function R() { return D.romance || {}; }
   function isLover(id) {
     var r = R().lover || {};
@@ -180,10 +181,15 @@
     var r = R().couple || {}, key = pairKey(k);
     return cmp(statGet('pair', key), r.pair != null ? r.pair : 10) && hasFlag(String(r.flag || 'couple_{pair}').replace('{pair}', key));
   }
-  function allAwake() {
-    var need = R().awake != null ? R().awake : 10;
-    return cast().length > 0 && cast().every(function (c) { return cmp(statGet('awake', c.id), need); });
+  function isAwake(id) {
+    var a = R().awake, need = a != null && typeof a === 'object' ? a.value : a, flag = a && typeof a === 'object' ? a.flag : null;
+    if (need == null) need = 10;
+    return cmp(statGet('awake', id), need) && (!flag || hasFlag(String(flag).replace('{id}', id)));
   }
+  function allAwake() {
+    return cast().length > 0 && cast().every(function (c) { return isAwake(c.id); });
+  }
+  function awakeCount() { return cast().filter(function (c) { return isAwake(c.id); }).length; }
   function check(c) {
     if (c == null || c === true) return true;
     if (typeof c === 'string') return hasFlag(c);
@@ -210,6 +216,9 @@
     if (c.couple && ![].concat(c.couple).every(isCouple)) return false;
     if (c.notCouple && [].concat(c.notCouple).some(isCouple)) return false;
     if (c.allAwake != null && !!c.allAwake !== allAwake()) return false;
+    if (c.awakened && ![].concat(c.awakened).every(isAwake)) return false;      // awakened: "m1" = 這位已經覺醒
+    if (c.notAwakened && [].concat(c.notAwakened).some(isAwake)) return false;
+    if (c.awakeCount != null && !cmp(awakeCount(), c.awakeCount)) return false;   // awakeCount: ">=3" = 已經覺醒幾位
     if (c.any && !c.any.some(check)) return false;
     if (c.not && check(c.not)) return false;
     return true;
@@ -237,6 +246,8 @@
     isLover: function (id) { return isLover(id); },
     isCouple: function (k) { return isCouple(k); },
     allAwake: function () { return allAwake(); },
+    isAwake: function (id) { return isAwake(id); },
+    awakeCount: function () { return awakeCount(); },
     date: function (day) { return dateOf(day); },
     dateText: function (day, withWeek) { return fmt(dateOf(day), withWeek); },
     weekday: function (d) { return WEEK[(d || dateOf()).getDay()]; },

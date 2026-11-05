@@ -61,3 +61,4 @@
 .st-ep small { color: #8a8a8e !important; margin: 0 0 1px !important; font-size: 12px !important; }
 .st-ep b { font-weight: 500 !important; }
 .st-slot[disabled] small { color: #c4c4c7; }
+.st-awoke { margin-left: 6px; padding: 1px 6px; border-radius: 6px; background: #34c759; color: #fff; font-size: 11px; font-weight: 600; }
