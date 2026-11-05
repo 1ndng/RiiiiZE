@@ -120,7 +120,7 @@ window.SITE_DATA = {
   story: [
     { day: 1, phase: "morning", scene: "day1_morning" },
     { day: 2, phase: "afterschool", scene: "day2_afterschool" },
-    { day: 14, phase: "morning", scene: "final_choice" }      // 結局範例：第 14 天早上
+    { day: 28, phase: "morning", scene: "final_choice" }      // 最後一天（第 28 天）早上：喚醒或留下 → 結局
   ],
 
   /* ---------- 日程（放學後要做什麼） ----------
@@ -207,7 +207,7 @@ window.SITE_DATA = {
    */
   game: {
     debug: true,                 // true = 設定裡出現「數值（開發用）」；正式公開前改成 false
-    startDate: "2026-03-02",
+    startDate: "2026-03-02",     // 第 1 天（星期一）；遊戲共 28 天，第 28 天 = 2026/3/29（星期日）是結局
     saveSlots: 10,
     sleepLabel: "睡覺",
     sleepTitle: "要睡覺了嗎？",
