@@ -483,7 +483,10 @@ window.SITE_DATA = {
         posts: [
           { images: ["images/ig/sungchan_20250503_1.jpg", "images/ig/sungchan_20250503_2.jpg"], caption: "", time: "5月3日" }   // 第一篇（2025/5/3）
         ] },
-      { username: "bin032",      cast: "m4", name: "원빈", private: true, following: others(IG_ALL, "bin032"),      bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "bin032",      cast: "m4", name: "원빈", private: true, following: others(IG_ALL, "bin032"),      bio: [], highlights: [], reposts: [],
+        posts: [
+          { images: ["images/ig/wonbin_20250603_1.jpg", "images/ig/wonbin_20250603_2.jpg", "images/ig/wonbin_20250603_3.jpg", "images/ig/wonbin_20250603_4.jpg", "images/ig/wonbin_20250603_5.jpg"], caption: "", time: "6月3日" }   // 第一篇（2025/6/3）
+        ] },
       { username: "252525252_",  cast: "m5", name: "이소희", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], reposts: [],
         posts: [
           { images: ["images/ig/sohee_20250121_1.jpg", "images/ig/sohee_20250121_2.jpg", "images/ig/sohee_20250121_3.jpg"], caption: "", time: "1月21日" }   // 第一篇（2025/1/21）
