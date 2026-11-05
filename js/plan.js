@@ -540,6 +540,18 @@
 
   // 晚上：不能用手機的日子 → 直接往後跳
   if (window.GAME) G().onNight(function () {
+    // 今天有每日聊天（data.js 的 kakao.dayChats）：主線劇情結束 → 打開手機、自動進入聊天室
+    var K = window.SOSHO_KAKAO, chat = K && K.dayChatFor(G().md(G().day));
+    if (chat) {
+      var free = phoneDay(G().day);
+      G().setClock((D().game || {}).nightTime || '22:00');
+      stage(null);
+      var lk = document.getElementById('lock'); if (lk) lk.remove();
+      document.getElementById('phone').classList.remove('locked');
+      // 聊完：能用手機的日子 → 直接自由使用手機（不用再解鎖）；其他日子 → 進入下一天
+      K.dayChat(chat, function () { if (!free) setTimeout(go, 300); }, free);
+      return;
+    }
     // 能用手機的日子（星期日、最後一天、結局後）：劇情、出去玩都結束 → 鎖定畫面，解鎖後自由使用手機
     if (phoneDay(G().day)) {
       G().setClock((D().game || {}).nightTime || '22:00');   // 手機上的時間從晚上 22:00 開始（data.js 的 game.nightTime）

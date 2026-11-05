@@ -511,6 +511,22 @@ window.SITE_DATA = {
     // 例：{ id: "call1", when: "chat_f2", delay: 10000, room: "f2", declineFlag: "call1_declined",
     //       start: "s", nodes: { s: { lines: [{ who: "them", text: "…" }] } } }
     incoming: [],
+    // 每日聊天：那天的主線劇情結束後，自動打開這個聊天室跑一段聊天；聊完才進入下一天（星期日聊完 = 自由使用手機）
+    //   room = 好友 id（f1～f6）或群組 id（g_club、g_volunteer、g_council、g_karaoke）
+    //   steps（從上往下）：
+    //     { text: "訊息" }                 對方傳來（先顯示「輸入中」）；群組要寫 from: "f4" = 誰傳的；image: "圖片" = 傳照片
+    //     { choices: [ { text: "玩家要傳的話", effects, flag, reply: ["對方的回覆", { from: "f2", text: "群組裡誰回" }] } ] }
+    //                                      玩家點選項 → 按送出 → 對方照 reply 回覆，再接著往下
+    //     { wait: 1000 }                   停頓；typing: 毫秒 = 這則「輸入中」顯示多久；每一步都可以加 if
+    dayChats: [
+      { date: "09-01", room: "f4",          steps: [ { text: "（9/1 和元彬的聊天：待寫）" } ] },
+      { date: "09-02", room: "g_council",   steps: [ { from: "f1", text: "（9/2 學生會群組的聊天：待寫）" } ] },
+      { date: "09-03", room: "g_volunteer", steps: [ { from: "f2", text: "（9/3 志工活動群組的聊天：待寫）" } ] },
+      { date: "09-04", room: "f3",          steps: [ { text: "（9/4 和成燦的聊天：待寫）" } ] },
+      { date: "09-05", room: "g_club",      steps: [ { from: "f1", text: "（9/5 社團活動群組的聊天：待寫）" } ] },
+      { date: "09-06", room: "f2",          steps: [ { text: "（9/6 和恩奭的聊天：待寫）" } ] },
+      { date: "09-07", room: "g_karaoke",   steps: [ { from: "f3", text: "（9/7 KTV 群組的聊天：待寫）" } ] }
+    ],
     noAnswerMs: 8000,              // 打給沒有劇本的好友，響多久後顯示「對方未接聽」
     friends: [
       // 客服小精靈：放提示、進度提醒（不是成員）；之後用 live（即時訊息）或 messages 放內容

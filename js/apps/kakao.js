@@ -200,7 +200,7 @@
   function bubblesHTML(f) {
     var msgs = messagesOf(f), out = '';
     // 對方正在輸入 → 最後面多一個「⋯」泡泡
-    if (typing[f.id]) msgs = msgs.concat([{ from: f.group ? (f.members[0] || {}).id : 'them', typing: true }]);
+    if (typing[f.id]) msgs = msgs.concat([{ from: f.group ? (typing[f.id] !== true ? typing[f.id] : (f.members[0] || {}).id) : 'them', typing: true }]);
     msgs.forEach(function (m, i) {
       if (m.date) { out += '<div class="kk-date"><span>' + esc(m.date) + '</span></div>'; return; }
       var prev = msgs[i - 1], next = msgs[i + 1];
@@ -259,7 +259,7 @@
     S().$('#kakao-overlay').innerHTML =
       '<div class="kk-chat">' +
         '<div class="kk-chat-head">' +
-          '<a href="#/kakao" data-kback>' + ICON.back + '</a>' +
+          ((dc && dc.room === f.id) || (dcAfter && dcRoom === f.id) ? '<span></span>' : '<a href="#/kakao" data-kback>' + ICON.back + '</a>') +   // 每日聊天進行中：不能離開
           '<b' + (f.group || f.self ? '' : ' data-kprof="' + esc(f.id) + '"') + '>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b>' +
           // 右上角：電話鍵（1:1 或群組通話；noCall: true = 沒有）＋群組的選單鍵（看聊天室成員）
           '<span class="kk-head-btns">' +
@@ -286,6 +286,7 @@
       push(f.id, { from: 'me', text: text, time: nowTime() });
       form.m.value = '';
       form.querySelector('.kk-send').disabled = true;
+      if (chosen && set && set.id === '__daychat') { dayChatChose(chosen.o); return; }
       if (chosen && set) {
         // 選項式回覆：這組選項用掉了 → 套用效果、記錄旗標、照這個選項的回覆
         var st = state(); st.usedChoices = st.usedChoices || {}; st.usedChoices[set.id] = chosen.i; S().save(KEY, st);
@@ -308,6 +309,7 @@
    *   有選項時不能自己打字；沒有選項時照舊可以打字（關鍵字回覆） */
   var picked = null;   // { i: 選項編號, o: 選項 }
   function activeChoices(f) {
+    if (dc && dc.room === f.id) return dc.ask ? { id: '__daychat', options: dc.ask.choices.filter(function (o) { return ok(o.if); }) } : null;
     var used = state().usedChoices || {};
     return (f.choices || []).filter(function (c) { return c.id && !(c.id in used) && ok(c.if); })[0] || null;
   }
@@ -315,12 +317,19 @@
     var f = friend(openChatId), box = document.getElementById('kk-choices'), form = document.getElementById('kk-form');
     if (!f || !box || !form) return;
     var set = activeChoices(f), t = TX();
+    // 每日聊天：聊完 → 輸入框換成「繼續」；聊天中 → 不能自己打字
+    if (dcAfter && dcRoom === f.id) {
+      box.hidden = false; box.classList.add('kk-done-bar'); form.style.display = 'none';
+      box.innerHTML = '<button type="button" class="kk-chip kk-daydone" data-kdaydone>' + esc(t.dayChatDone || '繼續') + '</button>';
+      return;
+    }
+    form.style.display = ''; box.classList.remove('kk-done-bar');
     if (picked && (!set || set.options[picked.i] !== picked.o)) pick(null);
     box.innerHTML = set ? set.options.map(function (o, i) {
       return '<button type="button" class="kk-chip' + (picked && picked.i === i ? ' on' : '') + '" data-kchoice="' + i + '">' + esc(F(o.text)) + '</button>';
     }).join('') : '';
     box.hidden = !set;
-    form.m.readOnly = !!set;
+    form.m.readOnly = !!set || !!(dc && dc.room === f.id);
     form.m.placeholder = set ? (t.choicePlaceholder || '選擇要回覆的內容') : t.inputPlaceholder;
   }
   function pick(choice) {
@@ -399,6 +408,84 @@
     });
   }
 
+  /* ---- 每日聊天（data.js 的 kakao.dayChats）：那天的主線劇情結束後，自動打開聊天室跑一段聊天 ----
+   * 由 js/plan.js 在晚上呼叫；聊天進行中不能離開聊天室；聊完：
+   *   不能用手機的日子 → 出現「繼續」，按了進入下一天
+   *   能用手機的日子（星期日）→ 直接自由使用手機
+   * 進度存在 riiiize-kakao 的 dayChat（重新整理會從中斷的地方繼續） */
+  var dc = null;   // { def, room, i, ask, done, free }
+  function dayChatKey(def) { return 'daychat_' + def.date; }
+  function dayChatStart(def, done, free) {
+    var st = state(); st.dayChat = st.dayChat || {};
+    dc = { def: def, room: def.room, i: st.dayChat[def.date] || 0, ask: null, done: done, free: free };
+    location.hash = '#/kakao/chat/' + encodeURIComponent(def.room);
+    setTimeout(dayChatNext, 800);
+  }
+  function dayChatSave() { var st = state(); st.dayChat = st.dayChat || {}; st.dayChat[dc.def.date] = dc.i; S().save(KEY, st); }
+  function dayChatPaint() { if (openChatId === dc.room) { paintChat(); paintChoices(); } }
+  function dayChatNext() {
+    if (!dc) return;
+    var steps = dc.def.steps || [];
+    while (dc.i < steps.length) {
+      var s = steps[dc.i];
+      if (!ok(s.if)) { dc.i++; continue; }
+      if (s.choices) { dc.ask = s; dayChatPaint(); return; }   // 等玩家選、按送出
+      if (s.effects) fx(s.effects);
+      if (s.flag) [].concat(s.flag).forEach(function (fl) { S().setFlag(fl); });
+      if (s.text == null && !s.image) { dc.i++; dayChatSave(); if (s.wait) { setTimeout(dayChatNext, s.wait); return; } continue; }
+      dayChatIncoming(s, function () { dc.i++; dayChatSave(); setTimeout(dayChatNext, 500); });
+      return;
+    }
+    dayChatEnd();
+  }
+  // 對方傳來一則：先顯示「輸入中」，再出現訊息
+  function dayChatIncoming(s, next) {
+    var f = friend(dc.room), from = f && f.group ? (s.from || (f.members[0] || {}).id) : 'them';
+    setTimeout(function () {
+      if (!dc) return;
+      setTyping(dc.room, f && f.group ? from : true);
+      setTimeout(function () {
+        if (!dc) return;
+        typing[dc.room] = false;
+        var msg = { from: from, time: nowTime() };
+        if (s.text != null) msg.text = s.text;
+        if (s.image) msg.image = s.image;
+        push(dc.room, msg);
+        dayChatPaint();
+        next();
+      }, s.typing != null ? s.typing : 900 + Math.min(1600, String(s.text || '').length * 40));
+    }, s.wait || 300);
+  }
+  // 玩家選了一個選項、按了送出：套用效果、旗標，對方照 reply 回覆後接著往下
+  function dayChatChose(o) {
+    fx(o.effects);
+    [].concat(o.flag || []).forEach(function (fl) { S().setFlag(fl); });
+    dc.ask = null; dc.i++; dayChatSave();
+    pick(null); dayChatPaint();
+    var lines = [].concat(o.reply || []).map(function (l) { return typeof l === 'string' ? { text: l } : l; }), k = 0;
+    (function one() {
+      if (!dc) return;
+      if (k >= lines.length) { setTimeout(dayChatNext, 400); return; }
+      dayChatIncoming(lines[k++], one);
+    })();
+  }
+  function dayChatEnd() {
+    var d = dc;
+    S().setFlag(dayChatKey(d.def));
+    dc = null;
+    // 星期日：聊完直接自由使用手機（返回鍵回來了）；其他日子：輸入框換成「繼續」，按了進入下一天
+    if (!d.free) { dcAfter = d.done; dcRoom = d.room; }
+    if (openChatId === d.room) renderChat(d.room);
+    if (d.free) d.done();
+  }
+  var dcAfter = null;
+  // 每日聊天進行中：離開聊天室 → 拉回來
+  window.addEventListener('hashchange', function () {
+    var want = (dc || dcAfter) && '#/kakao/chat/' + encodeURIComponent((dc || {}).room || dcRoom);
+    if (want && location.hash !== want) location.hash = want;
+  });
+  var dcRoom = null;
+
   /* ---- 即時訊息（data.js 的 kakao.live）：達成某個旗標後，過幾秒對方自己傳訊息來 ----
      { id, when: "旗標", delay: 毫秒, room: "聊天室 id", from: "誰傳", text: "…", unlessReplied: true }
      unlessReplied = 玩家在那個聊天室回過話就不傳 */
@@ -441,6 +528,12 @@
   // 給通話（kakaocall.js）用
   window.SOSHO_KAKAO = {
     friend: function (id) { return friend(id); },
+    // 每日聊天（js/plan.js）：今天有沒有、開始跑
+    dayChatFor: function (md) {
+      return (K().dayChats || []).filter(function (c) { return c.date === md && ok(c.if) && !S().hasFlag('daychat_' + c.date); })[0] || null;
+    },
+    dayChat: function (def, done, free) { dayChatStart(def, done, free); },
+    dayChatting: function () { return !!(dc || dcAfter); },
     // 鎖定畫面的通知：有未讀的聊天室 → [{ id, title, text, time, count }]（最新的在前）
     // 鎖定畫面的通知：每一則未讀訊息各一張（不疊在一起）→ [{ id, title, text, time }]，新的在前
     unreadList: function () {
@@ -655,6 +748,7 @@
     // 通話：電話鍵或點通話紀錄 → 語音通話
     var kp = e.target.closest('[data-kprof]');
     if (kp && !e.target.closest('.kk-prof')) { openProfile(kp.dataset.kprof); return; }
+    if (e.target.closest('[data-kdaydone]') && dcAfter) { var fn = dcAfter; dcAfter = null; dcRoom = null; fn(); return; }   // 「繼續」→ 下一天
     if (e.target.closest('[data-kmembers]') && openChatId) { openMembers(friend(openChatId)); return; }
     if (e.target.closest('[data-kdclose]')) { closeMembers(); return; }
     var kc = e.target.closest('[data-kcall]');
