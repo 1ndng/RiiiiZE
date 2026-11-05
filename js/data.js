@@ -472,7 +472,10 @@ window.SITE_DATA = {
     ],
     // 其他成員的帳號：只能從名單、搜尋點進去看，不能登入（不寫 password）
     searchOnlyAccounts: [
-      { username: "seokkkk",     cast: "m2", name: "BLACK SHADOW", private: true, following: others(IG_ALL, "seokkkk"),     bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "seokkkk",     cast: "m2", name: "BLACK SHADOW", private: true, following: others(IG_ALL, "seokkkk"),     bio: [], highlights: [], reposts: [],
+        posts: [
+          { images: ["images/ig/eunseok_20250709_1.jpg", "images/ig/eunseok_20250709_2.jpg", "images/ig/eunseok_20250709_3.jpg", "images/ig/eunseok_20250709_4.jpg"], caption: "", time: "7月9日" }   // 第一篇（2025/7/9）
+        ] },
       { username: "sungchan913", cast: "m3", name: "🦌", private: true, following: others(IG_ALL, "sungchan913"), bio: [], highlights: [], reposts: [],
         posts: [
           { images: ["images/ig/sungchan_20250503_1.jpg", "images/ig/sungchan_20250503_2.jpg"], caption: "", time: "5月3日" }   // 第一篇（2025/5/3）
