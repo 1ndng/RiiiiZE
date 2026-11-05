@@ -12,7 +12,6 @@
     video: '<svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="13" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M15.5 10.5 21 7.5v9l-5.5-3z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     phone: '<svg viewBox="0 0 24 24"><path d="M6.6 3.5c.7-.3 1.5 0 1.9.6l1.6 2.8c.4.7.2 1.5-.4 2l-1.3 1c.9 1.9 2.4 3.4 4.3 4.3l1-1.3c.5-.6 1.3-.8 2-.4l2.8 1.6c.6.4.9 1.2.6 1.9-.6 1.6-2.1 2.6-3.8 2.4C9.6 17.8 5.2 13.4 4.6 7.7c-.2-1.7.8-3.4 2-4.2z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     photo: '<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="8.5" cy="9.5" r="1.6" fill="currentColor"/><path d="M3.5 17l5-5 4 4 3-3 5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>',
-    clear: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="currentColor"/><path d="M9 9l6 6M15 9l-6 6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg>',
     send: '<svg viewBox="0 0 24 24"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
 
@@ -248,8 +247,7 @@
         '<div class="kk-msgs" id="kk-msgs"></div>' +
         '<div class="kk-choices" id="kk-choices"></div>' +
         '<form class="kk-input" id="kk-form" autocomplete="off">' +
-          '<label class="kk-field"><input name="m" placeholder="' + esc(TX().inputPlaceholder) + '" autocomplete="off">' +
-            '<button type="button" class="kk-clear" id="kk-clear" data-kclear aria-label="clear" hidden>' + ICON.clear + '</button></label>' +
+          '<label class="kk-field"><input name="m" placeholder="' + esc(TX().inputPlaceholder) + '" autocomplete="off"></label>' +
           '<button type="submit" class="kk-send" disabled>' + ICON.send + '</button>' +
         '</form>' +
       '</div>';
@@ -257,10 +255,6 @@
     var form = S().$('#kk-form');
     paintChoices();
     form.m.addEventListener('input', function () { form.querySelector('.kk-send').disabled = !form.m.value.trim(); });
-    // 選了選項之後：文字不能改；按刪除鍵 = 整句刪掉
-    form.m.addEventListener('keydown', function (e) {
-      if (picked && (e.key === 'Backspace' || e.key === 'Delete')) { e.preventDefault(); pick(null); }
-    });
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var text = form.m.value.trim();
@@ -287,7 +281,7 @@
   /* ---- 選項式回覆 ----
    * data.js 好友（或群組）的 choices：[{ id, if, options: [{ text, effects, flag, reply, read, typing }] }]
    *   從上往下找第一組「還沒用過、if 成立」的選項，顯示在輸入框上面
-   *   點選項 → 文字放進輸入框（不能修改；刪除 = 整句刪掉；點別的選項 = 換掉），按送出才傳
+   *   選項排成一行，太多可以左右滑；點選項 → 文字放進輸入框（不能修改；點別的選項 = 換掉），按送出才傳
    *   有選項時不能自己打字；沒有選項時照舊可以打字（關鍵字回覆） */
   var picked = null;   // { i: 選項編號, o: 選項 }
   function activeChoices(f) {
@@ -312,7 +306,6 @@
     if (!form) return;
     form.m.value = choice ? choice.o.text : '';
     form.querySelector('.kk-send').disabled = !choice;
-    var clr = document.getElementById('kk-clear'); if (clr) clr.hidden = !choice;
     document.querySelectorAll('#kk-choices .kk-chip').forEach(function (b) { b.classList.toggle('on', !!choice && +b.dataset.kchoice === choice.i); });
   }
 
@@ -536,14 +529,13 @@
   document.addEventListener('click', function (e) {
     var app = document.getElementById('app-kakao');
     if (!app || !app.contains(e.target)) return;
-    // 選項式回覆：點選項 → 放進輸入框；點 × → 整句刪掉
+    // 選項式回覆：點選項 → 放進輸入框（點別的就換掉）
     var ch = e.target.closest('[data-kchoice]');
     if (ch) {
       var set = activeChoices(friend(openChatId)), i = +ch.dataset.kchoice;
       if (set) pick({ i: i, o: set.options[i] });
       return;
     }
-    if (e.target.closest('[data-kclear]')) { e.preventDefault(); pick(null); return; }
     // 通話：電話鍵或點通話紀錄 → 語音通話
     var kc = e.target.closest('[data-kcall]');
     if (kc && openChatId) { window.SOSHO_KAKAO_CALL.start(openChatId); return; }
