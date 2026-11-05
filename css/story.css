@@ -89,3 +89,6 @@
 /* 停頓（{ wait }）：對話框先收起來 */
 .vn-box.hide { opacity: 0; transition: opacity .2s; }
 .vn-box { transition: opacity .2s; }
+/* 劇情背景不是手機畫面時：不顯示最上面的狀態列 */
+.phone.story-full .statusbar { opacity: 0; }
+.statusbar { transition: color .3s, opacity .3s; }

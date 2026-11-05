@@ -161,6 +161,8 @@
     var bg = cur.el.querySelector('#vn-bg'), orig = src;
     cur.el.classList.toggle('see-phone', src === 'phone' || src === 'phone-dim');
     cur.el.classList.toggle('dim', src === 'phone-dim');
+    // 背景不是手機畫面：上面的狀態列（時間、電量）不顯示
+    document.getElementById('phone').classList.toggle('story-full', src !== 'phone' && src !== 'phone-dim');
     if (src === 'phone' || src === 'phone-dim') src = '';
     bg.classList.remove('in'); void bg.offsetWidth;
     bg.style.backgroundImage = src ? 'url("' + src + '")' : 'none';
@@ -218,6 +220,7 @@
     clearInterval(cur.timer);
     var c = cur;
     cur = null;
+    document.getElementById('phone').classList.remove('story-full');
     if (S()) S().setFlag('scene_' + c.id);
     c.el.classList.remove('show');
     setTimeout(function () { c.el.remove(); }, 400);
