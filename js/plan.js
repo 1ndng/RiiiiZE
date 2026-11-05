@@ -433,7 +433,8 @@
   function startDay() {
     var day = G().day;
     if (location.hash !== '#/home') location.hash = '#/home';
-    if (G().phase !== 'night') G().setClock(null);
+    // 手機上的時間：9/1（第 1 天）開場後從 data.js 的 intro.dayTime 開始走；其他日子用現實時間
+    if (G().phase !== 'night') G().setClock(day === 1 ? ((D().intro || {}).dayTime || null) : null);
     // 喚醒結局之後（只能探索 App）：直接鎖定畫面
     if (G().ended === 'explore') { stage(null); if (S() && S().lock) S().lock(); }
     // 其他日子（包括星期日）：黑底日期畫面上先跑完今天的劇情；能用手機的日子到晚上才出現鎖定畫面（onNight）
@@ -552,6 +553,13 @@
     // 打開網頁時：新遊戲 → 先響鬧鐘；能用手機的日子 → 鎖定畫面；不能 → 直接開始這一天
     boot: boot,
     membersOf: membersOf, effectsOf: function (act) { var ids = membersOf(act); return shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15); },
+    // 開場結束 → 畫面變黑、顯示今天的日期 → 開始這一天（js/intro.js）
+    enterDay: function () {
+      if (going) return;
+      going = true;
+      var f = fadeEl();
+      setTimeout(function () { f.innerHTML = dateHTML(G().day); f.classList.add('text'); startDayAfter(f); }, 700);
+    },
     openPlanner: function (done) { planner(G().day, done || function () {}); }
   };
 })();

@@ -7,7 +7,8 @@
  * 一段劇情 = 一串步驟（scenes.劇情id = [ 步驟, 步驟, … ]），每個步驟可以加 if（條件不成立就跳過）：
  *   { text: "旁白" }                         沒寫 who = 旁白
  *   { who: "m1", text: "台詞" }               who = 成員 id（顯示 cast 的名字）、"me"（玩家的名字）或直接寫名字
- *   { bg: "images/xxx.jpg" }                 換背景
+ *   { bg: "images/xxx.jpg" }                 換背景；"phone" = 直接看到手機畫面；"phone-dim" = 看得到手機但變暗
+ *   { wait: 1000 }                           停頓（毫秒）：對話框先收起來，時間到自動接下一句
  *   { choices: [ { text, effects, flag, goto, if }, … ] }   選項；goto = 跳到哪個 label（不寫 = 接著往下）
  *   { label: "名稱" }                         標記，給 goto 用
  *   { goto: "名稱" }                          跳過去（常和 if 一起用：條件成立才跳）
@@ -138,20 +139,32 @@
       if (!resumed && s.effects && window.GAME) window.GAME.apply(s.effects);
       if (!resumed && s.flag && S()) [].concat(s.flag).forEach(function (f) { S().setFlag(f); });
       if (s.goto && s.text == null && !s.choices) { var k = findLabel(s.goto); if (k >= 0) cur.i = k; continue; }
+      if (s.wait && s.text == null) { pause(s.wait); return; }
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
       if (s.choices) { showChoices(s.choices); return; }
       if (s.text != null) { say(s.who, s.text, resumed); return; }
     }
     finish();
   }
-  // 背景：寫圖片路徑；"phone" = 不放背景，直接看到後面的手機畫面
+  // 停頓：對話框收起來，這段時間點畫面沒反應
+  function pause(ms) {
+    var box = cur.el.querySelector('#vn-box'), mine = cur;
+    cur.waiting = true; box.classList.add('hide');
+    setTimeout(function () {
+      if (cur !== mine) return;
+      cur.waiting = false; box.classList.remove('hide');
+      step();
+    }, ms);
+  }
+  // 背景：寫圖片路徑；"phone" = 不放背景，直接看到後面的手機畫面；"phone-dim" = 手機畫面變暗
   function setBg(src) {
-    var bg = cur.el.querySelector('#vn-bg');
-    cur.el.classList.toggle('see-phone', src === 'phone');
-    if (src === 'phone') src = '';
+    var bg = cur.el.querySelector('#vn-bg'), orig = src;
+    cur.el.classList.toggle('see-phone', src === 'phone' || src === 'phone-dim');
+    cur.el.classList.toggle('dim', src === 'phone-dim');
+    if (src === 'phone' || src === 'phone-dim') src = '';
     bg.classList.remove('in'); void bg.offsetWidth;
     bg.style.backgroundImage = src ? 'url("' + src + '")' : 'none';
-    cur.bg = src;
+    cur.bg = orig;   // 存檔用（記原本寫的，例如 "phone-dim"）
     bg.classList.add('in');
   }
   // 逐字出現：點一下 → 整句顯示；再點 → 下一句
@@ -282,7 +295,7 @@
     if (e.target.closest('.vn-log')) return;
     if (e.target.closest('[data-vn-log]')) { openLog(); return; }
     if ((b = e.target.closest('[data-vn-choice]'))) { choose(+b.dataset.vnChoice); return; }
-    if (cur.choices) return;   // 等玩家選
+    if (cur.choices || cur.waiting) return;   // 等玩家選／停頓中
     if (cur.typing) finishTyping(); else step();
   });
 

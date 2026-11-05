@@ -84,3 +84,8 @@
 .vn.see-phone { background: transparent; }
 .vn.see-phone::after { display: none; }
 .vn.see-phone .vn-bg { display: none; }
+/* 背景寫 "phone-dim"：看得到後面的手機畫面，但變暗 */
+.vn.see-phone.dim { background: rgba(0,0,0,.55); }
+/* 停頓（{ wait }）：對話框先收起來 */
+.vn-box.hide { opacity: 0; transition: opacity .2s; }
+.vn-box { transition: opacity .2s; }

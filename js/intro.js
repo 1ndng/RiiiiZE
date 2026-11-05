@@ -124,12 +124,14 @@
   }
   function endExplore() {
     exploring = false;
-    // 開場最後一段：播完 → 回到主畫面、開始 9/1
+    // 開場最後一段：播完 → 變黑、顯示 9/1 → 開始 9/1
     setTimeout(function () {
       window.STORY.play('intro_end', function () {
         S().setFlag('intro_done');
-        if (location.hash !== '#/home') location.hash = '#/home';
         var n = nextFn; nextFn = null;
+        // 畫面漸漸變黑 → 9/1 的日期 → 漸漸進入 9/1 主線（js/plan.js）
+        if (window.PLAN && window.PLAN.enterDay) { window.PLAN.enterDay(); return; }
+        if (location.hash !== '#/home') location.hash = '#/home';
         setTimeout(function () { n && n(); }, 300);
       });
     }, 500);
