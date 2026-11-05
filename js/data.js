@@ -191,9 +191,9 @@ window.SITE_DATA = {
       { id: "club",      label: "社團活動", cell: "社團|活動", bg: "images/bg/club.jpg" },
       { id: "volunteer", label: "志工活動", cell: "志工|活動", bg: "images/bg/volunteer.jpg" },
       { id: "sports",    label: "體育館",   bg: "images/bg/sports.jpg" },
-      { id: "council",   label: "學生會" },
-      { id: "games",     label: "網咖" },
-      { id: "karaoke",   label: "KTV" },
+      { id: "council",   label: "學生會",   bg: "images/bg/council.jpg" },
+      { id: "games",     label: "網咖",     bg: "images/bg/games.jpg" },
+      { id: "karaoke",   label: "KTV",      bg: "images/bg/karaoke.jpg" },
       { id: "wander",    label: "閒晃",     bg: "images/bg/wander.jpg" }
     ],
     specials: [
