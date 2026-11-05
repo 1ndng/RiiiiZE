@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="110" height="60" viewBox="0 0 110 60" fill="none" stroke="#b9729f" stroke-width="3.2" stroke-linecap="round">
+  <!-- 名字牌左邊的捲草 -->
+  <path d="M106 40 C80 40 60 20 34 22 C16 23 8 36 16 42 C22 47 30 40 26 34"/>
+  <path d="M60 30 C56 18 64 8 74 10" stroke-width="2.4"/>
+  <path d="M74 36 C78 46 90 50 98 46" stroke-width="2.4"/>
+  <circle cx="76" cy="10" r="2.6" fill="#b9729f" stroke="none"/>
+</svg>

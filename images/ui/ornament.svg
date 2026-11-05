@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="50" viewBox="0 0 300 50" fill="none" stroke="#b9729f" stroke-width="2.6" stroke-linecap="round">
+  <!-- 下方中間的對稱花紋 -->
+  <path d="M150 8 L158 25 L150 42 L142 25 Z" fill="#c97fae" stroke="none"/>
+  <path d="M138 25 C126 10 106 12 104 24 C102 34 116 36 118 28 C120 22 112 20 110 25"/>
+  <path d="M162 25 C174 10 194 12 196 24 C198 34 184 36 182 28 C180 22 188 20 190 25"/>
+  <path d="M104 25 H70 M196 25 H230"/>
+  <circle cx="84" cy="25" r="3" fill="#b9729f" stroke="none"/><circle cx="216" cy="25" r="3" fill="#b9729f" stroke="none"/>
+  <path d="M40 25 l8 -8 l8 8 l-8 8 z M244 25 l8 -8 l8 8 l-8 8 z" fill="#d79bc2" stroke="none"/>
+  <path d="M48 12 V38 M35 25 H61 M252 12 V38 M239 25 H265" stroke-width="1.6"/>
+</svg>

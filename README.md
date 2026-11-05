@@ -29,6 +29,7 @@
 | `css/style.css` | 手機外框、首頁、密碼鎖、Instagram |
 | `css/apps.css` | KakaoTalk（含通話畫面） |
 | `css/x.css`、`css/notes.css`、`css/settings.css`、`css/story.css`、`css/schedule.css` | X、備忘錄、設定、劇情對話框、每月安排與選單 |
+| `css/theme.css`、`images/ui/` | 劇情與選單的外觀（粉紅格紋、蕾絲、捲草紋；對話框 15% 透明、名字牌不透明） |
 | `css/photos.css` | 相簿 |
 | `images/` | 圖片（App 圖示、預設頭貼、佔位照片） |
 

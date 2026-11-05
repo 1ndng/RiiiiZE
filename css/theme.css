@@ -1,0 +1,122 @@
+/* =========================================================
+ * 劇情與選單的外觀：粉紅格紋＋蕾絲＋捲草紋
+ *   對話框本體 85% 不透明（15% 透明），名字牌不透明
+ *   選項、紀錄、存檔、輸入名字、選人／送禮、每月安排都用同一套風格
+ *   花紋圖檔在 images/ui/
+ * ========================================================= */
+:root {
+  --pk-text: #6b3358;        /* 文字 */
+  --pk-deep: #b9729f;        /* 花紋、框線 */
+  --pk-plate: #ffd6ef;       /* 名字牌、按鈕 */
+  --pk-plate-line: #c98bb3;
+  --pk-light: #fde4f2;
+  /* 格紋：粉紅底＋白色半透明的直條、橫條交錯 */
+  --pk-gingham:
+    repeating-linear-gradient(90deg, rgba(255,255,255,.2) 0 22px, transparent 22px 44px),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.2) 0 22px, transparent 22px 44px),
+    repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 1px, transparent 1px 4px);
+}
+
+/* ---------- 對話框 ---------- */
+.vn-box {
+  left: 10px; right: 10px; bottom: 40px; min-height: 176px;
+  padding: 36px 26px 50px;
+  border-radius: 20px;
+  background: var(--pk-gingham), rgba(226, 160, 202, .85);
+  border: 2px solid rgba(255, 220, 240, .9);
+  box-shadow: 0 8px 22px rgba(160, 80, 130, .3);
+  backdrop-filter: none; -webkit-backdrop-filter: none;
+  overflow: visible;
+}
+/* 下方蕾絲帶＋左下、右上捲草紋＋下方中間花紋 */
+.vn-box::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 30%;
+  border-radius: 0 0 18px 18px;
+  background: url("../images/ui/lace.svg") repeat-x left top / auto 100%;
+  opacity: .85; pointer-events: none;
+}
+.vn-box::after {
+  content: ""; position: absolute; inset: -6px -4px -18px -4px; pointer-events: none;
+  background:
+    url("../images/ui/swirl-tr.svg") no-repeat right 8px top 10px / 34px auto,
+    url("../images/ui/swirl-bl.svg") no-repeat left 10px bottom 26px / 28px auto,
+    url("../images/ui/ornament.svg") no-repeat center bottom / 170px auto;
+}
+.vn-text { position: relative; z-index: 1; color: var(--pk-text); font-size: 17px; font-weight: 500; line-height: 1.7; text-shadow: 0 1px 0 rgba(255,255,255,.45); }
+.vn-box.narration .vn-text { color: var(--pk-text); }
+.vn-next { z-index: 1; border-top-color: var(--pk-deep); right: 22px; bottom: 30px; }
+
+/* 名字牌：不透明，左右有捲草 */
+.vn-who {
+  top: -24px; left: 52px; z-index: 2;
+  min-width: 112px; padding: 9px 24px; text-align: center;
+  border-radius: 18px;
+  background: var(--pk-plate);
+  border: 2px solid var(--pk-plate-line);
+  color: #7a3d66; font-size: 16px; font-weight: 700; letter-spacing: .5px;
+  box-shadow: 0 5px 12px rgba(185, 114, 159, .35), inset 0 -6px 10px rgba(201, 139, 179, .18);
+}
+.vn-who::before { content: ""; position: absolute; left: -54px; top: 4px; width: 58px; height: 32px; background: url("../images/ui/flourish-l.svg") no-repeat center / contain; pointer-events: none; }
+.vn-who::after { content: ""; position: absolute; right: -50px; top: -30px; width: 56px; height: 56px; background: url("../images/ui/flourish-r.svg") no-repeat center / contain; pointer-events: none; }
+
+/* ---------- 共用：粉紅名字牌風格的按鈕 ---------- */
+.vn-choices button, .vn-name button, .sch-grid button, .sch-col button, .sch-cast button, .sch-actions button,
+.pl-blk, .pl-actions button, .end-btns button {
+  background: var(--pk-plate) !important; color: #7a3d66 !important;
+  border: 2px solid var(--pk-plate-line) !important;
+  box-shadow: 0 4px 10px rgba(185, 114, 159, .3), inset 0 -5px 8px rgba(201, 139, 179, .16) !important;
+  font-weight: 700;
+}
+.vn-choices button:active, .sch-col button:active, .sch-cast button:active, .pl-blk:active { filter: brightness(.96); transform: scale(.98); }
+
+/* 選項：畫面變淡粉，選項像名字牌 */
+.vn-choices { background: rgba(120, 50, 95, .22); padding: 0 30px 150px; gap: 14px; }
+.vn-choices button { border-radius: 18px; padding: 15px 18px; font-size: 16px; }
+
+/* 右上角的紀錄、存檔 */
+.vn-tools button { background: rgba(255, 214, 239, .92); color: #7a3d66; border: 1.5px solid var(--pk-plate-line); font-weight: 700; backdrop-filter: none; -webkit-backdrop-filter: none; }
+
+/* ---------- 紀錄、存檔面板：格紋底 ---------- */
+.vn-log, .vn-save { background: var(--pk-gingham), rgba(236, 184, 216, .97); color: var(--pk-text); }
+.vn-log-head, .vn-save-head { border-bottom: 2px solid rgba(255,255,255,.55); }
+.vn-log-head b, .vn-save-head b { color: #7a3d66; }
+.vn-log-head button, .vn-save-head button { color: #7a3d66; font-weight: 700; }
+.vn-log-line { background: rgba(255, 236, 247, .8); border-radius: 14px; padding: 10px 14px; margin-bottom: 10px; }
+.vn-log-line b { color: var(--pk-deep); }
+.vn-log-choice { color: #a3487f; font-weight: 700; margin: 0 0 12px 6px; }
+.vn-save-note { opacity: .75; }
+.vn-save-list button { background: rgba(255, 236, 247, .85); color: var(--pk-text); border: 1.5px solid rgba(201, 139, 179, .5); }
+.vn-save-list button:active { background: #fff; }
+
+/* ---------- 輸入名字、生日 ---------- */
+.vn-name { background: rgba(120, 50, 95, .35); }
+.vn-name form { padding: 30px 22px 26px; border-radius: 22px; background: var(--pk-gingham), rgba(226, 160, 202, .95); border: 2px solid rgba(255, 220, 240, .9); box-shadow: 0 10px 26px rgba(120, 50, 95, .3); color: var(--pk-text); }
+.vn-name b { color: #7a3d66; }
+.vn-name p { color: var(--pk-text); opacity: .8; }
+.vn-name input, .vn-bday select { border: 2px solid var(--pk-plate-line); background: #fff7fb; color: var(--pk-text); }
+.vn-name button:disabled { opacity: .5; }
+
+/* ---------- 選人、送禮 ---------- */
+.sch { background: rgba(120, 50, 95, .28); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.sch-in { padding: 26px 18px 22px; border-radius: 22px; background: var(--pk-gingham), rgba(226, 160, 202, .95); border: 2px solid rgba(255, 220, 240, .9); box-shadow: 0 10px 26px rgba(120, 50, 95, .3); color: var(--pk-text); }
+.sch-in small { color: var(--pk-text); opacity: .75; }
+.sch-in > b { color: #7a3d66; }
+.sch-in > p { color: var(--pk-text); }
+.sch-cast button.on { background: #fff !important; border-color: #a3487f !important; }
+.sch-cast button i { color: #a3487f; }
+.sch-col button:last-child, .sch-home { background: rgba(255, 240, 248, .75) !important; }
+.sch-go:disabled { opacity: .45; }
+
+/* ---------- 每月安排 ---------- */
+.pl { background: var(--pk-gingham), #e7aed0; color: var(--pk-text); }
+.pl-title { color: #7a3d66; }
+.pl-in > p { color: var(--pk-text); opacity: .8; }
+.pl-head span { color: var(--pk-text); opacity: .75; }
+.pl-day { background: rgba(255, 240, 248, .85); color: var(--pk-text); }
+.pl-day.we, .pl-day.past, .pl-day.forced { background: rgba(255, 240, 248, .35); }
+.pl-day.forced i { color: #a3487f; }
+.pl-day .blk { background: var(--pk-plate); color: #7a3d66; border: 1.5px solid var(--pk-plate-line); }
+.pl-day.over { outline-color: #a3487f; }
+.pl-blk.on { outline: 3px solid #a3487f; }
+.pl-clear { background: rgba(255, 240, 248, .75) !important; }
+.pl-ghost { background: var(--pk-plate); color: #7a3d66; border: 2px solid var(--pk-plate-line); }
