@@ -39,13 +39,17 @@
   }
 
   /* ---- 時段：之後的劇情、日程用 GAME.onPhase('morning', fn) 掛上來；fn(done) 做完呼叫 done() ---- */
-  var handlers = { morning: [], afterschool: [], night: [] }, listeners = [];
+  var handlers = { morning: [], afterschool: [], night: [] }, listeners = [], nightFns = [];
   function emit() { listeners.forEach(function (fn) { try { fn(st); } catch (e) { console.error(e); } }); }
   function runPhase() {
     if (st.ended === 'explore') { emit(); return; }   // 喚醒結局之後：只能探索 App，不再換天
     var list = handlers[st.phase] || [], i = 0;
     (function next() {
-      if (st.phase === 'night') { emit(); return; }   // 晚上：自由使用手機，等玩家去睡覺
+      if (st.phase === 'night') {   // 晚上：星期日自由使用手機；其他日子由 js/plan.js 直接往後跳
+        emit();
+        nightFns.forEach(function (fn) { try { fn(st); } catch (e) { console.error(e); } });
+        return;
+      }
       if (i >= list.length) { advance(); return; }
       var fn = list[i++];
       var called = false;
@@ -210,6 +214,7 @@
     dateText: function (day, withWeek) { return fmt(dateOf(day), withWeek); },
     weekday: function (d) { return WEEK[(d || dateOf()).getDay()]; },
     onChange: function (fn) { listeners.push(fn); },
+    onNight: function (fn) { nightFns.push(fn); },
     onPhase: function (phase, fn) { (handlers[phase] = handlers[phase] || []).push(fn); },
     // 解鎖手機後呼叫：從目前的時段開始跑（早上、放學沒有內容就直接到晚上）
     start: function () { runPhase(); },

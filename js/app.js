@@ -108,28 +108,10 @@
       else if (e.target.closest('[data-alert-yes]')) { w.remove(); sleep(); }
     });
   }
+  // 睡覺：往後跳到下一個有事的日子（js/plan.js）
   function sleep() {
-    var g = D.game || {}, fade = document.createElement('div');
-    fade.className = 'day-fade';
-    $('#phone').appendChild(fade);
-    void fade.offsetWidth; fade.classList.add('show');
-    setTimeout(function () {
-      // 往後跳到下一個有事的日子（js/plan.js；中間可能先跳出下個月的月曆安排）
-      if (window.PLAN) window.PLAN.sleep(arrive); else { window.GAME.sleep(); arrive(); }
-    }, 600);
-    function arrive() {
-      var d = window.GAME.date();
-      fade.innerHTML = '<div><b>' + esc((d.getMonth() + 1) + '月' + d.getDate() + '日') + '</b>' +
-        '<span>' + esc(window.GAME.weekday(d)) + '</span></div>';
-      fade.classList.add('text');
-      // 回到主畫面、鎖上手機
-      if (location.hash !== '#/home') location.hash = '#/home';
-      renderLock();
-      setTimeout(function () {
-        fade.classList.remove('show');
-        setTimeout(function () { fade.remove(); }, 700);
-      }, 1800);
-    }
+    if (window.PLAN) { window.PLAN.go(); return; }
+    window.GAME.sleep(); renderLock();
   }
   $('#home').addEventListener('click', function (e) { if (e.target.closest('[data-sleep]')) askSleep(); });
 
@@ -140,6 +122,7 @@
    * 點月曆上的日期 → 左邊換成那天的星期、日期和行程；再點今天（或點左邊）回到今天
    * 日期是遊戲裡的日期（data.js 的 game.startDate 是第 1 天） */
   var calDay = '', calPick = null;   // calPick = 玩家點的那天（幾號），null = 今天
+  var calShift = 0;                  // 往前／往後翻了幾個月（0 = 今天這個月；範圍：學年的 9 月～隔年 8 月）
   var WEEKDAYS = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
   var MONTHS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
   var WEEK_EN = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
@@ -156,9 +139,16 @@
   function renderCalendar() {
     var box = $('#cal-widget'), c = D.home.calendar;
     if (!box || !c) return;
-    var d = gameDate(), y = d.getFullYear(), m = d.getMonth(), today = d.getDate();
-    calDay = y + '-' + m + '-' + today;
-    var pick = calPick || today, pd = new Date(y, m, pick);   // 左邊顯示的那天
+    var g = gameDate();
+    calDay = g.getFullYear() + '-' + g.getMonth() + '-' + g.getDate();
+    // 翻到的月份（不能早於學年第一個月、不能晚於最後一個月）
+    var first = window.GAME ? window.GAME.date(1) : g, last = window.GAME ? window.GAME.date(window.GAME.totalDays()) : g;
+    var mi = function (dt) { return dt.getFullYear() * 12 + dt.getMonth(); };
+    var vm = Math.max(mi(first), Math.min(mi(last), mi(g) + calShift));
+    calShift = vm - mi(g);
+    var y = Math.floor(vm / 12), m = vm % 12, same = calShift === 0;
+    var today = same ? g.getDate() : -1;   // 只有翻到這個月才標出今天
+    var pd = calPick ? new Date(y, m, calPick) : g, pick = calPick || (same ? today : 0);   // 左邊顯示的那天（沒點 = 今天）
     var wd = c.weekdays || WEEKDAYS, mn = c.months || MONTHS, heads = c.weekHeads || ['一', '二', '三', '四', '五', '六', '日'];
     var events = (c.events || []).filter(function (ev) { return eventToday(ev, pd) && (!ev.if || !window.GAME || window.GAME.check(ev.if)); });
     // 日程的特殊事件（data.js 的 schedule.special）：只顯示名稱，不說要選哪個活動
@@ -177,8 +167,8 @@
     }
     box.innerHTML =
       '<div class="cal-l" data-caltoday>' +
-        '<b class="cal-red">' + esc(wd[pd.getDay()]) + '</b>' +
-        '<div class="cal-big">' + pick + '</div>' +
+        '<b class="cal-red">' + esc(wd[pd.getDay()]) + (calPick && !same || (!calPick && !same) ? ' · ' + (pd.getMonth() + 1) + '月' : '') + '</b>' +
+        '<div class="cal-big">' + pd.getDate() + '</div>' +
         events.map(function (ev) {
           return '<div class="cal-ev"><i style="background:' + esc(ev.color || '#b36ad9') + '"></i>' +
             '<span style="color:' + esc(ev.textColor || ev.color || '#7b3f9e') + '">' + esc(ev.title) + '</span></div>';
@@ -186,7 +176,9 @@
         (!events.length && c.noEvents ? '<div class="cal-none">' + esc(c.noEvents) + '</div>' : '') +
       '</div>' +
       '<div class="cal-r">' +
-        '<b class="cal-red">' + esc(mn[m]) + '</b>' +
+        '<div class="cal-mhead"><b class="cal-red">' + esc(mn[m]) + '</b>' +
+          '<span class="cal-nav"><button type="button" data-calnav="-1"' + (vm <= mi(first) ? ' disabled' : '') + '>‹</button>' +
+          '<button type="button" data-calnav="1"' + (vm >= mi(last) ? ' disabled' : '') + '>›</button></span></div>' +
         '<div class="cal-grid' + (cells.length > 35 ? ' six' : '') + '">' +
           heads.map(function (x, k) { return '<i class="cal-h' + (k >= 5 ? ' we' : '') + '">' + esc(x) + '</i>'; }).join('') +
           cells.join('') +
@@ -198,13 +190,15 @@
   // 換到隔天（睡覺）→ 行事曆回到今天
   if (window.GAME) window.GAME.onChange(function () {
     var d = gameDate();
-    if (d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() !== calDay) { calPick = null; renderCalendar(); }
+    if (d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() !== calDay) { calPick = null; calShift = 0; renderCalendar(); }
   });
   document.addEventListener('click', function (e) {
     if (!e.target.closest('#cal-widget')) return;
     var day = e.target.closest('[data-calday]');
-    if (day) { calPick = +day.dataset.calday === gameDate().getDate() ? null : +day.dataset.calday; renderCalendar(); }
-    else if (e.target.closest('[data-caltoday]') && calPick) { calPick = null; renderCalendar(); }
+    var nav = e.target.closest('[data-calnav]');
+    if (nav) { calShift += +nav.dataset.calnav; calPick = null; renderCalendar(); return; }   // 翻月份
+    if (day) { calPick = calShift === 0 && +day.dataset.calday === gameDate().getDate() ? null : +day.dataset.calday; renderCalendar(); }
+    else if (e.target.closest('[data-caltoday]') && (calPick || calShift)) { calPick = null; calShift = 0; renderCalendar(); }   // 點左邊 = 回到今天
   });
 
   /* ---------------- 進度旗標 ---------------- */
@@ -1554,6 +1548,7 @@
   window.SOSHO = {
     data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, goBack: goBack, replaceHash: replaceHash,
     setDarkStatus: function (on) { $('#phone').classList.toggle('dark-status', !!on); },
+    lock: function () { renderLock(); },
     load: function (key, def) {
       try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v; } catch (e) { return def; }
     },
@@ -1693,7 +1688,8 @@
   }
 
   applyEdits();
-  renderLock();
+  // 能用手機的日子（星期日等）先出現鎖定畫面；其他日子直接開始那天的劇情（js/plan.js）
+  if (window.PLAN && window.GAME) window.PLAN.boot(); else renderLock();
   renderHome();
   if (!location.hash) history.replaceState(null, '', '#/home');  // 一進網頁先到桌面
   navStack.push(location.hash);

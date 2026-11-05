@@ -326,7 +326,7 @@
     play: play, fill: fill, playerName: playerName,
     playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },
     // 劇情、輸入名字、日程選單、結局畫面進行中（KakaoTalk 橫幅、來電會等這些結束）
-    playing: function () { return !!cur || !!document.querySelector('.vn-name, .sch, .end-card'); },
+    playing: function () { return !!cur || !!document.querySelector('.vn-name, .sch, .end-card, .day-stage, .pl'); },
     setName: function (n) { var pl = load(PKEY, {}) || {}; pl.name = n; store(PKEY, pl); },
     // 這個時段有沒有主線劇情（日程用：放學有主線就不能選日程）
     hasStory: function (phase) { return storyFor(phase).length > 0; },

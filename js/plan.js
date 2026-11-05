@@ -5,10 +5,13 @@
  *   沒放 = 回家；週末、已經過去的日子、主線強制日程的日子不能放；按「確認」後開始過日子
  *   點方塊再點日子也可以放；點已經放了方塊的日子 = 拿掉
  *
- * 時間推進：睡覺之後自動往後跳，照月曆加好感，停在「有事的日子」：
+ * 時間推進：照月曆加好感、自動往後跳，停在「有事的日子」：
  *   主線劇情（story）、特殊劇情（specials 條件成立）、節日（holidays）、生日（cast 的 birthday、玩家生日）、
- *   送禮日（每月 14 日，2/14、3/14 是節日劇情）、每個星期日（夜間自由使用手機）
- *   有事的日子：早上主線 → 放學（今天的日程／特殊劇情 → 節日、生日 → 送禮 → 星期日選人）→ 晚上自由使用手機
+ *   送禮日（每月 14 日，2/14、3/14 是節日劇情）、每個星期日
+ *   有事的日子：早上主線 → 放學（今天的日程／特殊劇情 → 節日、生日 → 送禮 → 星期日選人）
+ *   手機只有星期日能用：星期日會出現鎖定畫面，解鎖後可以自由使用手機，晚上按「睡覺」繼續
+ *   其他有事的日子：不解鎖手機，在黑底日期畫面上直接播劇情，播完自動往後跳
+ *   （最後一天、看完結局之後也可以用手機）
  *
  * 好感度（公平：每個日程每次的總量一樣，平分給在場的人）：
  *   好感：affTotal（預設 6）÷ 在場人數；成員之間：pairTotal（預設 15）÷ 在場的對數
@@ -31,11 +34,11 @@
   function scene(id) { return (D().scenes || {})[id]; }
   function T() {
     var t = C().text || {}, d = {
-      planTitle: '{m}月的安排', planHint: '把日程拖到平日上（一天一個），沒放的日子會直接回家', confirm: '確認', weekend: '週末', home: '回家',
+      planTitle: '{m}月的安排', planHint: '把日程拖到星期一～六（一天一個），沒放的日子會直接回家', confirm: '確認', weekend: '週日', home: '回家',
       tutorialTitle: '每月安排', tutorialText: '從現在開始，每個月可以自由安排放學後要去哪裡。\n把日程方塊拖到月曆上，確認後就會照著過日子。',
       ok: '好', clear: '清除',
-      weekendTitle: '這個週末要和誰見面？', weekendHint: '最多選兩位', go: '出門', stayHome: '待在家',
-      single: '這個週末和{a}一起度過了。', pair: '這個週末和{a}、{b}一起度過了。', stayHomeText: '這個週末待在家裡，好好休息了一下。',
+      weekendTitle: '今天要和誰見面？', weekendHint: '最多選兩位', go: '出門', stayHome: '待在家',
+      single: '今天和{a}一起度過了。', pair: '今天和{a}、{b}一起度過了。', stayHomeText: '今天待在家裡，好好休息了一下。',
       giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '我送禮物', giftAsk: '請 A 送給 B', giftNo: '不送',
       giftPickOne: '要送給誰？', giftPickTwo: '請誰送給誰？（先選送禮的人）', giftOk: '確定', back: '返回',
       giftMeText: '你把禮物送給了{a}。', giftAskText: '你請{a}送禮物給{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
@@ -49,7 +52,10 @@
   function acts() { return C().activities || []; }
   function actOf(id) { return acts().filter(function (a) { return a.id === id; })[0] || { id: id, label: id }; }
   function dateOf(day) { return G().date(day); }
-  function isWeekend(day) { var w = dateOf(day).getDay(); return w === 0 || w === 6; }
+  // 只有星期日是假日（星期六可以排日程）
+  function isWeekend(day) { return dateOf(day).getDay() === 0; }
+  // 這天能不能用手機：星期日、最後一天、看完結局之後
+  function phoneDay(day) { return dateOf(day).getDay() === 0 || day >= G().totalDays() || !!G().ended; }
   function ym(day) { var d = dateOf(day); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
   function plans() { return load(PKEY, null) || { months: {}, days: {} }; }
 
@@ -243,7 +249,7 @@
     function dayIdx(n) { return Math.round((new Date(y, m, n) - G().date(1)) / 864e5) + 1; }
     function md(n) { return ('0' + (m + 1)).slice(-2) + '-' + ('0' + n).slice(-2); }
     function cellHTML(n) {
-      var di = dayIdx(n), wd = new Date(y, m, n).getDay(), we = wd === 0 || wd === 6, f = forcedOn(di), past = di < day;
+      var di = dayIdx(n), wd = new Date(y, m, n).getDay(), we = wd === 0, f = forcedOn(di), past = di < day;   // 只有星期日不能放
       var a = p.days[md(n)], cls = 'pl-day' + (we ? ' we' : '') + (past ? ' past' : '') + (f ? ' forced' : '');
       var can = !we && !past && !f;
       var inner = '<b>' + n + '</b>' + (f ? '<i>' + esc(actOf(f.activity).label) + '</i>' : we ? '<i class="dim">' + esc(t.weekend) + '</i>'
@@ -368,8 +374,68 @@
     return out;
   }
 
+  /* ---- 一天一天的流程 ----
+   * go()：畫面變暗 → 往後跳到下一個有事的日子 →
+   *   星期日（能用手機的日子）：鎖定畫面，解鎖後開始這一天
+   *   其他日子：黑底日期畫面上直接開始這一天，晚上自動再往後跳 */
+  var going = false;
+  function fadeEl() {
+    var f = document.createElement('div');
+    f.className = 'day-fade';
+    document.getElementById('phone').appendChild(f);
+    void f.offsetWidth; f.classList.add('show');
+    return f;
+  }
+  function dateHTML(day) { var d = dateOf(day); return '<div><b>' + (d.getMonth() + 1) + '月' + d.getDate() + '日</b><span>' + esc(G().weekday(d)) + '</span></div>'; }
+  // 不能用手機的日子：蓋在主畫面上的黑底日期畫面（劇情在它上面播）
+  function stage(day) {
+    var el = document.getElementById('day-stage');
+    if (day == null) { if (el) el.remove(); if (S()) S().setDarkStatus(false); return; }
+    if (!el) { el = document.createElement('div'); el.id = 'day-stage'; el.className = 'day-stage'; document.getElementById('phone').appendChild(el); }
+    el.innerHTML = dateHTML(day);
+    if (S()) S().setDarkStatus(true);
+  }
+  function startDay() {
+    var day = G().day;
+    if (location.hash !== '#/home') location.hash = '#/home';
+    if (phoneDay(day)) { stage(null); if (S() && S().lock) S().lock(); }   // 鎖定畫面，解鎖後才開始
+    else {
+      var lk = document.getElementById('lock');   // 頁面上原本放鎖定畫面的空位：不用鎖的日子拿掉
+      if (lk) lk.remove();
+      document.getElementById('phone').classList.remove('locked');
+      stage(day); G().start();
+    }
+  }
+  function go() {
+    if (going) return;
+    going = true;
+    var f = fadeEl();
+    setTimeout(function () {
+      sleep(function () {
+        f.innerHTML = dateHTML(G().day);
+        f.classList.add('text');
+        startDayAfter(f);
+      });
+    }, 600);
+  }
+  function startDayAfter(f) {
+    setTimeout(function () {
+      going = false;
+      startDay();
+      f.classList.remove('show');
+      setTimeout(function () { f.remove(); }, 700);
+    }, 1500);
+  }
+  // 晚上：不能用手機的日子 → 直接往後跳
+  if (window.GAME) G().onNight(function () {
+    if (phoneDay(G().day)) { stage(null); return; }
+    setTimeout(go, 400);
+  });
+
   window.PLAN = {
-    sleep: sleep, eventsOn: eventsOn, isStop: isStop, planned: plannedOn,
+    sleep: sleep, go: go, eventsOn: eventsOn, isStop: isStop, planned: plannedOn, phoneDay: function (d) { return phoneDay(d || G().day); },
+    // 打開網頁時：能用手機的日子 → 鎖定畫面；不能 → 直接開始這一天
+    boot: startDay,
     membersOf: membersOf, effectsOf: function (act) { var ids = membersOf(act); return shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15); },
     openPlanner: function (done) { planner(G().day, done || function () {}); }
   };

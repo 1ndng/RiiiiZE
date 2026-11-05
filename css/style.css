@@ -106,6 +106,11 @@ img { display: block; max-width: 100%; }
 .cal-grid .pick::before { content: ""; position: absolute; left: 50%; top: 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; background: #e5e5ea; z-index: -1; }
 .cal-grid.six .pick::before { width: 15px; height: 15px; margin: -7.5px 0 0 -7.5px; }
 .cal-l { cursor: default; }
+/* 月份標題＋往前／往後翻 */
+.cal-mhead { display: flex; align-items: center; justify-content: space-between; }
+.cal-nav { display: flex; gap: 2px; margin-right: -4px; }
+.cal-nav button { width: 22px; height: 18px; font: inherit; font-size: 16px; line-height: 16px; color: #e5534b; font-weight: 700; padding: 0; }
+.cal-nav button:disabled { color: #d1d1d6; }
 /* 有特殊事件的日期：下面一個小點 */
 .cal-grid .has-ev { position: relative; }
 .cal-grid .has-ev::after { content: ""; position: absolute; left: 50%; bottom: -1px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: #ff9500; }
@@ -523,3 +528,8 @@ div.ig-frow-main { cursor: default; }
 .day-fade.text > div { opacity: 1; }
 .day-fade b { display: block; font-size: 30px; font-weight: 600; letter-spacing: 2px; }
 .day-fade span { display: block; margin-top: 8px; font-size: 15px; opacity: .75; }
+
+/* 不能用手機的日子：黑底日期畫面（劇情在上面播） */
+.day-stage { position: absolute; inset: 0; z-index: 47; background: #0e0c14; color: #fff; display: flex; align-items: center; justify-content: center; text-align: center; }
+.day-stage b { display: block; font-size: 30px; font-weight: 600; letter-spacing: 2px; }
+.day-stage span { display: block; margin-top: 8px; font-size: 15px; opacity: .7; }
