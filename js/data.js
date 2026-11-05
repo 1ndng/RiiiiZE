@@ -14,6 +14,8 @@ window.SITE_DATA = {
 
   /* ---------- 角色（六位成員） ----------
    * id 用在數值、條件、效果裡（例如 aff: { m1: 2 }、pair: { "m1-m2": 1 }），之後不要改；name 可以隨時換
+   * activities = 平日放學在哪些活動會遇到他（參考用：寫日程劇情時照這個安排誰出現；閒晃可以遇到任何人）
+   *   club 社團、council 學生會、volunteer 志工、karaoke K歌、games 打遊戲、sports 運動
    * 隱藏數值（玩家看不到）：
    *   aff   好感度：玩家對每位成員
    *   pair  成員之間的關係：每兩位一組（"m1-m2"，順序不拘）
@@ -26,12 +28,12 @@ window.SITE_DATA = {
    *   比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，只寫數字 = 至少這個數字
    */
   cast: [
-    { id: "m1", name: "成員 1" },
-    { id: "m2", name: "成員 2" },
-    { id: "m3", name: "成員 3" },
-    { id: "m4", name: "成員 4" },
-    { id: "m5", name: "成員 5" },
-    { id: "m6", name: "成員 6" }
+    { id: "m1", name: "大﨑将太郎", activities: ["club", "council"] },
+    { id: "m2", name: "宋恩奭", activities: ["volunteer", "council", "games"] },
+    { id: "m3", name: "鄭成燦", activities: ["council", "sports", "karaoke"] },
+    { id: "m4", name: "朴元彬", activities: ["club", "sports"] },
+    { id: "m5", name: "李炤熙", activities: ["club", "council", "karaoke", "games"] },
+    { id: "m6", name: "李燦榮", activities: ["volunteer", "karaoke"] }
   ],
 
   /* ---------- 劇情（對話框） ----------
@@ -59,13 +61,13 @@ window.SITE_DATA = {
     sports_daily: [ { bg: PH }, { text: "在操場跑了幾圈，流了一身汗。" }, { who: "m4", text: "{name}，跑得不錯嘛！" } ],
     special_basketball: [
       { bg: PH }, { text: "今天是籃球友誼賽。" },
-      { who: "m2", text: "你來看比賽了！" }, { who: "m3", text: "那就幫我們加油吧。" },
-      { effects: { pair: { "m2-m3": 1 }, aff: { m2: 1, m3: 1 } } }
+      { who: "m3", text: "你來看比賽了！" }, { who: "m4", text: "那就幫我們加油吧。" },
+      { effects: { pair: { "m3-m4": 1 }, aff: { m3: 1, m4: 1 } } }
     ],
-    wander_a: [ { bg: PH }, { text: "在校園裡隨便走走，偶然遇到了成員 5。" }, { who: "m5", text: "你也在閒晃？" } ],
-    wander_b: [ { bg: PH }, { text: "走到頂樓，成員 6 一個人在看天空。" }, { who: "m6", text: "……這裡的天空，好像一直都是這個顏色。" }, { effects: { awake: { m6: 1 } } } ],
+    wander_a: [ { bg: PH }, { text: "在校園裡隨便走走，偶然遇到了李炤熙。" }, { who: "m5", text: "你也在閒晃？" } ],
+    wander_b: [ { bg: PH }, { text: "走到頂樓，李燦榮 一個人在看天空。" }, { who: "m6", text: "……這裡的天空，好像一直都是這個顏色。" }, { effects: { awake: { m6: 1 } } } ],
     weekend_m1: [
-      { bg: PH }, { text: "週末和成員 1 去了咖啡廳。" }, { who: "m1", text: "下次還要一起出來喔。" },
+      { bg: PH }, { text: "週末和大﨑将太郎 去了咖啡廳。" }, { who: "m1", text: "下次還要一起出來喔。" },
       // 告白：好感度夠高才會出現（戀人 = 好感度到門檻＋有 confess_m1 旗標）
       { if: { aff: { m1: ">=8" } }, choices: [
         { text: "其實……我喜歡你。", flag: "confess_m1", effects: { aff: { m1: 2 } } },
@@ -88,7 +90,7 @@ window.SITE_DATA = {
     ending_stay: [ { bg: PH }, { text: "隔天早上，鐘聲照常響起。" } ],
     ep_m1_lover: [ { bg: PH }, { who: "m1", text: "{name}，這次換我來找你。" } ],
     ep_m1_friend: [ { bg: PH }, { who: "m1", text: "以後也要常常聯絡喔。" } ],
-    ep_m2_m3: [ { bg: PH }, { text: "成員 2 和成員 3 並肩走在街上。" } ],
+    ep_m2_m3: [ { bg: PH }, { text: "宋恩奭 和鄭成燦 並肩走在街上。" } ],
     // ↓ 主線劇情範例
     day1_morning: [
       { bg: PH },
@@ -112,7 +114,7 @@ window.SITE_DATA = {
       { bg: PH },
       { text: "放學後的走廊。" },
       { who: "m2", text: "{name}，今天要不要一起走？" },
-      { text: "（只有成員 1 好感 ≥ 1 才會出現這句）", if: { aff: { m1: ">=1" } } }
+      { text: "（只有大﨑将太郎 好感 ≥ 1 才會出現這句）", if: { aff: { m1: ">=1" } } }
     ]
   },
   story: [
@@ -161,7 +163,7 @@ window.SITE_DATA = {
   },
 
   /* ---------- 戀愛與覺醒的門檻 ----------
-   * lover：玩家和成員是戀人 = 好感度到 aff，而且有 flag 旗標（{id} 換成成員 id，例如 confess_m1 = 和成員 1 告白過）
+   * lover：玩家和成員是戀人 = 好感度到 aff，而且有 flag 旗標（{id} 換成成員 id，例如 confess_m1 = 和大﨑将太郎 告白過）
    * couple：兩位成員是一對 = 關係到 pair，而且有 flag 旗標（{pair} 換成 "m1-m2"）
    * awake：六位的覺醒度都到這個數字 = allAwake（才能選「喚醒」）
    * 條件裡可以寫 lover: "m1"、notLover: "m1"、couple: "m1-m2"、notCouple、allAwake: true / false
@@ -183,16 +185,16 @@ window.SITE_DATA = {
     awaken: {
       title: "醒來", text: "大家都回到了屬於自己的時間。", scene: "ending_awaken", after: "explore",
       epilogues: [
-        { id: "m1_lover", title: "成員 1・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
-        { id: "m1_friend", title: "成員 1・朋友", scene: "ep_m1_friend", if: { notLover: "m1", aff: { m1: ">=3" } } },
-        { id: "m2_m3", title: "成員 2 × 成員 3", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
+        { id: "m1_lover", title: "大﨑将太郎・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
+        { id: "m1_friend", title: "大﨑将太郎・朋友", scene: "ep_m1_friend", if: { notLover: "m1", aff: { m1: ">=3" } } },
+        { id: "m2_m3", title: "宋恩奭 × 鄭成燦", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
       ]
     },
     stay: {
       title: "留下", text: "這個春天，會一直持續下去。", scene: "ending_stay", after: "continue",
       epilogues: [
-        { id: "m1_lover", title: "成員 1・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
-        { id: "m2_m3", title: "成員 2 × 成員 3", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
+        { id: "m1_lover", title: "大﨑将太郎・戀人", scene: "ep_m1_lover", if: { lover: "m1" } },
+        { id: "m2_m3", title: "宋恩奭 × 鄭成燦", scene: "ep_m2_m3", if: { couple: "m2-m3" } }
       ]
     }
   },
@@ -599,9 +601,9 @@ window.SITE_DATA = {
             greet: {
               lines: [{ who: "them", text: "喂？", sub: "字幕下的小字" }],
               choices: [
-                { label: "選項 A", next: "a", effects: { aff: { m1: 2 } } },          // 選了 → 成員 1 好感 +2
+                { label: "選項 A", next: "a", effects: { aff: { m1: 2 } } },          // 選了 → 大﨑将太郎 好感 +2
                 { label: "選項 B（不說出口）", say: false, next: "b" },
-                { label: "只有成員 1 好感 ≥ 5 才出現的選項", next: "a", if: { aff: { m1: ">=5" } } },
+                { label: "只有大﨑将太郎 好感 ≥ 5 才出現的選項", next: "a", if: { aff: { m1: ">=5" } } },
                 { label: "（直接掛斷）", hangup: true, effects: { aff: { m1: -1 } } }
               ]
             },
