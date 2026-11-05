@@ -543,6 +543,7 @@ window.SITE_DATA = {
       // 9/7 KTV 群組聊完 → 客服小精靈的玩法說明（intro = 打開聊天室後先播的劇情，旁白說明這裡是什麼）
       //   同一天有好幾段時，每段要寫 id
       { id: "0907_helper", date: "09-07", room: "helper", intro: "helper_intro", steps: [
+        { text: "（此為智能回覆）" },
         { text: "叮咚～晚安呀，{name}！" },
         { text: "我是客服小精靈。開學第一週辛苦了！" },
         { choices: [
