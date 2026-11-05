@@ -34,6 +34,52 @@ window.SITE_DATA = {
     { id: "m6", name: "成員 6" }
   ],
 
+  /* ---------- 劇情（對話框） ----------
+   * scenes：每段劇情是一串步驟，從上往下播（每個步驟都可以加 if：條件不成立就跳過）
+   *   { text: "旁白" }                      沒寫 who = 旁白（沒有名字欄）
+   *   { who: "m1", text: "台詞" }            who = 成員 id（顯示 cast 的名字）、"me" = 玩家、或直接寫名字（例如 "老師"）
+   *   { bg: "images/xxx.jpg" }              換背景
+   *   { choices: [ { text, effects, flag, goto, if } ] }   選項；goto = 跳到哪個 label，不寫就接著往下
+   *   { label: "名稱" } / { goto: "名稱" }   標記／跳過去（goto 加 if = 條件成立才跳）
+   *   { effects: { … } } / { flag: "旗標" }  套用效果、記錄旗標（畫面上不顯示）
+   *   { end: true }                         劇情到這裡結束
+   *   文字裡寫 {name} = 玩家的名字（第一次開始遊戲時輸入；KakaoTalk、通話裡也可以用）
+   *   播完會記錄旗標 scene_劇情id
+   * story：主線劇情排程。到了那天（day）的那個時段（phase："morning" 早上、"afterschool" 放學）自動播
+   *   可以加 if；同一段看過就不會再播（repeat: true 可以重播）
+   */
+  storySpeed: 38,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
+  scenes: {
+    day1_morning: [
+      { bg: PH },
+      { text: "……好亮。" },
+      { text: "睜開眼睛，是完全陌生的天花板。" },
+      { who: "m1", text: "啊，醒了嗎？你就是今天要來的轉學生吧？" },
+      { who: "me", text: "……這裡是哪裡？" },
+      { who: "m1", text: "拉完子學院啊。你叫{name}，對吧？" },
+      { choices: [
+        { text: "對，請多指教。", effects: { aff: { m1: 1 } } },
+        { text: "你怎麼知道我的名字？", goto: "ask", effects: { awake: { m1: 1 } } }
+      ] },
+      { who: "m1", text: "走吧，我帶你去教室。" },
+      { end: true },
+      { label: "ask" },
+      { who: "m1", text: "……奇怪，我怎麼會知道呢？" },
+      { text: "他愣了一下，好像想起什麼，又很快地笑了。" },
+      { who: "m1", text: "算了，走吧，要遲到了。" }
+    ],
+    day2_afterschool: [
+      { bg: PH },
+      { text: "放學後的走廊。" },
+      { who: "m2", text: "{name}，今天要不要一起走？" },
+      { text: "（只有成員 1 好感 ≥ 1 才會出現這句）", if: { aff: { m1: ">=1" } } }
+    ]
+  },
+  story: [
+    { day: 1, phase: "morning", scene: "day1_morning" },
+    { day: 2, phase: "afterschool", scene: "day2_afterschool" }
+  ],
+
   /* ---------- 遊戲時間與存檔 ----------
    * 一天一天推進：早上 → 放學 → 晚上；晚上主畫面出現「睡覺」，睡了就是隔天早上（並自動存檔）
    * startDate = 第 1 天的日期（行事曆、鎖定畫面、KakaoTalk 的「今天」都照這個算）

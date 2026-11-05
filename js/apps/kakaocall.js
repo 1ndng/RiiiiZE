@@ -106,6 +106,7 @@
   function tick() {
     if (!S() || call) return;
     if (document.getElementById('lock')) return;   // 手機還鎖著就等解鎖
+    if (window.STORY && window.STORY.playing()) return;   // 劇情進行中：等劇情播完再打來
     var list = K().incoming || [], st = S().load(IKEY, null) || {}, now = Date.now();
     st.fired = st.fired || {}; st.since = st.since || {};
     list.some(function (c) {
@@ -168,7 +169,8 @@
   function addCap(who, text, sub) {
     var box = el('kc-caps'), d = document.createElement('div');
     d.className = 'kc-cap ' + (who === 'me' ? 'me' : 'them');
-    d.innerHTML = '<div>' + esc(text) + '</div>' + (sub ? '<small>' + esc(sub) + '</small>' : '');
+    var F = window.STORY ? window.STORY.fill : function (x) { return x; };   // {name} → 玩家的名字
+    d.innerHTML = '<div>' + esc(F(text)) + '</div>' + (sub ? '<small>' + esc(F(sub)) + '</small>' : '');
     box.appendChild(d);
     box.scrollTop = box.scrollHeight;
   }
@@ -188,7 +190,7 @@
       // 選項可以寫 if：條件不成立的選項不會出現
       el('kc-choices').innerHTML = node.choices.map(function (c, i) {
         if (!ok(c.if)) return '';
-        return '<button type="button" data-kc-choice="' + i + '">' + esc(c.label) +
+        return '<button type="button" data-kc-choice="' + i + '">' + esc(window.STORY ? window.STORY.fill(c.label) : c.label) +
           (c.sub && c.sub !== c.label ? '<small>' + esc(c.sub) + '</small>' : '') + '</button>';
       }).join('');
       var box = el('kc-caps'); box.scrollTop = box.scrollHeight;

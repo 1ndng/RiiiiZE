@@ -16,6 +16,7 @@
   };
 
   function S() { return window.SOSHO; }
+  function F(t) { return window.STORY ? window.STORY.fill(t) : t; }   // {name} → 玩家的名字
   function ok(c) { return !window.GAME || window.GAME.check(c); }   // 條件（if）：js/game.js 的 GAME.check
   function fx(e) { if (window.GAME) window.GAME.apply(e); }           // 效果（effects）：好感度、關係、覺醒度、旗標
 
@@ -127,7 +128,7 @@
         var msgs = messagesOf(f).filter(function (m) { return m.text || m.image || m.video || m.expired || m.call || m.link || m.recalled; }), last = msgs[msgs.length - 1] || {}, n = unreadOf(f);
         return '<a class="kk-chatrow" href="#/kakao/chat/' + encodeURIComponent(f.id) + '">' +
           roomAvatar(f, 'kk-chatrow-av') +
-          '<span class="kk-chatrow-mid"><b>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b><small>' + esc(last.text || (last.recalled ? TX().recalledText || '已收回訊息' : '') || (last.link ? linkInfo(last).title : '') || ((last.video || last.expired === 'video') ? TX().videoLabel || '影片' : (last.image || last.expired) ? TX().photoLabel || '照片' : last.call ? TX().voiceCall || '語音通話' : '')) + '</small></span>' +
+          '<span class="kk-chatrow-mid"><b>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b><small>' + esc(F(last.text) || (last.recalled ? TX().recalledText || '已收回訊息' : '') || (last.link ? linkInfo(last).title : '') || ((last.video || last.expired === 'video') ? TX().videoLabel || '影片' : (last.image || last.expired) ? TX().photoLabel || '照片' : last.call ? TX().voiceCall || '語音通話' : '')) + '</small></span>' +
           '<span class="kk-chatrow-r"><small>' + esc(listTime(f, last)) + '</small>' + (n ? '<i class="kk-badge">' + n + '</i>' : '') + '</span>' +
         '</a>';
       }).join('');
@@ -174,7 +175,7 @@
         '<i class="kk-play"></i></button>';
     }
     if (m.image) return '<button class="kk-photo" data-photo="' + esc(m.image) + '"><img src="' + esc(m.image) + '" alt=""></button>';
-    return '<div class="kk-bubble' + (first ? ' tail' : '') + '">' + S().multiline(m.text) + '</div>';
+    return '<div class="kk-bubble' + (first ? ' tail' : '') + '">' + S().multiline(F(m.text)) + '</div>';
   }
 
   function bubblesHTML(f) {
@@ -294,7 +295,7 @@
     var set = activeChoices(f), t = TX();
     if (picked && (!set || set.options[picked.i] !== picked.o)) pick(null);
     box.innerHTML = set ? set.options.map(function (o, i) {
-      return '<button type="button" class="kk-chip' + (picked && picked.i === i ? ' on' : '') + '" data-kchoice="' + i + '">' + esc(o.text) + '</button>';
+      return '<button type="button" class="kk-chip' + (picked && picked.i === i ? ' on' : '') + '" data-kchoice="' + i + '">' + esc(F(o.text)) + '</button>';
     }).join('') : '';
     box.hidden = !set;
     form.m.readOnly = !!set;
@@ -304,7 +305,7 @@
     var form = document.getElementById('kk-form');
     picked = choice;
     if (!form) return;
-    form.m.value = choice ? choice.o.text : '';
+    form.m.value = choice ? F(choice.o.text) : '';
     form.querySelector('.kk-send').disabled = !choice;
     document.querySelectorAll('#kk-choices .kk-chip').forEach(function (b) { b.classList.toggle('on', !!choice && +b.dataset.kchoice === choice.i); });
   }
@@ -425,7 +426,7 @@
         var msgs = messagesOf(f).filter(function (m) { return m.from !== 'me' && !m.date && (m.text || m.image || m.video || m.call || m.link || m.expired || m.recalled); });
         var last = msgs[msgs.length - 1] || {}, t = TX();
         var who = f.group ? (findFriend(last.from) || {}).name : '';
-        var text = last.text || (last.link ? linkInfo(last).title : last.call ? (last.duration ? t.voiceCall || '語音通話' : t.missedCall || '未接來電')
+        var text = F(last.text) || (last.link ? linkInfo(last).title : last.call ? (last.duration ? t.voiceCall || '語音通話' : t.missedCall || '未接來電')
           : (last.video || last.expired === 'video') ? t.videoLabel || '影片' : (last.image || last.expired) ? t.photoLabel || '照片' : last.recalled ? t.recalledText || '已收回訊息' : '');
         return { id: f.id, title: f.group ? (who ? who + ' · ' : '') + f.name : f.name, text: text, time: last.time || '', count: unreadOf(f) };
       });
@@ -449,6 +450,7 @@
   function banner(f, ev) {
     if (!f) return;
     if (document.getElementById('lock')) return;   // 手機鎖著：不跳橫幅，直接變成鎖定畫面上的通知
+    if (window.STORY && window.STORY.playing()) return;   // 劇情進行中：不打斷（訊息照樣收到，變成未讀）
     var phone = document.getElementById('phone'), old = document.getElementById('kk-banner');
     if (!phone) return;
     if (old) old.remove();

@@ -30,6 +30,7 @@
     dayLabel: '第 {n} 天', savedAt: '存於 {t}',
     statsTitle: '數值（開發用）', statsNote: '玩家看不到這一頁。正式公開前把 data.js 的 game.debug 改成 false。',
     day: '第幾天', aff: '好感度', awake: '覺醒度', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
+    scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
     resetStats: '數值全部歸零', resetTitle: '要把數值全部歸零嗎？', resetText: '好感度、關係、覺醒度都會變回 0（旗標和天數不變）。', reset: '歸零'
   };
   function T() {
@@ -167,6 +168,12 @@
       }).join('') + '</div>' +
       '<div class="st-sec">' + esc(t.flags) + '</div>' +
       '<div class="st-group st-flags">' + (flags.length ? flags.map(function (f) { return '<i>' + esc(f) + '</i>'; }).join('') : '<small>' + esc(t.noFlags) + '</small>') + '</div>' +
+      '<div class="st-sec">' + esc(t.scenes) + '</div>' +
+      '<div class="st-group">' + Object.keys(D().scenes || {}).map(function (id) {
+        return row('', '', esc(id), S().hasFlag('scene_' + id) ? '✓' : '', 'data-st-scene="' + esc(id) + '"', true);
+      }).join('') + '</div>' +
+      '<div class="st-sec">' + esc(t.playerName) + '</div>' +
+      '<div class="st-group">' + row('', '', esc(window.STORY ? window.STORY.playerName() || '—' : '—'), esc(t.rename), 'data-st-rename', true) + '</div>' +
       '<div class="st-group">' + row('', '', '<span class="st-red">' + esc(t.resetStats) + '</span>', '', 'data-st-reset', false) + '</div>';
     S().$('#settings-scroll').scrollTop = top;
   }
@@ -198,6 +205,12 @@
       var a = el.dataset.stat.split('|'), d = +a[2];
       if (a[0] === 'day') G().setDay(G().day + d); else G().addStat(a[0], a[1], d);
       renderStats(); return;
+    }
+    if ((el = e.target.closest('[data-st-scene]'))) { window.STORY.play(el.dataset.stScene, renderStats); return; }
+    if (e.target.closest('[data-st-rename]')) {
+      var n = prompt(t.renameTitle, window.STORY.playerName());
+      if (n && n.trim()) { window.STORY.setName(n.trim()); renderStats(); }
+      return;
     }
     if (e.target.closest('[data-st-reset]')) {
       confirmBox(t.resetTitle, t.resetText, t.reset, true, function () {
