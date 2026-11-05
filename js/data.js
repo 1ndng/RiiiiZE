@@ -233,7 +233,9 @@ window.SITE_DATA = {
     sleepLabel: "睡覺",
     sleepTitle: "要睡覺了嗎？",
     sleepText: "今天就會結束，接著會照安排往後過日子，直到下一個有事的日子。",
-    cancelLabel: "取消"
+    cancelLabel: "取消",
+    // 遊戲開頭的鬧鐘：往右滑停止 → 鎖定畫面；稍後提醒 = 過 snoozeMs 毫秒再響一次（時間 +9 分鐘）
+    alarm: { time: "7:00", label: "鬧鐘", snooze: "稍後提醒", stop: "滑動來停止", snoozeMs: 4000 }
     // 設定 App 的文字可以在 settingsText: { … } 裡改（預設值寫在 js/apps/settings.js 的 T_DEFAULT）
   },
 

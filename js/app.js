@@ -1548,7 +1548,7 @@
   window.SOSHO = {
     data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, goBack: goBack, replaceHash: replaceHash,
     setDarkStatus: function (on) { $('#phone').classList.toggle('dark-status', !!on); },
-    lock: function () { renderLock(); },
+    lock: function (opt) { renderLock(opt); },   // opt.time = 鎖定畫面固定顯示的時間（鬧鐘之後用）
     load: function (key, def) {
       try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v; } catch (e) { return def; }
     },
@@ -1558,7 +1558,8 @@
   };
 
   /* ---------------- 手機密碼鎖 ---------------- */
-  function renderLock() {
+  function renderLock(opt) {
+    opt = opt || {};
     var L = D.lock || {}, code = String(L.passcode || ''), typed = '';
     if (!code) { if (window.GAME) window.GAME.start(); return; }   // 沒設密碼就不鎖，直接開始這一天
     var keys = [['1', ''], ['2', 'A B C'], ['3', 'D E F'], ['4', 'G H I'], ['5', 'J K L'], ['6', 'M N O'],
@@ -1595,7 +1596,7 @@
     // 日期、時間（跟著現實走）：「11月2日 星期一」
     function paintTime() {
       var el = $('#lc-time'), de = $('#lc-date'), d = new Date(), gd = gameDate();
-      if (el) el.textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+      if (el) el.textContent = opt.time || (d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'));
       if (de) de.textContent = (gd.getMonth() + 1) + '月' + gd.getDate() + '日 ' + WEEKDAYS[gd.getDay()];   // 日期 = 遊戲裡的今天
     }
     // 通知：KakaoTalk 的每一則未讀訊息各一張，分開排（新的在上面）

@@ -457,6 +457,64 @@
       setTimeout(function () { f.remove(); }, 700);
     }, 1500);
   }
+  /* ---- 遊戲開頭：鬧鐘響起（data.js 的 game.alarm）----
+   * 新遊戲（第 1 天早上、還沒響過）才會出現：
+   *   往右滑「滑動來停止」→ 鎖定畫面（時間顯示鬧鐘的時間）→ 解鎖後開始第 1 天
+   *   「稍後提醒」→ 畫面暗掉，過幾秒再響一次（時間 +9 分鐘） */
+  function boot() {
+    if (G().day === 1 && G().phase === 'morning' && S() && !S().hasFlag('alarm_done')) alarm(); else startDay();
+  }
+  function alarm() {
+    var a = (D().game || {}).alarm || {}, base = a.time || '7:00', snoozes = 0;
+    var lk = document.getElementById('lock'); if (lk) lk.remove();
+    var el = document.createElement('div');
+    el.className = 'alarm';
+    document.getElementById('phone').appendChild(el);
+    document.getElementById('phone').classList.add('locked', 'alarming');
+    function timeNow() { var m = /(\d+):(\d+)/.exec(base), t = +m[1] * 60 + +m[2] + snoozes * 9; return Math.floor(t / 60) + ':' + ('0' + t % 60).slice(-2); }
+    function render() {
+      el.innerHTML =
+        '<div class="alarm-top"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8" fill="currentColor"/><path d="M12 9v4.2l2.6 1.6" stroke="#000" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M4.5 6.5 7.5 3.8M19.5 6.5l-3-2.7M7 20l-1.4 1.6M17 20l1.4 1.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span>' + esc(a.label || '鬧鐘') + '</span></div>' +
+        '<div class="alarm-time">' + esc(timeNow()) + '</div>' +
+        '<button type="button" class="alarm-snooze" data-snooze>' + esc(a.snooze || '稍後提醒') + '</button>' +
+        '<div class="alarm-slide" id="alarm-slide"><span class="alarm-knob" id="alarm-knob"><i></i></span><b>' + esc(a.stop || '滑動來停止') + '</b></div>';
+      bindSlide();
+    }
+    function stop() {
+      S().setFlag('alarm_done');
+      el.classList.add('off');
+      setTimeout(function () { el.remove(); }, 400);
+      document.getElementById('phone').classList.remove('alarming');
+      if (S().lock) S().lock({ time: timeNow() });   // 鎖定畫面的時間 = 鬧鐘的時間
+    }
+    function bindSlide() {
+      var track = el.querySelector('#alarm-slide'), knob = el.querySelector('#alarm-knob'), x0 = null, dx = 0;
+      function max() { return track.clientWidth - knob.offsetWidth - 8; }
+      knob.addEventListener('pointerdown', function (e) { x0 = e.clientX; dx = 0; knob.setPointerCapture(e.pointerId); knob.style.transition = 'none'; e.preventDefault(); });
+      knob.addEventListener('pointermove', function (e) {
+        if (x0 === null) return;
+        dx = Math.max(0, Math.min(max(), e.clientX - x0));
+        knob.style.transform = 'translateX(' + dx + 'px)';
+        track.querySelector('b').style.opacity = 1 - dx / max();
+      });
+      function end() {
+        if (x0 === null) return;
+        x0 = null; knob.style.transition = '';
+        if (dx > max() * .7) { knob.style.transform = 'translateX(' + max() + 'px)'; setTimeout(stop, 150); }   // 滑到底 → 停止
+        else { knob.style.transform = ''; track.querySelector('b').style.opacity = ''; }
+      }
+      knob.addEventListener('pointerup', end);
+      knob.addEventListener('pointercancel', end);
+    }
+    el.addEventListener('click', function (e) {
+      if (!e.target.closest('[data-snooze]')) return;
+      snoozes++;
+      el.classList.add('sleeping');   // 稍後提醒：暗掉，過一下再響
+      setTimeout(function () { render(); el.classList.remove('sleeping'); }, a.snoozeMs || 4000);
+    });
+    render();
+  }
+
   // 晚上：不能用手機的日子 → 直接往後跳
   if (window.GAME) G().onNight(function () {
     if (phoneDay(G().day)) { stage(null); return; }
@@ -465,8 +523,8 @@
 
   window.PLAN = {
     sleep: sleep, go: go, eventsOn: eventsOn, isStop: isStop, planned: plannedOn, phoneDay: function (d) { return phoneDay(d || G().day); },
-    // 打開網頁時：能用手機的日子 → 鎖定畫面；不能 → 直接開始這一天
-    boot: startDay,
+    // 打開網頁時：新遊戲 → 先響鬧鐘；能用手機的日子 → 鎖定畫面；不能 → 直接開始這一天
+    boot: boot,
     membersOf: membersOf, effectsOf: function (act) { var ids = membersOf(act); return shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15); },
     openPlanner: function (done) { planner(G().day, done || function () {}); }
   };
