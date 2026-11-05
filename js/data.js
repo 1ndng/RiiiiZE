@@ -123,10 +123,6 @@ window.SITE_DATA = {
       // （待更......）
     ],
     d0902: [ { text: "（9/2 放學：學生會（強制日程）待寫）" } ],
-    d0903_club: [
-      { text: "（9/3 早上：選社團　待寫）" },
-      { choices: [ { text: "（選項待寫）" }, { text: "（選項待寫）" } ] }
-    ],
     d0903: [ { text: "（9/3 放學：志工活動（強制日程）待寫）" } ],
     d0904: [ { text: "（9/4 放學：體育館（強制日程）待寫）" } ],
     d0905: [ { text: "（9/5 放學：社團活動（強制日程）待寫）" } ],
@@ -207,7 +203,6 @@ window.SITE_DATA = {
   story: [
     { date: "09-01", phase: "morning",     scene: "d0901" },                          // 開學
     { date: "09-02", phase: "afterschool", scene: "d0902", activity: "council" },     // 強制日程：學生會
-    { date: "09-03", phase: "morning",     scene: "d0903_club" },                     // 選社團
     { date: "09-03", phase: "afterschool", scene: "d0903", activity: "volunteer" },   // 強制日程：志工活動
     { date: "09-04", phase: "afterschool", scene: "d0904", activity: "sports" },      // 強制日程：體育館
     { date: "09-05", phase: "afterschool", scene: "d0905", activity: "club" },        // 強制日程：社團活動
