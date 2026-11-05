@@ -96,7 +96,8 @@
   function ok(c) { return !c || !window.GAME || window.GAME.check(c); }
 
   // resume = 讀取劇情中的存檔時，從存檔的那一句繼續：{ at, bg, log, steps }
-  function play(id, done, resume) {
+  // bg = 這段劇情的預設背景（例如日程的背景）；沒給就用 data.js 的 storyBg；劇情裡寫 { bg } 會換掉
+  function play(id, done, resume, bg) {
     var steps = (resume && resume.steps) || (D().scenes || {})[id];
     if (!steps || !steps.length || cur) { done && done(); return; }
     var t = T(), el = document.createElement('div');
@@ -112,7 +113,7 @@
     void el.offsetWidth; el.classList.add('show');
     if (S()) S().setDarkStatus(true);
     cur = { id: id, steps: steps, i: 0, el: el, log: [], done: done };
-    setBg(D().storyBg || '');   // 預設背景（data.js 的 storyBg）；劇情裡寫 { bg } 會換掉
+    setBg(bg || D().storyBg || '');   // 預設背景：日程的背景 → data.js 的 storyBg；劇情裡寫 { bg } 會換掉
     if (resume) {
       cur.i = resume.at || 0; cur.log = resume.log || []; cur.resuming = true;
       if (resume.bg) setBg(resume.bg);
@@ -296,9 +297,14 @@
         !(S() && S().hasFlag('scene_' + s.scene) && !s.repeat);
     });
   }
+  // 日程的背景（data.js 的 plan.activities 的 bg）
+  function actBg(act) {
+    var a = (((D().plan || {}).activities) || []).filter(function (x) { return x.id === act; })[0];
+    return a && a.bg;
+  }
   function playList(list, done) {
     var k = 0;
-    (function next() { if (k >= list.length) { done(); return; } play(list[k++].scene, next); })();
+    (function next() { if (k >= list.length) { done(); return; } var e = list[k++]; play(e.scene, next, null, e.bg || actBg(e.activity)); })();
   }
   if (window.GAME) {
     // 第一次開始：先輸入名字

@@ -12,6 +12,9 @@
     video: '<svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="13" height="12" rx="2.5" stroke="currentColor" stroke-width="1.8" fill="none"/><path d="M15.5 10.5 21 7.5v9l-5.5-3z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     phone: '<svg viewBox="0 0 24 24"><path d="M6.6 3.5c.7-.3 1.5 0 1.9.6l1.6 2.8c.4.7.2 1.5-.4 2l-1.3 1c.9 1.9 2.4 3.4 4.3 4.3l1-1.3c.5-.6 1.3-.8 2-.4l2.8 1.6c.6.4.9 1.2.6 1.9-.6 1.6-2.1 2.6-3.8 2.4C9.6 17.8 5.2 13.4 4.6 7.7c-.2-1.7.8-3.4 2-4.2z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     photo: '<svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15" rx="2.5" stroke="currentColor" stroke-width="1.6" fill="none"/><circle cx="8.5" cy="9.5" r="1.6" fill="currentColor"/><path d="M3.5 17l5-5 4 4 3-3 5 5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linejoin="round"/></svg>',
+    pen: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/><path d="M13.5 6.5l4 4" stroke="currentColor" stroke-width="1.8"/></svg>',
+    close: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    chat: '<svg viewBox="0 0 24 24"><path d="M12 4C7 4 3 7.2 3 11.2c0 2.5 1.6 4.7 4 6l-.8 3 3.4-2.1c.8.2 1.6.3 2.4.3 5 0 9-3.2 9-7.2S17 4 12 4z" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     menu: '<svg viewBox="0 0 24 24"><path d="M4 6.5h16M4 12h16M4 17.5h16" stroke="currentColor" stroke-width="1.9" fill="none" stroke-linecap="round"/></svg>',
     send: '<svg viewBox="0 0 24 24"><path d="M12 19V6M6.5 11.5 12 6l5.5 5.5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
@@ -21,7 +24,21 @@
   function ok(c) { return !window.GAME || window.GAME.check(c); }   // 條件（if）：js/game.js 的 GAME.check
   function fx(e) { if (window.GAME) window.GAME.apply(e); }           // 效果（effects）：好感度、關係、覺醒度、旗標
 
-  function K() { return S().data.kakao || { friends: [], text: {} }; }
+  function K() { var k = S().data.kakao || { friends: [], text: {} }; syncNicks(k); return k; }
+  // 好友的備註（玩家在個人檔案改的名字，只有玩家看得到）：存在 riiiize-kakao 的 nick；清空 = 回到 data.js 的 name
+  var nickRaw = null, nickK = null;
+  function syncNicks(k) {
+    var raw = null;
+    try { raw = localStorage.getItem(KEY); } catch (e) {}
+    if (raw === nickRaw && k === nickK) return;
+    nickRaw = raw; nickK = k;
+    var nick = {};
+    try { nick = (JSON.parse(raw) || {}).nick || {}; } catch (e) {}
+    (k.friends || []).forEach(function (f) {
+      if (!('_name' in f)) f._name = f.name;
+      f.name = nick[f.id] || f._name;
+    });
+  }
   function TX() { return K().text || {}; }
   function esc(s) { return S().esc(s); }
   function state() {
@@ -207,7 +224,7 @@
       } else {
         var who = f.group ? (findFriend(m.from) || { name: m.from, avatar: '' }) : f;   // 群組：照 from 找是誰說的
         out += '<div class="kk-msg them' + (first ? ' first' : '') + '">' +
-          (first ? '<img class="kk-av" src="' + esc(who.avatar) + '" alt="">' : '<span class="kk-av"></span>') +
+          (first ? '<img class="kk-av" src="' + esc(who.avatar) + '" alt=""' + (who.id ? ' data-kprof="' + esc(who.id) + '"' : '') + '>' : '<span class="kk-av"></span>') +
           '<div class="kk-them-col">' +
             (first ? '<div class="kk-name">' + esc(who.name) + '</div>' : '') +
             '<div class="kk-row">' + contentHTML(m, first) +
@@ -243,7 +260,7 @@
       '<div class="kk-chat">' +
         '<div class="kk-chat-head">' +
           '<a href="#/kakao" data-kback>' + ICON.back + '</a>' +
-          '<b>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b>' +
+          '<b' + (f.group || f.self ? '' : ' data-kprof="' + esc(f.id) + '"') + '>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b>' +
           // 右上角：電話鍵（1:1 或群組通話；noCall: true = 沒有）＋群組的選單鍵（看聊天室成員）
           '<span class="kk-head-btns">' +
             (f.self || f.noCall || !window.SOSHO_KAKAO_CALL ? '' : '<button type="button" class="kk-callbtn" data-kcall aria-label="call">' + ICON.phone + '</button>') +
@@ -550,7 +567,7 @@
         '<div class="kk-drawer-list">' +
           '<div class="kk-mem"><img src="' + esc(m.avatar) + '" alt=""><b>' + esc(m.name) + '</b><i class="kk-me-tag">' + esc(t.meTag || '我') + '</i></div>' +
           f.members.map(function (x) {
-            return '<a class="kk-mem" href="#/kakao/chat/' + encodeURIComponent(x.id) + '" data-kdclose><img src="' + esc(x.avatar) + '" alt=""><b>' + esc(x.name) + '</b></a>';
+            return '<button type="button" class="kk-mem" data-kprof="' + esc(x.id) + '"><img src="' + esc(x.avatar) + '" alt=""><b>' + esc(x.name) + '</b></button>';
           }).join('') +
         '</div>' +
       '</div>';
@@ -563,7 +580,67 @@
     d.classList.remove('show');
     setTimeout(function () { d.remove(); }, 250);
   }
-  window.addEventListener('hashchange', function () { var d = document.querySelector('.kk-drawer'); if (d) d.remove(); });
+  window.addEventListener('hashchange', function () {
+    var d = document.querySelector('.kk-drawer'); if (d) d.remove();
+    var p = document.querySelector('.kk-prof'); if (p) p.remove();
+  });
+
+  /* ---- 好友的個人檔案（和 KakaoTalk 一樣）：大頭照、名字、1:1 聊天、語音通話；名字旁的筆可以改備註 ---- */
+  function openProfile(id) {
+    var f = findFriend(id);
+    if (!f) return;
+    var old = document.querySelector('.kk-prof'); if (old) old.remove();
+    var t = TX(), p = document.createElement('div');
+    p.className = 'kk-prof';
+    function paint(editing) {
+      p.innerHTML =
+        '<div class="kk-prof-bg" style="background-image:url(&quot;' + esc(f.avatar) + '&quot;)"></div>' +
+        '<button type="button" class="kk-prof-x" data-kpclose aria-label="close">' + ICON.close + '</button>' +
+        '<div class="kk-prof-main">' +
+          '<img src="' + esc(f.avatar) + '" alt="">' +
+          (editing
+            ? '<form class="kk-prof-edit" autocomplete="off"><input name="n" maxlength="20" value="' + esc(f.name) + '" placeholder="' + esc(f._name || '') + '">' +
+                '<button type="submit">' + esc(t.nickDone || '完成') + '</button></form>' +
+              '<small>' + esc(t.nickHint || '設定的名稱只有你看得到；清空 = 恢復原本的名字') + '</small>'
+            : '<b>' + esc(f.name) + (f.noNick ? '' : '<button type="button" class="kk-prof-pen" data-kpedit aria-label="edit">' + ICON.pen + '</button>') + '</b>' +
+              (f.status ? '<small>' + esc(F(f.status)) + '</small>' : '')) +
+        '</div>' +
+        '<div class="kk-prof-acts">' +
+          '<a href="#/kakao/chat/' + encodeURIComponent(f.id) + '">' + ICON.chat + '<span>' + esc(t.profileChat || '1:1 聊天') + '</span></a>' +
+          (f.noCall || !window.SOSHO_KAKAO_CALL ? '' : '<button type="button" data-kpcall>' + ICON.phone + '<span>' + esc(t.voiceCall || '語音通話') + '</span></button>') +
+        '</div>';
+      if (editing) {
+        var form = p.querySelector('form'), inp = form.n;
+        inp.focus(); inp.select();
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var st = state(), v = inp.value.trim();
+          st.nick = st.nick || {};
+          if (v && v !== f._name) st.nick[f.id] = v; else delete st.nick[f.id];
+          S().save(KEY, st);
+          K();   // 套用新的備註
+          paint(false);
+          refresh();
+        });
+      }
+    }
+    p.addEventListener('click', function (e) {
+      if (e.target.closest('[data-kpclose]')) { p.classList.remove('show'); S().setDarkStatus(false); setTimeout(function () { p.remove(); }, 200); return; }
+      if (e.target.closest('[data-kpedit]')) { paint(true); return; }
+      if (e.target.closest('[data-kpcall]')) { p.remove(); window.SOSHO_KAKAO_CALL.start(f.id); return; }
+    });
+    paint(false);
+    S().$('#kakao-overlay').appendChild(p);
+    void p.offsetWidth; p.classList.add('show');
+    S().setDarkStatus(true);
+  }
+  // 改了備註：重畫目前的畫面（聊天列表或聊天室的名字），個人檔案留著
+  function refresh() {
+    var p = document.querySelector('.kk-prof'), d = document.querySelector('.kk-drawer');
+    if (p) p.remove(); if (d) d.remove();
+    route(current);
+    if (p) { S().$('#kakao-overlay').appendChild(p); S().setDarkStatus(true); }
+  }
 
   document.addEventListener('click', function (e) {
     var app = document.getElementById('app-kakao');
@@ -576,6 +653,8 @@
       return;
     }
     // 通話：電話鍵或點通話紀錄 → 語音通話
+    var kp = e.target.closest('[data-kprof]');
+    if (kp && !e.target.closest('.kk-prof')) { openProfile(kp.dataset.kprof); return; }
     if (e.target.closest('[data-kmembers]') && openChatId) { openMembers(friend(openChatId)); return; }
     if (e.target.closest('[data-kdclose]')) { closeMembers(); return; }
     var kc = e.target.closest('[data-kcall]');

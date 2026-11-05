@@ -186,14 +186,15 @@ window.SITE_DATA = {
     pairTotal: 15,
     wanderMeet: 2,
     // cell = 月曆格子裡顯示的名字（"|" = 換行），沒寫就用 label
+    // bg = 這個日程的背景（一句話、特殊劇情、主線強制日程的劇情都用它；劇情裡寫 { bg } 會換掉；沒寫就用 storyBg）
     activities: [
-      { id: "club",      label: "社團活動", cell: "社團|活動" },
-      { id: "volunteer", label: "志工活動", cell: "志工|活動" },
-      { id: "sports",    label: "體育館" },
+      { id: "club",      label: "社團活動", cell: "社團|活動", bg: "images/bg/club.jpg" },
+      { id: "volunteer", label: "志工活動", cell: "志工|活動", bg: "images/bg/volunteer.jpg" },
+      { id: "sports",    label: "體育館",   bg: "images/bg/sports.jpg" },
       { id: "council",   label: "學生會" },
       { id: "games",     label: "網咖" },
       { id: "karaoke",   label: "KTV" },
-      { id: "wander",    label: "閒晃" }
+      { id: "wander",    label: "閒晃",     bg: "images/bg/wander.jpg" }
     ],
     specials: [
       // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },
@@ -208,7 +209,8 @@ window.SITE_DATA = {
       { date: "03-14", title: "白色情人節", scene: "h0314" }
     ],
     gift: { aff: 6, pair: 15 },
-    weekend: { intro: "weekend_intro", single: 6, pairAff: 3, pairBond: 15, scenes: [], home: [] }
+    homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
+    weekend: { bg: "images/bg/wander.jpg", intro: "weekend_intro", single: 6, pairAff: 3, pairBond: 15, scenes: [], home: [] }
   },
 
   /* ---------- 戀愛與覺醒的門檻 ----------
@@ -312,6 +314,7 @@ window.SITE_DATA = {
     defaultAccount: "briiii1ze._",   // 打開 IG 時已經登入的帳號（玩家）
     username: "shotaroo0",         // 成員帳號都不能登入（不寫 password）
     private: true,                 // 非公開帳號：沒追蹤的人看不到貼文、限時、名單
+    name: "Shotaro(쇼타로/ショウタロウ)",
     cast: "m1",                    // 成員帳號：名字、大頭照用 cast 的（不寫 cast → 用 avatar、name；沒有名字 → 顯示帳號 id）
     // 貼文數、粉絲、追蹤會自動計算；想顯示固定數字就加 postsCount / followersCount / followingCount
     following: others(IG_ALL, "shotaroo0"),
@@ -407,11 +410,11 @@ window.SITE_DATA = {
     ],
     // 其他成員的帳號：只能從名單、搜尋點進去看，不能登入（不寫 password）
     searchOnlyAccounts: [
-      { username: "seokkkk",     cast: "m2", private: true, following: others(IG_ALL, "seokkkk"),     bio: [], highlights: [], posts: [], reposts: [] },
-      { username: "sungchan913", cast: "m3", private: true, following: others(IG_ALL, "sungchan913"), bio: [], highlights: [], posts: [], reposts: [] },
-      { username: "bin032",      cast: "m4", private: true, following: others(IG_ALL, "bin032"),      bio: [], highlights: [], posts: [], reposts: [] },
-      { username: "252525252_",  cast: "m5", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], posts: [], reposts: [] },
-      { username: "antonnie",    cast: "m6", private: true, following: others(IG_ALL, "antonnie"),    bio: [], highlights: [], posts: [], reposts: [] }
+      { username: "seokkkk",     cast: "m2", name: "송은석", private: true, following: others(IG_ALL, "seokkkk"),     bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "sungchan913", cast: "m3", name: "🦌", private: true, following: others(IG_ALL, "sungchan913"), bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "bin032",      cast: "m4", name: "원빈", private: true, following: others(IG_ALL, "bin032"),      bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "252525252_",  cast: "m5", name: "이소희", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "antonnie",    cast: "m6", name: "Anton", private: true, following: others(IG_ALL, "antonnie"),    bio: [], highlights: [], posts: [], reposts: [] }
     ]
   },
 
@@ -452,12 +455,12 @@ window.SITE_DATA = {
     me: "briiii1ze._",              // 玩家的帳號（名字＝玩家輸入的名字、頭貼＝玩家上傳的照片）
     accounts: [
       { handle: "briiii1ze._", bio: "", followersList: others(X_ALL, "briiii1ze._") },
-      { handle: "shotaroo0",   cast: "m1", protected: true, followed: true, bio: "", followingList: others(X_ALL, "shotaroo0"),   followersList: others(X_ALL, "shotaroo0") },
-      { handle: "seokkkk",     cast: "m2", protected: true, followed: true, bio: "", followingList: others(X_ALL, "seokkkk"),     followersList: others(X_ALL, "seokkkk") },
-      { handle: "sungchan913", cast: "m3", protected: true, followed: true, bio: "", followingList: others(X_ALL, "sungchan913"), followersList: others(X_ALL, "sungchan913") },
-      { handle: "bin032",      cast: "m4", protected: true, followed: true, bio: "", followingList: others(X_ALL, "bin032"),      followersList: others(X_ALL, "bin032") },
-      { handle: "252525252_",  cast: "m5", protected: true, followed: true, bio: "", followingList: others(X_ALL, "252525252_"),  followersList: others(X_ALL, "252525252_") },
-      { handle: "antonnie",    cast: "m6", protected: true, followed: true, bio: "", followingList: others(X_ALL, "antonnie"),    followersList: others(X_ALL, "antonnie") }
+      { handle: "shotaroo0",   cast: "m1", name: "Shotaro(쇼타로/ショウタロウ)", protected: true, followed: true, bio: "", followingList: others(X_ALL, "shotaroo0"),   followersList: others(X_ALL, "shotaroo0") },
+      { handle: "seokkkk",     cast: "m2", name: "송은석", protected: true, followed: true, bio: "", followingList: others(X_ALL, "seokkkk"),     followersList: others(X_ALL, "seokkkk") },
+      { handle: "sungchan913", cast: "m3", name: "🦌", protected: true, followed: true, bio: "", followingList: others(X_ALL, "sungchan913"), followersList: others(X_ALL, "sungchan913") },
+      { handle: "bin032",      cast: "m4", name: "원빈", protected: true, followed: true, bio: "", followingList: others(X_ALL, "bin032"),      followersList: others(X_ALL, "bin032") },
+      { handle: "252525252_",  cast: "m5", name: "이소희", protected: true, followed: true, bio: "", followingList: others(X_ALL, "252525252_"),  followersList: others(X_ALL, "252525252_") },
+      { handle: "antonnie",    cast: "m6", name: "Anton", protected: true, followed: true, bio: "", followingList: others(X_ALL, "antonnie"),    followersList: others(X_ALL, "antonnie") }
     ],
     tweets: []                     // 例：{ id: "t1", by: "shotaroo0", text: "內容", time: "1小時", date: "下午 12:32 · 2025/9/1" }
     // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/x.js 的 T_DEFAULT）
@@ -508,7 +511,8 @@ window.SITE_DATA = {
       },
       {
         id: "f1",                     // 不要重複（用於網址）
-        cast: "m1",                   // 成員：名字、大頭照用 cast 的
+        cast: "m1",
+        name: "Shotaro",   // 預設顯示的名字（玩家可以在個人檔案改成自己的備註）；大頭照用 cast 的
         status: "",
         unread: 0,
         messages: [],
@@ -518,6 +522,7 @@ window.SITE_DATA = {
       {
         id: "f2",
         cast: "m2",
+        name: "은석",
         status: "",
         unread: 0,
         messages: [],
@@ -527,6 +532,7 @@ window.SITE_DATA = {
       {
         id: "f3",
         cast: "m3",
+        name: "성찬",
         status: "",
         unread: 0,
         messages: [],
@@ -536,6 +542,7 @@ window.SITE_DATA = {
       {
         id: "f4",
         cast: "m4",
+        name: "원빈",
         status: "",
         unread: 0,
         messages: [],
@@ -545,6 +552,7 @@ window.SITE_DATA = {
       {
         id: "f5",
         cast: "m5",
+        name: "소희",
         status: "",
         unread: 0,
         messages: [],
@@ -554,6 +562,7 @@ window.SITE_DATA = {
       {
         id: "f6",
         cast: "m6",
+        name: "Anton",
         status: "",
         unread: 0,
         messages: [],

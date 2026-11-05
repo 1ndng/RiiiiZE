@@ -224,3 +224,27 @@ button.kk-call { font: inherit; color: inherit; text-align: left; cursor: pointe
 .kc.connected .kc-group img { width: 48px; height: 48px; border-radius: 18px; }
 .kc-who b small { font-size: .7em; opacity: .65; font-weight: 500; }
 .kc-cap i { display: block; font-style: normal; font-size: 12px; opacity: .65; margin-bottom: 2px; }
+
+/* 好友的個人檔案（點頭貼、聊天室上方的名字、群組成員） */
+.kk-chat-head b[data-kprof] { cursor: pointer; }
+.kk-av[data-kprof] { cursor: pointer; }
+button.kk-mem { width: 100%; background: none; border: 0; font: inherit; text-align: left; cursor: pointer; }
+.kk-prof { position: absolute; inset: 0; z-index: 40; overflow: hidden; color: #fff; background: #4a4f57; opacity: 0; transition: opacity .2s; }
+.kk-prof.show { opacity: 1; }
+.kk-prof-bg { position: absolute; inset: -40px; background: center / cover no-repeat; filter: blur(26px) brightness(.55); }
+.kk-prof > *:not(.kk-prof-bg) { position: relative; }
+.kk-prof-x { position: absolute !important; top: 52px; left: 12px; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: #fff; background: none; border: 0; }
+.kk-prof-x svg { width: 24px; height: 24px; }
+.kk-prof-main { position: absolute !important; left: 0; right: 0; bottom: 170px; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 0 30px; text-align: center; }
+.kk-prof-main img { width: 96px; height: 96px; border-radius: 36px; object-fit: cover; }
+.kk-prof-main b { display: inline-flex; align-items: center; gap: 4px; font-size: 20px; font-weight: 600; }
+.kk-prof-main small { font-size: 13px; opacity: .75; }
+.kk-prof-pen { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; color: #fff; background: none; border: 0; opacity: .85; }
+.kk-prof-pen svg { width: 18px; height: 18px; }
+.kk-prof-edit { display: flex; gap: 8px; width: 100%; }
+.kk-prof-edit input { flex: 1; min-width: 0; padding: 9px 12px; border: 0; border-bottom: 1.5px solid rgba(255,255,255,.8); background: transparent; color: #fff; font: inherit; font-size: 18px; text-align: center; outline: none; }
+.kk-prof-edit input::placeholder { color: rgba(255,255,255,.5); }
+.kk-prof-edit button { padding: 0 12px; border: 0; border-radius: 10px; background: #fee500; color: #191919; font: inherit; font-size: 14px; font-weight: 600; }
+.kk-prof-acts { position: absolute !important; left: 0; right: 0; bottom: 60px; display: flex; justify-content: center; gap: 46px; padding-top: 18px; border-top: .5px solid rgba(255,255,255,.25); margin: 0 24px; }
+.kk-prof-acts a, .kk-prof-acts button { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #fff; text-decoration: none; background: none; border: 0; font: inherit; font-size: 12px; }
+.kk-prof-acts svg { width: 26px; height: 26px; }

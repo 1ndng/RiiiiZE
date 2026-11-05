@@ -135,12 +135,13 @@
   }
 
   /* ---- 一句話帶過（用對話框） ---- */
-  function narrate(text, done) {
+  // bg = 這句話的背景（日程、回家…）；沒給就用 plan.narrateBg → storyBg
+  function narrate(text, done, bg) {
     D().scenes = D().scenes || {};
-    D().scenes.__narrate = [{ bg: C().narrateBg || D().storyBg || (D().home || {}).wallpaper || '' }, { text: text }];
+    D().scenes.__narrate = [{ bg: bg || C().narrateBg || D().storyBg || (D().home || {}).wallpaper || '' }, { text: text }];
     window.STORY.play('__narrate', done);
   }
-  function playIf(id, done) { if (id && scene(id)) window.STORY.play(id, done); else done(); }
+  function playIf(id, done, bg) { if (id && scene(id)) window.STORY.play(id, done, null, bg); else done(); }
   function series(fns, done) { var i = 0; (function next() { if (i >= fns.length) { done(); return; } fns[i++](next); })(); }
 
   /* ---- 選人的畫面（星期日、送禮）---- */
@@ -181,12 +182,13 @@
   // 星期日：先播 weekend.intro（劇情樣式），再選要見誰
   function weekend(done) {
     var w = C().weekend || {}, t = T();
-    playIf(w.intro, function () {
+    playIf(w.intro, function () {   // 星期日早上：背景 = plan.homeBg
       chooser({ title: t.weekendTitle, hint: t.weekendHint, max: 2, min: 1, goLabel: t.go, altLabel: t.stayHome,
         onAlt: function () {
           if (S()) S().setFlag('weekend_home');
           var hs = (w.home || []).filter(function (e) { return ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene); })[0];
-          if (hs) window.STORY.play(hs.scene, done); else narrate(t.stayHomeText, done);
+          // 待在家：背景 = plan.homeBg
+          if (hs) window.STORY.play(hs.scene, done, null, C().homeBg); else narrate(t.stayHomeText, done, C().homeBg);
         },
         onGo: function (ids) {
           // 見一位：好感 +single；見兩位：各自好感 +pairAff、兩人關係 +pairBond
@@ -198,11 +200,12 @@
             var a = [].concat(e.with || []).slice().sort().join(), b = ids.slice().sort().join();
             return a === b && ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene);
           })[0];
-          if (sc) window.STORY.play(sc.scene, done);
-          else narrate((ids.length === 1 ? t.single : t.pair).replace('{a}', nameOf(ids[0])).replace('{b}', nameOf(ids[1] || '')), done);
+          // 出去玩：背景 = weekend.bg
+          if (sc) window.STORY.play(sc.scene, done, null, w.bg);
+          else narrate((ids.length === 1 ? t.single : t.pair).replace('{a}', nameOf(ids[0])).replace('{b}', nameOf(ids[1] || '')), done, w.bg);
         }
       });
-    });
+    }, C().homeBg);
   }
 
   // 14 日：送禮
@@ -246,8 +249,9 @@
       if (forced) doActivity(forced.activity);
       else if (!isWeekend(day)) {
         var act = plannedOn(day), sp = specialFor(day, act);
-        if (sp) steps.push(function (next) { G().addStat('visits', act, 1); window.STORY.play(sp.scene, next); });
-        else if (act) { var met = doActivity(act); steps.push(function (next) { narrate(dayLine(day, act, met), next); }); }
+        // 日程的特殊劇情、一句話：背景 = 那個日程的 bg
+        if (sp) steps.push(function (next) { G().addStat('visits', act, 1); window.STORY.play(sp.scene, next, null, sp.bg || actOf(act).bg); });
+        else if (act) { var met = doActivity(act); steps.push(function (next) { narrate(dayLine(day, act, met), next, actOf(act).bg); }); }
       }
       // 2. 節日、生日
       holidaysOn(day).forEach(function (h) { steps.push(function (next) { playIf(h.scene, next); }); });
