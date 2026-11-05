@@ -16,8 +16,8 @@
 }
 
 /* ---------- 對話框：直接用設計圖（images/ui/dialog-box.png），比例固定不變形 ----------
- *   dialog-box.png   整個對話框（85% 不透明 = 15% 透明）
- *   dialog-plate.png 名字牌和上方的花紋（同一張圖切出來，疊在上面、完全不透明）
+ *   dialog-box.png       有人說話時（有名字牌）；圖檔本身就有透明度，照原圖顯示
+ *   dialog-narration.png 旁白（沒有名字牌）
  *   文字、名字的位置用百分比對齊圖上的位置 */
 .vn-box {
   left: 8px; right: 8px; bottom: 34px; min-height: 0;
@@ -25,9 +25,9 @@
   background: none; border: 0; border-radius: 0; box-shadow: none;
   backdrop-filter: none; -webkit-backdrop-filter: none; overflow: visible;
 }
-.vn-box::before, .vn-box::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: no-repeat center / 100% 100%; }
-.vn-box::before { background-image: url("../images/ui/dialog-box.png"); opacity: .85; }
-.vn-box::after { background-image: url("../images/ui/dialog-plate.png"); }
+.vn-box::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: url("../images/ui/dialog-box.png") no-repeat center / 100% 100%; }
+.vn-box.narration::before { background-image: url("../images/ui/dialog-narration.png"); }
+.vn-box::after { content: none; }
 .vn-text {
   position: absolute; z-index: 1; left: 6.5%; right: 6.5%; top: 25%; height: 51%; overflow: hidden;
   color: var(--pk-text); font-size: 16px; font-weight: 500; line-height: 1.6; text-shadow: 0 1px 0 rgba(255,255,255,.45);
