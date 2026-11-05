@@ -414,14 +414,19 @@
    *   能用手機的日子（星期日）→ 直接自由使用手機
    * 進度存在 riiiize-kakao 的 dayChat（重新整理會從中斷的地方繼續） */
   var dc = null;   // { def, room, i, ask, done, free }
-  function dayChatKey(def) { return 'daychat_' + def.date; }
+  // 每段聊天的 id：寫了 id 用 id（同一天好幾段時要寫），沒寫用日期
+  function dcId(def) { return def.id || def.date; }
+  function dayChatKey(def) { return 'daychat_' + dcId(def); }
   function dayChatStart(def, done, free) {
     var st = state(); st.dayChat = st.dayChat || {};
-    dc = { def: def, room: def.room, i: st.dayChat[def.date] || 0, ask: null, done: done, free: free };
+    dc = { def: def, room: def.room, i: st.dayChat[dcId(def)] || 0, ask: null, done: done, free: free };
     location.hash = '#/kakao/chat/' + encodeURIComponent(def.room);
-    setTimeout(dayChatNext, 800);
+    // intro：打開聊天室後，先用劇情對話框播一段（背景 = 變暗的手機畫面），播完才開始聊天
+    if (def.intro && dc.i === 0 && window.STORY) {
+      setTimeout(function () { window.STORY.play(def.intro, function () { setTimeout(dayChatNext, 500); }, null, 'phone-dim'); }, 700);
+    } else setTimeout(dayChatNext, 800);
   }
-  function dayChatSave() { var st = state(); st.dayChat = st.dayChat || {}; st.dayChat[dc.def.date] = dc.i; S().save(KEY, st); }
+  function dayChatSave() { var st = state(); st.dayChat = st.dayChat || {}; st.dayChat[dcId(dc.def)] = dc.i; S().save(KEY, st); }
   function dayChatPaint() { if (openChatId === dc.room) { paintChat(); paintChoices(); } }
   function dayChatNext() {
     if (!dc) return;
@@ -530,7 +535,7 @@
     friend: function (id) { return friend(id); },
     // 每日聊天（js/plan.js）：今天有沒有、開始跑
     dayChatFor: function (md) {
-      return (K().dayChats || []).filter(function (c) { return c.date === md && ok(c.if) && !S().hasFlag('daychat_' + c.date); })[0] || null;
+      return (K().dayChats || []).filter(function (c) { return c.date === md && ok(c.if) && !S().hasFlag(dayChatKey(c)); })[0] || null;
     },
     dayChat: function (def, done, free) { dayChatStart(def, done, free); },
     dayChatting: function () { return !!(dc || dcAfter); },

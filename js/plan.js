@@ -548,8 +548,16 @@
       stage(null);
       var lk = document.getElementById('lock'); if (lk) lk.remove();
       document.getElementById('phone').classList.remove('locked');
-      // 聊完：能用手機的日子 → 直接自由使用手機（不用再解鎖）；其他日子 → 進入下一天
-      K.dayChat(chat, function () { if (!free) setTimeout(go, 300); }, free);
+      // 同一天可以有好幾段（照 data.js 的順序）；最後一段聊完：能用手機的日子 → 直接自由使用手機（不用再解鎖）；其他日子 → 進入下一天
+      var md = G().md(G().day);
+      (function run(c) {
+        var last = (D().kakao.dayChats || []).filter(function (x) { return x.date === md; }).slice(-1)[0] === c;
+        K.dayChat(c, function () {
+          var next = K.dayChatFor(md);
+          if (next) setTimeout(function () { run(next); }, 400);
+          else if (!free) setTimeout(go, 300);
+        }, free || !last);
+      })(chat);
       return;
     }
     // 能用手機的日子（星期日、最後一天、結局後）：劇情、出去玩都結束 → 鎖定畫面，解鎖後自由使用手機
