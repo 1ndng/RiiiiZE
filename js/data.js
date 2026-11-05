@@ -314,7 +314,7 @@ window.SITE_DATA = {
     defaultAccount: "briiii1ze._",   // 打開 IG 時已經登入的帳號（玩家）
     username: "shotaroo0",         // 成員帳號都不能登入（不寫 password）
     private: true,                 // 非公開帳號：沒追蹤的人看不到貼文、限時、名單
-    name: "Shotaro(쇼타로/ショウタロウ)",
+    name: "SHOTARO",
     cast: "m1",                    // 成員帳號：名字、大頭照用 cast 的（不寫 cast → 用 avatar、name；沒有名字 → 顯示帳號 id）
     // 貼文數、粉絲、追蹤會自動計算；想顯示固定數字就加 postsCount / followersCount / followingCount
     following: others(IG_ALL, "shotaroo0"),
@@ -410,7 +410,7 @@ window.SITE_DATA = {
     ],
     // 其他成員的帳號：只能從名單、搜尋點進去看，不能登入（不寫 password）
     searchOnlyAccounts: [
-      { username: "seokkkk",     cast: "m2", name: "송은석", private: true, following: others(IG_ALL, "seokkkk"),     bio: [], highlights: [], posts: [], reposts: [] },
+      { username: "seokkkk",     cast: "m2", name: "BLACK SHADOW", private: true, following: others(IG_ALL, "seokkkk"),     bio: [], highlights: [], posts: [], reposts: [] },
       { username: "sungchan913", cast: "m3", name: "🦌", private: true, following: others(IG_ALL, "sungchan913"), bio: [], highlights: [], posts: [], reposts: [] },
       { username: "bin032",      cast: "m4", name: "원빈", private: true, following: others(IG_ALL, "bin032"),      bio: [], highlights: [], posts: [], reposts: [] },
       { username: "252525252_",  cast: "m5", name: "이소희", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], posts: [], reposts: [] },
@@ -455,8 +455,8 @@ window.SITE_DATA = {
     me: "briiii1ze._",              // 玩家的帳號（名字＝玩家輸入的名字、頭貼＝玩家上傳的照片）
     accounts: [
       { handle: "briiii1ze._", bio: "", followersList: others(X_ALL, "briiii1ze._") },
-      { handle: "shotaroo0",   cast: "m1", name: "Shotaro(쇼타로/ショウタロウ)", protected: true, followed: true, bio: "", followingList: others(X_ALL, "shotaroo0"),   followersList: others(X_ALL, "shotaroo0") },
-      { handle: "seokkkk",     cast: "m2", name: "송은석", protected: true, followed: true, bio: "", followingList: others(X_ALL, "seokkkk"),     followersList: others(X_ALL, "seokkkk") },
+      { handle: "shotaroo0",   cast: "m1", name: "SHOTARO", protected: true, followed: true, bio: "", followingList: others(X_ALL, "shotaroo0"),   followersList: others(X_ALL, "shotaroo0") },
+      { handle: "seokkkk",     cast: "m2", name: "BLACK SHADOW", protected: true, followed: true, bio: "", followingList: others(X_ALL, "seokkkk"),     followersList: others(X_ALL, "seokkkk") },
       { handle: "sungchan913", cast: "m3", name: "🦌", protected: true, followed: true, bio: "", followingList: others(X_ALL, "sungchan913"), followersList: others(X_ALL, "sungchan913") },
       { handle: "bin032",      cast: "m4", name: "원빈", protected: true, followed: true, bio: "", followingList: others(X_ALL, "bin032"),      followersList: others(X_ALL, "bin032") },
       { handle: "252525252_",  cast: "m5", name: "이소희", protected: true, followed: true, bio: "", followingList: others(X_ALL, "252525252_"),  followersList: others(X_ALL, "252525252_") },
