@@ -1,6 +1,7 @@
 /* 設定（iPhone「設定」風格）
  *   #/settings         遊戲進度（第幾天）、存檔與讀檔、語言、重新開始
  *   #/settings/saves   存檔與讀檔：每天早上的自動存檔＋好幾格手動存檔（格數 = data.js 的 game.saveSlots）
+ *   #/settings/wallpaper  背景圖片：鎖定畫面、主畫面各自換一張自己的照片，或恢復預設
  *   #/settings/stats   數值（開發用）：看、調整隱藏數值、跳天數；data.js 的 game.debug 設成 false 就不會出現
  * 存檔放在 riiiizeSaves，「重新開始」不會清掉 */
 (function () {
@@ -14,6 +15,7 @@
     calendar: '<svg viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5" fill="#fff"/><path d="M4 10h16" stroke="currentColor" stroke-width="1.6"/><path d="M8.5 3.5v4M15.5 3.5v4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>',
     wrench: '<svg viewBox="0 0 24 24"><path d="M14.5 3.5a5 5 0 0 0-4.7 6.7L3.6 16.4a1.9 1.9 0 0 0 2.7 2.7l6.2-6.2a5 5 0 0 0 6.7-4.7l-2.9 2.9-2.7-.7-.7-2.7z" fill="#fff"/></svg>',
     star: '<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="#fff"/></svg>',
+    image: '<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5" stroke="#fff" stroke-width="1.8" fill="none"/><circle cx="9" cy="10" r="1.7" fill="#fff"/><path d="M4 17l5-5 4 4 2.5-2.5L20 18" stroke="#fff" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     restart: '<svg viewBox="0 0 24 24"><path d="M5.5 9A7.5 7.5 0 1 1 4.6 14" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M4 4.5v5h5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
 
@@ -35,6 +37,8 @@
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
+    wallpaper: '背景圖片', wpLock: '鎖定畫面', wpHome: '主畫面', wpChange: '更換', wpDefault: '恢復預設',
+    wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。存在這個瀏覽器裡，「重新開始」也不會清掉。', wpTooBig: '照片太大了，換一張試試看。',
     resetStats: '數值全部歸零', resetTitle: '要把數值全部歸零嗎？', resetText: '好感度、關係、覺醒度都會變回 0（旗標和天數不變）。', reset: '歸零'
   };
   function T() {
@@ -62,6 +66,7 @@
       '<div class="st-group">' +
         row(ICON.calendar, '#ff3b30', esc(t.progress), esc(g.dateText(null, true)), 'data-st-na disabled', false) +
         row(ICON.save, '#007aff', esc(t.savesTitle), '', 'data-st-go="#/settings/saves"', true) +
+        row(ICON.image, '#30b0c7', esc(t.wallpaper), '', 'data-st-go="#/settings/wallpaper"', true) +
         (window.ENDING ? row(ICON.star, '#ff9500', esc(t.gallery), '', 'data-st-go="#/settings/gallery"', true) : '') +
       '</div>' +
       ((D().game || {}).debug ? '<div class="st-group">' + row(ICON.wrench, '#34c759', esc(t.statsTitle), '', 'data-st-go="#/settings/stats"', true) + '</div>' : '') +
@@ -210,11 +215,52 @@
       '<div class="st-note st-note-top">' + esc(t.galleryCount.replace('{n}', got).replace('{all}', total)) + '　' + esc(t.galleryNote) + '</div>' + body;
   }
 
+  /* ---- 背景圖片 ---- */
+  function renderWallpaper() {
+    var t = T();
+    function card(kind, label) {
+      return '<div class="st-wp">' +
+        '<div class="st-wp-img ' + kind + '" style="background-image:url(&quot;' + esc(S().wallpaper(kind)) + '&quot;)">' +
+          (kind === 'lock' ? '<b>9:41</b>' : '<i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>') + '</div>' +
+        '<span>' + esc(label) + '</span>' +
+        '<label class="st-wp-btn">' + esc(t.wpChange) + '<input type="file" accept="image/*" data-wp-file="' + kind + '" hidden></label>' +
+        (S().isCustomWallpaper(kind) ? '<button type="button" class="st-wp-reset" data-wp-reset="' + kind + '">' + esc(t.wpDefault) + '</button>' : '') +
+      '</div>';
+    }
+    S().$('#settings-overlay').innerHTML = '';
+    S().$('#settings-scroll').innerHTML =
+      '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
+      '<h1 class="st-h1 st-h1-s">' + esc(t.wallpaper) + '</h1>' +
+      '<div class="st-note st-note-top">' + esc(t.wpNote) + '</div>' +
+      '<div class="st-wps">' + card('lock', t.wpLock) + card('home', t.wpHome) + '</div>';
+  }
+  // 選了照片：縮小（最長邊 1170）存成 JPEG
+  function pickWallpaper(kind, file) {
+    var r = new FileReader();
+    r.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var k = Math.min(1, 1170 / Math.max(img.width, img.height)), c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        if (!S().setWallpaper(kind, c.toDataURL('image/jpeg', .85)) && S().toast) S().toast(T().wpTooBig);
+        renderWallpaper();
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  }
+  document.addEventListener('change', function (e) {
+    var k = e.target.dataset && e.target.dataset.wpFile;
+    if (k && e.target.files && e.target.files[0]) pickWallpaper(k, e.target.files[0]);
+  });
+
   function route(parts) {
     S().$('#settings-scroll').scrollTop = 0;
     if (parts[0] === 'gallery' && window.ENDING) { renderGallery(); return; }
     if (parts[0] === 'stats' && (D().game || {}).debug) renderStats();
     else if (parts[0] === 'saves') renderSaves();
+    else if (parts[0] === 'wallpaper') renderWallpaper();
     else renderMain();
   }
 
@@ -225,6 +271,7 @@
     if ((el = e.target.closest('[data-st-go]'))) { location.hash = el.dataset.stGo; return; }
     if ((el = e.target.closest('[data-st-back]'))) { e.preventDefault(); S().goBack(el.getAttribute('href')); return; }
     if (e.target.closest('[data-st-lang]')) { window.SOSHO_LANG.toggle(); return; }
+    if ((el = e.target.closest('[data-wp-reset]'))) { S().setWallpaper(el.dataset.wpReset, null); renderWallpaper(); return; }
     if (e.target.closest('[data-st-restart]')) {
       confirmBox(t.restartTitle, t.restartText, t.restart, true, function () {
         try {

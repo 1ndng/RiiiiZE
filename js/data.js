@@ -304,6 +304,7 @@ window.SITE_DATA = {
 
   /* ---------- 手機密碼鎖（每次打開網址都要先輸入；留空 "" = 不鎖） ---------- */
   lock: {
+    wallpaper: "images/wallpaper.jpg",   // 鎖定畫面的預設背景（玩家可以在 設定 → 背景圖片 換）
     passcode: "birthday",        // "birthday" = 玩家的生日（月月日日，例如 10/14 → 1014）；也可以直接寫數字
     title: "輸入密碼",
     deleteLabel: "刪除",
@@ -314,7 +315,7 @@ window.SITE_DATA = {
 
   /* ---------- 手機首頁 ---------- */
   home: {
-    wallpaper: PH,
+    wallpaper: "images/wallpaper.jpg",   // 主畫面的預設桌布（玩家可以在 設定 → 背景圖片 換）
     // 上方的行事曆小工具：日期、月曆跟著現實的日期走；點月曆上的日期 → 左邊顯示那天的行程
     //   events = 行程：title = 文字、color = 顏色條、textColor = 文字顏色
     //   if = 條件（格式見上面 cast 的說明），不成立就不顯示這個行程

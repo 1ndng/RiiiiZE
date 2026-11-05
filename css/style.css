@@ -546,3 +546,9 @@ div.ig-frow-main { cursor: default; }
 .alarm-knob i { width: 22px; height: 22px; border-radius: 4px; background: #fff; }
 .phone.alarming .statusbar { visibility: hidden; }
 .phone.alarming .home-gesture { visibility: hidden; }
+
+/* 亮色背景圖上也看得清楚：主畫面的 App 名稱、鎖定畫面的字、狀態列加深一點陰影 */
+.home-grid .app-icon span { text-shadow: 0 1px 2px rgba(0,0,0,.55), 0 0 8px rgba(0,0,0,.3); }
+.lc-hint, .lc-date { text-shadow: 0 1px 3px rgba(0,0,0,.35), 0 0 10px rgba(0,0,0,.2); }
+.lc-time { text-shadow: 0 2px 14px rgba(0,0,0,.28); }
+.phone.on-home .statusbar, .phone.locked .statusbar { filter: drop-shadow(0 1px 2px rgba(0,0,0,.35)); }

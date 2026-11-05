@@ -70,10 +70,29 @@
 
 
   /* ---------------- 首頁 ---------------- */
+  /* ---- 背景圖片：玩家在 設定 → 背景圖片 換的（存在 riiiizeWallpaper，「重新開始」不會清掉），沒換就用 data.js 的預設 ---- */
+  var WKEY = 'riiiizeWallpaper';
+  function myWallpapers() { try { return JSON.parse(localStorage.getItem(WKEY)) || {}; } catch (e) { return {}; } }
+  function wallpaperOf(kind) {
+    var mine = myWallpapers()[kind];
+    if (mine) return mine;
+    return kind === 'lock' ? ((D.lock || {}).wallpaper || (D.home || {}).wallpaper) : (D.home || {}).wallpaper;
+  }
+  // 上方加一層淡淡的暗色漸層：亮色的背景圖上，白色的時間、狀態列也看得清楚
+  function wallBg(kind) { return 'linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,0) 30%), url("' + wallpaperOf(kind) + '")'; }
+  function setWallpaper(kind, url) {
+    var w = myWallpapers();
+    if (url) w[kind] = url; else delete w[kind];
+    try { localStorage.setItem(WKEY, JSON.stringify(w)); } catch (e) { return false; }   // 圖片太大存不下
+    if (kind === 'home') $('#home').style.backgroundImage = wallBg('home');
+    if (kind === 'lock' && $('#lock')) $('#lock').style.backgroundImage = wallBg('lock');
+    return true;
+  }
+
   function renderHome() {
     var h = D.home;
     var home = $('#home');
-    home.style.backgroundImage = 'url("' + h.wallpaper + '")';
+    home.style.backgroundImage = wallBg('home');
     home.innerHTML =
       // 上方的行事曆小工具（中型）：日期跟著現實走，每天的行程寫在 data.js 的 home.calendar.events
       (h.calendar ? '<div class="cal-widget" id="cal-widget"></div>' : '') +
@@ -1552,7 +1571,10 @@
   window.SOSHO = {
     data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, goBack: goBack, replaceHash: replaceHash,
     setDarkStatus: function (on) { $('#phone').classList.toggle('dark-status', !!on); },
-    lock: function (opt) { renderLock(opt); },   // opt.time = 鎖定畫面固定顯示的時間（鬧鐘之後用）
+    lock: function (opt) { renderLock(opt); },
+    wallpaper: function (kind) { return wallpaperOf(kind); },               // 'home' / 'lock'
+    isCustomWallpaper: function (kind) { return !!myWallpapers()[kind]; },
+    setWallpaper: function (kind, url) { return setWallpaper(kind, url); },  // url = null → 回到預設   // opt.time = 鎖定畫面固定顯示的時間（鬧鐘之後用）
     load: function (key, def) {
       try { var v = JSON.parse(localStorage.getItem(key)); return v == null ? def : v; } catch (e) { return def; }
     },
@@ -1576,7 +1598,7 @@
       lock.className = 'lock'; lock.id = 'lock';
       $('#phone').insertBefore(lock, $('#toast'));
     }
-    lock.style.backgroundImage = 'url("' + (D.home && D.home.wallpaper) + '")';
+    lock.style.backgroundImage = wallBg('lock');
     // 先是鎖定畫面（滑動以解鎖、時間、未讀訊息通知），往上滑才出現輸入密碼
     lock.innerHTML =
       '<div class="lock-shade"></div>' +
