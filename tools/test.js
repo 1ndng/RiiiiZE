@@ -308,9 +308,10 @@ const TESTS = [
 async function ending(b, base, allAwake, pick, title) {
   const awake = { m1: allAwake ? 3 : 2, m2: 3, m3: 3, m4: 3, m5: 3, m6: 3 };   // 沒全部覺醒：將太郎只找到 2 個線索
   const p = await open(b, base, played({ 'riiiize-stats': { aff: {}, pair: {}, awake, visits: {} }, 'riiiize-game': { day: 365, phase: 'morning' } }));
-  for (let i = 0; i < 40 && !(await p.$('.end-card')); i++) {
+  await p.evaluate(() => { SITE_DATA.storySpeed = 1; });   // 最後的選擇和結局很長：字直接出現
+  for (let i = 0; i < 600 && !(await p.$('.end-card')); i++) {
     if (await p.$('[data-vn-choice]')) { await p.click('[data-vn-choice="' + pick + '"]'); await sleep(300); continue; }
-    await p.click('.vn', { timeout: 2000 }).catch(() => {}); await sleep(200);
+    await p.click('.vn', { timeout: 2000 }).catch(() => {}); await sleep(60);
   }
   await sleep(1200);
   const t = await text(p, '.end-card b');
