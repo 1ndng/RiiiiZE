@@ -308,6 +308,7 @@
   function paintViewer() {
     if (!view) return;
     var p = list()[view.items[view.pos]];
+    if (p.clue) if (window.STORY && window.STORY.clue) window.STORY.clue(p.clue);   // 覺醒線索（clue）
     S().$('#pt-vdate').textContent = dateText(p);
     S().$('#pt-vtime').textContent = p.time || '';
     var fb = S().$('#pt-favbtn');

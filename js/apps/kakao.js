@@ -247,6 +247,8 @@
     if (!f || !box) return;
     box.innerHTML = olderHiddenHTML(f) + bubblesHTML(f);
     box.scrollTop = box.scrollHeight;
+    // 覺醒線索：聊天室裡有寫 clue 的訊息（data.js 的 messages、即時訊息、每日聊天）
+    if (window.STORY && window.STORY.clue) messagesOf(f).forEach(function (m) { if (m.clue) window.STORY.clue(m.clue); });
     // 照片載入後聊天室會變高：玩家還沒往上滑之前，一直停在最新的訊息
     var stick = true;
     box.ontouchstart = box.onwheel = box.onpointerdown = function () { stick = false; };
@@ -462,6 +464,7 @@
         var msg = { from: from, time: nowTime() };
         if (s.text != null) msg.text = s.text;
         if (s.image) msg.image = s.image;
+        if (s.clue) msg.clue = s.clue;
         push(dc.room, msg);
         dayChatPaint();
         next();
@@ -521,7 +524,7 @@
       st.sent[ev.id] = 1;
       if (ev.flag) S().setFlag(ev.flag);   // 傳來時記錄旗標（例如讓下一組選項出現）
       var msg = { from: ev.from || 'them', time: nowTime() };
-      ['text', 'link', 'linkTitle', 'linkSite', 'image'].forEach(function (k) { if (ev[k]) msg[k] = ev[k]; });
+      ['text', 'link', 'linkTitle', 'linkSite', 'image', 'clue'].forEach(function (k) { if (ev[k]) msg[k] = ev[k]; });
       msg.day = gameDay();
       (st.msgs[ev.room] = st.msgs[ev.room] || []).push(msg);
       var viewing = openChatId === ev.room && location.hash.indexOf('#/kakao/chat/') === 0;

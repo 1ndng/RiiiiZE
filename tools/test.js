@@ -188,6 +188,30 @@ const TESTS = [
     if (t !== '新的第四句') throw new Error('快轉應該停在沒看過的句子，現在是：' + t);
     return p;
   }],
+  ['覺醒線索：看到 IG 貼文 1 秒 → 覺醒度 +1，劇情加覺醒度無效', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'night' } }));
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked');
+      SITE_DATA.instagram.searchOnlyAccounts.filter(a => a.username === 'bin032')[0].posts.push({ images: ['images/cast/m4.jpg'], caption: '線索', time: '9月20日', clue: 'm4_1' });
+      GAME.apply({ awake: { m4: 5 } }); });
+    if (await p.evaluate(() => GAME.stat('awake', 'm4')) !== 0) throw new Error('劇情效果不該加覺醒度');
+    await p.evaluate(() => location.hash = '#/ig/u/bin032/post/1'); await sleep(1600);
+    const r = await p.evaluate(() => ({ awake: GAME.stat('awake', 'm4'), flag: SOSHO.hasFlag('clue_m4_1'), vn: !!document.querySelector('.vn') }));
+    if (r.awake !== 1 || !r.flag) throw new Error('沒有算到線索：' + JSON.stringify(r));
+    if (!r.vn) throw new Error('找到線索後沒有播 awake_m4_1');
+    await clickStory(p);
+    await p.evaluate(() => location.hash = '#/ig/u/bin032'); await sleep(300);
+    await p.evaluate(() => location.hash = '#/ig/u/bin032/post/1'); await sleep(1600);
+    if (await p.evaluate(() => GAME.stat('awake', 'm4')) !== 1) throw new Error('同一個線索不該算兩次');
+    return p;
+  }],
+  ['強制聊天：不能離開聊天室', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-plan': { months: {}, days: {} } }));
+    await clickStory(p, async () => (await p.evaluate(() => location.hash)).indexOf('#/kakao/chat/') === 0, 80);
+    await p.evaluate(() => location.hash = '#/home'); await sleep(500);
+    if (await p.evaluate(() => location.hash) !== '#/kakao/chat/f4') throw new Error('離開了聊天室');
+    if (await p.$('[data-kback]')) throw new Error('不該有返回鍵');
+    return p;
+  }],
   ['App 內容：from 日期之前看不到', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' } }));
     const r = await p.evaluate(() => [GAME.unlocked({ from: '09-15' }), GAME.unlocked({ from: '09-05' }), GAME.unlocked({ if: { loop: '>=2' } })]);
@@ -196,9 +220,8 @@ const TESTS = [
   }]
 ];
 async function ending(b, base, allAwake, pick, title) {
-  const flags = { alarm_done: 1, intro_done: 1 };
-  ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'].forEach((m, i) => { if (allAwake || i) flags['scene_awake_' + m + '_3'] = 1; });
-  const p = await open(b, base, played({ 'riiiize-flags': flags, 'riiiize-stats': { aff: {}, pair: {}, awake: { m1: 3, m2: 3, m3: 3, m4: 3, m5: 3, m6: 3 }, visits: {} }, 'riiiize-game': { day: 365, phase: 'morning' } }));
+  const awake = { m1: allAwake ? 3 : 2, m2: 3, m3: 3, m4: 3, m5: 3, m6: 3 };   // 沒全部覺醒：將太郎只找到 2 個線索
+  const p = await open(b, base, played({ 'riiiize-stats': { aff: {}, pair: {}, awake, visits: {} }, 'riiiize-game': { day: 365, phase: 'morning' } }));
   for (let i = 0; i < 40 && !(await p.$('.end-card')); i++) {
     if (await p.$('[data-vn-choice]')) { await p.click('[data-vn-choice="' + pick + '"]'); await sleep(300); continue; }
     await p.click('.vn', { timeout: 2000 }).catch(() => {}); await sleep(200);

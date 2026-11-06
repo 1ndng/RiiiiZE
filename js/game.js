@@ -137,9 +137,10 @@
 
   /* ---- 效果：選項、訊息回覆、電話段落都可以寫 effects ----
    *   { aff: { m1: 2 }, pair: { "m1-m2": 1 }, awake: { m3: 1 }, flag: "旗標" 或 ["旗標", …] } */
+  // 套用效果。覺醒度不在這裡加：只能靠在手機裡找到線索（findClue），劇情、日程、訊息寫 awake 都不會生效
   function apply(fx) {
     if (!fx) return;
-    ['aff', 'pair', 'awake'].forEach(function (kind) {
+    ['aff', 'pair'].forEach(function (kind) {
       Object.keys(fx[kind] || {}).forEach(function (id) { statAdd(kind, id, fx[kind][id]); });
     });
     [].concat(fx.flag || []).forEach(function (f) { if (window.SOSHO) window.SOSHO.setFlag(f); });
@@ -171,7 +172,7 @@
   /* ---- 戀愛和覺醒：data.js 的 romance ----
    *   lover：玩家和某位成員是戀人 = 好感度到 lover.aff，而且有 lover.flag 旗標（{id} = 成員 id，例如 confess_m1）
    *   couple：兩位成員是一對 = 關係到 couple.pair，而且有 couple.flag 旗標（{pair} = "m1-m2"）
-   *   覺醒（個人）：覺醒度到 awake.value，而且有 awake.flag 旗標（{id} = 成員 id；預設 scene_awake_{id}_3 = 看過他第三階段的覺醒劇情）
+   *   覺醒（個人）：覺醒度到 awake.value（覺醒度只能靠手機線索 findClue 增加）；寫了 awake.flag 的話還要有那個旗標（{id} = 成員 id）
    *   allAwake：六位都覺醒 */
   function R() { return D.romance || {}; }
   function isLover(id) {
@@ -294,6 +295,16 @@
     save: function (id) { writeSlot(id); },
     remove: function (id) { var s = saves(); delete s.slots[id]; store(SAVES, s); },
     loop: function () { return loopNo(); },
+    /* 覺醒線索：手機裡的東西（IG 貼文、限動、X 貼文、照片、備忘錄、KakaoTalk 訊息）寫 clue: "m3_1"
+     *   玩家看到它 → 記錄旗標 clue_m3_1、那位成員覺醒度 +1（同一個線索只算一次）；回傳這次是不是第一次找到 */
+    findClue: function (key) {
+      key = String(key || '');
+      var id = key.split('_')[0];
+      if (!key || !cast().some(function (c) { return c.id === id; }) || hasFlag('clue_' + key)) return false;
+      if (window.SOSHO) window.SOSHO.setFlag('clue_' + key);
+      statAdd('awake', id, 1);
+      return true;
+    },
     unlocked: unlocked,
     /* 時間循環：回到 2025/9/1 重新過這一年（DREAM END 之後）
      *   先把現在的進度存成「循環前的存檔」（設定 → 存檔與讀檔，只能讀取），

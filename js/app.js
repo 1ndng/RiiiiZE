@@ -809,6 +809,7 @@
     g = g || currentAccount(); base = base || '#/ig';
     var raw = src === 'archive' ? ((g.archive || {}).posts || [])[idx] : (g.posts || [])[idx];
     if (raw == null) { replaceHash(base); return; }
+    if (raw && raw.clue) if (window.STORY && window.STORY.clue) window.STORY.clue(raw.clue);   // 覺醒線索（clue）
     var p = postObj(raw), n = p.images.length;
     curPost = { owner: g, idx: idx, p: p, key: src === 'archive' ? g.username + '/archive' + idx : postKey(g, idx),
       archived: src === 'archive' || isArchived(g, idx) };   // 典藏的貼文不顯示「xxx 說讚」
@@ -1049,6 +1050,7 @@
       if (k < 0) k = 0;
       if (k >= items.length) { closeStory(); return; }
       i = k;
+      if (items[i] && items[i].clue) if (window.STORY && window.STORY.clue) window.STORY.clue(items[i].clue);   // 覺醒線索（clue）
       // 影片（.mp4 / .mov / .webm）播完才換下一則；圖片 5 秒
       var src = items[i].image || '', isVideo = /\.(mp4|mov|webm)$/i.test(src);
       $('#ig-story-media').innerHTML = isVideo
@@ -1507,6 +1509,8 @@
   (function swipeHome() {
     var zone = $('#home-gesture');
     var startY = null, dy = 0, appEl = null;
+    // 強制聊天（KakaoTalk 的每日聊天）進行中：不能滑回首頁
+    function stuck() { return !!(window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting()); }
     // 加到主畫面時（全螢幕 App）
     if (window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) {
       document.documentElement.classList.add('standalone');
@@ -1521,7 +1525,7 @@
     // 手指：從畫面最下面 80px 內往上滑就算（比橫條本身寬鬆），滑超過 45px 放開就回首頁
     var EDGE = 80, touchId = null;
     document.addEventListener('touchstart', function (e) {
-      if (!currentApp || e.touches.length !== 1) return;
+      if (!currentApp || e.touches.length !== 1 || stuck()) return;
       var t = e.touches[0], r = $('#phone').getBoundingClientRect();
       if (t.clientY < r.bottom - EDGE) return;
       touchId = t.identifier; startY = t.clientY; dy = 0;
@@ -1544,7 +1548,7 @@
 
     // 滑鼠（電腦）：拖橫條
     zone.addEventListener('pointerdown', function (e) {
-      if (!currentApp || e.pointerType === 'touch') return;
+      if (!currentApp || e.pointerType === 'touch' || stuck()) return;
       startY = e.clientY; dy = 0;
       appEl = $('#app-' + currentApp);
       appEl.classList.add('dragging');

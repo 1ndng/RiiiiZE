@@ -405,7 +405,24 @@
     });
   }
 
+  /* ---- 覺醒線索：手機裡看到寫了 clue 的東西 → js/game.js 的 findClue（覺醒度 +1）
+   *   有 scenes.awake_線索（例如 awake_m3_1）就在找到後播（背景是變暗的手機畫面；劇情或強制聊天進行中就等結束再播） */
+  function clue(c) {
+    if (!c || !window.GAME) return;
+    var key = typeof c === 'object' ? c.id : c;
+    if (!window.GAME.findClue(key)) return;
+    var id = 'awake_' + key;
+    if (!(D().scenes || {})[id]) return;
+    (function tryPlay(n) {
+      var busy = cur || (window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting());
+      if (busy) { if (n < 600) setTimeout(function () { tryPlay(n + 1); }, 1000); return; }
+      play(id, null, null, 'phone-dim');
+    })(0);
+  }
+
   window.STORY = {
+    // 看到 1 秒後才算（1 秒內離開那一頁就不算）
+    clue: function (c) { if (!c) return; var h = location.hash; setTimeout(function () { if (location.hash === h) clue(c); }, 1000); },
     play: play, fill: fill, playerName: playerName,
     askName: askName, askBirthday: askBirthday,
     playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },

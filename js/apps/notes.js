@@ -93,6 +93,9 @@
   function renderNote(id) {
     var t = T(), n = find(id);
     if (!n) { S().replaceHash('#/notes'); return; }
+    // 覺醒線索：data.js 的備忘錄寫 clue（鎖住的要先解開）
+    var src = (N().notes || []).filter(function (x) { return String(x.id) === String(n.id); })[0];
+    if (src && src.clue && isOpen(n)) if (window.STORY && window.STORY.clue) window.STORY.clue(src.clue);   // 覺醒線索（clue）
     var head =
       '<div class="nt-nav"><a href="#/notes" data-nback>' + ICON.back + '<span>' + esc(t.back) + '</span></a>' +
         '<span class="nt-nav-r">' + (isOpen(n) ? '<button type="button" data-ndelete class="nt-ico">' + ICON.trash + '</button>' +

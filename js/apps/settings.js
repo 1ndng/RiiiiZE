@@ -32,7 +32,7 @@
     restartTitle: '要從頭開始嗎？', restartText: '目前的進度都會清除，回到第 1 天。存檔會保留，之後還能讀取。',
     dayLabel: '第 {n} 天', savedAt: '存於 {t}',
     statsTitle: '數值（開發用）', statsNote: '玩家看不到這一頁。正式公開前把 data.js 的 game.debug 改成 false。',
-    day: '第幾天', aff: '好感度', awake: '覺醒度（還要看過那位成員的第三階段覺醒劇情才算覺醒）', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
+    day: '第幾天', aff: '好感度', awake: '覺醒度（在手機裡找到線索才會增加，到 3 = 覺醒）', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
     gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談',
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',

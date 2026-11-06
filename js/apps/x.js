@@ -158,6 +158,8 @@
     if (!t) { S().replaceHash('#/x'); return; }
     var a = acc(t.by) || { handle: t.by, name: t.by };
     if (hidden(a)) { S().replaceHash('#/x/u/' + encodeURIComponent(a.handle)); return; }
+    if (t.clue) if (window.STORY && window.STORY.clue) window.STORY.clue(t.clue);   // 覺醒線索（clue）
+    (t.replies || []).forEach(function (r) { if (r.clue && (!window.GAME || window.GAME.unlocked(r)) && window.STORY) window.STORY.clue(r.clue); });
     var c = counts(t), st = state();
     var reps = (t.replies || []).concat((st.replies[t.id] || []).map(function (r) {
       return { by: me().handle, text: r.text, time: tt.justNow, replyTo: t.by };
