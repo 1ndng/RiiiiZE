@@ -33,7 +33,7 @@
 | `css/style.css` | 手機外框、首頁、密碼鎖、Instagram |
 | `css/apps.css` | KakaoTalk（含通話畫面） |
 | `css/x.css`、`css/notes.css`、`css/settings.css`、`css/story.css`、`css/schedule.css` | X、備忘錄、設定、劇情對話框、每月安排與選單 |
-| `css/theme.css`、`images/ui/` | 劇情與選單的外觀：對話框直接用設計圖（`dialog-box.png` 有人說話、`dialog-narration.png` 旁白，照原圖的透明度），其他選單照同樣的粉紅格紋風格 |
+| `css/theme.css`、`images/ui/` | 劇情與選單的外觀：對話框直接用設計圖（`dialog-box.png` 有人說話、`dialog-narration.png` 旁白，照原圖的透明度；網頁實際載入的是壓縮過的同名 `.webp`，改了 png 要重新轉一次），其他選單照同樣的粉紅格紋風格 |
 | `fonts/KaiseiDecol-Regular.woff2` | 劇情用的字體（Kaisei Decol）；它沒有的繁體字用 Noto Serif TC 補上 |
 | `css/photos.css` | 相簿 |
 | `images/` | 圖片（App 圖示、預設頭貼、佔位照片） |
