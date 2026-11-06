@@ -74,3 +74,8 @@
 .st-wp-btn, .st-wp-reset { min-width: 96px; padding: 7px 14px; border: 0; border-radius: 16px; background: #fff; color: #007aff; font: inherit; font-size: 15px; text-align: center; cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
 .st-wp-reset { color: #ff3b30; }
 .st-wp-btn input { display: none !important; }
+
+/* 劇情回想（js/apps/settings.js 的 renderReplay） */
+.st-sec span { float: right; }
+.st-rp .st-rp-item { padding: 9px 16px; }
+.st-rp .st-rp-item b { font-size: 14.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -100,13 +100,19 @@
 
   // resume = 讀取劇情中的存檔時，從存檔的那一句繼續：{ at, bg, log, steps }
   // bg = 這段劇情的預設背景（例如日程的背景）；沒給就用 data.js 的 storyBg；劇情裡寫 { bg } 會換掉
+  // 看過的劇情（給「劇情回想」用）：記在 riiiizeReplay，重新開始、時間循環都不會清掉
+  var RKEY = 'riiiizeReplay';
+  function remembered() { try { return JSON.parse(localStorage.getItem(RKEY)) || {}; } catch (e) { return {}; } }
+  function remember(id) { var r = remembered(); if (r[id]) return; r[id] = 1; try { localStorage.setItem(RKEY, JSON.stringify(r)); } catch (e) {} }
   // 兩段劇情之間至少隔 storyGap 毫秒（data.js，預設 2000）：上一段結束到下一段開始
   var lastEnd = 0, waitingPlay = false;
-  function play(id, done, resume, bg) {
+  // opts.replay = 回想：不套用效果、不記旗標、不能存檔、遇到結局就停（設定 → 劇情回想、結局圖鑑）
+  function play(id, done, resume, bg, opts) {
     var steps = (resume && resume.steps) || (D().scenes || {})[id];
+    var replay = !!(opts && opts.replay);
     if (!steps || !steps.length || cur) { done && done(); return; }
     var gap = (D().storyGap != null ? D().storyGap : 2000) - (Date.now() - lastEnd);
-    if (gap > 0 && !resume) { waitingPlay = true; setTimeout(function () { waitingPlay = false; play(id, done, resume, bg); }, gap); return; }
+    if (gap > 0 && !resume && !replay) { waitingPlay = true; setTimeout(function () { waitingPlay = false; play(id, done, resume, bg, opts); }, gap); return; }
     var t = T(), el = document.createElement('div');
     el.className = 'vn';
     el.innerHTML =
@@ -116,13 +122,13 @@
       '<div class="vn-tools"><button type="button" data-vn-auto' + (mode === 'auto' ? ' class="on"' : '') + '>' + esc(t.auto) + '</button>' +
         '<button type="button" data-vn-skip' + (mode === 'skip' ? ' class="on"' : '') + '>' + esc(t.skip) + '</button>' +
         '<button type="button" data-vn-log>' + esc(t.log) + '</button>' +
-        (window.ENDING && window.ENDING.running() ? '' : '<button type="button" data-vn-save>' + esc(t.save) + '</button>') + '</div>' +
+        ((window.ENDING && window.ENDING.running()) || replay ? '' : '<button type="button" data-vn-save>' + esc(t.save) + '</button>') + '</div>' +
       '<div class="vn-choices" id="vn-choices"></div>' +
       '<div class="vn-box" id="vn-box"><div class="vn-who" id="vn-who"></div><div class="vn-text" id="vn-text"></div><i class="vn-next"></i></div>';
     document.getElementById('phone').appendChild(el);
     void el.offsetWidth; el.classList.add('show');
     if (S()) S().setDarkStatus(true);
-    cur = { id: id, steps: steps, i: 0, el: el, log: [], done: done };
+    cur = { id: id, steps: steps, i: 0, el: el, log: [], done: done, replay: replay };
     setBg(bg || D().storyBg || '');   // 預設背景：日程的背景 → data.js 的 storyBg；劇情裡寫 { bg } 會換掉
     if (resume) {
       cur.i = resume.at || 0; cur.log = resume.log || []; cur.resuming = true;
@@ -170,11 +176,11 @@
       cur.resuming = false;   // 從存檔繼續的那一句：效果、旗標存檔時已經套用過，不重複
       if (!resumed && !ok(s.if)) continue;
       if (s.end) break;
-      if (s.ending) { cur.ending = s.ending; break; }   // 進入結局（js/ending.js）
+      if (s.ending) { if (!cur.replay) cur.ending = s.ending; break; }   // 進入結局（js/ending.js）；回想時只停下來
       if (s.label != null && s.text == null) continue;
       if (s.bg != null) setBg(s.bg);
-      if (!resumed && s.effects && window.GAME) window.GAME.apply(s.effects);
-      if (!resumed && s.flag && S()) [].concat(s.flag).forEach(function (f) { S().setFlag(f); });
+      if (!resumed && !cur.replay && s.effects && window.GAME) window.GAME.apply(s.effects);
+      if (!resumed && !cur.replay && s.flag && S()) [].concat(s.flag).forEach(function (f) { S().setFlag(f); });
       if (s.goto && s.text == null && !s.choices) { var k = findLabel(s.goto); if (k >= 0) cur.i = k; continue; }
       if (s.wait && s.text == null) { pause(s.wait); return; }
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
@@ -269,8 +275,8 @@
     var box = cur.el.querySelector('#vn-choices');
     box.classList.remove('show'); box.innerHTML = '';
     cur.log.push({ choice: true, text: fill(c.text) });
-    if (window.GAME) window.GAME.apply(c.effects);
-    if (c.flag && S()) [].concat(c.flag).forEach(function (f) { S().setFlag(f); });
+    if (window.GAME && !cur.replay) window.GAME.apply(c.effects);
+    if (c.flag && S() && !cur.replay) [].concat(c.flag).forEach(function (f) { S().setFlag(f); });
     if (c.goto) { var k = findLabel(c.goto); if (k >= 0) cur.i = k; }
     step();
   }
@@ -281,7 +287,7 @@
     cur = null;
     lastEnd = Date.now();
     document.getElementById('phone').classList.remove('story-full');
-    if (S()) S().setFlag('scene_' + c.id);
+    if (S() && !c.replay) { S().setFlag('scene_' + c.id); remember(c.id); }
     c.el.classList.remove('show');
     setTimeout(function () { c.el.remove(); }, 400);
     if (S()) S().setDarkStatus(false);
@@ -452,6 +458,13 @@
       setTimeout(function () { if (location.hash === h) clue(c); }, ms);
     },
     play: play, fill: fill, playerName: playerName,
+    // 回想：replay(劇情id, 播完, 背景)；seenScenes() = 看過的劇情 { id: 1 }（包含這一輪的 scene_ 旗標）
+    replay: function (id, done, bg) { play(id, done, null, bg, { replay: true }); },
+    seenScenes: function () {
+      var r = remembered();
+      try { Object.keys(JSON.parse(localStorage.getItem('riiiize-flags')) || {}).forEach(function (k) { if (k.indexOf('scene_') === 0) r[k.slice(6)] = 1; }); } catch (e) {}
+      return r;
+    },
     askName: askName, askBirthday: askBirthday,
     playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },
     // 劇情、輸入名字、日程選單、結局畫面進行中（KakaoTalk 橫幅、來電會等這些結束）

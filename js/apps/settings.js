@@ -1,6 +1,7 @@
 /* 設定（iPhone「設定」風格）
  *   #/settings         遊戲進度（第幾天）、存檔與讀檔、語言、重新開始
  *   #/settings/saves   存檔與讀檔：每天早上的自動存檔＋好幾格手動存檔（格數 = data.js 的 game.saveSlots）
+ *   #/settings/replay  劇情回想：看過的劇情分類列出，點一下重看（不改好感、旗標）
  *   #/settings/wallpaper  背景圖片：鎖定畫面、主畫面各自換一張自己的照片，或恢復預設
  *   #/settings/stats   數值（開發用）：看、調整隱藏數值、跳天數；data.js 的 game.debug 設成 false 就不會出現
  * 存檔放在 riiiizeSaves，「重新開始」不會清掉 */
@@ -16,6 +17,7 @@
     wrench: '<svg viewBox="0 0 24 24"><path d="M14.5 3.5a5 5 0 0 0-4.7 6.7L3.6 16.4a1.9 1.9 0 0 0 2.7 2.7l6.2-6.2a5 5 0 0 0 6.7-4.7l-2.9 2.9-2.7-.7-.7-2.7z" fill="#fff"/></svg>',
     star: '<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="#fff"/></svg>',
     image: '<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5" stroke="#fff" stroke-width="1.8" fill="none"/><circle cx="9" cy="10" r="1.7" fill="#fff"/><path d="M4 17l5-5 4 4 2.5-2.5L20 18" stroke="#fff" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
+    book: '<svg viewBox="0 0 24 24"><path d="M5 4.5h5.5a2.5 2.5 0 0 1 2.5 2.5v13a2 2 0 0 0-2-2H5z M19 4.5h-5.5A2.5 2.5 0 0 0 11 7v13a2 2 0 0 1 2-2h6z" stroke="#fff" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     restart: '<svg viewBox="0 0 24 24"><path d="M5.5 9A7.5 7.5 0 1 1 4.6 14" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M4 4.5v5h5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
 
@@ -33,6 +35,7 @@
     dayLabel: '第 {n} 天', savedAt: '存於 {t}',
     statsTitle: '數值（開發用）', statsNote: '玩家看不到這一頁。正式公開前把 data.js 的 game.debug 改成 false。',
     day: '第幾天', aff: '好感度', awake: '覺醒度（在手機裡找到線索才會增加，到 3 = 覺醒）', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
+    replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
     gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談',
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
@@ -69,6 +72,7 @@
         row(ICON.save, '#007aff', esc(t.savesTitle), '', 'data-st-go="#/settings/saves"', true) +
         row(ICON.image, '#30b0c7', esc(t.wallpaper), '', 'data-st-go="#/settings/wallpaper"', true) +
         (window.ENDING ? row(ICON.star, '#ff9500', esc(t.gallery), '', 'data-st-go="#/settings/gallery"', true) : '') +
+        row(ICON.book, '#af52de', esc(t.replay), '', 'data-st-go="#/settings/replay"', true) +
       '</div>' +
       ((D().game || {}).debug ? '<div class="st-group">' + row(ICON.wrench, '#34c759', esc(t.statsTitle), '', 'data-st-go="#/settings/stats"', true) + '</div>' : '') +
       '<div class="st-group">' +
@@ -197,6 +201,65 @@
   }
 
   /* ---- 結局圖鑑 ---- */
+  /* ---- 劇情回想：看過的劇情分類列出，點一下重看（回想模式：不改好感、旗標，不能存檔） ---- */
+  function replayGroups() {
+    var d = D(), sc = d.scenes || {}, plan = d.plan || {}, cast = d.cast || [];
+    var acts = {}; (plan.activities || []).forEach(function (a) { acts[a.id] = a; });
+    acts.home = { label: '回家', bg: plan.homeBg };
+    var byId = {}, byNo = {}; cast.forEach(function (c) { byId[c.id] = c; byNo[c.no] = c; });
+    var nameOf = function (c) { return c ? c.short || c.name : ''; };
+    var md = function (x) { var p = String(x).split('-'); return (+p[0]) + '/' + (+p[1]); };
+    var ord = function (x) { var m = +String(x).slice(0, 2); return (m >= 9 ? m - 9 : m + 3) * 100 + (+String(x).slice(3, 5)); };
+    var first = function (id) { var st = (sc[id] || []).filter(function (x) { return x.text; })[0]; return st ? window.STORY.fill(st.text) : ''; };
+    var groups = [];
+    var main = (d.story || []).filter(function (e) { return sc[e.scene] && e.scene !== 'final_choice'; }).slice()
+      .sort(function (a, b) { return ord(a.date) - ord(b.date) || (a.phase === 'morning' ? -1 : 1); })
+      .map(function (e) { return { id: e.scene, label: md(e.date), sub: first(e.scene), bg: e.activity && acts[e.activity] ? acts[e.activity].bg : '' }; });
+    if (sc.final_choice) main.push({ id: 'final_choice', label: '8/31', sub: '最後的選擇' });
+    groups.push({ title: '主線', items: main });
+    var hb = (plan.holidays || []).filter(function (h) { return sc[h.scene]; }).map(function (h) { return { o: ord(h.date), id: h.scene, label: md(h.date), sub: h.title }; })
+      .concat(cast.filter(function (c) { return sc['birthday_' + c.id]; }).map(function (c) { return { o: ord(c.birthday), id: 'birthday_' + c.id, label: md(c.birthday), sub: nameOf(c) + '生日' }; }))
+      .sort(function (a, b) { return a.o - b.o; });
+    if (sc.birthday_me) hb.push({ id: 'birthday_me', label: '', sub: '我的生日' });
+    groups.push({ title: '節日與生日', items: hb });
+    var wk = (plan.weekend || {});
+    groups.push({ title: '星期日', items: cast.filter(function (c) { return sc['wk_' + c.id]; }).map(function (c) { return { id: 'wk_' + c.id, label: '', sub: '和' + nameOf(c) + '出門', bg: wk.bg }; })
+      .concat(sc.wk_home ? [{ id: 'wk_home', label: '', sub: '待在家', bg: plan.homeBg }] : []) });
+    var actOrder = (plan.activities || []).map(function (a) { return a.id; }).concat(['home']);
+    var fixed = [], rand = [];
+    Object.keys(sc).forEach(function (k) {
+      var m = /^act_(\w+?)_(\d+)$/.exec(k), r = /^rand_(\w+?)_(\w+)$/.exec(k);
+      if (m && acts[m[1]]) fixed.push({ o: actOrder.indexOf(m[1]) * 1000 + (+m[2]), id: k, label: acts[m[1]].label, sub: '第 ' + m[2] + ' 次', bg: acts[m[1]].bg });
+      if (r && acts[r[1]]) rand.push({ o: actOrder.indexOf(r[1]) * 1000 + (r[2] === 'me' ? 999 : r[2].length * 100 + (+r[2])), id: k, label: acts[r[1]].label,
+        sub: r[2] === 'me' ? '跟自己對話' : r[2].split('').map(function (n) { var c = byNo[+n]; return c ? (c.emoji || nameOf(c)) : n; }).join(''), bg: acts[r[1]].bg });
+    });
+    var by = function (a, b) { return a.o - b.o; };
+    groups.push({ title: '日程（第幾次）', items: fixed.sort(by) });
+    groups.push({ title: '日程（隨機）', items: rand.sort(by) });
+    var aw = [];
+    Object.keys(sc).forEach(function (k) { var m = /^awake_(m\d)_(\d)$/.exec(k); if (m) aw.push({ o: (+m[1].slice(1)) * 10 + (+m[2]), id: k, label: nameOf(byId[m[1]]), sub: '線索 ' + m[2], bg: 'phone-dim' }); });
+    groups.push({ title: '覺醒線索', items: aw.sort(by) });
+    return groups;
+  }
+  function renderReplay() {
+    var t = T(), seen = window.STORY.seenScenes(), body = '';
+    replayGroups().forEach(function (g) {
+      if (!g.items.length) return;
+      var got = g.items.filter(function (it) { return seen[it.id]; }).length;
+      body += '<div class="st-sec">' + esc(g.title) + '<span>' + esc(t.replayCount.replace('{n}', got).replace('{all}', g.items.length)) + '</span></div><div class="st-group st-rp">' +
+        g.items.map(function (it) {
+          var open = !!seen[it.id];
+          return '<button type="button" class="st-slot st-rp-item"' + (open ? ' data-rp="' + esc(it.id) + '" data-rpbg="' + esc(it.bg || '') + '"' : ' disabled') + '>' +
+            '<b>' + esc(it.label) + (it.label && it.sub ? '　' : '') + (open ? esc(it.sub) : '<span class="st-dim">' + esc(t.locked) + '</span>') + '</b></button>';
+        }).join('') + '</div>';
+    });
+    S().$('#settings-overlay').innerHTML = '';
+    S().$('#settings-scroll').innerHTML =
+      '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
+      '<h1 class="st-h1 st-h1-s">' + esc(t.replay) + '</h1>' +
+      '<div class="st-note st-note-top">' + esc(t.replayNote) + '</div>' + body;
+  }
+
   function renderGallery() {
     var t = T(), all = window.ENDING.list(), g = window.ENDING.gallery(), got = 0, total = 0, body = '';
     Object.keys(all).forEach(function (id) {
@@ -263,6 +326,7 @@
   function route(parts) {
     S().$('#settings-scroll').scrollTop = 0;
     if (parts[0] === 'gallery' && window.ENDING) { renderGallery(); return; }
+    if (parts[0] === 'replay' && window.STORY) { renderReplay(); return; }
     if (parts[0] === 'stats' && (D().game || {}).debug) renderStats();
     else if (parts[0] === 'saves') renderSaves();
     else if (parts[0] === 'wallpaper') renderWallpaper();
@@ -293,7 +357,8 @@
       renderStats(); return;
     }
     if (e.target.closest('[data-st-plan]')) { window.PLAN.openPlanner(renderStats); return; }
-    if ((el = e.target.closest('[data-replay]'))) { window.STORY.play(el.dataset.replay); return; }
+    if ((el = e.target.closest('[data-replay]'))) { window.STORY.replay(el.dataset.replay); return; }   // 結局圖鑑：回想模式
+    if ((el = e.target.closest('[data-rp]'))) { window.STORY.replay(el.dataset.rp, null, el.dataset.rpbg || ''); return; }   // 劇情回想
     if ((el = e.target.closest('[data-st-scene]'))) { window.STORY.play(el.dataset.stScene, renderStats); return; }
     if (e.target.closest('[data-st-rename]')) {
       var n = prompt(t.renameTitle, window.STORY.playerName());
