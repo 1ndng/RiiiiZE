@@ -249,6 +249,7 @@ const TESTS = [
   ['覺醒線索：看到 IG 貼文 1 秒 → 覺醒度 +1，劇情加覺醒度無效', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'night' } }));
     await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked');
+      delete SITE_DATA.clues.m4_2;   // 這個測試只測「看到 1 秒就算」：拿掉 m4_2 的強制聊天
       SITE_DATA.instagram.searchOnlyAccounts.filter(a => a.username === 'bin032')[0].posts.push({ images: ['images/cast/m4.jpg'], caption: '線索', time: '9月20日', clue: 'm4_2' });
       GAME.apply({ awake: { m4: 5 } }); });
     if (await p.evaluate(() => GAME.stat('awake', 'm4')) !== 0) throw new Error('劇情效果不該加覺醒度');
