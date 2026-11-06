@@ -54,6 +54,8 @@ async function open(browser, base, seed, opt) {
   return page;
 }
 // 進度的基本設定：已經過了開場
+// 9/7 晚上的聊天已經聊完（從 9/7 晚上直接睡覺的測試用）
+const NIGHT7_FLAGS = { alarm_done: 1, intro_done: 1, 'daychat_09-07': 1, daychat_0907_helper: 1 };
 function played(extra) {
   return Object.assign({
     'riiiize-player': { name: '測試', birthday: '10-14' },
@@ -140,7 +142,7 @@ const TESTS = [
     const days = { '09-08': 'club', '09-09': 'volunteer', '09-10': 'sports', '09-11': 'council', '09-12': 'games' };
     // 每個日程都已經去過 1 次（第 2 次不是固定劇情），回家也去過 1 次；隨機劇情關掉
     const visits = { club: 1, volunteer: 1, sports: 1, council: 1, games: 1, home: 1 };
-    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-stats': { visits } }));
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits } }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     await p.waitForSelector('.wk', { timeout: 8000 });
     const rows = await p.$$eval('.wk li', a => a.length);
@@ -153,7 +155,7 @@ const TESTS = [
   }],
   ['日程固定劇情：第 5 次去社團那天停下來播', async (b, base) => {
     const days = { '09-08': 'club' };
-    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-stats': { visits: { club: 4 } } }));
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 4 } } }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     let seen = '';
     const first = await p.evaluate(() => SITE_DATA.scenes.act_club_5[0].text);
@@ -164,7 +166,7 @@ const TESTS = [
   }],
   ['隨機劇情：機率 100% 時每週回顧標「有事發生」', async (b, base) => {
     const days = { '09-08': 'club', '09-09': 'club', '09-10': 'club', '09-11': 'club', '09-12': 'club' };
-    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-stats': { visits: { club: 10 } } }));
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 10 } } }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     await p.waitForSelector('.wk', { timeout: 8000 });
     const ev = await p.$$eval('.wk li.ev', a => a.length);
