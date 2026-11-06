@@ -89,6 +89,35 @@
     return true;
   }
 
+  /* ---- App 圖示的紅點：IG、X、相簿、備忘錄出現「後來才有的內容」（寫了 from 或 if、現在看得到），
+   *      而且玩家還沒點進那個 App 看過 → 圖示右上角有紅點；點進去就消失。記在 riiiize-newseen（重新開始、時間循環會清掉） */
+  var NEW_APPS = ['ig', 'x', 'photos', 'notes'], NEW_KEY = 'riiiize-newseen';
+  function newSeen() { try { return JSON.parse(localStorage.getItem(NEW_KEY)) || {}; } catch (e) { return {}; } }
+  function dynamicKeys(app) {
+    var out = [], dyn = function (x) { return x && typeof x === 'object' && (x.from != null || x.if != null) && unlocked(x); };
+    if (app === 'ig') {
+      var I = D.instagram || {};
+      [I].concat(I.otherAccounts || [], I.searchOnlyAccounts || []).forEach(function (a) {
+        ['posts', 'bio', 'highlights'].forEach(function (f) {
+          (a[f] || []).forEach(function (x, i) { if (dyn(x)) out.push('ig/' + a.username + '/' + f + i); });
+        });
+      });
+    }
+    if (app === 'x') ((D.x || {}).tweets || []).forEach(function (t) {
+      if (dyn(t)) out.push('x/' + t.id);
+      (t.replies || []).forEach(function (r, i) { if (dyn(r)) out.push('x/' + t.id + '/r' + i); });
+    });
+    if (app === 'photos') ((D.photos || {}).photos || []).forEach(function (p, i) { if (dyn(p)) out.push('ph/' + i); });
+    if (app === 'notes') ((D.notes || {}).notes || []).forEach(function (n) { if (dyn(n)) out.push('nt/' + n.id); });
+    return out;
+  }
+  function hasNew(app) { var seen = newSeen(); return dynamicKeys(app).some(function (k) { return !seen[k]; }); }
+  function markSeen(app) {
+    var seen = newSeen(), keys = dynamicKeys(app), changed = false;
+    keys.forEach(function (k) { if (!seen[k]) { seen[k] = 1; changed = true; } });
+    if (changed) try { localStorage.setItem(NEW_KEY, JSON.stringify(seen)); } catch (e) {}
+  }
+
   function renderHome() {
     var h = D.home;
     var home = $('#home');
@@ -99,7 +128,7 @@
       // 行事曆下面的 App 圖示（有名稱，一排 4 個，上到下、左到右照 data.js 的 home.icons 排）
       ((h.icons || []).length ? '<div class="home-grid">' + h.icons.map(function (a) {
         return '<a class="app-icon" href="#/' + esc(a.id) + '" aria-label="' + esc(a.label) + '">' +
-          '<img src="' + esc(a.icon) + '" alt=""><span>' + esc(a.label) + '</span></a>';
+          '<img src="' + esc(a.icon) + '" alt="">' + (NEW_APPS.indexOf(a.id) >= 0 && hasNew(a.id) ? '<i class="app-dot"></i>' : '') + '<span>' + esc(a.label) + '</span></a>';
       }).join('') + '</div>' : '') +
       // 晚上才有「睡覺」：結束這一天
       (window.GAME ? '<button type="button" class="home-sleep" id="home-sleep" data-sleep>' + ICON_MOON + '<span>' + esc((D.game || {}).sleepLabel || '睡覺') + '</span></button>' : '');
@@ -112,6 +141,7 @@
     if (b) b.hidden = !window.GAME || window.GAME.phase !== 'night' || window.GAME.ended === 'explore';   // 喚醒結局之後不能再睡覺換天
   }
   if (window.GAME) window.GAME.onChange(paintSleep);
+  if (window.GAME) window.GAME.onChange(function () { paintDots(); });   // 換天：新內容出現 → 紅點
 
   /* ---------------- 睡覺：確認 → 畫面變暗、顯示隔天日期 → 鎖定畫面 ---------------- */
   function askSleep() {
@@ -1501,7 +1531,17 @@
     return el;
   }
 
+  // 回到主畫面：重新判斷每個 App 的紅點
+  function paintDots() {
+    document.querySelectorAll('.home-grid .app-icon').forEach(function (a) {
+      var id = (a.getAttribute('href') || '').replace('#/', ''), dot = a.querySelector('.app-dot');
+      var on = NEW_APPS.indexOf(id) >= 0 && hasNew(id);
+      if (on && !dot) { dot = document.createElement('i'); dot.className = 'app-dot'; a.insertBefore(dot, a.querySelector('span')); }
+      else if (!on && dot) dot.remove();
+    });
+  }
   function showHome() {
+    paintDots();
     document.querySelectorAll('.app.open').forEach(function (a) {
       a.classList.remove('open');
       a.style.transform = '';
@@ -1536,6 +1576,7 @@
   function doRoute() {
     var parts = location.hash.replace(/^#\/?/, '').split('/');
     stopStory();
+    if (NEW_APPS.indexOf(parts[0]) >= 0) markSeen(parts[0]);   // 點進 App：紅點消失
     if (APPS[parts[0]]) {
       openApp(parts[0]);
       APPS[parts[0]](parts.slice(1).map(decodeURIComponent));

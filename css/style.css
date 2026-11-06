@@ -121,6 +121,9 @@ img { display: block; max-width: 100%; }
 /* 行事曆下面的 App 圖示（四欄，下面有名稱） */
 .home-grid { position: absolute; left: 22px; right: 22px; top: 252px; display: grid; grid-template-columns: repeat(4, 1fr); row-gap: 22px; justify-items: center; }
 .home-grid .app-icon { display: flex; flex-direction: column; align-items: center; gap: 5px; }
+/* 有新內容的紅點（js/app.js 的 hasNew） */
+.home-grid .app-icon { position: relative; }
+.app-dot { position: absolute; top: -4px; left: calc(50% + 22px); width: 14px; height: 14px; border-radius: 50%; background: #ff3b30; border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); }
 .home-grid .app-icon span { color: #fff; font-size: 12px; text-shadow: 0 1px 3px rgba(0,0,0,.4); white-space: nowrap; }
 
 /* ============ App 容器（開/關動畫） ============ */

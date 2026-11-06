@@ -590,6 +590,29 @@ window.SITE_DATA = {
     //   if = 條件（好感度、天數…，格式見 cast 的說明），成立才會傳
     //   常用旗標：phone_unlocked（解鎖手機）、chat_聊天室id、locked_帳號
     live: [
+      // 客服小精靈：每個月第一個星期日晚上（解鎖手機後）傳兩句：這個月的提醒＋模糊的提示（Claude 草稿）
+      { id: "helper_1005_1", when: "phone_unlocked", if: { date: "10-05", phase: "night" }, room: "helper", text: "十月了！這個月學生會要開始忙校慶囉。" },
+      { id: "helper_1005_2", when: "phone_unlocked", if: { date: "10-05", phase: "night" }, room: "helper", delay: 1500, text: "對了，置頂的東西、刪掉的東西，有時候比你想的還重要喔。" },
+      { id: "helper_1102_1", when: "phone_unlocked", if: { date: "11-02", phase: "night" }, room: "helper", text: "十一月，校慶月！月曆排好了嗎？" },
+      { id: "helper_1102_2", when: "phone_unlocked", if: { date: "11-02", phase: "night" }, room: "helper", delay: 1500, text: "大家的 IG 主頁，最近有沒有哪裡不太一樣？" },
+      { id: "helper_1207_1", when: "phone_unlocked", if: { date: "12-07", phase: "night" }, room: "helper", text: "十二月了，天氣變冷，記得多穿一點。" },
+      { id: "helper_1207_2", when: "phone_unlocked", if: { date: "12-07", phase: "night" }, room: "helper", delay: 1500, text: "行事曆上的每一個行程，你都記得是自己加的嗎？" },
+      { id: "helper_0104_1", when: "phone_unlocked", if: { date: "01-04", phase: "night" }, room: "helper", text: "新年快樂！寒假也要好好玩～" },
+      { id: "helper_0104_2", when: "phone_unlocked", if: { date: "01-04", phase: "night" }, room: "helper", delay: 1500, text: "手機裡的每一個角落，都值得再看一次。" },
+      { id: "helper_0201_1", when: "phone_unlocked", if: { date: "02-01", phase: "night" }, room: "helper", text: "二月了，寒假還剩一點點。" },
+      { id: "helper_0201_2", when: "phone_unlocked", if: { date: "02-01", phase: "night" }, room: "helper", delay: 1500, text: "有些話，是只對你說的。仔細看看聊天室吧。" },
+      { id: "helper_0301_1", when: "phone_unlocked", if: { date: "03-01", phase: "night" }, room: "helper", text: "新學期要開始了！" },
+      { id: "helper_0301_2", when: "phone_unlocked", if: { date: "03-01", phase: "night" }, room: "helper", delay: 1500, text: "最近刪除的東西，有時候不是真的想刪掉。" },
+      { id: "helper_0405_1", when: "phone_unlocked", if: { date: "04-05", phase: "night" }, room: "helper", text: "四月，運動會的季節！" },
+      { id: "helper_0405_2", when: "phone_unlocked", if: { date: "04-05", phase: "night" }, room: "helper", delay: 1500, text: "你有多久沒看大家的 X 了？" },
+      { id: "helper_0503_1", when: "phone_unlocked", if: { date: "05-03", phase: "night" }, room: "helper", text: "五月了，期末考加油！" },
+      { id: "helper_0503_2", when: "phone_unlocked", if: { date: "05-03", phase: "night" }, room: "helper", delay: 1500, text: "上鎖的東西，通常有它上鎖的理由。" },
+      { id: "helper_0607_1", when: "phone_unlocked", if: { date: "06-07", phase: "night" }, room: "helper", text: "六月，畢業的季節。" },
+      { id: "helper_0607_2", when: "phone_unlocked", if: { date: "06-07", phase: "night" }, room: "helper", delay: 1500, text: "想記住的東西，就記下來吧。備忘錄、相簿、行事曆，都可以。" },
+      { id: "helper_0705_1", when: "phone_unlocked", if: { date: "07-05", phase: "night" }, room: "helper", text: "暑假開始了！瘋狂玩樂吧！" },
+      { id: "helper_0705_2", when: "phone_unlocked", if: { date: "07-05", phase: "night" }, room: "helper", delay: 1500, text: "如果你發現了什麼，記得告訴他們。" },
+      { id: "helper_0802_1", when: "phone_unlocked", if: { date: "08-02", phase: "night" }, room: "helper", text: "八月了。這一年，快要結束了。" },
+      { id: "helper_0802_2", when: "phone_unlocked", if: { date: "08-02", phase: "night" }, room: "helper", delay: 1500, text: "還有沒找到的東西嗎？時間不多了喔。" },
       // 覺醒線索 m6_1（燦榮）：12/7 星期日晚上突然傳來一句話；玩家回任何話 → 觸發
       { id: "anton_1207", when: "phone_unlocked", if: { date: "12-07", phase: "night" }, room: "f6", text: "你有看過〈Another Life〉的歌詞嗎？", flag: "anton_1207" }
     ],
