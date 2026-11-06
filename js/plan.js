@@ -569,11 +569,12 @@
       Object.keys(fx.pair).forEach(function (k) { pair[k] = (pair[k] || 0) + fx.pair[k]; });
     });
     var num = function (x) { return '+' + (Math.round(x * 10) / 10); };
-    var short = function (id) { var c = cast().filter(function (x) { return x.id === id; })[0] || {}; return c.short || c.name || id; };
+    // 用成員的 emoji 表示（cast 的 emoji；沒寫就用名字）
+    var short = function (id) { var c = cast().filter(function (x) { return x.id === id; })[0] || {}; return c.emoji || c.short || c.name || id; };
     var order = cast().map(function (c) { return c.id; });
     var a = order.filter(function (id) { return aff[id]; }).map(function (id) { return '<span>' + esc(short(id)) + ' <b>' + num(aff[id]) + '</b></span>'; });
     var pr = Object.keys(pair).sort(function (x, y) { return pair[y] - pair[x]; }).map(function (k) {
-      var ab = k.split('-'); return '<span>' + esc(short(ab[0])) + '×' + esc(short(ab[1])) + ' <b>' + num(pair[k]) + '</b></span>';
+      var ab = k.split('-'); return '<span>' + esc(short(ab[0])) + esc(short(ab[1])) + ' <b>' + num(pair[k]) + '</b></span>';
     });
     if (!a.length) return '<p>' + esc(t.weekNoGain) + '</p>';
     return '<div class="wk-gain"><i>' + esc(t.weekAff) + '</i>' + a.join('') + '</div>' +
