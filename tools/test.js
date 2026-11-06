@@ -80,7 +80,7 @@ function played(extra) {
 async function chatThrough(page, ms) {
   const end = Date.now() + (ms || 40000);
   while (Date.now() < end) {
-    if (await page.$('[data-kdaydone]')) return true;
+    if (await page.evaluate(() => !(window.SOSHO_KAKAO && SOSHO_KAKAO.dayChatting()))) return true;   // 聊完了（自動進入下一天）
     const chip = await page.$('#kk-choices .kk-chip:not([data-kdaydone])');
     if (chip) { await chip.click().catch(() => {}); await sleep(200); await page.click('.kk-send').catch(() => {}); }
     await sleep(400);
@@ -136,9 +136,9 @@ const TESTS = [
     const bday = await p.evaluate(() => JSON.parse(localStorage.getItem('riiiize-player')).birthday.replace('-', ''));
     await unlock(p, bday);
     if (!(await p.$('.vn'))) throw new Error('解鎖後沒有開場劇情');
-    await clickStory(p, async () => p.evaluate(() => INTRO.exploring()));
+    await clickStory(p, async () => p.evaluate(() => INTRO.exploring()), 200);   // 中間有停在手機畫面的 3、2、2 秒
     await p.evaluate(() => location.hash = '#/kakao'); await sleep(1500);
-    const ok = await clickStory(p, async () => (await text(p, '.vn-text') || '').indexOf('7:58') >= 0, 80);
+    const ok = await clickStory(p, async () => (await text(p, '.vn-text') || '').indexOf('校門') >= 0, 120);
     if (!ok) throw new Error('打開 KakaoTalk 後沒有進到 9/1');
     return p;
   }],
@@ -147,7 +147,7 @@ const TESTS = [
     await clickStory(p, async () => (await p.evaluate(() => location.hash)).indexOf('#/kakao/chat/') === 0, 250);   // 中間有元彬的出場動畫（9 秒）
     if (await p.evaluate(() => location.hash) !== '#/kakao/chat/f4') throw new Error('沒有跳到元彬的聊天室');
     if (!(await chatThrough(p))) throw new Error('每日聊天沒有聊完');
-    await p.click('[data-kdaydone]'); await sleep(3500);
+    await sleep(3500);   // 聊完自動進入下一天（沒有「繼續」）
     const g = await game(p); if (g.day !== 2) throw new Error('沒有進入 9/2，現在第 ' + g.day + ' 天');
     return p;
   }],

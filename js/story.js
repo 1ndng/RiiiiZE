@@ -94,7 +94,7 @@
     if (!who) return '';
     if (who === 'me') return playerName() || T().defaultName;
     var c = (D().cast || []).filter(function (x) { return x.id === who; })[0];
-    return c ? (c.short || c.name) : who;   // 劇情裡只顯示名字（cast 的 short）
+    return c ? (c.short || c.name) : fill(who);   // 劇情裡只顯示名字（cast 的 short）；直接寫名字的可以用 {name}
   }
   function ok(c) { return !c || !window.GAME || window.GAME.check(c); }
 
@@ -183,6 +183,7 @@
       if (!resumed && !cur.replay && s.flag && S()) [].concat(s.flag).forEach(function (f) { S().setFlag(f); });
       if (s.goto && s.text == null && !s.choices) { var k = findLabel(s.goto); if (k >= 0) cur.i = k; continue; }
       if (s.wait && s.text == null) { pause(s.wait); return; }
+      if (s.hold && s.text == null) { hold(s.hold); return; }
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
       if (s.intro) { if (introVideo(s.intro)) return; continue; }
       if (s.choices) { showChoices(s.choices); return; }
@@ -249,6 +250,19 @@
     setTimeout(function () {
       if (cur !== mine) return;
       cur.waiting = false; box.classList.remove('hide');
+      step();
+    }, ms);
+  }
+  // 停在手機畫面：整個劇情畫面（對話框、按鈕、變暗）先消失，這段時間點什麼都沒反應，時間到再出現
+  function hold(ms) {
+    var mine = cur;
+    cur.waiting = true; cur.el.classList.add('vn-hold');
+    if (S()) S().setDarkStatus(false);
+    if (mode === 'skip') ms = 60;
+    setTimeout(function () {
+      if (cur !== mine) return;
+      cur.waiting = false; cur.el.classList.remove('vn-hold');
+      if (S()) S().setDarkStatus(true);
       step();
     }, ms);
   }
@@ -394,6 +408,7 @@
 
   document.addEventListener('click', function (e) {
     if (!cur || !cur.el.contains(e.target)) return;
+    if (cur.el.classList.contains('vn-hold')) return;   // 停在手機畫面的時間：點什麼都沒反應
     var b;
     if (e.target.closest('.vn-save')) return;
     if (e.target.closest('[data-vn-save]')) { openSave(); return; }

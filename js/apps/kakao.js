@@ -332,10 +332,10 @@
     var f = friend(openChatId), box = document.getElementById('kk-choices'), form = document.getElementById('kk-form');
     if (!f || !box || !form) return;
     var set = activeChoices(f), t = TX();
-    // 每日聊天：聊完 → 輸入框換成「繼續」；聊天中 → 不能自己打字
+    // 每日聊天：聊完 → 等一下自動進入下一天（不能打字、沒有按鈕）；聊天中 → 不能自己打字
     if (dcAfter && dcRoom === f.id) {
-      box.hidden = false; box.classList.add('kk-done-bar'); form.style.display = 'none';
-      box.innerHTML = '<button type="button" class="kk-chip kk-daydone" data-kdaydone>' + esc(t.dayChatDone || '繼續') + '</button>';
+      box.hidden = true; box.innerHTML = ''; form.style.display = '';
+      form.m.readOnly = true; form.m.placeholder = t.inputPlaceholder;
       return;
     }
     form.style.display = ''; box.classList.remove('kk-done-bar');
@@ -426,7 +426,7 @@
 
   /* ---- 每日聊天（data.js 的 kakao.dayChats）：那天的主線劇情結束後，自動打開聊天室跑一段聊天 ----
    * 由 js/plan.js 在晚上呼叫；聊天進行中不能離開聊天室；聊完：
-   *   不能用手機的日子 → 出現「繼續」，按了進入下一天
+   *   不能用手機的日子 → 最後一則出現後自動進入下一天（等 endWait 毫秒，不寫 = 1.5 秒；沒有「繼續」按鈕）
    *   能用手機的日子（星期日）→ 直接自由使用手機
    * 進度存在 riiiize-kakao 的 dayChat（重新整理會從中斷的地方繼續） */
   var dc = null;   // { def, room, i, ask, done, free }
@@ -505,10 +505,12 @@
     var d = dc;
     S().setFlag(dayChatKey(d.def));
     dc = null;
-    // 星期日：聊完直接自由使用手機（返回鍵回來了）；其他日子：輸入框換成「繼續」，按了進入下一天
+    // 星期日：聊完直接自由使用手機（返回鍵回來了）；其他日子：最後一則出現後等 endWait 毫秒（不寫 = 1.5 秒）自動進入下一天
     if (!d.free) { dcAfter = d.done; dcRoom = d.room; }
     if (openChatId === d.room) renderChat(d.room);
-    if (d.free) d.done();
+    if (d.free) { d.done(); return; }
+    var fn = d.done;
+    setTimeout(function () { if (dcAfter !== fn) return; dcAfter = null; dcRoom = null; fn(); }, d.def.endWait != null ? d.def.endWait : 1500);
   }
   var dcAfter = null;
   // 每日聊天進行中：離開聊天室 → 拉回來
@@ -737,7 +739,6 @@
     // 通話：電話鍵或點通話紀錄 → 語音通話
     var kp = e.target.closest('[data-kprof]');
     if (kp && !e.target.closest('.kk-prof')) { openProfile(kp.dataset.kprof); return; }
-    if (e.target.closest('[data-kdaydone]') && dcAfter) { var fn = dcAfter; dcAfter = null; dcRoom = null; fn(); return; }   // 「繼續」→ 下一天
     if (e.target.closest('[data-kmembers]') && openChatId) { openMembers(friend(openChatId)); return; }
     if (e.target.closest('[data-kdclose]')) { closeMembers(); return; }
     var kc = e.target.closest('[data-kcall]');

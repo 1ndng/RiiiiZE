@@ -57,6 +57,8 @@ window.SITE_DATA = {
    *   { effects: { … } } / { flag: "旗標" }  套用效果、記錄旗標（畫面上不顯示）
    *   { end: true }                         劇情到這裡結束
    *   { ending: "結局id" }                   劇情到這裡結束，進入結局
+   *   { hold: 2000 }                        停在手機畫面幾毫秒：對話框、按鈕、變暗都先消失，這段時間點什麼都沒反應
+   *   文字裡寫 \n = 同一個對話框裡換行
    *   { intro: "m1" }                       播成員的出場介紹動畫（影片和介紹台詞寫在下面的 introVideos）
    *   文字裡寫 {name} = 玩家的名字（第一次開始遊戲時輸入，接著輸入生日）
    *   播完會記錄旗標 scene_劇情id
@@ -91,7 +93,8 @@ window.SITE_DATA = {
   // 第一次遊玩的開場（js/intro.js）：打開這些 App 就結束自由探索、開始 9/1
   //   seeMs = 探索時看到成員的照片多久（毫秒）就想起來、結束探索（KakaoTalk 一打開、IG／X 成員主頁、相簿裡寫了 cast 的照片）
   //   dayTime = 開場結束、進入 9/1 時手機上的時間
-  intro: { seeMs: 1000, dayTime: "7:58" },
+  //   endWait = 看到成員的照片、觸發探索結束後，到開場最後一段劇情開始前的空白（毫秒；這段時間點什麼都沒反應）
+  intro: { seeMs: 1000, dayTime: "7:58", endWait: 2000 },
   // 劇情都搬到 js/story/ 了：每個月一個檔案（2025-09.js…2026-08.js），日程（schedule.js）、星期日（weekend.js）、覺醒反應（awake.js）、結局（ending.js）
   scenes: {
 
@@ -317,6 +320,8 @@ window.SITE_DATA = {
       //     { activity: "sports", if: { pair: { "m3-m4": ">=100" } }, scene: "sp_m3_m4" },
       //     { activity: "club", date: "10-15", title: "社團發表會", scene: "sp_club_show" }
     ],
+    // 黑底日期畫面上多顯示一行字的日子
+    dayLabels: { "09-01": "開學日" },
     holidays: [
       { date: "05-05", title: "兒童節",  scene: "h0505" },
       { date: "02-17", title: "설날",  scene: "h0217" },

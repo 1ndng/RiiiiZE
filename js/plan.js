@@ -481,7 +481,11 @@
     void f.offsetWidth; f.classList.add('show');
     return f;
   }
-  function dateHTML(day) { var d = dateOf(day); return '<div><b>' + (d.getMonth() + 1) + '月' + d.getDate() + '日</b><span>' + esc(G().weekday(d)) + '</span></div>'; }
+  // 黑底日期畫面：日期、星期；plan.dayLabels 有寫的日子多一行（例如 9/1「開學日」）
+  function dateHTML(day) {
+    var d = dateOf(day), key = ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2), label = (C().dayLabels || {})[key];
+    return '<div><b>' + (d.getMonth() + 1) + '月' + d.getDate() + '日</b><span>' + esc(G().weekday(d)) + '</span>' + (label ? '<em class="day-label">' + esc(label) + '</em>' : '') + '</div>';
+  }
   // 不能用手機的日子：蓋在主畫面上的黑底日期畫面（劇情在它上面播）
   function stage(day) {
     var el = document.getElementById('day-stage');

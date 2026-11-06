@@ -126,8 +126,12 @@
   }
   function endExplore() {
     exploring = false;
-    // 開場最後一段：播完 → 變黑、顯示 9/1 → 開始 9/1
+    // 開場最後一段：先停 2 秒（data.js 的 intro.endWait；這段時間點什麼都沒反應）→ 播完 → 變黑、顯示 9/1 → 開始 9/1
+    var block = document.createElement('div');
+    block.className = 'ob-block';
+    document.getElementById('phone').appendChild(block);
     setTimeout(function () {
+      block.remove();
       window.STORY.play('intro_end', function () {
         S().setFlag('intro_done');
         var n = nextFn; nextFn = null;
@@ -136,7 +140,7 @@
         if (location.hash !== '#/home') location.hash = '#/home';
         setTimeout(function () { n && n(); }, 300);
       });
-    }, 500);
+    }, (D().intro || {}).endWait != null ? D().intro.endWait : 2000);
   }
   /* 探索中「看到成員的照片」超過 1 秒（data.js 的 intro.seeMs）→ 想起來，探索結束
    *   KakaoTalk：一打開就是（好友列表上有成員的大頭照）
@@ -167,8 +171,17 @@
   function onCalendar(date) {
     if (!exploring || (window.STORY.playing && document.querySelector('.vn'))) return;
     var md = ('0' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + date.getDate()).slice(-2);
-    var hit = (D().cast || []).some(function (c) { var m = /(\d+)\D+(\d+)/.exec(c.birthday || ''); return m && ('0' + m[1]).slice(-2) + '-' + ('0' + m[2]).slice(-2) === md; });
-    if (hit) window.STORY.play('intro_bday');
+    var hit = (D().cast || []).filter(function (c) { var m = /(\d+)\D+(\d+)/.exec(c.birthday || ''); return m && ('0' + m[1]).slice(-2) + '-' + ('0' + m[2]).slice(-2) === md; })[0];
+    // 只跳出一次（點別的成員也不會再跳）；{member} = 點到的成員的名字
+    var steps = (D().scenes || {}).intro_bday;
+    if (!hit || !steps || S().hasFlag('intro_bday_seen')) return;
+    S().setFlag('intro_bday_seen');
+    D().scenes.__intro_bday = steps.map(function (st) {
+      var o = {}; Object.keys(st).forEach(function (k) { o[k] = st[k]; });
+      if (typeof o.text === 'string') o.text = o.text.replace(/\{member\}/g, hit.short || hit.name);
+      return o;
+    });
+    window.STORY.play('__intro_bday');
   }
 
   window.INTRO = {

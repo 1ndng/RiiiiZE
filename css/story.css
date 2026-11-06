@@ -112,3 +112,7 @@
   55%  { backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px); background: rgba(255,255,255,.15); }
   100% { backdrop-filter: blur(0); -webkit-backdrop-filter: blur(0); background: rgba(255,255,255,0); }
 }
+/* 停在手機畫面（劇情步驟 { hold: 毫秒 }）：整個劇情畫面看不見，但還蓋著手機（點了沒反應） */
+.vn.show.vn-hold { opacity: 0; }
+.vn-text { white-space: pre-line; }
+.ob-block { position: absolute; inset: 0; z-index: 60; }
