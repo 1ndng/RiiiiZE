@@ -61,11 +61,26 @@ function played(extra) {
     'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days: {} }
   }, extra || {});
 }
+// 每日聊天：遇到選項就選第一個、送出，直到出現「繼續」
+async function chatThrough(page, ms) {
+  const end = Date.now() + (ms || 40000);
+  while (Date.now() < end) {
+    if (await page.$('[data-kdaydone]')) return true;
+    const chip = await page.$('#kk-choices .kk-chip:not([data-kdaydone])');
+    if (chip) { await chip.click().catch(() => {}); await sleep(200); await page.click('.kk-send').catch(() => {}); }
+    await sleep(400);
+  }
+  return false;
+}
 // 一直點劇情對話框，直到 until() 成立（或沒有對話框了）
-async function clickStory(page, until, max) {
+// choose = 遇到選項就點第一個（不寫 = 停在選項）
+async function clickStory(page, until, max, choose) {
   for (let i = 0; i < (max || 60); i++) {
     if (until && await until()) return true;
-    if (await page.$('[data-vn-choice]')) return !!(until && await until());
+    if (await page.$('[data-vn-choice]')) {
+      if (!choose) return !!(until && await until());
+      await page.click('[data-vn-choice]', { timeout: 2000 }).catch(() => {}); await sleep(300); continue;
+    }
     const vn = await page.$('.vn');
     if (!vn) { if (!until) return true; await sleep(300); continue; }
     await page.click('.vn', { timeout: 2000 }).catch(() => {});
@@ -116,7 +131,7 @@ const TESTS = [
     const p = await open(b, base, played({ 'riiiize-plan': { months: {}, days: {} } }));
     await clickStory(p, async () => (await p.evaluate(() => location.hash)).indexOf('#/kakao/chat/') === 0, 80);
     if (await p.evaluate(() => location.hash) !== '#/kakao/chat/f4') throw new Error('沒有跳到元彬的聊天室');
-    await p.waitForSelector('[data-kdaydone]', { timeout: 20000 });
+    if (!(await chatThrough(p))) throw new Error('每日聊天沒有聊完');
     await p.click('[data-kdaydone]'); await sleep(3500);
     const g = await game(p); if (g.day !== 2) throw new Error('沒有進入 9/2，現在第 ' + g.day + ' 天');
     return p;
@@ -141,8 +156,9 @@ const TESTS = [
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-stats': { visits: { club: 4 } } }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     let seen = '';
-    for (let i = 0; i < 30 && seen.indexOf('第5次') < 0; i++) { seen = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(300); }
-    if (seen.indexOf('第5次') < 0) throw new Error('沒有播社團第 5 次的劇情');
+    const first = await p.evaluate(() => SITE_DATA.scenes.act_club_5[0].text);
+    for (let i = 0; i < 30 && seen.indexOf(first) < 0; i++) { seen = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(300); }
+    if (seen.indexOf(first) < 0) throw new Error('沒有播社團第 5 次的劇情');
     const g = await game(p); if (g.day !== 8) throw new Error('應該停在 9/8，現在第 ' + g.day + ' 天');
     return p;
   }],
@@ -155,14 +171,15 @@ const TESTS = [
     if (ev !== 5) throw new Error('5 天都應該有事發生，只有 ' + ev + ' 天');
     await p.click('[data-wk-go]'); await sleep(800);
     const t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || '');
-    if (t.indexOf('待寫') < 0) throw new Error('按繼續後沒有播隨機劇情');
+    const firsts = await p.evaluate(() => Object.keys(SITE_DATA.scenes).filter(k => k.indexOf('rand_club_') === 0).map(k => SITE_DATA.scenes[k][0].text));
+    if (!firsts.some(f => t.indexOf(f.slice(0, 8)) >= 0)) throw new Error('按繼續後沒有播隨機劇情：' + t.slice(0, 40));
     return p;
   }],
   ['星期日：選人出門 → 22:00 鎖定畫面 → 解鎖', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'morning' } }));
     await clickStory(p, async () => !!(await p.$('.sch')));
     await p.click('.sch-cast button >> nth=1'); await p.click('[data-go]'); await sleep(800);
-    await clickStory(p, async () => !!(await p.$('#lock')));
+    await clickStory(p, async () => !!(await p.$('#lock')), 80, true);
     if (await text(p, '#lc-time') !== '22:00') throw new Error('鎖定畫面時間不是 22:00');
     await unlock(p, '1014');
     if (await p.$('#lock')) throw new Error('沒有解鎖');
