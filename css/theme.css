@@ -174,7 +174,19 @@
 .wk-in button { margin-top: 14px; width: 100%; padding: 12px; border-radius: 14px; font: inherit; font-size: 16px; background: var(--pk-plate) !important; color: #7a3d66 !important; border: 2px solid var(--pk-plate-line) !important; font-weight: 700; box-shadow: 0 4px 10px rgba(185, 114, 159, .3); }
 
 /* ---------- 標題畫面 ---------- */
-.title-scr { position: absolute; inset: 0; z-index: 99; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 56px; padding: 0 36px; background: #e9d6e3 center / cover no-repeat; opacity: 0; transition: opacity .45s; font-family: "Kaisei Decol", "Noto Serif TC", serif; }
+.title-scr { position: absolute; inset: 0; z-index: 99; overflow: hidden; background: #e9d6e3; opacity: 0; transition: opacity .45s; font-family: "Kaisei Decol", "Noto Serif TC", serif; container-type: size; }
+/* 標題圖：9:16 完整顯示在中間；旁邊用同一張圖放大模糊填滿 */
+.title-blur { position: absolute; inset: -30px; background: center / cover no-repeat; filter: blur(18px) brightness(.95); }
+.title-art { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100cqw, 100cqh * 9 / 16); aspect-ratio: 9 / 16; background: center / 100% 100% no-repeat; }
+/* 圖上的粉紅框：按鈕放在裡面（位置寫在 data.js 的 title.box） */
+.title-box { position: absolute; display: flex; align-items: center; justify-content: center; padding: 4% 12%; container-type: size; }
+/* 按鈕大小跟著框的高度縮放：最多三個按鈕都要放得進去 */
+.title-box .title-btns { gap: 6cqh; max-width: 240px; width: 100%; }
+.title-box button { display: flex; align-items: center; justify-content: center; padding: 0 12px; height: 25cqh; max-height: 40px; border-radius: 12px; font-size: min(16px, 12cqh); line-height: 1; box-shadow: 0 2px 6px rgba(120, 50, 95, .22); }
+.title-box button.quiet { font-size: min(14px, 10.5cqh); }
+/* 沒有框、或讀檔清單／確認視窗：蓋在畫面中間 */
+.title-layer { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 56px; padding: 0 36px; pointer-events: none; }
+.title-layer > * { pointer-events: auto; }
 .title-scr.show { opacity: 1; }
 .title-logo { text-align: center; color: #fff; text-shadow: 0 2px 16px rgba(120, 50, 95, .55), 0 1px 3px rgba(120, 50, 95, .4); }
 .title-logo b { display: block; font-size: 58px; font-weight: 700; letter-spacing: 2px; line-height: 1.1; }

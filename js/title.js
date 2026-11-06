@@ -17,7 +17,7 @@
       name: 'RiiiiZE', subtitle: '拉完子學院', bg: '',
       start: '開始遊戲', cont: '繼續', load: '讀取存檔', restart: '從頭開始', back: '返回',
       autoSave: '自動存檔', loopSave: '循環前的存檔', slot: '存檔 {n}', noSaves: '還沒有存檔',
-      restartTitle: '要從頭開始嗎？', restartText: '目前的進度會清除，回到第 1 天。存檔會保留。', ok: '從頭開始', cancel: '取消'
+      restartTitle: '要從頭開始嗎？', restartText: '目前的進度會清除，回到第 1 天。\n存檔會保留。', ok: '從頭開始', cancel: '取消'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
     return d;
@@ -33,23 +33,32 @@
     if (skip) { done(); return; }
     var t = T(), el = document.createElement('div'), phone = document.getElementById('phone');
     el.className = 'title-scr';
-    var bg = t.bg || (D().home || {}).wallpaper || '';
-    el.style.backgroundImage = 'linear-gradient(rgba(255,240,248,.15), rgba(120,50,95,.35)), url("' + bg + '")';
+    var bg = t.bg || (D().home || {}).wallpaper || '', bx = t.box || null;
+    // 標題圖照 9:16 完整顯示（不裁切）；螢幕比例不同時，旁邊用同一張圖模糊填滿
+    // 有 box（圖上的框）→ 按鈕放進框裡、不打遊戲名稱；沒有 box → 跟以前一樣置中顯示名稱和按鈕
+    el.innerHTML = '<div class="title-blur" style="background-image:url(\'' + esc(bg) + '\')"></div>' +
+      '<div class="title-art" style="background-image:url(\'' + esc(bg) + '\')">' +
+        (bx ? '<div class="title-box" style="left:' + bx.left + '%;top:' + bx.top + '%;width:' + bx.width + '%;height:' + bx.height + '%"></div>' : '') +
+      '</div><div class="title-layer"></div>';
+    var box = el.querySelector('.title-box'), layer = el.querySelector('.title-layer');
     phone.appendChild(el);
     phone.classList.add('story-full');
     void el.offsetWidth; el.classList.add('show');
 
     function main() {
       var saves = G() ? G().saves() : { slots: {} }, any = saves.auto || saves.loop || Object.keys(saves.slots || {}).length;
-      el.innerHTML = '<div class="title-logo"><b>' + esc(t.name) + '</b><span>' + esc(t.subtitle) + '</span></div>' +
-        '<div class="title-btns">' +
+      var btns = '<div class="title-btns">' +
           (hasProgress()
             ? '<button type="button" data-t="go">' + esc(t.cont) + '</button>'
             : '<button type="button" data-t="go">' + esc(t.start) + '</button>') +
           (any ? '<button type="button" data-t="load">' + esc(t.load) + '</button>' : '') +
           (hasProgress() ? '<button type="button" class="quiet" data-t="restart">' + esc(t.restart) + '</button>' : '') +
         '</div>';
+      if (box) { box.innerHTML = btns; layer.innerHTML = ''; }
+      else layer.innerHTML = '<div class="title-logo"><b>' + esc(t.name) + '</b><span>' + esc(t.subtitle) + '</span></div>' + btns;
     }
+    // 讀檔清單、確認從頭開始：蓋在畫面中間（框裡的按鈕先收起來）
+    function panel(html) { if (box) box.innerHTML = ''; layer.innerHTML = html; }
     function loadList() {
       var s = G().saves(), rows = '', n = G().slots();
       function row(id, label, slot) {
@@ -58,14 +67,14 @@
       if (s.auto) rows += row('auto', t.autoSave, s.auto);
       if (s.loop) rows += row('loop', t.loopSave, s.loop);
       for (var i = 1; i <= n; i++) if (s.slots[i]) rows += row(i, t.slot.replace('{n}', i), s.slots[i]);
-      el.innerHTML = '<div class="title-panel"><b>' + esc(t.load) + '</b>' +
+      panel('<div class="title-panel"><b>' + esc(t.load) + '</b>' +
         '<div class="title-list">' + (rows || '<p>' + esc(t.noSaves) + '</p>') + '</div>' +
-        '<button type="button" class="quiet" data-t="back">' + esc(t.back) + '</button></div>';
+        '<button type="button" class="quiet" data-t="back">' + esc(t.back) + '</button></div>');
     }
     function confirmRestart() {
-      el.innerHTML = '<div class="title-panel"><b>' + esc(t.restartTitle) + '</b><p>' + esc(t.restartText) + '</p>' +
+      panel('<div class="title-panel"><b>' + esc(t.restartTitle) + '</b><p>' + esc(t.restartText).replace(/\n/g, '<br>') + '</p>' +
         '<div class="title-btns"><button type="button" data-t="restart-ok">' + esc(t.ok) + '</button>' +
-        '<button type="button" class="quiet" data-t="back">' + esc(t.cancel) + '</button></div></div>';
+        '<button type="button" class="quiet" data-t="back">' + esc(t.cancel) + '</button></div></div>');
     }
     function close() {
       el.classList.remove('show');

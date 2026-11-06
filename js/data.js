@@ -65,7 +65,12 @@ window.SITE_DATA = {
    * 下面「（待寫）」的都是空白劇情，直接把台詞寫進去就好
    */
   // 標題畫面（js/title.js）：name = 遊戲名稱、subtitle = 副標、bg = 背景（不寫 = 主畫面桌布）
-  title: { name: "RiiiiZE", subtitle: "拉完子學院", bg: "" },
+  title: {
+    name: "RiiiiZE", subtitle: "拉完子學院",
+    bg: "images/ui/title.jpg",   // 標題圖（9:16；圖上已經有遊戲名稱，所以畫面上不再打字）
+    // 按鈕放在圖上的粉紅框裡：框在圖上的位置（百分比，從左上角算）；換圖時改這裡
+    box: { left: 5.7, top: 28.9, width: 88.5, height: 22.7 }
+  },
   storyGap: 2000,                // 兩段劇情之間至少隔幾毫秒（上一段結束到下一段開始）
   storySpeed: 22,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
   storyBg: "images/bg/school.jpg",   // 劇情的預設背景（手機以外的畫面都用這張）；劇情裡寫 { bg: "…" } 可以換，{ bg: "phone" } = 直接看到手機畫面
