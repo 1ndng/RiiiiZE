@@ -305,6 +305,24 @@ const TESTS = [
     if (await p.$('[data-kback]')) throw new Error('不該有返回鍵');
     return p;
   }],
+  ['出場動畫：開口第一句之後播影片，3 秒出現介紹台詞，播完一起消失再接下一句', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' } }));
+    await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.scenes.__intro = [{ who: 'm1', text: '嗨' }, { intro: 'm1' }, { text: '影片之後' }]; STORY.play('__intro'); });
+    await sleep(2600); await p.evaluate(() => document.getElementById('vn-box').click()); await sleep(800);
+    if (!(await p.$('.vn-intro video'))) throw new Error('沒有出現影片');
+    const t0 = Date.now(); let capAt = null;
+    while (Date.now() - t0 < 15000 && await p.$('.vn-intro')) {
+      const r = await p.evaluate(() => { const v = document.querySelector('.vn-intro video'); return v ? { t: v.currentTime, on: document.querySelector('.vn-intro-cap').classList.contains('on') } : null; });
+      if (r && r.on && capAt == null) capAt = r.t;
+      await sleep(150);
+    }
+    if (capAt == null || capAt < 2.9 || capAt > 3.6) throw new Error('介紹台詞出現的時間：' + capAt);
+    if (await p.$('.vn-intro')) throw new Error('影片播完沒有消失');
+    await sleep(300);
+    const t = await text(p, '#vn-text');
+    if (!/影片之後/.test(t || '')) throw new Error('影片之後的台詞：' + t);
+    return p;
+  }],
   ['App 內容：from 日期之前看不到', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' } }));
     const r = await p.evaluate(() => [GAME.unlocked({ from: '09-15' }), GAME.unlocked({ from: '09-05' }), GAME.unlocked({ if: { loop: '>=2' } })]);

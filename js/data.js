@@ -57,6 +57,7 @@ window.SITE_DATA = {
    *   { effects: { … } } / { flag: "旗標" }  套用效果、記錄旗標（畫面上不顯示）
    *   { end: true }                         劇情到這裡結束
    *   { ending: "結局id" }                   劇情到這裡結束，進入結局
+   *   { intro: "m1" }                       播成員的出場介紹動畫（影片和介紹台詞寫在下面的 introVideos）
    *   文字裡寫 {name} = 玩家的名字（第一次開始遊戲時輸入，接著輸入生日）
    *   播完會記錄旗標 scene_劇情id
    * story：主線劇情。date = 哪一天（"09-01"）、phase = "morning" 早上／"afterschool" 放學
@@ -70,6 +71,16 @@ window.SITE_DATA = {
     bg: "images/ui/title.jpg",   // 標題圖（9:16；圖上已經有遊戲名稱，所以畫面上不再打字）
     // 按鈕放在圖上的粉紅框裡：框在圖上的位置（百分比，從左上角算）；換圖時改這裡
     box: { left: 5.7, top: 28.9, width: 88.5, height: 22.7 }
+  },
+  // 成員出場介紹動畫（劇情裡寫 { intro: "m1" } 的地方播；js/story.js）
+  //   影片 9:16；播到 captionAt 毫秒時介紹台詞出現在影片的粉紅框裡，影片播完台詞和影片一起消失
+  //   box = 粉紅框在影片上的位置（百分比，從左上角算）；caption 用 \n 換行
+  //   播放中點畫面沒反應（快轉模式會直接跳過）；音效關掉時影片靜音
+  introVideo: { captionAt: 3000, box: { left: 30, top: 65, width: 54.4, height: 13.8 } },
+  introVideos: {
+    m1: { video: "videos/intro_m1.mp4", caption: "姓名：大﨑將太郎\n生日：11月25日\n常出沒的地點：社團活動、學生會、網咖" },
+    m2: { video: "videos/intro_m2.mp4", caption: "姓名：宋恩奭\n生日：3月19日\n常出沒的地點：志工活動、學生會、網咖" },
+    m3: { video: "videos/intro_m3.mp4", caption: "姓名：鄭成燦\n生日：9月13日\n常出沒的地點：學生會、體育館、KTV" }
   },
   storyGap: 2000,                // 兩段劇情之間至少隔幾毫秒（上一段結束到下一段開始）
   storySpeed: 22,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）

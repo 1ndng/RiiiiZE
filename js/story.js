@@ -184,12 +184,49 @@
       if (s.goto && s.text == null && !s.choices) { var k = findLabel(s.goto); if (k >= 0) cur.i = k; continue; }
       if (s.wait && s.text == null) { pause(s.wait); return; }
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
+      if (s.intro) { if (introVideo(s.intro)) return; continue; }
       if (s.choices) { showChoices(s.choices); return; }
       if (s.shake) shake();
       if (s.headache) headache();
       if (s.text != null) { say(s.who, s.text, resumed); return; }
     }
     finish();
+  }
+  /* 成員出場介紹動畫（data.js 的 introVideo、introVideos）：對話框收起來，影片蓋在畫面上；
+   *   播到 captionAt 時介紹台詞淡入粉紅框，播完影片和台詞一起淡出，接下一句。播放中點畫面沒反應 */
+  function introVideo(id) {
+    var v = (D().introVideos || {})[id], cfg = D().introVideo || {}, b = cfg.box || {};
+    if (!v || !v.video || mode === 'skip') return false;   // 沒有影片、快轉中：跳過
+    var mine = cur, box = cur.el.querySelector('#vn-box'), done = false;
+    cur.waiting = true; box.classList.add('hide');
+    var w = document.createElement('div');
+    w.className = 'vn-intro';
+    w.innerHTML = '<div class="vn-intro-frame"><video playsinline webkit-playsinline preload="auto"></video>' +
+      '<div class="vn-intro-cap" style="left:' + (b.left || 0) + '%;top:' + (b.top || 0) + '%;width:' + (b.width || 100) + '%;height:' + (b.height || 20) + '%">' +
+      esc(fill(v.caption || '')).replace(/\n/g, '<br>') + '</div></div>';
+    cur.el.appendChild(w);
+    var vid = w.querySelector('video'), cap = w.querySelector('.vn-intro-cap'), at = cfg.captionAt != null ? cfg.captionAt : 3000;
+    vid.src = v.video;
+    vid.muted = !(window.SOSHO_SOUND ? window.SOSHO_SOUND.on() : true);
+    void w.offsetWidth; w.classList.add('show');
+    function end() {
+      if (done) return; done = true;
+      w.classList.remove('show');   // 影片和台詞一起淡出
+      setTimeout(function () {
+        w.remove();
+        if (cur !== mine) return;
+        cur.waiting = false; box.classList.remove('hide');
+        step();
+      }, 400);
+    }
+    vid.addEventListener('timeupdate', function () { if (vid.currentTime * 1000 >= at) cap.classList.add('on'); });
+    vid.addEventListener('ended', end);
+    vid.addEventListener('error', end);
+    var p = vid.play();
+    // 瀏覽器不讓有聲音的影片自動播：改成靜音再播；還是不行就跳過
+    if (p && p.catch) p.catch(function () { vid.muted = true; var q = vid.play(); if (q && q.catch) q.catch(end); });
+    setTimeout(function () { if (!done && vid.currentTime === 0) end(); }, 15000);   // 影片載不出來：不要卡住
+    return true;
   }
   // 畫面晃動
   function shake() {
