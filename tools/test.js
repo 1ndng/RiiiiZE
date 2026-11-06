@@ -144,7 +144,7 @@ const TESTS = [
   }],
   ['開學週：9/1 劇情 → 元彬的聊天 → 繼續 → 9/2', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-plan': { months: {}, days: {} } }));
-    await clickStory(p, async () => (await p.evaluate(() => location.hash)).indexOf('#/kakao/chat/') === 0, 80);
+    await clickStory(p, async () => (await p.evaluate(() => location.hash)).indexOf('#/kakao/chat/') === 0, 250);   // 中間有元彬的出場動畫（9 秒）
     if (await p.evaluate(() => location.hash) !== '#/kakao/chat/f4') throw new Error('沒有跳到元彬的聊天室');
     if (!(await chatThrough(p))) throw new Error('每日聊天沒有聊完');
     await p.click('[data-kdaydone]'); await sleep(3500);
@@ -299,7 +299,7 @@ const TESTS = [
   }],
   ['強制聊天：不能離開聊天室', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-plan': { months: {}, days: {} } }));
-    await clickStory(p, async () => (await p.evaluate(() => location.hash)).indexOf('#/kakao/chat/') === 0, 80);
+    await clickStory(p, async () => (await p.evaluate(() => location.hash)).indexOf('#/kakao/chat/') === 0, 250);   // 中間有元彬的出場動畫（9 秒）
     await p.evaluate(() => location.hash = '#/home'); await sleep(500);
     if (await p.evaluate(() => location.hash) !== '#/kakao/chat/f4') throw new Error('離開了聊天室');
     if (await p.$('[data-kback]')) throw new Error('不該有返回鍵');

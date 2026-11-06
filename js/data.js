@@ -80,7 +80,10 @@ window.SITE_DATA = {
   introVideos: {
     m1: { video: "videos/intro_m1.mp4", caption: "姓名：大﨑將太郎\n生日：11月25日\n常出沒的地點：社團活動、學生會、網咖" },
     m2: { video: "videos/intro_m2.mp4", caption: "姓名：宋恩奭\n生日：3月19日\n常出沒的地點：志工活動、學生會、網咖" },
-    m3: { video: "videos/intro_m3.mp4", caption: "姓名：鄭成燦\n生日：9月13日\n常出沒的地點：學生會、體育館、KTV" }
+    m3: { video: "videos/intro_m3.mp4", caption: "姓名：鄭成燦\n生日：9月13日\n常出沒的地點：學生會、體育館、KTV" },
+    m4: { video: "videos/intro_m4.mp4", caption: "姓名：朴元彬\n生日：3月2日\n常出沒的地點：社團活動、學生會、體育館" },
+    m5: { video: "videos/intro_m5.mp4", caption: "姓名：李炤熙\n生日：11月21日\n常出沒的地點：\n社團活動、學生會、KTV、網咖" },
+    m6: { video: "videos/intro_m6.mp4", caption: "姓名：李燦榮\n生日：3月21日\n常出沒的地點：\n志工活動、學生會、體育館、KTV" }
   },
   storyGap: 2000,                // 兩段劇情之間至少隔幾毫秒（上一段結束到下一段開始）
   storySpeed: 22,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
