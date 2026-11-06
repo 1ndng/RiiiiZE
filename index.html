@@ -85,9 +85,11 @@
     </div>
   </div>
 
-  <!-- data.js 每次都重新下載，改完內容不會被手機快取卡住 -->
+  <!-- data.js、js/story/ 的劇情每次都重新下載，改完內容不會被手機快取卡住
+       js/story/ 有哪些檔案：寫在 data.js 最下面的 RIIIZE_STORY_FILES -->
   <script>
     document.write('<script src="js/data.js?t=' + Date.now() + '"><\/script>');
+    document.write('<script src="js/story-load.js?t=' + Date.now() + '"><\/script>');
     document.write('<script src="js/game.js?t=' + Date.now() + '"><\/script>');
   </script>
   <script src="js/vendor/opencc-t2cn.js?v=4"></script>
