@@ -166,7 +166,7 @@ window.SITE_DATA = {
     ] } },
     // 6 炤熙（10/1）：最近刪除的照片 → 傳給炤熙「好像忘記傳給你了」
     m5_1: { see: 0, chat: { room: "f5", steps: [
-      { choices: [ { text: "好像忘記傳給你了", image: "images/placeholder.jpg" } ] },
+      { choices: [ { text: "好像忘記傳給你了", image: "images/photos/sohee_deleted.jpg" } ] },
       { text: "{name}", wait: 1400 },
       { text: "這是什麼？" },
       { text: "雖然不記得 但這個視角蠻帥的" },
@@ -516,8 +516,8 @@ window.SITE_DATA = {
         ] },
       { username: "bin032",      cast: "m4", name: "원빈", private: true, following: others(IG_ALL, "bin032"),      bio: [], highlights: [], reposts: [],
         posts: [
-          // 覺醒線索 m4_1：11/12 的新貼文（圖片待換）
-          { images: ["images/placeholder.jpg"], caption: "天氣變冷了", time: "11月12日", from: "11-12", clue: "m4_1" },
+          // 覺醒線索 m4_1：11/12 的新貼文（兩張）
+          { images: ["images/ig/wonbin_20251112_1.jpg", "images/ig/wonbin_20251112_2.jpg"], caption: "天氣變冷了", time: "11月12日", from: "11-12", clue: "m4_1" },
           { images: ["images/ig/wonbin_20250603_1.jpg", "images/ig/wonbin_20250603_2.jpg", "images/ig/wonbin_20250603_3.jpg", "images/ig/wonbin_20250603_4.jpg", "images/ig/wonbin_20250603_5.jpg"], caption: "", time: "6月3日" }   // 第一篇（2025/6/3）
         ] },
       { username: "252525252_",  cast: "m5", name: "이소희", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], reposts: [],
@@ -543,8 +543,8 @@ window.SITE_DATA = {
   photos: {
     hiddenPasscode: "0000",
     photos: [                      // 例：{ image: PH, date: "2025年8月20日", time: "下午 6:40", place: "地點" }
-      // 覺醒線索 m5_1（炤熙）：10 月起出現在「最近刪除」。圖片待換：從舞台上往下看的觀眾席，一片應援燈
-      { image: "images/placeholder.jpg", from: "10-01", deleted: true, deletedDays: 3, clue: "m5_1", date: "2025年10月4日", time: "下午 9:12" }
+      // 覺醒線索 m5_1（炤熙）：10 月起出現在「最近刪除」。炤熙站在高高的牆上張開雙手，背後是空著的觀眾席和一串燈泡（從下往上拍）
+      { image: "images/photos/sohee_deleted.jpg", from: "10-01", deleted: true, deletedDays: 3, clue: "m5_1", date: "2025年10月4日", time: "下午 9:12" }
     ],
     albums: []                     // 例：{ id: "a1", name: "相簿名稱", photos: [0, 1] }
     // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/photos.js 的 T_DEFAULT）
