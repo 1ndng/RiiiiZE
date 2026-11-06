@@ -503,8 +503,11 @@
       stage(day); G().start();
     }
   }
+  var chaining = false;
   function go() {
     if (going) return;
+    // 每日聊天還沒聊完（包括兩段之間的空檔）：不能睡覺
+    if (chaining || (window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting())) return;
     // 8/31 晚上睡覺 = 一年結束 → 時間循環，回到 9/1（例如讀了「循環前的存檔」之後）
     if (G().day >= G().totalDays() && !G().ended) { going = true; G().newLoop(); return; }
     going = true;
@@ -646,12 +649,13 @@
       document.getElementById('phone').classList.remove('locked');
       // 同一天可以有好幾段（照 data.js 的順序）；最後一段聊完：能用手機的日子 → 直接自由使用手機（不用再解鎖）；其他日子 → 進入下一天
       var md = G().md(G().day);
+      chaining = true;   // 一段接一段聊完之前不能睡覺（兩段之間的空檔也不行）
       (function run(c) {
         var last = (D().kakao.dayChats || []).filter(function (x) { return x.date === md; }).slice(-1)[0] === c;
         K.dayChat(c, function () {
           var next = K.dayChatFor(md);
           if (next) setTimeout(function () { run(next); }, 400);
-          else if (!free) setTimeout(go, 300);
+          else { chaining = false; if (!free) setTimeout(go, 300); }
         }, free || !last);
       })(chat);
       return;
