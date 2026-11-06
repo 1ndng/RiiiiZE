@@ -624,6 +624,7 @@
       bindSlide();
     }
     function stop() {
+      if (S().stopBuzz) S().stopBuzz();
       S().setFlag('alarm_done');
       G().setClock(timeNow());   // 手機上的時間從鬧鐘的時間開始走
       el.classList.add('off');
@@ -654,10 +655,12 @@
     el.addEventListener('click', function (e) {
       if (!e.target.closest('[data-snooze]')) return;
       snoozes++;
+      if (S().stopBuzz) S().stopBuzz();
       el.classList.add('sleeping');   // 稍後提醒：暗掉，過一下再響
-      setTimeout(function () { render(); el.classList.remove('sleeping'); }, a.snoozeMs || 4000);
+      setTimeout(function () { render(); el.classList.remove('sleeping'); if (S().buzzRepeat) S().buzzRepeat([500, 300, 500], 1600); }, a.snoozeMs || 4000);
     });
     render();
+    if (S().buzzRepeat) S().buzzRepeat([500, 300, 500], 1600);   // 鬧鐘：一直震到停止
   }
 
   // 晚上：不能用手機的日子 → 直接往後跳

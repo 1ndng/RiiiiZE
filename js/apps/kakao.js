@@ -361,6 +361,7 @@
     msg.day = msg.day || gameDay();
     (st.msgs[id] = st.msgs[id] || []).push(msg);
     S().save(KEY, st);
+    if (msg.from !== 'me' && S().buzzMessage) S().buzzMessage();   // 收到訊息：震一下
   }
 
   // 關鍵字自動回覆：訊息包含任一個 keyword → 依序送出 reply
@@ -543,6 +544,7 @@
       ['text', 'link', 'linkTitle', 'linkSite', 'image', 'clue'].forEach(function (k) { if (ev[k]) msg[k] = ev[k]; });
       msg.day = gameDay();
       (st.msgs[ev.room] = st.msgs[ev.room] || []).push(msg);
+      if (S().buzzMessage) S().buzzMessage();   // 即時訊息：震一下
       var viewing = openChatId === ev.room && location.hash.indexOf('#/kakao/chat/') === 0;
       if (!viewing) st.unread[ev.room] = (st.unread[ev.room] != null ? st.unread[ev.room] : ((friend(ev.room) || {}).unread || 0)) + 1;
       S().save(KEY, st);

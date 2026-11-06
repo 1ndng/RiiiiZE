@@ -89,6 +89,35 @@
     return true;
   }
 
+  /* ---- 震動：收到訊息、來電、鬧鐘（設定裡可以關掉；記在 riiiizeBuzz，重新開始不會清掉）----
+   * Android：navigator.vibrate（照 pattern 震）
+   * iPhone：Safari 不支援震動 API；iOS 18 以上用「開關（switch）切換時的觸覺回饋」代替，只能輕輕「噠」一下，
+   *         而且 iOS 可能只在玩家剛點過畫面時才給回饋（例如背景自己傳來的訊息可能不會震） */
+  var hapticEl = null, buzzTimer = null, lastBuzz = 0;
+  function buzzOn() { try { return localStorage.getItem('riiiizeBuzz') !== 'off'; } catch (e) { return true; } }
+  function iosTap() {
+    if (!hapticEl) {
+      hapticEl = document.createElement('label');
+      hapticEl.setAttribute('aria-hidden', 'true');
+      hapticEl.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none';
+      hapticEl.innerHTML = '<input type="checkbox" switch tabindex="-1">';
+      document.body.appendChild(hapticEl);
+    }
+    hapticEl.click();
+  }
+  function buzz(pattern) {
+    if (!buzzOn()) return;
+    pattern = [].concat(pattern || 80);
+    try { if (navigator.vibrate && navigator.vibrate(pattern)) return; } catch (e) {}
+    var t = 0;   // 沒有震動 API（iPhone）：照 pattern 的每一段「噠」一下
+    pattern.forEach(function (ms, i) { if (i % 2 === 0) setTimeout(iosTap, t); t += ms; });
+  }
+  // 訊息：同一陣子連續傳來的只震一次
+  function buzzMessage() { var now = Date.now(); if (now - lastBuzz < 1500) return; lastBuzz = now; buzz([90]); }
+  // 來電、鬧鐘：一直震到 stopBuzz()
+  function buzzRepeat(pattern, every) { stopBuzz(); buzz(pattern); buzzTimer = setInterval(function () { buzz(pattern); }, every || 1600); }
+  function stopBuzz() { clearInterval(buzzTimer); buzzTimer = null; try { if (navigator.vibrate) navigator.vibrate(0); } catch (e) {} }
+
   /* ---- App 圖示的紅點：IG、X、相簿、備忘錄出現「後來才有的內容」（寫了 from 或 if、現在看得到），
    *      而且玩家還沒點進那個 App 看過 → 圖示右上角有紅點；點進去就消失。記在 riiiize-newseen（重新開始、時間循環會清掉） */
   var NEW_APPS = ['ig', 'x', 'photos', 'notes'], NEW_KEY = 'riiiize-newseen';
@@ -1686,7 +1715,7 @@
   /* ---------------- 啟動 ---------------- */
   // 給 js/apps/*.js 用的共用工具
   window.SOSHO = {
-    data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, forceComment: forceComment, goBack: goBack, replaceHash: replaceHash,
+    data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, forceComment: forceComment, buzz: buzz, buzzMessage: buzzMessage, buzzRepeat: buzzRepeat, stopBuzz: stopBuzz, buzzOn: buzzOn, goBack: goBack, replaceHash: replaceHash,
     setDarkStatus: function (on) { $('#phone').classList.toggle('dark-status', !!on); },
     lock: function (opt) { renderLock(opt); },
     wallpaper: function (kind) { return wallpaperOf(kind); },               // 'home' / 'lock'

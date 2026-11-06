@@ -130,6 +130,7 @@
     if (!f) return;
     call = { f: f, out: false, cfg: c, ov: overlay(f, true), secs: 0, incoming: true };
     status(TX().incoming);
+    if (S().buzzRepeat) S().buzzRepeat([400, 200, 400], 1800);   // 來電：一直震到接起來或掛掉
     // 一直不接 → 當作沒接
     call.timer = setTimeout(decline, c.ringFor || 30000);
   }
@@ -143,6 +144,7 @@
   function accept() {
     if (!call || !call.incoming) return;
     clearTimeout(call.timer);
+    if (S().stopBuzz) S().stopBuzz();
     var c = call.cfg, b = c.branch || {};
     var startNode = b.replied || b.notReplied ? (KK().replied(c.room) ? b.replied : b.notReplied) : (c.start || 'start');
     call.incoming = false;
@@ -236,6 +238,7 @@
   }
   function close() {
     if (!call) return;
+    if (S().stopBuzz) S().stopBuzz();
     clearTimeout(call.timer); clearInterval(call.clock);
     var ov = call.ov;
     call = null;

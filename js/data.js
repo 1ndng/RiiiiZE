@@ -606,6 +606,10 @@ window.SITE_DATA = {
     //   if = 條件（好感度、天數…，格式見 cast 的說明），成立才會傳
     //   常用旗標：phone_unlocked（解鎖手機）、chat_聊天室id、locked_帳號
     live: [
+      // 客服小精靈：9/14 第一次自由使用手機的星期日，介紹新功能（Claude 草稿）
+      { id: "helper_0914_1", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "今天是第一個可以自由用手機的星期日～" },
+      { id: "helper_0914_2", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "小提示：App 圖示右上角出現紅點，就是那裡有新東西喔。" },
+      { id: "helper_0914_3", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "設定裡有「線索收集」和「劇情回想」，想看的時候可以去逛逛。不想要震動的話，也可以在設定裡關掉。" },
       // 客服小精靈：每個月第一個星期日晚上（解鎖手機後）傳兩句：這個月的提醒＋模糊的提示（Claude 草稿）
       { id: "helper_1005_1", when: "phone_unlocked", if: { date: "10-05", phase: "night" }, room: "helper", text: "十月了！這個月學生會要開始忙校慶囉。" },
       { id: "helper_1005_2", when: "phone_unlocked", if: { date: "10-05", phase: "night" }, room: "helper", delay: 1500, text: "對了，置頂的東西、刪掉的東西，有時候比你想的還重要喔。" },
