@@ -238,6 +238,58 @@ window.SITE_DATA = {
     { date: "08-31", phase: "morning",     scene: "final_choice" }                    // 最後一天：喚醒或留下 → 結局
   ],
 
+  /* ---------- 覺醒線索：找到之後要做的事 ----------
+   * key = 線索 id（App 內容寫 clue: "m1_1" 的那個）；1 將太郎 m1、2 恩奭 m2、3 成燦 m3、4 元彬 m4、6 炤熙 m5、7 燦榮 m6
+   *   see = 看到幾毫秒才算（不寫 = 1000；0 = 一看到就算）
+   *   chat = 強制聊天（格式同 kakao.dayChats：room、steps；玩家要傳的話寫成只有一個選項的 choices = 強制傳送）
+   *   comment = 強制 IG 留言 { text: 玩家的留言, reply: { user: 成員帳號, text: 成員回覆 } }
+   *   onReply = 玩家在這個聊天室主動回任何話才觸發（after = 要先有的旗標）
+   * 做完 → 那位成員覺醒度 +1、記錄旗標 clue_線索 → 播 scenes.awake_線索（沒寫就不播）
+   * 第一個線索（10～12 月）：
+   *   m1_1 10 月 置頂備忘錄（備忘錄 n_council）     m2_1 11 月 IG 簡介 ☃️（seokkkk）
+   *   m3_1 12 月 行事曆 12/21「合練」（Claude 暫定）  m4_1 11 月 IG 新貼文（bin032）
+   *   m5_1 10 月 最近刪除的照片（Claude 暫定）        m6_1 12/7 星期日 燦榮突然傳訊息、玩家回話
+   */
+  clues: {
+    m1_1: { see: 0, chat: { room: "f1", steps: [
+      { choices: [ { text: "將太郎，你看這個……我手機裡怎麼會有這個？\n\n「學生會 交接備忘\n・第 7 屆成果發表：完成\n・會長交接：將太郎 → ？？？\n・記得跟將太郎說：明年也要一起站在台上」" } ] },
+      { text: "這是……學生會的交接？", wait: 1200 },
+      { text: "好奇怪" },
+      { text: "我好像真的聽誰說過「明年也要一起站在台上」" },
+      { text: "可是完全想不起來是什麼時候" }
+    ] } },
+    m2_1: { see: 0, chat: { room: "f2", steps: [
+      { choices: [
+        { text: "還沒聖誕節耶，你怎麼就把雪人掛上簡介了", if: { day: "<113" } },
+        { text: "簡介的雪人好應景啊，看不出你是這樣的人", if: { day: [113, 119] } },
+        { text: "聖誕節都過了，你簡介怎麼還掛著雪人", if: { day: ">119" } }
+      ] },
+      { text: "雪人？", wait: 1200 },
+      { text: "我沒改過簡介啊" },
+      { text: "……怎麼回事" }
+    ] } },
+    m3_1: { chat: { room: "f3", steps: [
+      { choices: [ { text: "我行事曆上 12/21 多了一個「🦌 合練 22:00」，是你加的嗎？" } ] },
+      { text: "合練？", wait: 1200 },
+      { text: "不是我啊，我們又沒有要一起練什麼" },
+      { text: "可是好奇怪" },
+      { text: "看到這兩個字，腳好像自己就想動起來" }
+    ] } },
+    m4_1: { see: 0, comment: { text: "這張好好看！下次也帶我去", reply: { user: "bin032", text: "@briiii1ze._ ……奇怪，好像有人跟我說過一模一樣的話" } } },
+    m5_1: { see: 0, chat: { room: "f5", steps: [
+      { choices: [ { text: "炤熙，這張照片是你傳給我的嗎？我在最近刪除裡找到的", image: "images/placeholder.jpg" } ] },
+      { text: "……這是哪裡？", wait: 1400 },
+      { text: "我們社團表演從來沒站過這麼大的舞台吧" },
+      { text: "可是這個角度" },
+      { text: "好像就是我站的位置" }
+    ] } },
+    m6_1: { see: 0, onReply: "f6", after: "anton_1207", chat: { room: "f6", steps: [
+      { text: "？", wait: 1500 },
+      { text: "等等，我什麼時候傳的" },
+      { text: "好像有印象……又好像沒有" }
+    ] } }
+  },
+
   /* ---------- 每月安排與日程 ----------
    * 9/7 之後（planFrom 那天起）每個月開始時跳出月曆：把日程方塊拖到星期一～六，一天一個；沒放 = 回家
    *   星期日、過去的日子、主線強制日程的日子不能放
@@ -291,7 +343,7 @@ window.SITE_DATA = {
     gift: { aff: 6, pair: 15 },
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
     homeMilestones: [1, 10, 30, 50],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
-    /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（可以重複觸發；一天最多一段）
+    /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（可以重複觸發；每一項各自擲，中的都播）
      *   寫編號：單人 "1"、配對 "14"（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮）；回家寫 "me"（跟自己對話）
      *   劇情寫在 scenes.rand_日程_編號（例如 rand_club_14、rand_home_me）；沒寫劇情的不會觸發
      *   被跳過的日子觸發的，在「這週的放學後」之後依序播 */
@@ -398,7 +450,10 @@ window.SITE_DATA = {
     //   noEvents = 那天沒有行程時顯示的字（不寫 = 空白）
     //   想改顯示的字：weekdays（星期日～六）、months（一月～十二月）、weekHeads（一～日）
     calendar: {
-      events: []
+      events: [
+        // 覺醒線索 m3_1（成燦）：12 月起，12/21 多了一個玩家沒加過的行程
+        { date: "2025-12-21", title: "🦌 合練 22:00", from: "12-01", clue: "m3_1" }
+      ]
     },
     // 行事曆下面的 App 圖示（有名稱；一排 4 個，照這裡的順序上到下、左到右排）
     icons: [
@@ -519,7 +574,7 @@ window.SITE_DATA = {
     ],
     // 其他成員的帳號：只能從名單、搜尋點進去看，不能登入（不寫 password）
     searchOnlyAccounts: [
-      { username: "seokkkk",     cast: "m2", name: "BLACK SHADOW", private: true, following: others(IG_ALL, "seokkkk"),     bio: [], highlights: [], reposts: [],
+      { username: "seokkkk",     cast: "m2", name: "BLACK SHADOW", private: true, following: others(IG_ALL, "seokkkk"),     bio: [ { text: "☃️", from: "11-01", clue: "m2_1" } ],   // 覺醒線索 m2_1：11 月起簡介多了雪人 highlights: [], reposts: [],
         posts: [
           { images: ["images/ig/eunseok_20250709_1.jpg", "images/ig/eunseok_20250709_2.jpg", "images/ig/eunseok_20250709_3.jpg", "images/ig/eunseok_20250709_4.jpg"], caption: "", time: "7月9日" }   // 第一篇（2025/7/9）
         ] },
@@ -529,6 +584,8 @@ window.SITE_DATA = {
         ] },
       { username: "bin032",      cast: "m4", name: "원빈", private: true, following: others(IG_ALL, "bin032"),      bio: [], highlights: [], reposts: [],
         posts: [
+          // 覺醒線索 m4_1：11/12 的新貼文（圖片待換）
+          { images: ["images/placeholder.jpg"], caption: "天氣變冷了", time: "11月12日", from: "11-12", clue: "m4_1" },
           { images: ["images/ig/wonbin_20250603_1.jpg", "images/ig/wonbin_20250603_2.jpg", "images/ig/wonbin_20250603_3.jpg", "images/ig/wonbin_20250603_4.jpg", "images/ig/wonbin_20250603_5.jpg"], caption: "", time: "6月3日" }   // 第一篇（2025/6/3）
         ] },
       { username: "252525252_",  cast: "m5", name: "이소희", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], reposts: [],
@@ -553,7 +610,10 @@ window.SITE_DATA = {
    */
   photos: {
     hiddenPasscode: "0000",
-    photos: [],                    // 例：{ image: PH, date: "2025年8月20日", time: "下午 6:40", place: "地點" }
+    photos: [                      // 例：{ image: PH, date: "2025年8月20日", time: "下午 6:40", place: "地點" }
+      // 覺醒線索 m5_1（炤熙）：10 月起出現在「最近刪除」。圖片待換：從舞台上往下看的觀眾席，一片應援燈
+      { image: "images/placeholder.jpg", from: "10-01", deleted: true, deletedDays: 3, clue: "m5_1", date: "2025年10月4日", time: "下午 9:12" }
+    ],
     albums: []                     // 例：{ id: "a1", name: "相簿名稱", photos: [0, 1] }
     // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/photos.js 的 T_DEFAULT）
   },
@@ -600,7 +660,11 @@ window.SITE_DATA = {
    */
   notes: {
     passcode: "0000",
-    notes: []                      // 例：{ id: "n1", text: "標題\n內容", date: "2025年9月1日", time: "下午 3:20", pinned: true }
+    notes: [                       // 例：{ id: "n1", text: "標題\n內容", date: "2025年9月1日", time: "下午 3:20", pinned: true }
+      // 覺醒線索 m1_1（將太郎）：10 月起出現在置頂，玩家沒印象寫過
+      { id: "n_council", from: "10-01", pinned: true, clue: "m1_1", date: "2024年12月3日", time: "下午 5:47",
+        text: "學生會 交接備忘\n・第 7 屆成果發表：完成\n・會長交接：將太郎 → ？？？\n・記得跟將太郎說：明年也要一起站在台上" }
+    ]
   },
 
   /* ---------- KakaoTalk ---------- */
@@ -612,7 +676,10 @@ window.SITE_DATA = {
     //   unless = 有這個旗標就不傳；unlessSent = 某則即時訊息已傳過就不傳
     //   if = 條件（好感度、天數…，格式見 cast 的說明），成立才會傳
     //   常用旗標：phone_unlocked（解鎖手機）、kakao_unlocked、chat_聊天室id、login_帳號、public_帳號
-    live: [],
+    live: [
+      // 覺醒線索 m6_1（燦榮）：12/7 星期日晚上突然傳來一句話（內容待定）；玩家回任何話 → 觸發
+      { id: "anton_1207", when: "phone_unlocked", if: { date: "12-07", phase: "night" }, room: "f6", text: "（待定：燦榮突然傳來的一句話）", flag: "anton_1207" }
+    ],
     // 來電：達成 when 的旗標後過 delay 毫秒，room 這個好友打來（任何畫面都會跳出來；手機解鎖後才會響）
     //   ringFor = 響多久沒接就算未接（預設 30 秒）
     //   branch：依玩家有沒有在那個聊天室回過話，選開頭段落 { replied: "段落", notReplied: "段落" }；不寫 = 從 start 開始

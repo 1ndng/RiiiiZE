@@ -291,7 +291,9 @@
       var text = form.m.value.trim();
       if (!text) return;
       var chosen = picked, set = activeChoices(f);
-      push(f.id, { from: 'me', text: text, time: nowTime() });
+      var mine = { from: 'me', text: text, time: nowTime() };
+      if (chosen && chosen.o.image) mine.image = chosen.o.image;   // 選項可以附一張照片（強制傳送照片）
+      push(f.id, mine);
       form.m.value = '';
       form.querySelector('.kk-send').disabled = true;
       if (chosen && set && set.id === '__daychat') { dayChatChose(chosen.o); return; }
@@ -305,7 +307,12 @@
         runReply(f, chosen.o, [].concat(chosen.o.reply || []));
       } else {
         paintChat();
-        scheduleReply(f, text);
+        // 覺醒線索：data.js 的 clues 寫 onReply: "聊天室 id"（＋ after: "旗標"）→ 玩家在那個聊天室主動回話就觸發，不跑關鍵字回覆
+        var cl = S().data.clues || {}, hit = Object.keys(cl).filter(function (k) {
+          var c = cl[k]; return c.onReply === f.id && S().hasFlag(c.after) && !S().hasFlag('clue_' + k) && ok(c.if);
+        })[0];
+        if (hit && window.STORY) window.STORY.clue(hit);
+        else scheduleReply(f, text);
       }
     });
   }

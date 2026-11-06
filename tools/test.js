@@ -215,17 +215,39 @@ const TESTS = [
   ['覺醒線索：看到 IG 貼文 1 秒 → 覺醒度 +1，劇情加覺醒度無效', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'night' } }));
     await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked');
-      SITE_DATA.instagram.searchOnlyAccounts.filter(a => a.username === 'bin032')[0].posts.push({ images: ['images/cast/m4.jpg'], caption: '線索', time: '9月20日', clue: 'm4_1' });
+      SITE_DATA.instagram.searchOnlyAccounts.filter(a => a.username === 'bin032')[0].posts.push({ images: ['images/cast/m4.jpg'], caption: '線索', time: '9月20日', clue: 'm4_2' });
       GAME.apply({ awake: { m4: 5 } }); });
     if (await p.evaluate(() => GAME.stat('awake', 'm4')) !== 0) throw new Error('劇情效果不該加覺醒度');
-    await p.evaluate(() => location.hash = '#/ig/u/bin032/post/1'); await sleep(1600);
-    const r = await p.evaluate(() => ({ awake: GAME.stat('awake', 'm4'), flag: SOSHO.hasFlag('clue_m4_1'), vn: !!document.querySelector('.vn') }));
+    await p.evaluate(() => location.hash = '#/ig/u/bin032/post/2'); await sleep(1600);
+    const r = await p.evaluate(() => ({ awake: GAME.stat('awake', 'm4'), flag: SOSHO.hasFlag('clue_m4_2'), vn: !!document.querySelector('.vn') }));
     if (r.awake !== 1 || !r.flag) throw new Error('沒有算到線索：' + JSON.stringify(r));
-    if (!r.vn) throw new Error('找到線索後沒有播 awake_m4_1');
+    if (!r.vn) throw new Error('找到線索後沒有播 awake_m4_2');
     await clickStory(p);
     await p.evaluate(() => location.hash = '#/ig/u/bin032'); await sleep(300);
-    await p.evaluate(() => location.hash = '#/ig/u/bin032/post/1'); await sleep(1600);
+    await p.evaluate(() => location.hash = '#/ig/u/bin032/post/2'); await sleep(1600);
     if (await p.evaluate(() => GAME.stat('awake', 'm4')) !== 1) throw new Error('同一個線索不該算兩次');
+    return p;
+  }],
+  ['覺醒線索後續：置頂備忘錄 → 強制傳給將太郎；元彬貼文 → 強制留言', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 77, phase: 'night' } }));   // 11/16 星期日
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); location.hash = '#/notes/n/n_council'; });
+    await p.waitForSelector('#kk-choices .kk-chip', { timeout: 8000 });
+    if (await p.evaluate(() => location.hash) !== '#/kakao/chat/f1') throw new Error('沒有打開將太郎的聊天室');
+    if (await p.evaluate(() => GAME.stat('awake', 'm1')) !== 0) throw new Error('還沒傳就算了線索');
+    await p.click('#kk-choices .kk-chip'); await sleep(200); await p.click('.kk-send');
+    for (let i = 0; i < 80 && !(await p.evaluate(() => GAME.stat('awake', 'm1'))); i++) await sleep(300);
+    if (await p.evaluate(() => GAME.stat('awake', 'm1')) !== 1) throw new Error('聊完沒有算線索');
+    await clickStory(p);
+    await p.evaluate(() => location.hash = '#/ig/u/bin032'); await sleep(500);
+    await p.evaluate(() => location.hash = '#/ig/u/bin032/post/0');
+    await p.waitForSelector('#ig-sheet.forced #ig-cmt-form button:not([disabled])', { timeout: 8000 });
+    await p.evaluate(() => location.hash = '#/home'); await sleep(900);
+    if (await p.evaluate(() => location.hash) !== '#/ig/u/bin032/post/0') throw new Error('強制留言時可以離開');
+    await p.click('#ig-sheet.forced #ig-cmt-form button');
+    for (let i = 0; i < 30 && !(await p.evaluate(() => GAME.stat('awake', 'm4'))); i++) await sleep(300);
+    const txt = await p.evaluate(() => document.getElementById('ig-cmt-list').textContent);
+    if (txt.indexOf('一模一樣') < 0) throw new Error('元彬沒有回覆留言');
+    if (await p.evaluate(() => GAME.stat('awake', 'm4')) !== 1) throw new Error('留言後沒有算線索');
     return p;
   }],
   ['強制聊天：不能離開聊天室', async (b, base) => {

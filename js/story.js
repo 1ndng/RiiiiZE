@@ -407,22 +407,45 @@
 
   /* ---- 覺醒線索：手機裡看到寫了 clue 的東西 → js/game.js 的 findClue（覺醒度 +1）
    *   有 scenes.awake_線索（例如 awake_m3_1）就在找到後播（背景是變暗的手機畫面；劇情或強制聊天進行中就等結束再播） */
+  /* 覺醒線索：找到 → 做 data.js 的 clues[線索] 寫的事（強制聊天 chat／強制留言 comment）→ 覺醒度 +1 → 播 awake_線索
+   *   沒寫 clues 的線索 = 直接算找到、播 awake_線索 */
+  var clueRunning = {};
+  function clueDef(key) { return (D().clues || {})[key] || null; }
   function clue(c) {
     if (!c || !window.GAME) return;
-    var key = typeof c === 'object' ? c.id : c;
-    if (!window.GAME.findClue(key)) return;
-    var id = 'awake_' + key;
-    if (!(D().scenes || {})[id]) return;
-    (function tryPlay(n) {
-      var busy = cur || (window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting());
-      if (busy) { if (n < 600) setTimeout(function () { tryPlay(n + 1); }, 1000); return; }
-      play(id, null, null, 'phone-dim');
+    var key = typeof c === 'object' ? c.id : c, def = clueDef(key) || {};
+    if (clueRunning[key] || (window.SOSHO && window.SOSHO.hasFlag('clue_' + key))) return;
+    clueRunning[key] = true;
+    function busy() { return cur || (window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting()); }
+    function found() {
+      clueRunning[key] = false;
+      if (!window.GAME.findClue(key)) return;
+      var id = 'awake_' + key;
+      if (!(D().scenes || {})[id]) return;
+      (function tryPlay(n) {
+        if (busy()) { if (n < 600) setTimeout(function () { tryPlay(n + 1); }, 1000); return; }
+        play(id, null, null, 'phone-dim');
+      })(0);
+    }
+    (function start(n) {
+      if (busy()) { if (n < 600) setTimeout(function () { start(n + 1); }, 1000); else clueRunning[key] = false; return; }
+      if (def.chat && window.SOSHO_KAKAO) {
+        var ch = {}; Object.keys(def.chat).forEach(function (k) { ch[k] = def.chat[k]; }); ch.id = 'clue_' + key;
+        setTimeout(function () { window.SOSHO_KAKAO.dayChat(ch, found, true); }, def.delay != null ? def.delay : 600);
+      } else if (def.comment && window.SOSHO && window.SOSHO.forceComment) {
+        setTimeout(function () { window.SOSHO.forceComment(def.comment, found); }, def.delay != null ? def.delay : 600);
+      } else found();
     })(0);
   }
 
   window.STORY = {
-    // 看到 1 秒後才算（1 秒內離開那一頁就不算）
-    clue: function (c) { if (!c) return; var h = location.hash; setTimeout(function () { if (location.hash === h) clue(c); }, 1000); },
+    // 看到幾秒後才算（clues[線索].see 毫秒，不寫 = 1 秒；0 = 一看到就算）；時間到之前離開那一頁就不算
+    clue: function (c) {
+      if (!c) return;
+      var key = typeof c === 'object' ? c.id : c, def = clueDef(key) || {}, ms = def.see != null ? def.see : 1000, h = location.hash;
+      if (!ms) { clue(c); return; }
+      setTimeout(function () { if (location.hash === h) clue(c); }, ms);
+    },
     play: play, fill: fill, playerName: playerName,
     askName: askName, askBirthday: askBirthday,
     playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },

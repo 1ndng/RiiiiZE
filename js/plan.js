@@ -141,11 +141,10 @@
     return fx;
   }
   // 回傳這次遇到的人（日程的一句話用）
-  // noCount = 不算次數（開學週的強制日程）
-  function doActivity(act, noCount) {
+  function doActivity(act) {
     if (!act) return [];
     var ids = membersOf(act);
-    if (!noCount) G().addStat('visits', act, 1);
+    G().addStat('visits', act, 1);
     if (S()) S().setFlag('act_' + act);
     if (ids.length) G().apply(shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15));
     return ids;
@@ -284,8 +283,8 @@
       var forced = forcedOn(day);
       var playOn = function (id, act) { steps.push(function (next) { window.STORY.play(id, next, null, bgOf(act)); }); };
       var playAll = function (ids, act) { ids.forEach(function (id) { playOn(id, act); }); };
-      // 1. 開學週的強制日程：照那個日程加好感，不算次數
-      if (forced) doActivity(forced.activity, true);
+      // 1. 開學週的強制日程：不加好感、不算次數
+      if (forced && S()) S().setFlag('act_' + forced.activity);
       // 2. 節日、生日
       holidaysOn(day).forEach(function (h) { steps.push(function (next) { playIf(h.scene, next); }); });
       birthdaysOn(day).forEach(function (b) { steps.push(function (next) { playIf(b.scene, next); }); });

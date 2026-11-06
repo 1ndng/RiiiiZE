@@ -170,7 +170,7 @@
     var today = same ? g.getDate() : -1;   // 只有翻到這個月才標出今天
     var pd = calPick ? new Date(y, m, calPick) : g, pick = calPick || (same ? today : 0);   // 左邊顯示的那天（沒點 = 今天）
     var wd = c.weekdays || WEEKDAYS, mn = c.months || MONTHS, heads = c.weekHeads || ['一', '二', '三', '四', '五', '六', '日'];
-    var events = (c.events || []).filter(function (ev) { return eventToday(ev, pd) && (!ev.if || !window.GAME || window.GAME.check(ev.if)); });
+    var events = (c.events || []).filter(function (ev) { return eventToday(ev, pd) && (!window.GAME || window.GAME.unlocked(ev)); });   // from = 那天起才出現
     // 日程的特殊事件（data.js 的 schedule.special）：只顯示名稱，不說要選哪個活動
     function gameDayOf(date) { return window.GAME ? Math.round((date - window.GAME.date(1)) / 864e5) + 1 : 0; }
     // 節日、生日、送禮日、特殊事件、當天的安排（js/plan.js）
@@ -426,7 +426,10 @@
     var followed = visitor && isFollowing(currentAccount(), g);
     var c = counts(g);
     // 欄位被刪掉或註解掉時也不會整頁空白
-    var bio = g.bio || [], posts = g.posts || [];
+    // 簡介每一行可以寫字串，或 { text, from, if, clue }（那天起才出現；clue = 覺醒線索，點進主頁就算）
+    var bioRaw = (g.bio || []).filter(function (l) { return unlocked(l); }), posts = g.posts || [];
+    var bio = bioRaw.map(function (l) { return typeof l === 'object' ? l.text : l; });
+    bioRaw.forEach(function (l) { if (l && l.clue && window.STORY && window.STORY.clue) window.STORY.clue(l.clue); });
     // 精選裡的內容全部看不到（都是摯友限時、又不是摯友）就不顯示這個精選
     var highlights = (g.highlights || []).map(function (h, i) { return { h: h, i: i }; })
       .filter(function (x) { return unlocked(x.h) && visibleHighlight(g, x.h).length; });
@@ -867,6 +870,48 @@
     void el.offsetWidth;
     el.classList.add('show');
   }
+
+  /* ---- 強制留言（覺醒線索，data.js 的 clues[線索].comment）----
+   * { text: "玩家要留的話", reply: { user: "成員帳號", text: "成員回覆" } }
+   * 留言框直接打好、不能改也不能關，按「發佈」後成員回覆，然後才能離開 */
+  var forcedCmt = null;   // { hash, def, done, posted }
+  function fillName(str) { return window.STORY && window.STORY.fill ? window.STORY.fill(str) : str; }
+  function openForcedComment() {
+    if (!forcedCmt || !curPost) return;
+    openComments();
+    var f = $('#ig-cmt-form');
+    $('#ig-sheet').classList.add('forced');
+    if (forcedCmt.posted) { f.style.display = 'none'; return; }
+    f.c.value = fillName(forcedCmt.def.text || ''); f.c.readOnly = true;
+    f.querySelector('button').disabled = false;
+  }
+  function forceComment(def, done) {
+    if (!curPost || location.hash.indexOf('#/ig') !== 0) { done(); return; }
+    forcedCmt = { hash: location.hash, def: def, done: done, posted: false };
+    openForcedComment();
+  }
+  function forcedPosted() {
+    var fc = forcedCmt, key = curPost.key, r = fc.def.reply;
+    fc.posted = true;
+    $('#ig-cmt-form').style.display = 'none';
+    setTimeout(function () {
+      if (r) {
+        (store.comments[key] = store.comments[key] || []).push({ user: r.user, text: fillName(r.text) });
+        saveStore();
+        var list = $('#ig-cmt-list'); if (list) { list.innerHTML = commentsListHTML(); list.scrollTop = list.scrollHeight; }
+      }
+      setTimeout(function () {
+        forcedCmt = null;
+        var sh = $('#ig-sheet'); if (sh) sh.classList.remove('forced');
+        var f = $('#ig-cmt-form'); if (f) f.style.display = '';
+        fc.done();
+      }, 1800);
+    }, r && r.wait != null ? r.wait : 2200);
+  }
+  // 強制留言中：離開這則貼文 → 拉回來
+  window.addEventListener('hashchange', function () {
+    if (forcedCmt && location.hash !== forcedCmt.hash) { location.hash = forcedCmt.hash; setTimeout(openForcedComment, 400); }
+  });
 
   /* ---- 留言 ---- */
   function commentsListHTML() {
@@ -1380,7 +1425,7 @@
       $('#ig-scroll').scrollTop = 0;
     }
     else if (e.target.closest('[data-sheet]')) $('#ig-sheet').classList.add('show');
-    else if (e.target.closest('[data-close-sheet]')) $('#ig-sheet').classList.remove('show');
+    else if (e.target.closest('[data-close-sheet]')) { if (!forcedCmt) $('#ig-sheet').classList.remove('show'); }
     else if (e.target.closest('[data-na]')) toast();
   });
   $('#ig-overlay').addEventListener('submit', function (e) {
@@ -1390,6 +1435,7 @@
     if (!text || !curPost) return;
     (store.comments[curPost.key] = store.comments[curPost.key] || []).push({ user: currentAccount().username, text: text });
     saveStore();
+    if (forcedCmt && !forcedCmt.posted) forcedPosted();
     e.target.c.value = '';
     e.target.querySelector('button').disabled = true;
     var list = $('#ig-cmt-list');
@@ -1512,7 +1558,7 @@
     var zone = $('#home-gesture');
     var startY = null, dy = 0, appEl = null;
     // 強制聊天（KakaoTalk 的每日聊天）進行中：不能滑回首頁
-    function stuck() { return !!(window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting()); }
+    function stuck() { return !!forcedCmt || !!(window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting()); }
     // 加到主畫面時（全螢幕 App）
     if (window.navigator.standalone || (window.matchMedia && matchMedia('(display-mode: standalone)').matches)) {
       document.documentElement.classList.add('standalone');
@@ -1578,7 +1624,7 @@
   /* ---------------- 啟動 ---------------- */
   // 給 js/apps/*.js 用的共用工具
   window.SOSHO = {
-    data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, goBack: goBack, replaceHash: replaceHash,
+    data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, forceComment: forceComment, goBack: goBack, replaceHash: replaceHash,
     setDarkStatus: function (on) { $('#phone').classList.toggle('dark-status', !!on); },
     lock: function (opt) { renderLock(opt); },
     wallpaper: function (kind) { return wallpaperOf(kind); },               // 'home' / 'lock'

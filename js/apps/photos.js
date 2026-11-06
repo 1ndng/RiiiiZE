@@ -62,7 +62,8 @@
     return (window.SITE_MEDIA || []).indexOf(p) >= 0 ? p : '';
   }
   function isFav(i) { var st = state(); return i in st.fav ? !!st.fav[i] : !!list()[i].favorite; }
-  function isDeleted(i) { var st = state(); return !!st.deleted[i] && !st.gone[i]; }
+  // data.js 寫 deleted: true = 一開始就在「最近刪除」（剩幾天照 deletedDays，不寫 = 12 天）
+  function isDeleted(i) { var st = state(); return (i in st.deleted ? !!st.deleted[i] : !!list()[i].deleted) && !st.gone[i]; }
   function isGone(i) { return !!state().gone[i]; }
   // 一般看得到的照片：沒刪除、沒隱藏
   // 照片什麼時候出現：from: "09-15"（那天起）或 if（條件）；js/game.js 的 GAME.unlocked
@@ -210,7 +211,7 @@
       (del ? '<div class="pt-note">' + esc(t.deletedNote) + '</div>' : '') +
       (a.items.length
         ? '<div class="pt-grid">' + a.items.map(function (i) {
-            var left = del ? Math.max(1, 30 - Math.floor((now - st.deleted[i]) / 864e5)) : 0;
+            var left = del ? (st.deleted[i] ? Math.max(1, 30 - Math.floor((now - st.deleted[i]) / 864e5)) : (list()[i].deletedDays || 12)) : 0;
             return thumb(i, encodeURIComponent(id), del ? '<span class="pt-days">' + esc(t.daysLeft.replace('{n}', left)) + '</span>' : '');
           }).join('') + '</div>'
         : '<div class="pt-empty">' + esc(t.empty) + '</div>');
@@ -379,7 +380,7 @@
         return;
       }
       if (e.target.closest('[data-confirm-delete]')) { st.deleted[i] = Date.now(); save(st); closeSheet(); afterChange(); return; }
-      if (e.target.closest('[data-recover]')) { delete st.deleted[i]; save(st); afterChange(); return; }
+      if (e.target.closest('[data-recover]')) { if (list()[i].deleted) st.deleted[i] = 0; else delete st.deleted[i]; save(st); afterChange(); return; }
       if (e.target.closest('[data-forever]')) {
         sheet('<div class="pt-act"><p>' + esc(t.deleteNote.split('，')[0]) + '</p>' +
           '<button type="button" class="pt-red" data-confirm-forever>' + esc(t.deleteForever) + '</button></div>' +

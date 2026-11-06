@@ -381,6 +381,7 @@ img { display: block; max-width: 100%; }
 .ig-cmt img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; background: #eee; flex: none; }
 .ig-cmt-body { flex: 1; min-width: 0; font-size: 14px; line-height: 1.35; }
 .ig-cmt-head b { font-size: 13px; margin-right: 6px; }
+.ig-cmt .ig-cmt-head { color: #262626; margin: 0 0 2px; }   /* 留言的帳號名稱（上面那條是限時動態用的白字） */
 .ig-cmt-head span { font-size: 12px; color: #8e8e8e; }
 .ig-cmt-text { word-break: break-word; }
 .ig-cmt-reply { font-size: 12px; color: #737373; font-weight: 600; margin-top: 2px; }
