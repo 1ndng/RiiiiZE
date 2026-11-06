@@ -702,6 +702,7 @@ window.SITE_DATA = {
     ],
     // 介面文字
     text: {
+      olderHiddenText: "無法顯示更早的訊息",   // 成員聊天室、群組最上面的提示
       lockTitle: "輸入密碼",
       lockHint: "請輸入密碼。",
       lockDelete: "刪除",

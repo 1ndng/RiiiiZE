@@ -57,7 +57,7 @@
       name: g.name || members.map(function (m) { return m.name; }).join(', '),
       avatar: (members[0] || {}).avatar,
       messages: g.messages || [], replies: g.replies || [], defaultReply: g.defaultReply || [], unread: g.unread || 0,
-      call: g.call, noCall: g.noCall
+      call: g.call, noCall: g.noCall, olderHidden: g.olderHidden
     };
   }
   function groups() { return (K().groups || []).map(groupRoom); }
@@ -236,10 +236,16 @@
     return out;
   }
 
+  // 聊天室最上面的「無法顯示更早的訊息」：成員的聊天室和群組都有（明明很熟，卻沒有以前的紀錄）
+  //   好友／群組寫 olderHidden: false 可以拿掉；客服小精靈沒有
+  function olderHiddenHTML(f) {
+    var on = f.olderHidden != null ? f.olderHidden : (f.group || !!f.cast);
+    return on ? '<div class="kk-older"><span>' + esc(TX().olderHiddenText || '無法顯示更早的訊息') + '</span></div>' : '';
+  }
   function paintChat() {
     var f = friend(openChatId), box = document.getElementById('kk-msgs');
     if (!f || !box) return;
-    box.innerHTML = bubblesHTML(f);
+    box.innerHTML = olderHiddenHTML(f) + bubblesHTML(f);
     box.scrollTop = box.scrollHeight;
     // 照片載入後聊天室會變高：玩家還沒往上滑之前，一直停在最新的訊息
     var stick = true;

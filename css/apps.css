@@ -251,3 +251,5 @@ button.kk-mem { width: 100%; background: none; border: 0; font: inherit; text-al
 /* 每日聊天聊完：「繼續」按鈕（取代輸入框） */
 .kk-chip.kk-daydone { flex: 1; padding: 12px; border: 0; border-radius: 12px; background: #fee500; color: #191919; font-weight: 700; font-size: 15px; }
 .kk-choices.kk-done-bar { padding: 12px 12px 46px; }
+.kk-older { text-align: center; margin: 14px 0 2px; }
+.kk-older span { display: inline-block; color: rgba(0,0,0,.42); font-size: 11.5px; padding: 3px 10px; }
