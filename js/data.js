@@ -124,6 +124,7 @@ window.SITE_DATA = {
    *   comment = 強制 IG 留言 { text: 玩家的留言, reply: { user: 成員帳號, text: 成員回覆 } }
    *   onReply = 玩家在這個聊天室主動回任何話才觸發（after = 要先有的旗標）
    * 做完 → 那位成員覺醒度 +1、記錄旗標 clue_線索 → 播 scenes.awake_線索（沒寫就不播）
+   * 第二、第三個線索（1～6 月）是 Claude 草稿，寫在 m6_1 下面
    * 第一個線索（10～12 月）：
    *   m1_1 10/1 置頂備忘錄（備忘錄 n_council）      m2_1 11/1 IG 簡介 ☃️（seokkkk）
    *   m3_1 12/1 行事曆 12/21「球賽」                 m4_1 11/12 IG 新貼文（bin032）
@@ -177,6 +178,84 @@ window.SITE_DATA = {
       { text: "我什麼時候傳的？", wait: 1500 },
       { text: "好像有印象，又好像沒有......" },
       { text: "總之，我很喜歡這首歌呢......" }
+    ] } },
+    /* ---- 第二個線索（1～3 月）、第三個線索（4～6 月）：Claude 草稿，之後再改 ---- */
+    // 1 將太郎②（1/12）：相簿「已隱藏」多了一張白色房間的照片 → 傳給將太郎
+    m1_2: { chat: { room: "f1", steps: [
+      { choices: [ { text: "將太郎，我在已隱藏的相簿裡找到這張……你知道這是哪裡嗎？", image: "images/placeholder.jpg" } ] },
+      { text: "……", wait: 1500 },
+      { text: "這是我夢到的那個房間。" },
+      { text: "白色的牆、機器、鏡子……" },
+      { text: "我好像，在這裡待過很久很久。" }
+    ] } },
+    // 1 將太郎③（4/12）：X 上一則他不記得發過的貼文 → 問他
+    m1_3: { chat: { room: "f1", steps: [
+      { choices: [ { text: "你今天在 X 發的那則……是什麼意思？" } ] },
+      { text: "我不記得我發過。", wait: 1200 },
+      { text: "可是……那是我想說的話。" }
+    ] } },
+    // 2 恩奭②（2 月）：行事曆 2/23 多了「值班 07:00–19:00」→ 問他
+    m2_2: { chat: { room: "f2", steps: [
+      { choices: [ { text: "我行事曆上 2/23 有一個「值班 07:00–19:00」，是你的嗎？" } ] },
+      { text: "……值班。", wait: 1500 },
+      { text: "我好像，每天都穿著同一件衣服，站在同一個地方。" },
+      { text: "看著有人受傷，卻什麼都做不了。" }
+    ] } },
+    // 2 恩奭③（5 月起）：KakaoTalk 關鍵字——跟恩奭聊天時提到「雪人」，他的回覆就是線索（沒有強制動作）
+    m2_3: { see: 0 },
+    // 3 成燦②（1/19）：X 上一則他沒發過的地鐵貼文 → 問他
+    m3_2: { chat: { room: "f3", steps: [
+      { choices: [ { text: "你今天發的地鐵那則……你不是都走路上學嗎？" } ] },
+      { text: "地鐵？", wait: 1000 },
+      { text: "我沒發過啊！" },
+      { text: "……可是那個畫面，我好像每天都看到。", typing: 3500 }
+    ] } },
+    // 3 成燦③（6 月）：備忘錄多了一張「每週晚餐」（寫著 2032 年）→ 傳給成燦
+    m3_3: { see: 0, chat: { room: "f3", steps: [
+      { choices: [ { text: "成燦，我的備忘錄裡有這個……上面寫 2032 年。\n\n「每週晚餐\n・星期三 湯飯（燦榮）\n・星期三 湯飯（燦榮）\n・星期三 湯飯（燦榮）」" } ] },
+      { text: "2032……", wait: 1500 },
+      { text: "我想起來了。" },
+      { text: "就算每天都一樣，每個星期跟燦榮吃一頓晚餐，就算數了。" }
+    ] } },
+    // 4 元彬②（2/22 星期日晚上）：他傳了一則又收回，再傳「……沒事」→ 問他
+    m4_2: { chat: { room: "f4", steps: [
+      { choices: [ { text: "你剛剛收回了什麼？" } ] },
+      { text: "……我也不知道。", wait: 1500 },
+      { text: "手指自己打的。" },
+      { text: "好像是要跟誰說「為什麼每次都是我」。" }
+    ] } },
+    // 4 元彬③（6/5）：X「說得出來。」→ 問他
+    m4_3: { chat: { room: "f4", steps: [
+      { choices: [ { text: "「說得出來」是指你跟學長說不的事嗎？" } ] },
+      { text: "……不只。", wait: 1200 },
+      { text: "以前的我，在一個很大的地方，一直說不出來。" },
+      { text: "現在說得出來了。" }
+    ] } },
+    // 6 炤熙②（1 月）：上鎖的備忘錄「提案 v12（最終）」→ 傳給炤熙
+    m5_2: { see: 0, chat: { room: "f5", steps: [
+      { choices: [ { text: "炤熙，我上鎖的備忘錄裡有這個……是你寫的嗎？\n\n「提案 v12（最終）\n做了三個月。\n發表的時候，上面寫的是組長的名字。\n……反正每次都這樣。」" } ] },
+      { text: "……前輩。", wait: 1500 },
+      { text: "這是我的辦公室。" },
+      { text: "我想起來了。那些在背後說的話。" }
+    ] } },
+    // 6 炤熙③（5/28）：IG 新貼文「只給想給的人看。」→ 強制留言
+    m5_3: { see: 0, comment: { steps: [
+      { me: "我看到了。" },
+      { user: "252525252_", text: "@briiii1ze._ 前輩是第一個。" }
+    ] } },
+    // 7 燦榮②（3/8）：X「4th place. again.」→ 問他
+    m6_2: { chat: { room: "f6", steps: [
+      { choices: [ { text: "你說的第四名是什麼？你最近有比賽嗎？" } ] },
+      { text: "……沒有啊。", wait: 1200 },
+      { text: "可是那個游泳池，我好像真的站過。" },
+      { text: "第四名，差零點幾秒。" }
+    ] } },
+    // 7 燦榮③（6 月）：行事曆 6/27 多了「🦕 live house 20:00」→ 問他
+    m6_3: { chat: { room: "f6", steps: [
+      { choices: [ { text: "6/27 的 live house 是你要表演嗎？" } ] },
+      { text: "……我沒有要表演啊。", wait: 1200 },
+      { text: "可是，如果有一天我真的站上去，" },
+      { text: "就算只有你一個人來，我也會唱完。", typing: 3500 }
     ] } }
   },
 
@@ -384,7 +463,10 @@ window.SITE_DATA = {
     calendar: {
       events: [
         // 覺醒線索 m3_1（成燦）：12 月起，12/21 多了一個玩家沒加過的行程（球賽）
-        { date: "2025-12-21", title: "🦌 球賽 16:00", from: "12-01", clue: "m3_1" }
+        { date: "2025-12-21", title: "🦌 球賽 16:00", from: "12-01", clue: "m3_1" },
+        // 覺醒線索 m2_2（恩奭②）、m6_3（燦榮③）
+        { date: "2026-02-23", title: "值班 07:00–19:00", from: "02-01", clue: "m2_2" },
+        { date: "2026-06-27", title: "🦕 live house 20:00", from: "06-01", clue: "m6_3" }
       ]
     },
     // 行事曆下面的 App 圖示（有名稱；一排 4 個，照這裡的順序上到下、左到右排）
@@ -522,6 +604,8 @@ window.SITE_DATA = {
         ] },
       { username: "252525252_",  cast: "m5", name: "이소희", private: true, following: others(IG_ALL, "252525252_"),  bio: [], highlights: [], reposts: [],
         posts: [
+          // 覺醒線索 m5_3（炤熙③）：5/28 的新貼文（圖片待換：先用 1/21 那篇的照片）
+          { images: ["images/ig/sohee_20250121_2.jpg"], caption: "只給想給的人看。", time: "5月28日", from: "05-28", clue: "m5_3" },
           { images: ["images/ig/sohee_20250121_1.jpg", "images/ig/sohee_20250121_2.jpg", "images/ig/sohee_20250121_3.jpg"], caption: "", time: "1月21日" }   // 第一篇（2025/1/21）
         ] },
       { username: "antonnie",    cast: "m6", name: "Anton", private: true, following: others(IG_ALL, "antonnie"),    bio: [], highlights: [], reposts: [],
@@ -544,7 +628,9 @@ window.SITE_DATA = {
     hiddenPasscode: "0000",
     photos: [                      // 例：{ image: PH, date: "2025年8月20日", time: "下午 6:40", place: "地點" }
       // 覺醒線索 m5_1（炤熙）：10 月起出現在「最近刪除」。炤熙站在高高的牆上張開雙手，背後是空著的觀眾席和一串燈泡（從下往上拍）
-      { image: "images/photos/sohee_deleted.jpg", from: "10-01", deleted: true, deletedDays: 3, clue: "m5_1", date: "2025年10月4日", time: "下午 9:12" }
+      { image: "images/photos/sohee_deleted.jpg", from: "10-01", deleted: true, deletedDays: 3, clue: "m5_1", date: "2025年10月4日", time: "下午 9:12" },
+      // 覺醒線索 m1_2（將太郎②）：1/12 起，「已隱藏」裡一張白色房間（復健室）的照片（圖片待換）
+      { image: "images/placeholder.jpg", from: "01-12", hidden: true, clue: "m1_2", date: "2032年3月2日", time: "上午 10:05" }
     ],
     albums: []                     // 例：{ id: "a1", name: "相簿名稱", photos: [0, 1] }
     // 介面文字可以在 text: { … } 裡改（預設值寫在 js/apps/photos.js 的 T_DEFAULT）
@@ -598,7 +684,13 @@ window.SITE_DATA = {
     notes: [                       // 例：{ id: "n1", text: "標題\n內容", date: "2025年9月1日", time: "下午 3:20", pinned: true }
       // 覺醒線索 m1_1（將太郎）：10 月起出現在置頂，玩家沒印象寫過
       { id: "n_council", from: "10-01", pinned: true, clue: "m1_1", date: "2025年9月23日", time: "下午 5:47",
-        text: "學生會：交接\n・總務帳本 → 元彬\n・器材清單 → 恩奭\n・活動企劃書 → 成燦\n・海報檔案 → 燦榮\n・會議紀錄 → 炤熙\n・學生會 IG → 我\n・校慶企劃書 10/15 前交" }
+        text: "學生會：交接\n・總務帳本 → 元彬\n・器材清單 → 恩奭\n・活動企劃書 → 成燦\n・海報檔案 → 燦榮\n・會議紀錄 → 炤熙\n・學生會 IG → 我\n・校慶企劃書 10/15 前交" },
+      // 覺醒線索 m5_2（炤熙②）：1 月起，上鎖的備忘錄（密碼同 notes.passcode）
+      { id: "n_proposal", from: "01-05", locked: true, lockedTitle: "（已鎖定）", clue: "m5_2", date: "2032年3月18日", time: "上午 2:14",
+        text: "提案 v12（最終）\n做了三個月。\n發表的時候，上面寫的是組長的名字。\n……反正每次都這樣。" },
+      // 覺醒線索 m3_3（成燦③）：6 月起，一般備忘錄
+      { id: "n_dinner", from: "06-01", clue: "m3_3", date: "2032年6月3日", time: "下午 7:30",
+        text: "每週晚餐\n・星期三 湯飯（燦榮）\n・星期三 湯飯（燦榮）\n・星期三 湯飯（燦榮）" }
     ]
   },
 
@@ -611,6 +703,9 @@ window.SITE_DATA = {
     //   if = 條件（好感度、天數…，格式見 cast 的說明），成立才會傳
     //   常用旗標：phone_unlocked（解鎖手機）、chat_聊天室id、locked_帳號
     live: [
+      // 覺醒線索 m4_2（元彬②）：2/22 星期日晚上，傳了一則又收回，再傳「……沒事」
+      { id: "wonbin_0222_a", when: "phone_unlocked", if: { date: "02-22", phase: "night" }, room: "f4", recalled: true },
+      { id: "wonbin_0222_b", when: "phone_unlocked", if: { date: "02-22", phase: "night" }, room: "f4", text: "……沒事", clue: "m4_2" },
       // 客服小精靈：9/14 第一次自由使用手機的星期日，介紹新功能（Claude 草稿）
       { id: "helper_0914_1", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "今天是第一個可以自由用手機的星期日～" },
       { id: "helper_0914_2", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "小提示：App 圖示右上角出現紅點，就是那裡有新東西喔。" },
@@ -623,15 +718,15 @@ window.SITE_DATA = {
       { id: "helper_1207_1", when: "phone_unlocked", if: { date: "12-07", phase: "night" }, room: "helper", text: "十二月了，天氣變冷，記得多穿一點。" },
       { id: "helper_1207_2", when: "phone_unlocked", if: { date: "12-07", phase: "night" }, room: "helper", delay: 1500, text: "行事曆上的每一個行程，你都記得是自己加的嗎？" },
       { id: "helper_0104_1", when: "phone_unlocked", if: { date: "01-04", phase: "night" }, room: "helper", text: "新年快樂！寒假也要好好玩～" },
-      { id: "helper_0104_2", when: "phone_unlocked", if: { date: "01-04", phase: "night" }, room: "helper", delay: 1500, text: "手機裡的每一個角落，都值得再看一次。" },
+      { id: "helper_0104_2", when: "phone_unlocked", if: { date: "01-04", phase: "night" }, room: "helper", delay: 1500, text: "已隱藏的照片、上鎖的備忘錄，你有多久沒打開了？" },
       { id: "helper_0201_1", when: "phone_unlocked", if: { date: "02-01", phase: "night" }, room: "helper", text: "二月了，寒假還剩一點點。" },
       { id: "helper_0201_2", when: "phone_unlocked", if: { date: "02-01", phase: "night" }, room: "helper", delay: 1500, text: "有些話，是只對你說的。仔細看看聊天室吧。" },
       { id: "helper_0301_1", when: "phone_unlocked", if: { date: "03-01", phase: "night" }, room: "helper", text: "新學期要開始了！" },
-      { id: "helper_0301_2", when: "phone_unlocked", if: { date: "03-01", phase: "night" }, room: "helper", delay: 1500, text: "最近刪除的東西，有時候不是真的想刪掉。" },
+      { id: "helper_0301_2", when: "phone_unlocked", if: { date: "03-01", phase: "night" }, room: "helper", delay: 1500, text: "大家的 X，最近好像有點不一樣。" },
       { id: "helper_0405_1", when: "phone_unlocked", if: { date: "04-05", phase: "night" }, room: "helper", text: "四月，運動會的季節！" },
       { id: "helper_0405_2", when: "phone_unlocked", if: { date: "04-05", phase: "night" }, room: "helper", delay: 1500, text: "你有多久沒看大家的 X 了？" },
       { id: "helper_0503_1", when: "phone_unlocked", if: { date: "05-03", phase: "night" }, room: "helper", text: "五月了，期末考加油！" },
-      { id: "helper_0503_2", when: "phone_unlocked", if: { date: "05-03", phase: "night" }, room: "helper", delay: 1500, text: "上鎖的東西，通常有它上鎖的理由。" },
+      { id: "helper_0503_2", when: "phone_unlocked", if: { date: "05-03", phase: "night" }, room: "helper", delay: 1500, text: "聊天的時候，說說你們一起看過的東西吧。說不定一個詞，就能讓他想起什麼。" },
       { id: "helper_0607_1", when: "phone_unlocked", if: { date: "06-07", phase: "night" }, room: "helper", text: "六月，畢業的季節。" },
       { id: "helper_0607_2", when: "phone_unlocked", if: { date: "06-07", phase: "night" }, room: "helper", delay: 1500, text: "想記住的東西，就記下來吧。備忘錄、相簿、行事曆，都可以。" },
       { id: "helper_0705_1", when: "phone_unlocked", if: { date: "07-05", phase: "night" }, room: "helper", text: "暑假開始了！瘋狂玩樂吧！" },
@@ -690,7 +785,14 @@ window.SITE_DATA = {
         status: "",
         unread: 0,
         messages: [],
-        replies: [],
+        // 覺醒線索 m2_3（恩奭③）：5 月起，聊天時提到「雪人」→ 他的回覆就是線索
+        replies: [
+          { keywords: ["雪人"], if: { day: ">=243" }, typing: [1500, 600, 2000], reply: [
+            "……雪人。",
+            "我想起來了，{name}。",
+            { text: "雪人融化了會變成河。我改變不了很多事，可是可以陪在一個人旁邊。", clue: "m2_3" }
+          ] }
+        ],
         defaultReply: []
       },
       {
@@ -776,4 +878,4 @@ function RIIIZE_ADD(part) {
   if (part.tweets) D.x.tweets = D.x.tweets.concat(part.tweets);
 }
 // js/story/ 裡的檔案（index.html 照這個順序載入）
-var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","awake","ending","common"];
+var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","clues","awake","ending","common"];

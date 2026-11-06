@@ -140,7 +140,7 @@ RIIIZE_ADD({
 
   // X 貼文（data.js 的 x.tweets）
   tweets: [
-    { id: "x0605", by: "bin032", from: "06-05", date: "下午 9:05 · 2026/6/5", time: "6月5日", text: "說得出來。" },
+    { id: "x0605", by: "bin032", from: "06-05", date: "下午 9:05 · 2026/6/5", time: "6月5日", text: "說得出來。", clue: "m4_3" },
     { id: "x0620", by: "seokkkk", from: "06-20", date: "下午 11:20 · 2026/6/20", time: "6月20日", text: "謝謝。" },
     { id: "x0620b", by: "sungchan913", from: "06-20", date: "下午 11:58 · 2026/6/20", time: "6月20日", text: "畢業了。\n大聲公交給燦榮了。要大聲地活下去！！！" }
   ]

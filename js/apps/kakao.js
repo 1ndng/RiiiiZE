@@ -541,7 +541,7 @@
       st.sent[ev.id] = 1;
       if (ev.flag) S().setFlag(ev.flag);   // 傳來時記錄旗標（例如讓下一組選項出現）
       var msg = { from: ev.from || 'them', time: nowTime() };
-      ['text', 'link', 'linkTitle', 'linkSite', 'image', 'clue'].forEach(function (k) { if (ev[k]) msg[k] = ev[k]; });
+      ['text', 'link', 'linkTitle', 'linkSite', 'image', 'clue', 'recalled'].forEach(function (k) { if (ev[k]) msg[k] = ev[k]; });   // recalled: true = 收回的訊息
       msg.day = gameDay();
       (st.msgs[ev.room] = st.msgs[ev.room] || []).push(msg);
       if (S().buzzMessage) S().buzzMessage();   // 即時訊息：震一下
