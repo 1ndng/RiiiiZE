@@ -321,7 +321,7 @@ window.SITE_DATA = {
       //     { activity: "club", date: "10-15", title: "社團發表會", scene: "sp_club_show" }
     ],
     // 黑底日期畫面上多顯示一行字的日子
-    dayLabels: { "09-01": "開學日" },
+    dayLabels: { "09-01": "開學日", "09-02": "學生會聚" },
     holidays: [
       { date: "05-05", title: "兒童節",  scene: "h0505" },
       { date: "02-17", title: "설날",  scene: "h0217" },
