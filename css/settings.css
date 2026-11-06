@@ -79,3 +79,12 @@
 .st-sec span { float: right; }
 .st-rp .st-rp-item { padding: 9px 16px; }
 .st-rp .st-rp-item b { font-size: 14.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 線索收集（js/apps/settings.js 的 renderClues） */
+.st-clue { display: flex; align-items: center; gap: 10px; }
+.st-clue b { flex: 1; }
+.st-clue-emoji { display: inline-block; width: 26px; }
+.st-clue-dots { display: flex; gap: 6px; }
+.st-clue-dots i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid #ff2d55; }
+.st-clue-dots i.on { background: #ff2d55; }
+.st-clue small { margin: 0 0 0 6px; color: #ff2d55; font-weight: 600; }

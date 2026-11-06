@@ -1,6 +1,7 @@
 /* 設定（iPhone「設定」風格）
  *   #/settings         遊戲進度（第幾天）、存檔與讀檔、語言、重新開始
  *   #/settings/saves   存檔與讀檔：每天早上的自動存檔＋好幾格手動存檔（格數 = data.js 的 game.saveSlots）
+ *   #/settings/clues   線索收集：每位成員找到幾個（●●○，不寫內容）
  *   #/settings/replay  劇情回想：看過的劇情分類列出，點一下重看（不改好感、旗標）
  *   #/settings/wallpaper  背景圖片：鎖定畫面、主畫面各自換一張自己的照片，或恢復預設
  *   #/settings/stats   數值（開發用）：看、調整隱藏數值、跳天數；data.js 的 game.debug 設成 false 就不會出現
@@ -35,6 +36,8 @@
     dayLabel: '第 {n} 天', savedAt: '存於 {t}',
     statsTitle: '數值（開發用）', statsNote: '玩家看不到這一頁。正式公開前把 data.js 的 game.debug 改成 false。',
     day: '第幾天', aff: '好感度', awake: '覺醒度（在手機裡找到線索才會增加，到 3 = 覺醒）', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
+    langToCn: '要切換成简体中文嗎？', langToTw: '要切換成繁體中文嗎？', langText: '切換後畫面會重新整理一次，遊戲進度不會不見。', langOk: '切換',
+    clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。每個人有 {n} 個，這裡只會告訴你找到了幾個。', cluesDone: '全部找到了',
     replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
     gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談',
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
@@ -73,6 +76,7 @@
         row(ICON.image, '#30b0c7', esc(t.wallpaper), '', 'data-st-go="#/settings/wallpaper"', true) +
         (window.ENDING ? row(ICON.star, '#ff9500', esc(t.gallery), '', 'data-st-go="#/settings/gallery"', true) : '') +
         row(ICON.book, '#af52de', esc(t.replay), '', 'data-st-go="#/settings/replay"', true) +
+        row(ICON.star, '#ff2d55', esc(t.clues), esc(clueTotal()), 'data-st-go="#/settings/clues"', true) +
       '</div>' +
       ((D().game || {}).debug ? '<div class="st-group">' + row(ICON.wrench, '#34c759', esc(t.statsTitle), '', 'data-st-go="#/settings/stats"', true) + '</div>' : '') +
       '<div class="st-group">' +
@@ -223,8 +227,16 @@
     if (sc.birthday_me) hb.push({ id: 'birthday_me', label: '', sub: '我的生日' });
     groups.push({ title: '節日與生日', items: hb });
     var wk = (plan.weekend || {});
-    groups.push({ title: '星期日', items: cast.filter(function (c) { return sc['wk_' + c.id]; }).map(function (c) { return { id: 'wk_' + c.id, label: '', sub: '和' + nameOf(c) + '出門', bg: wk.bg }; })
-      .concat(sc.wk_home ? [{ id: 'wk_home', label: '', sub: '待在家', bg: plan.homeBg }] : []) });
+    // 星期日：單人、兩人（固定＋特別）、待在家
+    var wkItems = [];
+    Object.keys(sc).forEach(function (k) {
+      var m = /^wk_((?:m\d_?)+?)(_sp)?$/.exec(k); if (!m) return;
+      var ids = m[1].split('_').filter(Boolean);
+      wkItems.push({ o: ids.length * 1000 + ids.map(function (x) { return +x.slice(1); }).join('') * 2 + (m[2] ? 1 : 0), id: k, label: '',
+        sub: '和' + ids.map(function (x) { return nameOf(byId[x]); }).join('、') + '出門' + (m[2] ? '（特別）' : ''), bg: wk.bg });
+    });
+    if (sc.wk_home) wkItems.push({ o: 99999, id: 'wk_home', label: '', sub: '待在家', bg: plan.homeBg });
+    groups.push({ title: '星期日', items: wkItems.sort(function (a, b) { return a.o - b.o; }) });
     var actOrder = (plan.activities || []).map(function (a) { return a.id; }).concat(['home']);
     var fixed = [], rand = [];
     Object.keys(sc).forEach(function (k) {
@@ -258,6 +270,29 @@
       '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
       '<h1 class="st-h1 st-h1-s">' + esc(t.replay) + '</h1>' +
       '<div class="st-note st-note-top">' + esc(t.replayNote) + '</div>' + body;
+  }
+
+  /* ---- 線索收集：每位成員找到幾個（只顯示數量，不寫內容）---- */
+  function clueNeed() { return ((D().romance || {}).awake || {}).value || 3; }
+  function clueTotal() {
+    var need = clueNeed(), got = 0;
+    G().cast().forEach(function (c) { got += Math.min(need, G().stat('awake', c.id)); });
+    return got + ' / ' + need * G().cast().length;
+  }
+  function renderClues() {
+    var t = T(), need = clueNeed();
+    var rows = (D().cast || []).map(function (c) {
+      var n = Math.min(need, G().stat('awake', c.id)), dots = '';
+      for (var i = 0; i < need; i++) dots += '<i class="' + (i < n ? 'on' : '') + '"></i>';
+      return '<div class="st-slot st-clue"><b><span class="st-clue-emoji">' + esc(c.emoji || '') + '</span>' + esc(c.short || c.name) + '</b>' +
+        '<span class="st-clue-dots">' + dots + '</span>' + (n >= need ? '<small>' + esc(t.cluesDone) + '</small>' : '') + '</div>';
+    }).join('');
+    S().$('#settings-overlay').innerHTML = '';
+    S().$('#settings-scroll').innerHTML =
+      '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
+      '<h1 class="st-h1 st-h1-s">' + esc(t.clues) + '</h1>' +
+      '<div class="st-note st-note-top">' + esc(t.cluesNote.replace('{n}', need)) + '</div>' +
+      '<div class="st-group">' + rows + '</div>';
   }
 
   function renderGallery() {
@@ -327,6 +362,7 @@
     S().$('#settings-scroll').scrollTop = 0;
     if (parts[0] === 'gallery' && window.ENDING) { renderGallery(); return; }
     if (parts[0] === 'replay' && window.STORY) { renderReplay(); return; }
+    if (parts[0] === 'clues') { renderClues(); return; }
     if (parts[0] === 'stats' && (D().game || {}).debug) renderStats();
     else if (parts[0] === 'saves') renderSaves();
     else if (parts[0] === 'wallpaper') renderWallpaper();
@@ -339,7 +375,11 @@
     var el, t = T();
     if ((el = e.target.closest('[data-st-go]'))) { location.hash = el.dataset.stGo; return; }
     if ((el = e.target.closest('[data-st-back]'))) { e.preventDefault(); S().goBack(el.getAttribute('href')); return; }
-    if (e.target.closest('[data-st-lang]')) { window.SOSHO_LANG.toggle(); return; }
+    if (e.target.closest('[data-st-lang]')) {   // 換語言：先確認（轉換後頁面會重新整理）
+      var toCn = window.SOSHO_LANG.lang !== 'cn';
+      confirmBox(toCn ? t.langToCn : t.langToTw, t.langText, t.langOk, false, function () { window.SOSHO_LANG.toggle(); });
+      return;
+    }
     if ((el = e.target.closest('[data-wp-reset]'))) { S().setWallpaper(el.dataset.wpReset, null); renderWallpaper(); return; }
     if (e.target.closest('[data-st-restart]')) {
       confirmBox(t.restartTitle, t.restartText, t.restart, true, function () {

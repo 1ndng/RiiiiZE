@@ -223,10 +223,13 @@
           if (ids.length === 1) fx.aff[ids[0]] = w.single != null ? w.single : 6;
           else { ids.forEach(function (id) { fx.aff[id] = w.pairAff != null ? w.pairAff : 3; }); fx.pair[ids[0] + '-' + ids[1]] = w.pairBond != null ? w.pairBond : 15; }
           G().apply(fx);
-          var sc = (w.scenes || []).filter(function (e) {
+          // 同一個人／同一組：寫了 chance 的是特殊劇情（照機率觸發），沒寫的是固定劇情
+          var cands = (w.scenes || []).filter(function (e) {
             var a = [].concat(e.with || []).slice().sort().join(), b = ids.slice().sort().join();
             return a === b && ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene);
-          })[0];
+          });
+          var sc = cands.filter(function (e) { return e.chance != null && Math.random() < e.chance; })[0] ||
+            cands.filter(function (e) { return e.chance == null; })[0];
           // 出去玩：背景 = weekend.bg
           if (sc) window.STORY.play(sc.scene, done, null, w.bg);
           else narrate((ids.length === 1 ? t.single : t.pair).replace('{a}', nameOf(ids[0])).replace('{b}', nameOf(ids[1] || '')), done, w.bg);
