@@ -44,7 +44,7 @@
       giftMeText: '你把禮物送給了{a}。', giftAskText: '你請{a}送禮物給{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
       dayLine: '{date}\n放學後去了{act}，遇到了{who}。',
-      weekTitle: '這週的放學後', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekEvent: '有事發生', weekMet: '這幾天見到了{who}。'
+      weekTitle: '這週的放學後', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekMet: '這幾天見到了{who}。', weekAff: '好感', weekPair: '關係', weekNoGain: '這幾天沒有遇到人。'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
     return d;
@@ -537,14 +537,14 @@
       '<b>' + esc(t.weekTitle) + '</b>' +
       '<ul>' + week.map(function (w) {
         var d = dateOf(w.day), a = w.act === 'home' ? { label: t.home } : actOf(w.act);
-        return '<li' + (w.rnd.length ? ' class="ev"' : '') + '><span class="wk-d">' + (d.getMonth() + 1) + '/' + d.getDate() + '（' + esc(G().weekday(d).replace('星期', '')) + '）</span>' +
+        return '<li><span class="wk-d">' + (d.getMonth() + 1) + '/' + d.getDate() + '（' + esc(G().weekday(d).replace('星期', '')) + '）</span>' +
           '<span class="wk-a">' + esc(a.label) + '</span>' +
           '<span class="wk-m">' + (w.met.length ? w.met.map(function (id) {
             var c = cast().filter(function (x) { return x.id === id; })[0] || {};
             return '<i title="' + esc(c.name || id) + '"><img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""></i>';
-          }).join('') : (w.act === 'home' ? '' : '<em>' + esc(t.weekNobody) + '</em>')) + (w.rnd.length ? '<b class="wk-ev">' + esc(t.weekEvent) + '</b>' : '') + '</span></li>';
+          }).join('') : (w.act === 'home' ? '' : '<em>' + esc(t.weekNobody) + '</em>')) + '</span></li>';
       }).join('') + '</ul>' +
-      '<p>' + esc(t.weekMet.replace('{who}', joinNames(uniq(week)))) + '</p>' +
+      gainsHTML(week) +
       '<button type="button" data-wk-go>' + esc(t.weekGo) + '</button>' +
     '</div>';
     document.getElementById('phone').appendChild(el);
@@ -558,6 +558,26 @@
       week.forEach(function (w) { w.rnd.forEach(function (id) { evs.push(function (n) { window.STORY.play(id, n, null, bgOf(w.act)); }); }); });
       setTimeout(function () { el.remove(); series(evs, next); }, 250);
     });
+  }
+  // 這幾天每個人、每一對加了多少（照 doActivity 的算法：每次的總量平分給遇到的人）
+  function gainsHTML(week) {
+    var t = T(), aff = {}, pair = {};
+    week.forEach(function (w) {
+      if (!w.met.length) return;
+      var fx = shareEffects(w.met, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15);
+      Object.keys(fx.aff).forEach(function (k) { aff[k] = (aff[k] || 0) + fx.aff[k]; });
+      Object.keys(fx.pair).forEach(function (k) { pair[k] = (pair[k] || 0) + fx.pair[k]; });
+    });
+    var num = function (x) { return '+' + (Math.round(x * 10) / 10); };
+    var short = function (id) { var c = cast().filter(function (x) { return x.id === id; })[0] || {}; return c.short || c.name || id; };
+    var order = cast().map(function (c) { return c.id; });
+    var a = order.filter(function (id) { return aff[id]; }).map(function (id) { return '<span>' + esc(short(id)) + ' <b>' + num(aff[id]) + '</b></span>'; });
+    var pr = Object.keys(pair).sort(function (x, y) { return pair[y] - pair[x]; }).map(function (k) {
+      var ab = k.split('-'); return '<span>' + esc(short(ab[0])) + '×' + esc(short(ab[1])) + ' <b>' + num(pair[k]) + '</b></span>';
+    });
+    if (!a.length) return '<p>' + esc(t.weekNoGain) + '</p>';
+    return '<div class="wk-gain"><i>' + esc(t.weekAff) + '</i>' + a.join('') + '</div>' +
+      (pr.length ? '<div class="wk-gain"><i>' + esc(t.weekPair) + '</i>' + pr.join('') + '</div>' : '');
   }
   function uniq(week) {
     var all = [].concat.apply([], week.map(function (w) { return w.met; }));

@@ -162,9 +162,11 @@
 .wk-m { display: flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end; }
 .wk-m i img { width: 26px; height: 26px; border-radius: 50%; object-fit: cover; border: 1.5px solid #fff; display: block; }
 .wk-m em { font-style: normal; font-size: 12px; opacity: .6; }
-/* 這週有隨機事件的那天 */
-.wk-in li.ev { background: rgba(255, 226, 240, .95); box-shadow: inset 0 0 0 1.5px #e98bbd; }
-.wk-ev { display: inline-block; margin-left: 4px; padding: 1px 6px; border-radius: 8px; background: #e15a9e; color: #fff; font-size: 11px; font-weight: 700; white-space: nowrap; }
+/* 這週加了多少好感、關係（js/plan.js 的 gainsHTML） */
+.wk-gain { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 10px; justify-content: center; font-size: 12.5px; }
+.wk-gain i { font-style: normal; font-weight: 700; color: #7a3d66; margin-right: 2px; }
+.wk-gain span { padding: 2px 7px; border-radius: 9px; background: rgba(255, 240, 248, .85); white-space: nowrap; }
+.wk-gain b { color: #c2407f; }
 .wk-in p { margin: 12px 0 0; font-size: 13.5px; line-height: 1.5; }
 .wk-in button { margin-top: 14px; width: 100%; padding: 12px; border-radius: 14px; font: inherit; font-size: 16px; background: var(--pk-plate) !important; color: #7a3d66 !important; border: 2px solid var(--pk-plate-line) !important; font-weight: 700; box-shadow: 0 4px 10px rgba(185, 114, 159, .3); }
 

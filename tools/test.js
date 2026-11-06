@@ -177,13 +177,15 @@ const TESTS = [
     const g = await game(p); if (g.day !== 8) throw new Error('應該停在 9/8，現在第 ' + g.day + ' 天');
     return p;
   }],
-  ['隨機劇情：機率 100% 時每週回顧標「有事發生」', async (b, base) => {
+  ['隨機劇情：機率 100% 時按繼續後播；每週回顧顯示加了多少好感', async (b, base) => {
     const days = { '09-08': 'club', '09-09': 'club', '09-10': 'club', '09-11': 'club', '09-12': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 10 } } }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     await p.waitForSelector('.wk', { timeout: 8000 });
-    const ev = await p.$$eval('.wk li.ev', a => a.length);
-    if (ev !== 5) throw new Error('5 天都應該有事發生，只有 ' + ev + ' 天');
+    // 卡片不標「有事發生」，改成顯示每個人、每一對加了多少
+    if (await p.$('.wk-ev')) throw new Error('卡片不應該再標「有事發生」');
+    const gain = await p.$eval('.wk-gain', e => e.textContent).catch(() => '');
+    if (!/\+\d/.test(gain)) throw new Error('卡片沒有顯示加了多少好感：' + gain);
     await p.click('[data-wk-go]'); await sleep(800);
     const t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || '');
     const firsts = await p.evaluate(() => Object.keys(SITE_DATA.scenes).filter(k => k.indexOf('rand_club_') === 0).map(k => SITE_DATA.scenes[k][0].text));
