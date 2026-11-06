@@ -2,12 +2,15 @@
  * 劇情與選單的外觀：對話框直接用設計圖（images/ui/），其他選單照它的粉紅格紋風格
  *   對話框本體 85% 不透明（15% 透明），名字牌不透明
  * ========================================================= */
-/* 劇情用的字體：Kaisei Decol（fonts/）；它沒有的字（例如「你」「說」「奭」「炤」）用 Noto Serif TC 補上 */
+/* 劇情用的字體：Kaisei Decol（fonts/）；它沒有的字（例如「你」「說」「奭」「炤」）用 Noto Serif TC 補上
+ * Kaisei Decol 是日文字體，，。、！？：；「」 這些全形標點會擠在左下角（日文的位置）
+ * → unicode-range 不包含全形標點（U+3000–303F、U+FF00–FFEF），讓它們用 Noto Serif TC，照繁體中文置中 */
 @font-face {
   font-family: "Kaisei Decol";
   src: url("../fonts/KaiseiDecol-Regular.woff2") format("woff2");
   font-weight: 400 700;
   font-display: swap;
+  unicode-range: U+0000-2FFF, U+3040-FEFF, U+FFF0-10FFFF;
 }
 .vn, .vn-name, .sch, .pl, .pl-ghost, .end-card, .day-stage, .day-fade, .ios-alert-wrap.pl-tip {
   font-family: "Kaisei Decol", "Noto Serif TC", "Songti TC", "PMingLiU", serif;

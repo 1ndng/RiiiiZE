@@ -33,7 +33,7 @@
     overwriteTitle: '要覆蓋這個存檔嗎？', overwriteText: '原本的存檔會被取代。', overwrite: '覆蓋',
     loadTitle: '要讀取這個存檔嗎？', loadText: '目前還沒存的進度會不見。', load: '讀取',
     deleteTitle: '要刪除這個存檔嗎？', deleteText: '刪除之後就沒辦法復原。', del: '刪除',
-    restartTitle: '要從頭開始嗎？', restartText: '目前的進度都會清除，回到第 1 天。存檔會保留，之後還能讀取。',
+    restartTitle: '要從頭開始嗎？', restartText: '目前的進度會清除，回到第 1 天。\n存檔會保留。',
     dayLabel: '第 {n} 天', savedAt: '存於 {t}',
     statsTitle: '數值（開發用）', statsNote: '玩家看不到這一頁。正式公開前把 data.js 的 game.debug 改成 false。',
     day: '第幾天', aff: '好感度', awake: '覺醒度（在手機裡找到線索才會增加，到 3 = 覺醒）', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
@@ -133,7 +133,7 @@
   function confirmBox(title, text, okLabel, red, onOk) {
     var t = T(), w = document.createElement('div');
     w.className = 'ios-alert-wrap';
-    w.innerHTML = '<div class="ios-alert"><b>' + esc(title) + '</b><p>' + esc(text) + '</p>' +
+    w.innerHTML = '<div class="ios-alert"><b>' + esc(title) + '</b><p>' + esc(text).replace(/\n/g, '<br>') + '</p>' +   // \n = 換行
       '<div class="ios-alert-btns"><button type="button" data-alert-no>' + esc(t.cancel) + '</button>' +
       '<button type="button" data-alert-yes' + (red ? ' class="st-red"' : '') + '>' + esc(okLabel) + '</button></div></div>';
     S().$('#settings-overlay').appendChild(w);
