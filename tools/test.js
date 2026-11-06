@@ -212,6 +212,28 @@ const TESTS = [
     await p.click('.sch-cast button >> nth=2'); await p.click('[data-go]'); await sleep(1200);
     const pair = await p.evaluate(() => GAME.stat('pair', 'm1-m4'));
     if (pair !== 15) throw new Error('關係值不對：' + pair);
+    // 請將太郎送給元彬 → 播 gift_by_m1（{b} 換成元彬）
+    await sleep(2000);
+    const t = await text(p, '#vn-text');
+    if (!/元彬/.test(t || '')) throw new Error('送禮劇情：' + t);
+    return p;
+  }],
+  ['14 日送禮：送給一位 → 第一次 gift_m4，下個月再送 → gift_m4_again', async (b, base) => {
+    let p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' } }));
+    const give = async () => {
+      await p.waitForSelector('.sch-col button', { timeout: 8000 });
+      await p.click('.sch-col button >> nth=0'); await sleep(400);
+      await p.click('.sch-cast button >> nth=3'); await p.click('[data-go]'); await sleep(2600);
+      return text(p, '#vn-text');
+    };
+    const t1 = await give();
+    if (!/元彬/.test(t1 || '')) throw new Error('第一次：' + t1);
+    if (await p.evaluate(() => GAME.stat('aff', 'm4')) !== 6) throw new Error('好感沒有 +6');
+    await p.close();
+    // 上個月送過元彬（旗標 gift_09-14_m4）→ 這次播 gift_m4_again
+    p = await open(b, base, played({ 'riiiize-game': { day: 44, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'gift_09-14_m4': 1 } }));
+    const t2 = await give();
+    if (!/這次他直接接了過去/.test(t2 || '')) throw new Error('第二次：' + t2);
     return p;
   }],
   ['結局：六人都覺醒 → 喚醒 = TRUE END，點一下回到鎖定畫面', async (b, base) => {

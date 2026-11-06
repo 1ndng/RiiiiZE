@@ -238,6 +238,20 @@
     }, C().homeBg);
   }
 
+  /* 送禮的劇情（js/story/gift.js）：names = 依序找的劇情 id，第一個有寫的就播；都沒寫 → fallback（一句旁白）
+   *   劇情裡 who: "{b}" = 收禮的人、文字裡 {a} = 送禮的人、{b} = 收禮的人的名字 */
+  function giftScene(names, a, b, fallback, done) {
+    var id = names.filter(function (n) { return n && scene(n); })[0];
+    if (!id) { fallback(); return; }
+    var short = function (x) { var c = cast().filter(function (y) { return y.id === x; })[0]; return c ? (c.short || c.name) : x; };
+    D().scenes.__gift = scene(id).map(function (st) {
+      var o = {}; Object.keys(st).forEach(function (k) { o[k] = st[k]; });
+      if (o.who === '{b}') o.who = b; else if (o.who === '{a}') o.who = a;
+      if (typeof o.text === 'string') o.text = o.text.replace(/\{a\}/g, a ? short(a) : '').replace(/\{b\}/g, b ? short(b) : '');
+      return o;
+    });
+    window.STORY.play('__gift', done, null, C().giftBg || C().narrateBg || D().storyBg);
+  }
   // 14 日：送禮
   function gift(done) {
     var g = C().gift || {}, t = T(), m = dateOf(G().day).getMonth() + 1;
@@ -247,8 +261,10 @@
           onAlt: function () { gift(done); },
           onGo: function (ids) {
             var fx = { aff: {} }; fx.aff[ids[0]] = g.aff != null ? g.aff : 6; G().apply(fx);
+            var again = S() && Object.keys((function () { try { return JSON.parse(localStorage.getItem('riiiize-flags')) || {}; } catch (e) { return {}; } })()).some(function (k) { return /^gift_\d\d-\d\d_/.test(k) && k.slice(-ids[0].length - 1) === '_' + ids[0]; });
             if (S()) S().setFlag('gift_' + G().md(G().day) + '_' + ids[0]);
-            narrate(t.giftMeText.replace('{a}', nameOf(ids[0])), done);
+            giftScene(['gift_' + ids[0] + '_' + m, again && 'gift_' + ids[0] + '_again', 'gift_' + ids[0]], null, ids[0],
+              function () { narrate(t.giftMeText.replace('{a}', nameOf(ids[0])), done); }, done);
           } });
       } },
       // 請別人送：先選送禮的人，再選收禮的人（不能選同一個人）
@@ -260,7 +276,8 @@
               onAlt: askGiver,
               onGo: function (b) {
                 var fx = { pair: {} }; fx.pair[a[0] + '-' + b[0]] = g.pair != null ? g.pair : 15; G().apply(fx);
-                narrate(t.giftAskText.replace('{a}', nameOf(a[0])).replace('{b}', nameOf(b[0])), done);
+                giftScene(['gift_by_' + a[0] + '_' + m, 'gift_by_' + a[0]], a[0], b[0],
+                  function () { narrate(t.giftAskText.replace('{a}', nameOf(a[0])).replace('{b}', nameOf(b[0])), done); }, done);
               } });
           } });
       } },
