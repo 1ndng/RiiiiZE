@@ -267,15 +267,15 @@
 
   /* ---- 有事的日子的放學 ---- */
   if (window.GAME) {
-    // 星期一～六的 14 日：送禮最先（在早上的主線劇情之前）；星期日照舊排在節日、生日後面
+    // 14 日：送禮最先（在早上的主線劇情之前；星期日也一樣）
     G().onPhase('morning', function (done) {
       var day = G().day, key = 'giftdone_' + day;
-      if (!isGiftDay(day) || dateOf(day).getDay() === 0 || (S() && S().hasFlag(key))) { done(); return; }
+      if (!isGiftDay(day) || (S() && S().hasFlag(key))) { done(); return; }
       if (location.hash !== '#/home') location.hash = '#/home';
       setTimeout(function () { gift(function () { if (S()) S().setFlag(key); done(); }); }, 300);
     }, true);
     /* 放學的順序（星期一～六）：主線（含開學週強制日程，劇情在 js/story.js 先播）→ 節日 → 生日 → 日程 → 隨機劇情
-     * 星期日：節日 → 生日 → 送禮 → 出去玩 */
+     * 星期日：節日 → 生日 → 出去玩（14 日的送禮在早上最先） */
     G().onPhase('afterschool', function (done) {
       if (window.STORY && window.STORY.resumed('afterschool')) { done(); return; }   // 讀檔：放學的劇情剛剛已經接著播完
       var day = G().day, steps = [], sunday = dateOf(day).getDay() === 0;
@@ -307,8 +307,7 @@
           playAll(randomFor('home', []), 'home');
         }
       }
-      // 星期日：送禮、出去玩
-      if (sunday && isGiftDay(day)) steps.push(gift);
+      // 星期日：出去玩（送禮已經在早上最先做了）
       if (sunday && !forced && !(C().weekend || {}).off) steps.push(weekend);
       setTimeout(function () { series(steps, done); }, steps.length ? 300 : 0);
     });
@@ -663,7 +662,16 @@
     // 能用手機的日子（星期日、最後一天、結局後）：劇情、出去玩都結束 → 鎖定畫面，解鎖後自由使用手機
     if (phoneDay(G().day)) {
       G().setClock((D().game || {}).nightTime || '22:00');   // 手機上的時間從晚上 22:00 開始（data.js 的 game.nightTime）
-      stage(null); if (S() && S().lock) S().lock({ onUnlock: function () {} }); return;
+      stage(null);
+      // 星期日：開放自由探索手機前，先跳劇情框提醒（scenes.free_phone）
+      var lockNow = function () { if (S() && S().lock) S().lock({ onUnlock: function () {} }); };
+      var fpKey = 'freephone_' + G().day;   // 一天只提醒一次（重新整理不會再跳）
+      if (dateOf(G().day).getDay() === 0 && scene('free_phone') && window.STORY && !(S() && S().hasFlag(fpKey))) {
+        if (S()) S().setFlag(fpKey);
+        window.STORY.play('free_phone', lockNow, null, 'phone-dim');
+      }
+      else lockNow();
+      return;
     }
     setTimeout(go, 400);
   });

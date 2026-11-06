@@ -51,6 +51,19 @@ async function open(browser, base, seed, opt) {
   }, [seed, !!opt.title]);
   await page.goto(base + '/#/home');
   await sleep(1200);
+  // 從星期日晚上開始的測試：先把「自由探索手機」的提醒點掉（等 2 秒的劇情間隔）
+  if (opt.keepFreePhone) return page;
+  // 只有星期日晚上會出現：等一下它出現，點完它
+  const sunNight = await page.evaluate(() => window.GAME && GAME.phase === 'night' && GAME.date(GAME.day).getDay() === 0);
+  if (!sunNight) return page;
+  let seen = false;
+  for (let i = 0; i < 40; i++) {
+    const t = await page.evaluate(() => (document.querySelector('.vn') || {}).textContent || '');
+    if (/自由探索手機|按「睡覺」/.test(t)) { seen = true; await page.click('.vn', { timeout: 1000 }).catch(() => {}); await sleep(200); continue; }
+    if (seen && !(await page.$('.vn'))) break;
+    if (!seen && i > 15) break;
+    await sleep(200);
+  }
   return page;
 }
 // 進度的基本設定：已經過了開場

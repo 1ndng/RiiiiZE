@@ -100,9 +100,13 @@
 
   // resume = 讀取劇情中的存檔時，從存檔的那一句繼續：{ at, bg, log, steps }
   // bg = 這段劇情的預設背景（例如日程的背景）；沒給就用 data.js 的 storyBg；劇情裡寫 { bg } 會換掉
+  // 兩段劇情之間至少隔 storyGap 毫秒（data.js，預設 2000）：上一段結束到下一段開始
+  var lastEnd = 0, waitingPlay = false;
   function play(id, done, resume, bg) {
     var steps = (resume && resume.steps) || (D().scenes || {})[id];
     if (!steps || !steps.length || cur) { done && done(); return; }
+    var gap = (D().storyGap != null ? D().storyGap : 2000) - (Date.now() - lastEnd);
+    if (gap > 0 && !resume) { waitingPlay = true; setTimeout(function () { waitingPlay = false; play(id, done, resume, bg); }, gap); return; }
     var t = T(), el = document.createElement('div');
     el.className = 'vn';
     el.innerHTML =
@@ -275,6 +279,7 @@
     clearInterval(cur.timer);
     var c = cur;
     cur = null;
+    lastEnd = Date.now();
     document.getElementById('phone').classList.remove('story-full');
     if (S()) S().setFlag('scene_' + c.id);
     c.el.classList.remove('show');
@@ -450,7 +455,7 @@
     askName: askName, askBirthday: askBirthday,
     playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },
     // 劇情、輸入名字、日程選單、結局畫面進行中（KakaoTalk 橫幅、來電會等這些結束）
-    playing: function () { return !!cur || !!document.querySelector('.vn-name, .sch, .end-card, .day-stage, .pl, .alarm, .wk, .title-scr'); },
+    playing: function () { return !!cur || waitingPlay || !!document.querySelector('.vn-name, .sch, .end-card, .day-stage, .pl, .alarm, .wk, .title-scr'); },
     setName: function (n) { var pl = load(PKEY, {}) || {}; pl.name = n; store(PKEY, pl); },
     // 這個時段有沒有主線劇情（日程用：放學有主線就不能選日程）
     hasStory: function (phase) { return storyFor(phase).length > 0; },
