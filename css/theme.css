@@ -179,11 +179,14 @@
 .title-blur { position: absolute; inset: -30px; background: center / cover no-repeat; filter: blur(18px) brightness(.95); }
 .title-art { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100cqw, 100cqh * 9 / 16); aspect-ratio: 9 / 16; background: center / 100% 100% no-repeat; }
 /* 圖上的粉紅框：按鈕放在裡面（位置寫在 data.js 的 title.box） */
-.title-box { position: absolute; display: flex; align-items: center; justify-content: center; padding: 4% 12%; container-type: size; }
-/* 按鈕大小跟著框的高度縮放：最多三個按鈕都要放得進去 */
-.title-box .title-btns { gap: 6cqh; max-width: 240px; width: 100%; }
-.title-box button { display: flex; align-items: center; justify-content: center; padding: 0 12px; height: 25cqh; max-height: 40px; border-radius: 12px; font-size: min(16px, 12cqh); line-height: 1; box-shadow: 0 2px 6px rgba(120, 50, 95, .22); }
-.title-box button.quiet { font-size: min(14px, 10.5cqh); }
+.title-box { position: absolute; display: flex; align-items: center; justify-content: center; padding: 6% 6%; container-type: size; }
+/* 框裡五個直式按鈕排成一排（字直著寫）；大小跟著框縮放 */
+.title-row { flex-direction: row !important; gap: 3.5cqw !important; max-width: none !important; width: 100%; height: 100%; justify-content: center; }
+.title-box .title-v { flex: 1; max-width: 17cqw; height: 100%; max-height: none; padding: 6px 0; border-radius: 12px; writing-mode: vertical-rl; text-orientation: upright;
+  display: flex; align-items: center; justify-content: center; gap: 4px; font-size: min(17px, 13cqh); letter-spacing: 2px; line-height: 1; box-shadow: 0 2px 6px rgba(120, 50, 95, .22); }
+.title-box .title-v small { font-size: .78em; opacity: .7; letter-spacing: 0; }
+.title-box .title-v[disabled] { opacity: .45; box-shadow: none; cursor: default; }
+.title-panel button.on { opacity: .6; }
 /* 沒有框、或讀檔清單／確認視窗：蓋在畫面中間 */
 .title-layer { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 56px; padding: 0 36px; pointer-events: none; }
 .title-layer > * { pointer-events: auto; }

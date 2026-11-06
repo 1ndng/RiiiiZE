@@ -114,10 +114,10 @@ const game = page => page.evaluate(() => ({ day: GAME.day, phase: GAME.phase, lo
 
 // ---------- 測試項目 ----------
 const TESTS = [
-  ['標題畫面：沒進度時顯示「開始遊戲」', async (b, base) => {
+  ['標題畫面：五個按鈕，沒進度時「繼續」「讀檔」不能按', async (b, base) => {
     const p = await open(b, base, {}, { title: true });
-    const btns = await p.$$eval('.title-scr button', a => a.map(x => x.textContent));
-    if (!btns.includes('開始遊戲')) throw new Error('按鈕：' + btns.join('、'));
+    const btns = await p.$$eval('.title-scr .title-v', a => a.map(x => x.firstChild.textContent + (x.disabled ? '(不能按)' : '')));
+    if (btns.join('、') !== '開始、繼續(不能按)、讀檔(不能按)、語言、音效') throw new Error('按鈕：' + btns.join('、'));
     await p.click('.title-scr button[data-t="go"]'); await sleep(800);
     if (!(await p.$('.vn-name'))) throw new Error('按了開始沒有出現輸入名字');
     return p;

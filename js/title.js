@@ -16,6 +16,8 @@
     var t = D().title || {}, d = {
       name: 'RiiiiZE', subtitle: '拉完子學院', bg: '',
       start: '開始遊戲', cont: '繼續', load: '讀取存檔', restart: '從頭開始', back: '返回',
+      btnStart: '開始', btnCont: '繼續', btnLoad: '讀檔', btnLang: '語言', btnSound: '音效', on: '開', off: '關',
+      langTitle: '語言', tw: '繁體中文', cn: '简体中文',
       autoSave: '自動存檔', loopSave: '循環前的存檔', slot: '存檔 {n}', noSaves: '還沒有存檔',
       restartTitle: '要從頭開始嗎？', restartText: '目前的進度會清除，回到第 1 天。\n存檔會保留。', ok: '從頭開始', cancel: '取消'
     };
@@ -45,17 +47,32 @@
     phone.classList.add('story-full');
     void el.offsetWidth; el.classList.add('show');
 
+    /* 框裡固定五個直式按鈕：開始、繼續、讀檔、語言、音效
+     *   沒有進度：「繼續」變淺色不能按；沒有存檔：「讀檔」變淺色不能按
+     *   有進度時按「開始」= 從頭開始（先確認） */
     function main() {
       var saves = G() ? G().saves() : { slots: {} }, any = saves.auto || saves.loop || Object.keys(saves.slots || {}).length;
-      var btns = '<div class="title-btns">' +
-          (hasProgress()
-            ? '<button type="button" data-t="go">' + esc(t.cont) + '</button>'
-            : '<button type="button" data-t="go">' + esc(t.start) + '</button>') +
-          (any ? '<button type="button" data-t="load">' + esc(t.load) + '</button>' : '') +
-          (hasProgress() ? '<button type="button" class="quiet" data-t="restart">' + esc(t.restart) + '</button>' : '') +
-        '</div>';
+      var prog = hasProgress(), sound = window.SOSHO_SOUND ? window.SOSHO_SOUND.on() : true;
+      var b = function (act, label, enabled, extra) {
+        return '<button type="button" class="title-v"' + (enabled ? ' data-t="' + act + '"' : ' disabled') + '>' + esc(label) + (extra ? '<small>' + esc(extra) + '</small>' : '') + '</button>';
+      };
+      var btns = '<div class="title-btns title-row">' +
+        b(prog ? 'restart' : 'go', t.btnStart, true) +
+        b('go', t.btnCont, prog) +
+        b('load', t.btnLoad, !!any) +
+        b('lang', t.btnLang, !!window.SOSHO_LANG) +
+        b('sound', t.btnSound, true, sound ? t.on : t.off) +
+      '</div>';
       if (box) { box.innerHTML = btns; layer.innerHTML = ''; }
       else layer.innerHTML = '<div class="title-logo"><b>' + esc(t.name) + '</b><span>' + esc(t.subtitle) + '</span></div>' + btns;
+    }
+    function langPanel() {
+      var cur = window.SOSHO_LANG.lang === 'cn' ? 'cn' : 'tw';
+      panel('<div class="title-panel"><b>' + esc(t.langTitle) + '</b><div class="title-btns">' +
+        ['tw', 'cn'].map(function (l) {
+          return '<button type="button"' + (l === cur ? ' class="on" disabled' : ' data-t="lang-' + l + '"') + '><span data-noconv>' + esc(t[l]) + '</span>' + (l === cur ? ' ✓' : '') + '</button>';
+        }).join('') +
+        '<button type="button" class="quiet" data-t="back">' + esc(t.back) + '</button></div></div>');
     }
     // 讀檔清單、確認從頭開始：蓋在畫面中間（框裡的按鈕先收起來）
     function panel(html) { if (box) box.innerHTML = ''; layer.innerHTML = html; }
@@ -91,6 +108,9 @@
       else if (a === 'load') loadList();
       else if (a === 'back') main();
       else if (a === 'restart') confirmRestart();
+      else if (a === 'lang') langPanel();
+      else if (a === 'lang-tw' || a === 'lang-cn') window.SOSHO_LANG.toggle();   // 換語言：重新整理後回到標題畫面
+      else if (a === 'sound') { if (window.SOSHO_SOUND) window.SOSHO_SOUND.toggle(); main(); }
       else if (a === 'restart-ok') {
         try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf('riiiize-') === 0) localStorage.removeItem(k); }); } catch (err) {}
         skipNext();

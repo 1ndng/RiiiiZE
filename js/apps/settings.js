@@ -19,6 +19,7 @@
     star: '<svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" fill="#fff"/></svg>',
     image: '<svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5" stroke="#fff" stroke-width="1.8" fill="none"/><circle cx="9" cy="10" r="1.7" fill="#fff"/><path d="M4 17l5-5 4 4 2.5-2.5L20 18" stroke="#fff" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     book: '<svg viewBox="0 0 24 24"><path d="M5 4.5h5.5a2.5 2.5 0 0 1 2.5 2.5v13a2 2 0 0 0-2-2H5z M19 4.5h-5.5A2.5 2.5 0 0 0 11 7v13a2 2 0 0 1 2-2h6z" stroke="#fff" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
+    sound: '<svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="#fff"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
     bell: '<svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z M10 20.5a2 2 0 0 0 4 0" stroke="#fff" stroke-width="1.8" fill="none" stroke-linejoin="round"/></svg>',
     restart: '<svg viewBox="0 0 24 24"><path d="M5.5 9A7.5 7.5 0 1 1 4.6 14" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M4 4.5v5h5" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   };
@@ -37,7 +38,7 @@
     dayLabel: '第 {n} 天', savedAt: '存於 {t}',
     statsTitle: '數值（開發用）', statsNote: '玩家看不到這一頁。正式公開前把 data.js 的 game.debug 改成 false。',
     day: '第幾天', aff: '好感度', awake: '覺醒度（在手機裡找到線索才會增加，到 3 = 覺醒）', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
-    buzz: '震動', on: '開', off: '關',
+    buzz: '震動', sound: '音效', on: '開', off: '關',
     langToCn: '要切換成简体中文嗎？', langToTw: '要切換成繁體中文嗎？', langText: '切換後畫面會重新整理一次，遊戲進度不會不見。', langOk: '切換',
     clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。每個人有 {n} 個，這裡只會告訴你找到了幾個。', cluesDone: '全部找到了',
     replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
@@ -82,6 +83,7 @@
       '</div>' +
       ((D().game || {}).debug ? '<div class="st-group">' + row(ICON.wrench, '#34c759', esc(t.statsTitle), '', 'data-st-go="#/settings/stats"', true) + '</div>' : '') +
       '<div class="st-group">' +
+        row(ICON.sound, '#ff2d55', esc(t.sound), esc(window.SOSHO_SOUND && window.SOSHO_SOUND.on() ? t.on : t.off), 'data-st-sound', false) +
         row(ICON.bell, '#ff9500', esc(t.buzz), esc(S().buzzOn() ? t.on : t.off), 'data-st-buzz', false) +
         (window.SOSHO_LANG ? row(ICON.globe, '#5856d6', esc(t.language), '<span data-noconv>' + (window.SOSHO_LANG.lang === 'cn' ? '简体中文' : '繁體中文') + '</span>', 'data-st-lang', true) : '') +
         row(ICON.restart, '#8e8e93', '<span class="st-red">' + esc(t.restart) + '</span>', '', 'data-st-restart', false) +
@@ -378,6 +380,10 @@
     var el, t = T();
     if ((el = e.target.closest('[data-st-go]'))) { location.hash = el.dataset.stGo; return; }
     if ((el = e.target.closest('[data-st-back]'))) { e.preventDefault(); S().goBack(el.getAttribute('href')); return; }
+    if (e.target.closest('[data-st-sound]')) {   // 音效開關（目前還沒有音效）
+      if (window.SOSHO_SOUND) window.SOSHO_SOUND.toggle();
+      renderMain(); return;
+    }
     if (e.target.closest('[data-st-buzz]')) {   // 震動開關
       try { localStorage.setItem('riiiizeBuzz', S().buzzOn() ? 'off' : 'on'); } catch (err) {}
       if (S().buzzOn()) S().buzz([60]);

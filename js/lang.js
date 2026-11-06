@@ -10,6 +10,12 @@
   var conv = null;
   if (lang === 'cn' && window.OpenCC) conv = window.OpenCC.Converter({ from: 'tw', to: 'cn' });
 
+  /* 音效開關（標題畫面、設定都可以切換；記在 riiiizeSound，重新開始不會清掉）
+   * 目前遊戲還沒有音效，開或關都沒有聲音；之後加音效時用 SOSHO_SOUND.on() 判斷要不要播 */
+  window.SOSHO_SOUND = {
+    on: function () { try { return localStorage.getItem('riiiizeSound') !== 'off'; } catch (e) { return true; } },
+    toggle: function () { try { localStorage.setItem('riiiizeSound', this.on() ? 'off' : 'on'); } catch (e) {} }
+  };
   window.SOSHO_LANG = {
     lang: lang,
     // 切換：存起來後重新整理頁面
