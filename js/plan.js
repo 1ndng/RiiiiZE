@@ -142,10 +142,11 @@
     return fx;
   }
   // 回傳這次遇到的人（日程的一句話用）
-  function doActivity(act) {
+  // noCount = 不算次數（開學週的強制日程）
+  function doActivity(act, noCount) {
     if (!act) return [];
     var ids = membersOf(act);
-    G().addStat('visits', act, 1);
+    if (!noCount) G().addStat('visits', act, 1);
     if (S()) S().setFlag('act_' + act);
     if (ids.length) G().apply(shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15));
     return ids;
@@ -272,13 +273,11 @@
       if (window.STORY && window.STORY.resumed('afterschool')) { done(); return; }   // 讀檔：放學的劇情剛剛已經接著播完
       var day = G().day, steps = [];
       if (location.hash !== '#/home') location.hash = '#/home';
-      // 1. 今天的日程：主線強制日程 → 照那個日程加好感；不然看月曆（平日），特殊劇情優先（不加好感）
+      // 1. 今天的日程：主線強制日程 → 照那個日程加好感（不算次數）；不然看月曆（平日），特殊劇情優先（不加好感）
       var forced = forcedOn(day);
       var playOn = function (id, act) { steps.push(function (next) { window.STORY.play(id, next, null, bgOf(act)); }); };
       if (forced) {
-        doActivity(forced.activity);
-        var fm = milestoneOf(forced.activity, G().stat('visits', forced.activity));   // 例如社團第一次 = 9/5
-        if (fm) playOn(fm, forced.activity);
+        doActivity(forced.activity, true);   // 開學週的強制日程不算次數（第 1 次固定劇情在 9/8 之後）
       } else if (!isWeekend(day)) {
         var act = plannedOn(day), sp = specialFor(day, act);
         // 日程的特殊劇情、第幾次的固定劇情、一句話、隨機劇情：背景 = 那個日程的 bg
