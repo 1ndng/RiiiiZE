@@ -177,6 +177,8 @@
     function dayEvents(date) { return window.PLAN ? window.PLAN.eventsOn(gameDayOf(date)) : []; }
     function specials(date) { return dayEvents(date).filter(function (e) { return e.mark; }); }
     events = events.concat(dayEvents(pd));
+    // 覺醒線索：行事曆上看到有 clue 的事件（停 1 秒才算，見 STORY.clue）
+    events.forEach(function (ev) { if (ev.clue && window.STORY && STORY.clue) STORY.clue(ev.clue); });
     var lead = (new Date(y, m, 1).getDay() + 6) % 7;   // 這個月 1 號前面空幾格（星期一開頭）
     var days = new Date(y, m + 1, 0).getDate(), cells = [];
     for (var i = 0; i < lead; i++) cells.push('<i></i>');

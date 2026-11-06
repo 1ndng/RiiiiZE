@@ -36,13 +36,14 @@ window.SITE_DATA = {
    *   比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，只寫數字 = 至少這個數字
    */
   // avatar = 大頭照（沒寫就用預設頭貼 images/default_avatar.png）
+  // no = 編號（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮；隨機劇情的名字 rand_club_14 用這個）
   cast: [
-    { id: "m1", name: "大﨑将太郎", birthday: "11-25", activities: ["club", "council", "games"], avatar: "images/cast/m1.jpg" },
-    { id: "m2", name: "宋恩奭",     birthday: "03-19", activities: ["volunteer", "council", "games"], avatar: "images/cast/m2.jpg" },
-    { id: "m3", name: "鄭成燦",     birthday: "09-13", activities: ["council", "sports", "karaoke"], avatar: "images/cast/m3.jpg" },
-    { id: "m4", name: "朴元彬",     birthday: "03-02", activities: ["club", "council", "sports"], avatar: "images/cast/m4.jpg" },
-    { id: "m5", name: "李炤熙",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"], avatar: "images/cast/m5.jpg" },
-    { id: "m6", name: "李燦榮",     birthday: "03-21", activities: ["volunteer", "council", "sports", "karaoke"], avatar: "images/cast/m6.jpg" }
+    { id: "m1", no: 1, name: "大﨑将太郎", birthday: "11-25", activities: ["club", "council", "games"], avatar: "images/cast/m1.jpg" },
+    { id: "m2", no: 2, name: "宋恩奭",     birthday: "03-19", activities: ["volunteer", "council", "games"], avatar: "images/cast/m2.jpg" },
+    { id: "m3", no: 3, name: "鄭成燦",     birthday: "09-13", activities: ["council", "sports", "karaoke"], avatar: "images/cast/m3.jpg" },
+    { id: "m4", no: 4, name: "朴元彬",     birthday: "03-02", activities: ["club", "council", "sports"], avatar: "images/cast/m4.jpg" },
+    { id: "m5", no: 6, name: "李炤熙",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"], avatar: "images/cast/m5.jpg" },
+    { id: "m6", no: 7, name: "李燦榮",     birthday: "03-21", activities: ["volunteer", "council", "sports", "karaoke"], avatar: "images/cast/m6.jpg" }
   ],
 
   /* ---------- 劇情（對話框） ----------
@@ -200,6 +201,26 @@ window.SITE_DATA = {
     awake_m6_1: [ { text: "（李燦榮・第一階段：異常察覺。待寫）" } ],
     awake_m6_2: [ { text: "（李燦榮・第二階段：記憶浮現。待寫）" } ],
     awake_m6_3: [ { text: "（李燦榮・第三階段：認知與接受。待寫）" } ],
+    /* ---- 日程劇情（空白樣板，待寫） ----
+     *   act_日程_次數：第幾次去的固定劇情（那天停下來播）
+     *   rand_日程_編號：隨機劇情（遇到那個人／那兩個人時 30% 觸發，可重複）；配對 14 = 將太郎＋元彬
+     */
+    act_club_1: [ { text: "（社團活動第1次：待寫）" } ], act_club_5: [ { text: "（社團活動第5次：待寫）" } ], act_club_10: [ { text: "（社團活動第10次：待寫）" } ], act_club_20: [ { text: "（社團活動第20次：待寫）" } ], act_club_30: [ { text: "（社團活動第30次：待寫）" } ], act_club_50: [ { text: "（社團活動第50次：待寫）" } ],
+    act_volunteer_1: [ { text: "（志工活動第1次：待寫）" } ], act_volunteer_5: [ { text: "（志工活動第5次：待寫）" } ], act_volunteer_10: [ { text: "（志工活動第10次：待寫）" } ], act_volunteer_20: [ { text: "（志工活動第20次：待寫）" } ], act_volunteer_30: [ { text: "（志工活動第30次：待寫）" } ], act_volunteer_50: [ { text: "（志工活動第50次：待寫）" } ],
+    act_sports_1: [ { text: "（體育館第1次：待寫）" } ], act_sports_5: [ { text: "（體育館第5次：待寫）" } ], act_sports_10: [ { text: "（體育館第10次：待寫）" } ], act_sports_20: [ { text: "（體育館第20次：待寫）" } ], act_sports_30: [ { text: "（體育館第30次：待寫）" } ], act_sports_50: [ { text: "（體育館第50次：待寫）" } ],
+    act_council_1: [ { text: "（學生會第1次：待寫）" } ], act_council_5: [ { text: "（學生會第5次：待寫）" } ], act_council_10: [ { text: "（學生會第10次：待寫）" } ], act_council_20: [ { text: "（學生會第20次：待寫）" } ], act_council_30: [ { text: "（學生會第30次：待寫）" } ], act_council_40: [ { text: "（學生會第40次：待寫）" } ], act_council_50: [ { text: "（學生會第50次：待寫）" } ],
+    act_games_1: [ { text: "（網咖第1次：待寫）" } ], act_games_5: [ { text: "（網咖第5次：待寫）" } ], act_games_10: [ { text: "（網咖第10次：待寫）" } ], act_games_20: [ { text: "（網咖第20次：待寫）" } ], act_games_30: [ { text: "（網咖第30次：待寫）" } ], act_games_50: [ { text: "（網咖第50次：待寫）" } ],
+    act_karaoke_1: [ { text: "（KTV第1次：待寫）" } ], act_karaoke_5: [ { text: "（KTV第5次：待寫）" } ], act_karaoke_10: [ { text: "（KTV第10次：待寫）" } ], act_karaoke_20: [ { text: "（KTV第20次：待寫）" } ], act_karaoke_30: [ { text: "（KTV第30次：待寫）" } ], act_karaoke_50: [ { text: "（KTV第50次：待寫）" } ],
+    act_wander_1: [ { text: "（閒晃第1次：待寫）" } ], act_wander_10: [ { text: "（閒晃第10次：待寫）" } ], act_wander_30: [ { text: "（閒晃第30次：待寫）" } ], act_wander_50: [ { text: "（閒晃第50次：待寫）" } ],
+    act_home_1: [ { text: "（回家第1次：待寫）" } ], act_home_10: [ { text: "（回家第10次：待寫）" } ], act_home_30: [ { text: "（回家第30次：待寫）" } ], act_home_50: [ { text: "（回家第50次：待寫）" } ],
+    rand_club_1: [ { text: "（社團活動隨機・1：待寫）" } ], rand_club_4: [ { text: "（社團活動隨機・4：待寫）" } ], rand_club_6: [ { text: "（社團活動隨機・6：待寫）" } ], rand_club_14: [ { text: "（社團活動隨機・14：待寫）" } ], rand_club_16: [ { text: "（社團活動隨機・16：待寫）" } ], rand_club_46: [ { text: "（社團活動隨機・46：待寫）" } ],
+    rand_volunteer_2: [ { text: "（志工活動隨機・2：待寫）" } ], rand_volunteer_7: [ { text: "（志工活動隨機・7：待寫）" } ], rand_volunteer_27: [ { text: "（志工活動隨機・27：待寫）" } ],
+    rand_sports_3: [ { text: "（體育館隨機・3：待寫）" } ], rand_sports_4: [ { text: "（體育館隨機・4：待寫）" } ], rand_sports_7: [ { text: "（體育館隨機・7：待寫）" } ], rand_sports_34: [ { text: "（體育館隨機・34：待寫）" } ], rand_sports_37: [ { text: "（體育館隨機・37：待寫）" } ], rand_sports_47: [ { text: "（體育館隨機・47：待寫）" } ],
+    rand_council_1: [ { text: "（學生會隨機・1：待寫）" } ], rand_council_2: [ { text: "（學生會隨機・2：待寫）" } ], rand_council_3: [ { text: "（學生會隨機・3：待寫）" } ], rand_council_4: [ { text: "（學生會隨機・4：待寫）" } ], rand_council_6: [ { text: "（學生會隨機・6：待寫）" } ], rand_council_7: [ { text: "（學生會隨機・7：待寫）" } ], rand_council_13: [ { text: "（學生會隨機・13：待寫）" } ], rand_council_16: [ { text: "（學生會隨機・16：待寫）" } ], rand_council_17: [ { text: "（學生會隨機・17：待寫）" } ], rand_council_23: [ { text: "（學生會隨機・23：待寫）" } ], rand_council_24: [ { text: "（學生會隨機・24：待寫）" } ], rand_council_26: [ { text: "（學生會隨機・26：待寫）" } ], rand_council_27: [ { text: "（學生會隨機・27：待寫）" } ], rand_council_36: [ { text: "（學生會隨機・36：待寫）" } ], rand_council_46: [ { text: "（學生會隨機・46：待寫）" } ], rand_council_47: [ { text: "（學生會隨機・47：待寫）" } ],
+    rand_games_1: [ { text: "（網咖隨機・1：待寫）" } ], rand_games_2: [ { text: "（網咖隨機・2：待寫）" } ], rand_games_6: [ { text: "（網咖隨機・6：待寫）" } ], rand_games_12: [ { text: "（網咖隨機・12：待寫）" } ], rand_games_26: [ { text: "（網咖隨機・26：待寫）" } ],
+    rand_karaoke_3: [ { text: "（KTV隨機・3：待寫）" } ], rand_karaoke_6: [ { text: "（KTV隨機・6：待寫）" } ], rand_karaoke_7: [ { text: "（KTV隨機・7：待寫）" } ], rand_karaoke_36: [ { text: "（KTV隨機・36：待寫）" } ], rand_karaoke_37: [ { text: "（KTV隨機・37：待寫）" } ], rand_karaoke_67: [ { text: "（KTV隨機・67：待寫）" } ],
+    rand_wander_1: [ { text: "（閒晃隨機・1：待寫）" } ], rand_wander_2: [ { text: "（閒晃隨機・2：待寫）" } ], rand_wander_3: [ { text: "（閒晃隨機・3：待寫）" } ], rand_wander_4: [ { text: "（閒晃隨機・4：待寫）" } ], rand_wander_12: [ { text: "（閒晃隨機・12：待寫）" } ], rand_wander_13: [ { text: "（閒晃隨機・13：待寫）" } ], rand_wander_14: [ { text: "（閒晃隨機・14：待寫）" } ], rand_wander_23: [ { text: "（閒晃隨機・23：待寫）" } ], rand_wander_24: [ { text: "（閒晃隨機・24：待寫）" } ], rand_wander_34: [ { text: "（閒晃隨機・34：待寫）" } ], rand_wander_17: [ { text: "（閒晃隨機・17：待寫）" } ], rand_wander_67: [ { text: "（閒晃隨機・67：待寫）" } ],
+    rand_home_me: [ { text: "（回家隨機・跟自己對話：待寫）" } ],
     // 三個結局的劇情（endings 的 scene）
     ending_true: [ { text: "（TRUE END：六人重新面對現實。待寫）" } ],
     ending_dream1: [ { text: "（DREAM END 1：七人選擇留在這段時光。待寫）" } ],
@@ -244,15 +265,16 @@ window.SITE_DATA = {
     pairTotal: 15,
     wanderMeet: 2,
     // cell = 月曆格子裡顯示的名字（"|" = 換行），沒寫就用 label
+    // milestones = 第幾次去的時候有固定劇情（scenes.act_日程_次數，例如 act_club_5；那天會停下來播）
     // bg = 這個日程的背景（一句話、特殊劇情、主線強制日程的劇情都用它；劇情裡寫 { bg } 會換掉；沒寫就用 storyBg）
     activities: [
-      { id: "club",      label: "社團活動", cell: "社團|活動", bg: "images/bg/club.jpg" },
-      { id: "volunteer", label: "志工活動", cell: "志工|活動", bg: "images/bg/volunteer.jpg" },
-      { id: "sports",    label: "體育館",   bg: "images/bg/sports.jpg" },
-      { id: "council",   label: "學生會",   bg: "images/bg/council.jpg" },
-      { id: "games",     label: "網咖",     bg: "images/bg/games.jpg" },
-      { id: "karaoke",   label: "KTV",      bg: "images/bg/karaoke.jpg" },
-      { id: "wander",    label: "閒晃",     bg: "images/bg/wander.jpg" }
+      { id: "club",      label: "社團活動", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [1, 5, 10, 20, 30, 50] },
+      { id: "volunteer", label: "志工活動", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [1, 5, 10, 20, 30, 50] },
+      { id: "sports",    label: "體育館",   bg: "images/bg/sports.jpg", milestones: [1, 5, 10, 20, 30, 50] },
+      { id: "council",   label: "學生會",   bg: "images/bg/council.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "games",     label: "網咖",     bg: "images/bg/games.jpg", milestones: [1, 5, 10, 20, 30, 50] },
+      { id: "karaoke",   label: "KTV",      bg: "images/bg/karaoke.jpg", milestones: [1, 5, 10, 20, 30, 50] },
+      { id: "wander",    label: "閒晃",     bg: "images/bg/wander.jpg", milestones: [1, 10, 30, 50] }
     ],
     specials: [
       // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },
@@ -268,6 +290,22 @@ window.SITE_DATA = {
     ],
     gift: { aff: 6, pair: 15 },
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
+    homeMilestones: [1, 10, 30, 50],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
+    /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（可以重複觸發；一天最多一段）
+     *   寫編號：單人 "1"、配對 "14"（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮）；回家寫 "me"（跟自己對話）
+     *   劇情寫在 scenes.rand_日程_編號（例如 rand_club_14、rand_home_me）；沒寫劇情的不會觸發
+     *   被跳過的日子觸發的，在「這週的放學後」之後依序播 */
+    random: {
+      chance: 0.3,
+      club:      ["1", "4", "6", "14", "16", "46"],
+      volunteer: ["2", "7", "27"],
+      sports:    ["3", "4", "7", "34", "37", "47"],
+      council:   ["1", "2", "3", "4", "6", "7", "13", "16", "17", "23", "24", "26", "27", "36", "46", "47"],
+      games:     ["1", "2", "6", "12", "26"],
+      karaoke:   ["3", "6", "7", "36", "37", "67"],
+      wander:    ["1", "2", "3", "4", "12", "13", "14", "23", "24", "34", "17", "67"],
+      home:      ["me"]
+    },
     weekend: { bg: "images/bg/wander.jpg", intro: "weekend_intro", single: 6, pairAff: 3, pairBond: 15, scenes: [], home: [] }
   },
 
@@ -696,14 +734,14 @@ window.SITE_DATA = {
         defaultReply: []
       }
     ],
-    // 群組：activity 寫日程 id = 自動放進那個日程會出現的成員（cast 的 activities），名字用日程名稱
+    // 群組：activity 寫日程 id = 自動放進那個日程會出現的成員（cast 的 activities）；name = 群組名稱（不寫 = 日程名稱）
     //   也可以不寫 activity，改寫 members（好友 id）；訊息的 from 寫好友 id（或 "me"）；name 留空 = 自動用成員名字
     // replies 的 reply 可以寫 { from: "f3", text: "..." } 指定誰回
     groups: [
-      { id: "g_club", activity: "club", unread: 0, messages: [], replies: [], defaultReply: [] },   // 社團活動
-      { id: "g_volunteer", activity: "volunteer", unread: 0, messages: [], replies: [], defaultReply: [] },   // 志工活動
-      { id: "g_council", activity: "council", unread: 0, messages: [], replies: [], defaultReply: [] },   // 學生會
-      { id: "g_karaoke", activity: "karaoke", unread: 0, messages: [], replies: [], defaultReply: [] }   // KTV
+      { id: "g_club", name: "放槍的伏地挺身100下", activity: "club", unread: 0, messages: [], replies: [], defaultReply: [] },   // 社團活動
+      { id: "g_volunteer", name: "什麼水可以往上又往下：鼻水", activity: "volunteer", unread: 0, messages: [], replies: [], defaultReply: [] },   // 志工活動
+      { id: "g_council", name: "重生之篡位學生會長", activity: "council", unread: 0, messages: [], replies: [], defaultReply: [] },   // 學生會
+      { id: "g_karaoke", name: "KKKK歌！", activity: "karaoke", unread: 0, messages: [], replies: [], defaultReply: [] }   // KTV
     ],
     // 介面文字
     text: {

@@ -404,7 +404,7 @@
         // 回覆可以寫字串，或 { from: "好友id", text: "..." }（群組用來指定誰回）
         var from = f.group ? ((line && line.from) || (f.members[0] || {}).id) : 'them';
         var msg = { from: from, time: nowTime() };
-        if (line && typeof line === 'object') { if (line.image) msg.image = line.image; msg.text = line.text; } else msg.text = line;
+        if (line && typeof line === 'object') { if (line.image) msg.image = line.image; if (line.clue) msg.clue = line.clue; msg.text = line.text; } else msg.text = line;
         push(f.id, msg);
         if (line && typeof line === 'object' && line.flag) S().setFlag(line.flag);   // 這句回覆傳來時記錄旗標
         if (openChatId === f.id && location.hash.indexOf('#/kakao/chat/') === 0) { paintChat(); paintChoices(); }
