@@ -459,7 +459,7 @@
     var t = T(), out = [];
     holidaysOn(day).forEach(function (h) { out.push({ title: h.title, color: h.color || '#ff3b30', mark: true }); });
     birthdaysOn(day).forEach(function (b) { out.push({ title: b.me ? t.myBirthday : t.birthday.replace('{name}', b.name), color: '#ff9500', mark: true }); });
-    if (isGiftDay(day)) out.push({ title: t.giftDay, color: '#ff2d55', mark: true });
+    // 送禮日（14 日）不標在行事曆上
     (C().specials || []).forEach(function (e) { if (e.date && e.title && G().dayOf(e.date) === day && ok(e.if)) out.push({ title: e.title, color: e.color || '#ff9500', mark: true }); });
     var f = forcedOn(day), a = f ? f.activity : (!isWeekend(day) && plannedOn(day));
     if (a) out.push({ title: actOf(a).label, color: '#5856d6' });

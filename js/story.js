@@ -94,7 +94,7 @@
     if (!who) return '';
     if (who === 'me') return playerName() || T().defaultName;
     var c = (D().cast || []).filter(function (x) { return x.id === who; })[0];
-    return c ? c.name : who;
+    return c ? (c.short || c.name) : who;   // 劇情裡只顯示名字（cast 的 short）
   }
   function ok(c) { return !c || !window.GAME || window.GAME.check(c); }
 

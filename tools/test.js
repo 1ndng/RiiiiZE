@@ -263,9 +263,15 @@ const TESTS = [
     await p.evaluate(() => location.hash = '#/home'); await sleep(900);
     if (await p.evaluate(() => location.hash) !== '#/ig/u/bin032/post/0') throw new Error('強制留言時可以離開');
     await p.click('#ig-sheet.forced #ig-cmt-form button');
+    // 元彬回覆 → 頭痛的劇情 → 再留一次言 → 🙄
+    await p.waitForSelector('.vn', { timeout: 8000 });
+    if ((await p.evaluate(() => document.getElementById('ig-cmt-list').textContent)).indexOf('講過好多次') < 0) throw new Error('元彬沒有回覆留言');
+    await clickStory(p, async () => !!(await p.$('#ig-sheet.forced #ig-cmt-form button:not([disabled])')));
+    await p.waitForSelector('#ig-sheet.forced #ig-cmt-form button:not([disabled])', { timeout: 8000 });
+    await p.click('#ig-sheet.forced #ig-cmt-form button');
     for (let i = 0; i < 30 && !(await p.evaluate(() => GAME.stat('awake', 'm4'))); i++) await sleep(300);
     const txt = await p.evaluate(() => document.getElementById('ig-cmt-list').textContent);
-    if (txt.indexOf('一模一樣') < 0) throw new Error('元彬沒有回覆留言');
+    if (txt.indexOf('心願') < 0 || txt.indexOf('🙄') < 0) throw new Error('第二次留言或元彬的 🙄 沒有出現');
     if (await p.evaluate(() => GAME.stat('awake', 'm4')) !== 1) throw new Error('留言後沒有算線索');
     return p;
   }],

@@ -37,13 +37,14 @@ window.SITE_DATA = {
    */
   // avatar = 大頭照（沒寫就用預設頭貼 images/default_avatar.png）
   // no = 編號（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮；隨機劇情的名字 rand_club_14 用這個）
+  // short = 劇情對話框裡顯示的名字（只有名、沒有姓）
   cast: [
-    { id: "m1", no: 1, name: "大﨑将太郎", birthday: "11-25", activities: ["club", "council", "games"], avatar: "images/cast/m1.jpg" },
-    { id: "m2", no: 2, name: "宋恩奭",     birthday: "03-19", activities: ["volunteer", "council", "games"], avatar: "images/cast/m2.jpg" },
-    { id: "m3", no: 3, name: "鄭成燦",     birthday: "09-13", activities: ["council", "sports", "karaoke"], avatar: "images/cast/m3.jpg" },
-    { id: "m4", no: 4, name: "朴元彬",     birthday: "03-02", activities: ["club", "council", "sports"], avatar: "images/cast/m4.jpg" },
-    { id: "m5", no: 6, name: "李炤熙",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"], avatar: "images/cast/m5.jpg" },
-    { id: "m6", no: 7, name: "李燦榮",     birthday: "03-21", activities: ["volunteer", "council", "sports", "karaoke"], avatar: "images/cast/m6.jpg" }
+    { id: "m1", no: 1, name: "大﨑将太郎", short: "將太郎", birthday: "11-25", activities: ["club", "council", "games"], avatar: "images/cast/m1.jpg" },
+    { id: "m2", no: 2, name: "宋恩奭", short: "恩奭",     birthday: "03-19", activities: ["volunteer", "council", "games"], avatar: "images/cast/m2.jpg" },
+    { id: "m3", no: 3, name: "鄭成燦", short: "成燦",     birthday: "09-13", activities: ["council", "sports", "karaoke"], avatar: "images/cast/m3.jpg" },
+    { id: "m4", no: 4, name: "朴元彬", short: "元彬",     birthday: "03-02", activities: ["club", "council", "sports"], avatar: "images/cast/m4.jpg" },
+    { id: "m5", no: 6, name: "李炤熙", short: "炤熙",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"], avatar: "images/cast/m5.jpg" },
+    { id: "m6", no: 7, name: "李燦榮", short: "燦榮",     birthday: "03-21", activities: ["volunteer", "council", "sports", "karaoke"], avatar: "images/cast/m6.jpg" }
   ],
 
   /* ---------- 劇情（對話框） ----------
@@ -88,9 +89,7 @@ window.SITE_DATA = {
     // 9/7 晚上，打開客服小精靈的聊天室時先播（背景是變暗的手機畫面）
     helper_intro: [
       { text: "群組安靜下來後，手機又震了一下。" },
-      { text: "一個你不記得什麼時候加過的好友——「客服小精靈」，傳來了新訊息。" },
-      { text: "這裡是遊戲的說明小幫手。玩法說明、進度提醒，之後都會傳到這個聊天室。" },
-      { text: "想不起來怎麼玩的時候，隨時回來看看吧。" }
+      { text: "一個你不記得什麼時候加過的好友——「客服小精靈」，傳來了新訊息。" }
     ],
     intro_bday: [ { bg: "phone-dim" }, { who: "me", text: "怎麼在這個世界我還在追拉完子==" } ],
     // 開場自由探索時，打開 IG、相簿、KakaoTalk → 播完畫面變黑、顯示 9/1 → 9/1 主線
@@ -555,13 +554,18 @@ window.SITE_DATA = {
      *   不寫這段劇情也可以：找到線索照樣 +1，只是沒有反應
      */
     // 大﨑将太郎（身體跟不上自己）
+    // 元彬的線索（m4_1）留言到一半：玩家頭痛（背景是變暗的手機畫面）
+    clue_m4_1_ache: [
+      { text: "看到那句回覆的瞬間，你的頭忽然一陣刺痛。", headache: true },
+      { text: "好像真的有那麼一個時候——你對著螢幕裡的他，打過一模一樣的話。", headache: true },
+      { text: "……" }
+    ],
     awake_m1_1: [
-      { text: "你盯著那則備忘錄。" },
-      { text: "2024 年 12 月 3 日。那個時候，你根本還不在這裡。" },
-      { text: "……「還不在這裡」？" },
-      { who: "me", text: "我為什麼會這樣想……" },
-      { text: "你把手機蓋在胸口。將太郎說他想不起來。你也想不起來。" },
-      { text: "可是那句「明年也要一起站在台上」，讓你的胸口隱隱作痛。" }
+      { text: "你又打開那則備忘錄看了一次。" },
+      { text: "2025 年 9 月 23 日。才一個月前的事。" },
+      { text: "可是你不記得自己寫過，將太郎也不記得討論過。" },
+      { who: "me", text: "……那這是誰幫我們記下來的？" },
+      { text: "你把手機蓋在胸口。明明是幫上忙的好事，心裡卻空了一塊。" }
     ],
     awake_m1_2: [ { text: "（大﨑将太郎・第二階段：記憶浮現。待寫）" } ],
     awake_m1_3: [ { text: "（大﨑将太郎・第三階段：認知與接受。待寫）" } ],
@@ -570,28 +574,26 @@ window.SITE_DATA = {
       { text: "你點開恩奭的主頁，又看了一次。" },
       { text: "☃️" },
       { text: "他說他沒有改過。" },
-      { text: "那這個雪人，是誰放上去的？是哪一年的冬天留下來的？" },
-      { who: "me", text: "……總覺得，好像不是這一年的東西。" }
+      { text: "「既堅強又柔軟」……雖然是冷笑話，可是聽起來，好像是在說他自己。" },
+      { who: "me", text: "……這個雪人，是哪一年的冬天留下來的？" }
     ],
     awake_m2_2: [ { text: "（宋恩奭・第二階段：記憶浮現。待寫）" } ],
     awake_m2_3: [ { text: "（宋恩奭・第三階段：認知與接受。待寫）" } ],
     // 鄭成燦（失去生活中的火花）
     awake_m3_1: [
-      { text: "「合練 22:00」" },
-      { text: "你沒有加過這個行程。成燦也說不是他。" },
-      { text: "可是他說，看到這兩個字，腳就想動起來。" },
-      { text: "你想像了一下：深夜的練習室，鏡子裡七個人——" },
-      { text: "不，是六個人。" },
-      { who: "me", text: "……我剛剛在想什麼。" }
+      { text: "「🦌 球賽 16:00」" },
+      { text: "成燦說，他今天才知道有這場球賽。" },
+      { text: "可是這個行程，十二月一號就在你的行事曆上了。" },
+      { who: "me", text: "……我怎麼會比他還早知道？" }
     ],
     awake_m3_2: [ { text: "（鄭成燦・第二階段：記憶浮現。待寫）" } ],
     awake_m3_3: [ { text: "（鄭成燦・第三階段：認知與接受。待寫）" } ],
     // 朴元彬（善良成為被利用的理由）
     awake_m4_1: [
-      { text: "「好像有人跟我說過一模一樣的話。」" },
-      { text: "你看著元彬的回覆，看了很久。" },
-      { text: "那個人是誰？" },
-      { text: "……該不會，就是你吧。在某一個你已經不記得的時候。" }
+      { text: "「怎麼感覺你講過好多次……」" },
+      { text: "你看著元彬的回覆，頭還隱隱作痛。" },
+      { text: "好多次。是在哪裡講的？是對著哪一個他講的？" },
+      { who: "me", text: "……該不會，我真的講過很多很多次吧。" }
     ],
     awake_m4_2: [ { text: "（朴元彬・第二階段：記憶浮現。待寫）" } ],
     awake_m4_3: [ { text: "（朴元彬・第三階段：認知與接受。待寫）" } ],
@@ -599,8 +601,8 @@ window.SITE_DATA = {
     awake_m5_1: [
       { text: "你又打開了那張照片。" },
       { text: "一片看不到盡頭的燈海。每一盞燈，都朝著舞台的方向。" },
-      { text: "炤熙說，好像是他站的位置。" },
-      { text: "你的頭隱隱作痛。" },
+      { text: "炤熙說他不記得，可是覺得這個視角蠻帥的。" },
+      { text: "你的頭隱隱作痛。", headache: true },
       { text: "這張照片，你好像也在另一邊看過。在燈海的那一邊。" }
     ],
     awake_m5_2: [ { text: "（李炤熙・第二階段：記憶浮現。待寫）" } ],
@@ -608,10 +610,10 @@ window.SITE_DATA = {
     // 李燦榮（無法突破極限，也無法被看見）
     awake_m6_1: [
       { text: "燦榮說，他不記得自己傳過那則訊息。" },
-      { text: "「這次就算只有三個人聽也沒關係」" },
-      { text: "只有三個人聽……是什麼意思？" },
-      { text: "他寫的歌，明明那麼好聽。" },
-      { who: "me", text: "……如果只有三個人聽，那我要當第一個。" }
+      { text: "「你有看過〈Another Life〉的歌詞嗎？」" },
+      { text: "那首歌。那首讓你第一次頭痛的歌。" },
+      { text: "他說他很喜歡。" },
+      { who: "me", text: "……為什麼偏偏是那首歌？" }
     ],
     awake_m6_2: [ { text: "（李燦榮・第二階段：記憶浮現。待寫）" } ],
     awake_m6_3: [ { text: "（李燦榮・第三階段：認知與接受。待寫）" } ],
@@ -1672,49 +1674,61 @@ window.SITE_DATA = {
    *   onReply = 玩家在這個聊天室主動回任何話才觸發（after = 要先有的旗標）
    * 做完 → 那位成員覺醒度 +1、記錄旗標 clue_線索 → 播 scenes.awake_線索（沒寫就不播）
    * 第一個線索（10～12 月）：
-   *   m1_1 10 月 置頂備忘錄（備忘錄 n_council）     m2_1 11 月 IG 簡介 ☃️（seokkkk）
-   *   m3_1 12 月 行事曆 12/21「合練」（Claude 暫定）  m4_1 11 月 IG 新貼文（bin032）
-   *   m5_1 10 月 最近刪除的照片（Claude 暫定）        m6_1 12/7 星期日 燦榮突然傳訊息、玩家回話
+   *   m1_1 10/1 置頂備忘錄（備忘錄 n_council）      m2_1 11/1 IG 簡介 ☃️（seokkkk）
+   *   m3_1 12/1 行事曆 12/21「球賽」                 m4_1 11/12 IG 新貼文（bin032）
+   *   m5_1 10/1 最近刪除的照片                       m6_1 12/7 星期日 燦榮突然傳訊息、玩家回話
    */
   clues: {
+    // 1 將太郎（10/1）：置頂備忘錄「學生會：交接」→ 傳給將太郎
     m1_1: { see: 0, chat: { room: "f1", steps: [
-      { choices: [ { text: "將太郎，你看這個……我手機裡怎麼會有這個？\n\n「學生會 交接備忘\n・第 7 屆成果發表：完成\n・會長交接：將太郎 → ？？？\n・記得跟將太郎說：明年也要一起站在台上」" } ] },
-      { text: "這是……學生會的交接？", wait: 1200 },
-      { text: "好奇怪" },
-      { text: "我好像真的聽誰說過「明年也要一起站在台上」" },
-      { text: "可是完全想不起來是什麼時候" }
+      { choices: [ { text: "將太郎，我在備忘錄裡看到這個，是不是你要的交接？\n\n「學生會：交接\n・總務帳本 → 元彬\n・器材清單 → 恩奭\n・活動企劃書 → 成燦\n・海報檔案 → 燦榮\n・會議紀錄 → 炤熙\n・學生會 IG → 我\n・校慶企劃書 10/15 前交」" } ] },
+      { text: "原來我們討論過這個嗎......？", wait: 1200 },
+      { text: "總之幫大忙了🥺" },
+      { text: "正愁打不出來呢ㅎㅎ" }
     ] } },
+    // 2 恩奭（11/1）：IG 簡介多了 ☃️ → 傳訊息（依聖誕週 12/22～12/28 前／當週／之後不同）
     m2_1: { see: 0, chat: { room: "f2", steps: [
       { choices: [
-        { text: "還沒聖誕節耶，你怎麼就把雪人掛上簡介了", if: { day: "<113" } },
-        { text: "簡介的雪人好應景啊，看不出你是這樣的人", if: { day: [113, 119] } },
-        { text: "聖誕節都過了，你簡介怎麼還掛著雪人", if: { day: ">119" } }
+        { text: "看來你很想過聖誕節呢kkk這麼快就在IG簡介堆雪人了嗎！", if: { day: "<113" } },
+        { text: "好應景啊kkk我也要跟你一樣在IG簡介堆雪人！", if: { day: [113, 119] } },
+        { text: "聖誕節都過了你IG簡介上的雪人怎麼還掛著kkk好堅強呀", if: { day: ">119" } }
       ] },
-      { text: "雪人？", wait: 1200 },
-      { text: "我沒改過簡介啊" },
-      { text: "……怎麼回事" }
+      { text: "我沒改過簡介啊……怎麼回事", wait: 1200 },
+      { text: "我跟雪人一樣既堅強又柔軟~" },
+      { choices: [ { text: "？" } ] }
     ] } },
+    // 3 成燦（12/1）：行事曆 12/21 多了「🦌 球賽 16:00」→ 問他觀賽前要準備什麼
     m3_1: { chat: { room: "f3", steps: [
-      { choices: [ { text: "我行事曆上 12/21 多了一個「🦌 合練 22:00」，是你加的嗎？" } ] },
-      { text: "合練？", wait: 1200 },
-      { text: "不是我啊，我們又沒有要一起練什麼" },
-      { text: "可是好奇怪" },
-      { text: "看到這兩個字，腳好像自己就想動起來" }
+      { choices: [ { text: "12/21 的球賽，去看之前要準備什麼嗎？" } ] },
+      { text: "你怎麼知道的！", wait: 1000 },
+      { text: "今天教練才跟我們說" },
+      { text: "我也才剛剛知道" },
+      { text: "{name}人有到就很好了！", typing: 4500 }
     ] } },
-    m4_1: { see: 0, comment: { text: "這張好好看！下次也帶我去", reply: { user: "bin032", text: "@briiii1ze._ ……奇怪，好像有人跟我說過一模一樣的話" } } },
+    // 4 元彬（11/12）：IG 新貼文 → 強制留言 → 他回 → 玩家頭痛 → 玩家再回 → 🙄
+    m4_1: { see: 0, comment: { steps: [
+      { me: "老天下輩子投胎我也想長這樣" },
+      { user: "bin032", text: "怎麼感覺你講過好多次……" },
+      { scene: "clue_m4_1_ache" },
+      { me: "可能吧因為這是真實的我的心願。" },
+      { user: "bin032", text: "🙄", wait: 1500 }
+    ] } },
+    // 6 炤熙（10/1）：最近刪除的照片 → 傳給炤熙「好像忘記傳給你了」
     m5_1: { see: 0, chat: { room: "f5", steps: [
-      { choices: [ { text: "炤熙，這張照片是你傳給我的嗎？我在最近刪除裡找到的", image: "images/placeholder.jpg" } ] },
-      { text: "……這是哪裡？", wait: 1400 },
-      { text: "我們社團表演從來沒站過這麼大的舞台吧" },
-      { text: "可是這個角度" },
-      { text: "好像就是我站的位置" }
+      { choices: [ { text: "好像忘記傳給你了", image: "images/placeholder.jpg" } ] },
+      { text: "{name}", wait: 1400 },
+      { text: "這是什麼？" },
+      { text: "雖然不記得 但這個視角蠻帥的" },
+      { choices: [ { text: "ㅇㅋ~" } ] }
     ] } },
+    // 7 燦榮（12/7 星期日晚上）：突然傳來「你有看過〈Another Life〉的歌詞嗎？」；玩家主動回話才觸發（不回就沒有反應、不加覺醒度）
     m6_1: { see: 0, onReply: "f6", after: "anton_1207", chat: { room: "f6", steps: [
-      { text: "？", wait: 1500 },
-      { text: "等等，我什麼時候傳的" },
-      { text: "好像有印象……又好像沒有" }
+      { text: "我什麼時候傳的？", wait: 1500 },
+      { text: "好像有印象，又好像沒有......" },
+      { text: "總之，我很喜歡這首歌呢......" }
     ] } }
   },
+
 
   /* ---------- 每月安排與日程 ----------
    * 9/7 之後（planFrom 那天起）每個月開始時跳出月曆：把日程方塊拖到星期一～六，一天一個；沒放 = 回家
@@ -1887,8 +1901,8 @@ window.SITE_DATA = {
     //   想改顯示的字：weekdays（星期日～六）、months（一月～十二月）、weekHeads（一～日）
     calendar: {
       events: [
-        // 覺醒線索 m3_1（成燦）：12 月起，12/21 多了一個玩家沒加過的行程
-        { date: "2025-12-21", title: "🦌 合練 22:00", from: "12-01", clue: "m3_1" }
+        // 覺醒線索 m3_1（成燦）：12 月起，12/21 多了一個玩家沒加過的行程（球賽）
+        { date: "2025-12-21", title: "🦌 球賽 16:00", from: "12-01", clue: "m3_1" }
       ]
     },
     // 行事曆下面的 App 圖示（有名稱；一排 4 個，照這裡的順序上到下、左到右排）
@@ -2113,23 +2127,22 @@ window.SITE_DATA = {
     passcode: "0000",
     notes: [                       // 例：{ id: "n1", text: "標題\n內容", date: "2025年9月1日", time: "下午 3:20", pinned: true }
       // 覺醒線索 m1_1（將太郎）：10 月起出現在置頂，玩家沒印象寫過
-      { id: "n_council", from: "10-01", pinned: true, clue: "m1_1", date: "2024年12月3日", time: "下午 5:47",
-        text: "學生會 交接備忘\n・第 7 屆成果發表：完成\n・會長交接：將太郎 → ？？？\n・記得跟將太郎說：明年也要一起站在台上" }
+      { id: "n_council", from: "10-01", pinned: true, clue: "m1_1", date: "2025年9月23日", time: "下午 5:47",
+        text: "學生會：交接\n・總務帳本 → 元彬\n・器材清單 → 恩奭\n・活動企劃書 → 成燦\n・海報檔案 → 燦榮\n・會議紀錄 → 炤熙\n・學生會 IG → 我\n・校慶企劃書 10/15 前交" }
     ]
   },
 
   /* ---------- KakaoTalk ---------- */
   kakao: {
-    passcode: "",                  // 進入 KakaoTalk 的密碼；留空 "" = 不用密碼
     // 「今天」= 遊戲裡的日期（game.startDate 開始，每睡一覺 +1 天）
     // 即時訊息：達成 when 的旗標後，過 delay 毫秒對方傳來（會跳通知橫幅）
     //   when 可寫一個旗標或陣列（全部達成）；unlessReplied: true = 玩家在那個聊天室回過話就不傳
     //   unless = 有這個旗標就不傳；unlessSent = 某則即時訊息已傳過就不傳
     //   if = 條件（好感度、天數…，格式見 cast 的說明），成立才會傳
-    //   常用旗標：phone_unlocked（解鎖手機）、kakao_unlocked、chat_聊天室id、login_帳號、public_帳號
+    //   常用旗標：phone_unlocked（解鎖手機）、chat_聊天室id、locked_帳號
     live: [
-      // 覺醒線索 m6_1（燦榮）：12/7 星期日晚上突然傳來一句話（內容待定）；玩家回任何話 → 觸發
-      { id: "anton_1207", when: "phone_unlocked", if: { date: "12-07", phase: "night" }, room: "f6", text: "這次就算只有三個人聽也沒關係，你會來吧？", flag: "anton_1207" }
+      // 覺醒線索 m6_1（燦榮）：12/7 星期日晚上突然傳來一句話；玩家回任何話 → 觸發
+      { id: "anton_1207", when: "phone_unlocked", if: { date: "12-07", phase: "night" }, room: "f6", text: "你有看過〈Another Life〉的歌詞嗎？", flag: "anton_1207" }
     ],
     // 來電：達成 when 的旗標後過 delay 毫秒，room 這個好友打來（任何畫面都會跳出來；手機解鎖後才會響）
     //   ringFor = 響多久沒接就算未接（預設 30 秒）
@@ -2270,12 +2283,14 @@ window.SITE_DATA = {
         { text: "明明沒有受過傷，好奇怪" },
         { text: "應該是太累了吧，晚安～" }
       ] },
-      // 9/7 KTV 群組聊完 → 客服小精靈的玩法說明（intro = 打開聊天室後先播的劇情，旁白說明這裡是什麼）
+      // 9/7 KTV 群組聊完 → 全暗 1 秒（dark）→ 客服小精靈的玩法說明（intro = 打開聊天室後先播的劇情，旁白說明這裡是什麼）
       //   同一天有好幾段時，每段要寫 id
-      { id: "0907_helper", date: "09-07", room: "helper", intro: "helper_intro", steps: [
+      { id: "0907_helper", date: "09-07", room: "helper", intro: "helper_intro", dark: true, steps: [
         { text: "（此為智能回覆）" },
         { text: "叮咚～晚安呀，{name}！" },
         { text: "我是客服小精靈。開學第一週辛苦了！" },
+        { text: "這裡是遊戲的說明小幫手。玩法說明、進度提醒，之後都會傳到這個聊天室。" },
+        { text: "想不起來怎麼玩的時候，隨時回來看看吧。" },
         { choices: [
           { text: "你是誰？", reply: ["我是這支手機的客服小精靈呀。", "其他的嘛……等你在這裡待久一點就知道了。"] },
           { text: "你好！", reply: ["你好你好～很高興認識你！"] }
@@ -2290,7 +2305,8 @@ window.SITE_DATA = {
         { choices: [
           { text: "知道了，謝謝！", reply: ["不客氣～", "之後有什麼提醒，我也會傳到這裡。", "祝你在拉完子學院的生活愉快！"] },
           { text: "可以再說一次嗎？", reply: ["往上滑就看得到剛才的說明囉。", "之後有什麼提醒，我也會傳到這裡。", "祝你在拉完子學院的生活愉快！"] }
-        ] }
+        ] },
+        { text: "現在可以自由玩手機啦！" }
       ] }
     ],
     noAnswerMs: 8000,              // 打給沒有劇本的好友，響多久後顯示「對方未接聽」
@@ -2380,9 +2396,6 @@ window.SITE_DATA = {
     // 介面文字
     text: {
       olderHiddenText: "無法顯示更早的訊息",   // 成員聊天室、群組最上面的提示
-      lockTitle: "輸入密碼",
-      lockHint: "請輸入密碼。",
-      lockDelete: "刪除",
       chatsTitle: "聊天",
       inputPlaceholder: "輸入訊息",
       choicePlaceholder: "選擇要回覆的內容",   // 有選項可以選時，輸入框裡的提示字

@@ -435,12 +435,21 @@
   function dayChatStart(def, done, free) {
     var st = state(); st.dayChat = st.dayChat || {};
     dc = { def: def, room: def.room, i: st.dayChat[dcId(def)] || 0, ask: null, done: done, free: free };
+    // dark：先全暗 1 秒，再漸漸亮起來進入這段（例如 9/7 KTV 群組聊完 → 客服小精靈）
+    var dark = null;
+    if (def.dark && dc.i === 0) {
+      dark = document.createElement('div');
+      dark.className = 'kk-dark';
+      document.getElementById('phone').appendChild(dark);
+    }
     // 用「取代」打開聊天室：不留在上一頁的紀錄裡，聊完按返回 = 回到 KakaoTalk 聊天列表（不會回到前一段強制聊天）
     S().replaceHash('#/kakao/chat/' + encodeURIComponent(def.room));
+    function lightUp() { if (!dark) return; dark.classList.add('out'); var d = dark; dark = null; setTimeout(function () { d.remove(); }, 900); }
+    var wait = def.dark ? 1000 : 700;
     // intro：打開聊天室後，先用劇情對話框播一段（背景 = 變暗的手機畫面），播完才開始聊天
     if (def.intro && dc.i === 0 && window.STORY) {
-      setTimeout(function () { window.STORY.play(def.intro, function () { setTimeout(dayChatNext, 500); }, null, 'phone-dim'); }, 700);
-    } else setTimeout(dayChatNext, 800);
+      setTimeout(function () { window.STORY.play(def.intro, function () { setTimeout(dayChatNext, 500); }, null, 'phone-dim'); lightUp(); }, wait);
+    } else setTimeout(function () { lightUp(); dayChatNext(); }, def.dark ? wait : 800);
   }
   function dayChatSave() { var st = state(); st.dayChat = st.dayChat || {}; st.dayChat[dcId(dc.def)] = dc.i; S().save(KEY, st); }
   function dayChatPaint() { if (openChatId === dc.room) { paintChat(); paintChoices(); } }
@@ -616,55 +625,11 @@
     bannerTimer = setTimeout(hide, 4500);
   }
 
-  /* ---- 進入 KakaoTalk 前要輸入密碼（data.js 的 kakao.passcode；解開一次就記住，重新開始會清掉） ---- */
-  var typed = '';
-  function locked() { return !!K().passcode && !S().hasFlag('kakao_unlocked'); }
-  function renderLock() {
-    S().setFlag('kakao_lock_seen');   // 看過密碼畫面（解鎖提示用）
-    var t = TX(), keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'del'];
-    typed = '';
-    S().$('#kakao-overlay').innerHTML = '';
-    S().$('#kakao-scroll').innerHTML =
-      '<div class="kk-lock">' +
-        '<div class="kk-lock-title">' + esc(t.lockTitle || '輸入密碼') + '</div>' +
-        (t.lockHint ? '<div class="kk-lock-hint">' + esc(t.lockHint) + '</div>' : '') +
-        '<div class="kk-lock-dots" id="kk-lock-dots">' + String(K().passcode).split('').map(function () { return '<i></i>'; }).join('') + '</div>' +
-        '<div class="kk-lock-keys">' + keys.map(function (k) {
-          if (!k) return '<span></span>';
-          return k === 'del'
-            ? '<button type="button" class="kk-lock-del" data-kpin="del" aria-label="' + esc(t.lockDelete || '刪除') + '">' + ICON.del + '</button>'
-            : '<button type="button" class="kk-lock-key" data-kpin="' + k + '">' + k + '</button>';
-        }).join('') + '</div>' +
-      '</div>';
-  }
-  function pressPin(k) {
-    var code = String(K().passcode), dots = S().$('#kk-lock-dots');
-    if (!dots) return;
-    if (k === 'del') typed = typed.slice(0, -1);
-    else if (typed.length < code.length) typed += k;
-    dots.querySelectorAll('i').forEach(function (d, i) { d.classList.toggle('on', i < typed.length); });
-    if (typed.length < code.length) return;
-    if (typed === code) {
-      S().setFlag('kakao_unlocked');
-      setTimeout(function () { route(current); }, 150);
-    } else {
-      // 密碼錯：搖一下、清空
-      setTimeout(function () {
-        dots.classList.add('shake');
-        setTimeout(function () {
-          typed = ''; dots.classList.remove('shake');
-          dots.querySelectorAll('i').forEach(function (d) { d.classList.remove('on'); });
-        }, 400);
-      }, 120);
-    }
-  }
-
   var current = [];
   function route(parts) {
     current = parts;
     openChatId = null; picked = null;
-    if (locked()) renderLock();
-    else if (parts[0] === 'chat' && parts[1]) renderChat(parts[1]);
+    if (parts[0] === 'chat' && parts[1]) renderChat(parts[1]);
     else renderChats();
   }
 
@@ -775,8 +740,6 @@
     if (e.target.closest('[data-kdclose]')) { closeMembers(); return; }
     var kc = e.target.closest('[data-kcall]');
     if (kc && openChatId) { window.SOSHO_KAKAO_CALL.start(openChatId); return; }
-    var pin = e.target.closest('[data-kpin]');
-    if (pin) { pressPin(pin.dataset.kpin); return; }
     var back = e.target.closest('[data-kback]');
     if (back) {
       // 聊天室的返回：回到聊天列表

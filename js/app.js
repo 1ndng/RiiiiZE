@@ -228,8 +228,7 @@
 
   /* ---------------- 進度旗標 ---------------- */
   // 進度旗標（給電話來電、Kakao 即時訊息、自動回覆的 when / flag 用）
-  // kakao_lock_seen = 看過 KakaoTalk 的密碼畫面；kakao_unlocked = 解開 KakaoTalk 密碼；
-  // locked_帳號 = 看過那個帳號「此帳號不公開」的頁面；login_帳號 = 登入過某個 IG 帳號；
+  // locked_帳號 = 看過那個帳號「此帳號不公開」的頁面；
   // chat_好友id = 打開過某個 Kakao 聊天室；電話對話段落寫 flag: "名稱" → 走到那段就記錄
   var FLAG_KEY = 'riiiize-flags';
   var flags = {};
@@ -872,41 +871,65 @@
   }
 
   /* ---- 強制留言（覺醒線索，data.js 的 clues[線索].comment）----
-   * { text: "玩家要留的話", reply: { user: "成員帳號", text: "成員回覆" } }
-   * 留言框直接打好、不能改也不能關，按「發佈」後成員回覆，然後才能離開 */
-  var forcedCmt = null;   // { hash, def, done, posted }
+   * { steps: [ { me: "玩家的留言" }, { user: "成員帳號", text: "成員回覆", wait: 毫秒 }, { scene: "劇情id" }, … ] }
+   *   me = 玩家要留的話：留言框直接打好、不能改，按「發佈」才往下
+   *   user = 成員回覆；scene = 中間播一段劇情（例如頭痛）
+   *   舊寫法 { text, reply: { user, text } } 也可以
+   * 全部做完之前留言框不能關、也不能離開這則貼文 */
+  var forcedCmt = null;   // { hash, steps, i, done, waiting }
   function fillName(str) { return window.STORY && window.STORY.fill ? window.STORY.fill(str) : str; }
   function openForcedComment() {
     if (!forcedCmt || !curPost) return;
     openComments();
     var f = $('#ig-cmt-form');
     $('#ig-sheet').classList.add('forced');
-    if (forcedCmt.posted) { f.style.display = 'none'; return; }
-    f.c.value = fillName(forcedCmt.def.text || ''); f.c.readOnly = true;
+    if (!forcedCmt.waiting) { f.style.display = 'none'; return; }
+    f.style.display = '';
+    f.c.value = fillName(forcedCmt.steps[forcedCmt.i].me); f.c.readOnly = true;
     f.querySelector('button').disabled = false;
   }
   function forceComment(def, done) {
     if (!curPost || location.hash.indexOf('#/ig') !== 0) { done(); return; }
-    forcedCmt = { hash: location.hash, def: def, done: done, posted: false };
+    var steps = def.steps || [{ me: def.text }].concat(def.reply ? [{ user: def.reply.user, text: def.reply.text, wait: def.reply.wait }] : []);
+    forcedCmt = { hash: location.hash, steps: steps, i: 0, done: done, waiting: false };
     openForcedComment();
+    forcedRun();
   }
-  function forcedPosted() {
-    var fc = forcedCmt, key = curPost.key, r = fc.def.reply;
-    fc.posted = true;
-    $('#ig-cmt-form').style.display = 'none';
-    setTimeout(function () {
-      if (r) {
-        (store.comments[key] = store.comments[key] || []).push({ user: r.user, text: fillName(r.text) });
-        saveStore();
-        var list = $('#ig-cmt-list'); if (list) { list.innerHTML = commentsListHTML(); list.scrollTop = list.scrollHeight; }
-      }
+  function forcedRun() {
+    var fc = forcedCmt;
+    if (!fc) return;
+    var st = fc.steps[fc.i];
+    if (!st) {   // 全部做完：放開
       setTimeout(function () {
         forcedCmt = null;
         var sh = $('#ig-sheet'); if (sh) sh.classList.remove('forced');
-        var f = $('#ig-cmt-form'); if (f) f.style.display = '';
+        var f = $('#ig-cmt-form'); if (f) { f.style.display = ''; f.c.readOnly = false; f.c.value = ''; }
         fc.done();
       }, 1800);
-    }, r && r.wait != null ? r.wait : 2200);
+      return;
+    }
+    if (st.me != null) { fc.waiting = true; openForcedComment(); return; }   // 等玩家按「發佈」
+    if (st.scene && window.STORY) {
+      setTimeout(function () {
+        window.STORY.play(st.scene, function () { fc.i++; openForcedComment(); forcedRun(); }, null, 'phone-dim');
+      }, st.wait != null ? st.wait : 600);
+      return;
+    }
+    setTimeout(function () {
+      if (forcedCmt !== fc) return;
+      var key = curPost.key;
+      (store.comments[key] = store.comments[key] || []).push({ user: st.user, text: fillName(st.text) });
+      saveStore();
+      var list = $('#ig-cmt-list'); if (list) { list.innerHTML = commentsListHTML(); list.scrollTop = list.scrollHeight; }
+      fc.i++; forcedRun();
+    }, st.wait != null ? st.wait : 2200);
+  }
+  // 玩家按了「發佈」
+  function forcedPosted() {
+    var fc = forcedCmt;
+    fc.waiting = false; fc.i++;
+    $('#ig-cmt-form').style.display = 'none';
+    setTimeout(forcedRun, 300);
   }
   // 強制留言中：離開這則貼文 → 拉回來
   window.addEventListener('hashchange', function () {
@@ -1412,7 +1435,6 @@
     if (e.target.closest('[data-privacy]')) {
       var me = currentAccount();
       store.privacy[me.username] = !isPrivate(me); saveStore(); renderIGPrivacy();
-      if (!isPrivate(me)) setFlag('public_' + me.username);   // 設成公開過（可用來觸發 Kakao 即時訊息）
       return;
     }
     var mu = e.target.closest('[data-music]');
@@ -1435,7 +1457,7 @@
     if (!text || !curPost) return;
     (store.comments[curPost.key] = store.comments[curPost.key] || []).push({ user: currentAccount().username, text: text });
     saveStore();
-    if (forcedCmt && !forcedCmt.posted) forcedPosted();
+    if (forcedCmt && forcedCmt.waiting) forcedPosted();
     e.target.c.value = '';
     e.target.querySelector('button').disabled = true;
     var list = $('#ig-cmt-list');
@@ -1457,7 +1479,6 @@
       return;
     }
     if (accState.loggedIn.indexOf(acc.username) < 0) accState.loggedIn.push(acc.username);
-    setFlag('login_' + acc.username);
     accState.current = acc.username;
     saveAcc();
     form.reset();
