@@ -103,9 +103,8 @@
     var list = (r[act] || []).filter(function (k) {
       return scene('rand_' + act + '_' + k) && (k === 'me' || idsOf(k).every(function (id) { return id && met.indexOf(id) >= 0; }));
     });
-    for (var i = list.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), x = list[i]; list[i] = list[j]; list[j] = x; }
-    for (var k = 0; k < list.length; k++) if (Math.random() < chance) return 'rand_' + act + '_' + list[k];
-    return null;
+    // 每一項各自擲一次，符合的都播（照名單順序）
+    return list.filter(function () { return Math.random() < chance; }).map(function (k) { return 'rand_' + act + '_' + k; });
   }
   // 回家（平日沒安排）：開學週（planFrom 之前）不算
   function homeDay(day) { return !isWeekend(day) && !forcedOn(day) && !plannedOn(day) && day >= G().dayOf(C().planFrom || '09-08'); }
@@ -269,35 +268,49 @@
 
   /* ---- 有事的日子的放學 ---- */
   if (window.GAME) {
+    // 星期一～六的 14 日：送禮最先（在早上的主線劇情之前）；星期日照舊排在節日、生日後面
+    G().onPhase('morning', function (done) {
+      var day = G().day, key = 'giftdone_' + day;
+      if (!isGiftDay(day) || dateOf(day).getDay() === 0 || (S() && S().hasFlag(key))) { done(); return; }
+      if (location.hash !== '#/home') location.hash = '#/home';
+      setTimeout(function () { gift(function () { if (S()) S().setFlag(key); done(); }); }, 300);
+    }, true);
+    /* 放學的順序（星期一～六）：主線（含開學週強制日程，劇情在 js/story.js 先播）→ 節日 → 生日 → 日程 → 隨機劇情
+     * 星期日：節日 → 生日 → 送禮 → 出去玩 */
     G().onPhase('afterschool', function (done) {
       if (window.STORY && window.STORY.resumed('afterschool')) { done(); return; }   // 讀檔：放學的劇情剛剛已經接著播完
-      var day = G().day, steps = [];
+      var day = G().day, steps = [], sunday = dateOf(day).getDay() === 0;
       if (location.hash !== '#/home') location.hash = '#/home';
-      // 1. 今天的日程：主線強制日程 → 照那個日程加好感（不算次數）；不然看月曆（平日），特殊劇情優先（不加好感）
       var forced = forcedOn(day);
       var playOn = function (id, act) { steps.push(function (next) { window.STORY.play(id, next, null, bgOf(act)); }); };
-      if (forced) {
-        doActivity(forced.activity, true);   // 開學週的強制日程不算次數（第 1 次固定劇情在 9/8 之後）
-      } else if (!isWeekend(day)) {
-        var act = plannedOn(day), sp = specialFor(day, act);
-        // 日程的特殊劇情、第幾次的固定劇情、一句話、隨機劇情：背景 = 那個日程的 bg
-        if (sp) steps.push(function (next) { G().addStat('visits', act, 1); window.STORY.play(sp.scene, next, null, sp.bg || actOf(act).bg); });
-        else if (act) {
-          var met = doActivity(act), ms = milestoneOf(act, G().stat('visits', act));
-          if (ms) playOn(ms, act); else steps.push(function (next) { narrate(dayLine(day, act, met), next, actOf(act).bg); });
-          var rd = randomFor(act, met); if (rd) playOn(rd, act);
-        } else if (homeDay(day)) {
-          G().addStat('visits', 'home', 1);
-          var hm = milestoneOf('home', G().stat('visits', 'home')); if (hm) playOn(hm, 'home');
-          var hr = randomFor('home', []); if (hr) playOn(hr, 'home');
-        }
-      }
+      var playAll = function (ids, act) { ids.forEach(function (id) { playOn(id, act); }); };
+      // 1. 開學週的強制日程：照那個日程加好感，不算次數
+      if (forced) doActivity(forced.activity, true);
       // 2. 節日、生日
       holidaysOn(day).forEach(function (h) { steps.push(function (next) { playIf(h.scene, next); }); });
       birthdaysOn(day).forEach(function (b) { steps.push(function (next) { playIf(b.scene, next); }); });
-      // 3. 送禮日、4. 星期日
-      if (isGiftDay(day)) steps.push(gift);
-      if (dateOf(day).getDay() === 0 && !forced && !(C().weekend || {}).off) steps.push(weekend);
+      // 3. 日程：特殊劇情 → 第幾次的固定劇情（沒有特殊、也沒有固定 = 一句話）；4. 隨機劇情（符合的都播）
+      //    背景 = 那個日程的 bg；特殊劇情那天不加好感
+      if (!forced && !isWeekend(day)) {
+        var act = plannedOn(day), sp = specialFor(day, act);
+        if (act) {
+          var met;
+          if (sp) {
+            steps.push(function (next) { window.STORY.play(sp.scene, next, null, sp.bg || actOf(act).bg); });
+            G().addStat('visits', act, 1); met = membersOf(act);
+          } else met = doActivity(act);
+          var ms = milestoneOf(act, G().stat('visits', act));
+          if (ms) playOn(ms, act); else if (!sp) steps.push(function (next) { narrate(dayLine(day, act, met), next, actOf(act).bg); });
+          playAll(randomFor(act, met), act);
+        } else if (homeDay(day)) {
+          G().addStat('visits', 'home', 1);
+          var hm = milestoneOf('home', G().stat('visits', 'home')); if (hm) playOn(hm, 'home');
+          playAll(randomFor('home', []), 'home');
+        }
+      }
+      // 星期日：送禮、出去玩
+      if (sunday && isGiftDay(day)) steps.push(gift);
+      if (sunday && !forced && !(C().weekend || {}).off) steps.push(weekend);
       setTimeout(function () { series(steps, done); }, steps.length ? 300 : 0);
     });
   }
@@ -426,7 +439,7 @@
         if (act) {   // 有安排：加好感，記進這週的回顧（可能觸發隨機劇情）
           G().setDay(day);
           var met = doActivity(act);
-          week.push({ day: day, act: act, met: met, rnd: randomFor(act, met) });
+          week.push({ day: day, act: act, met: met, rnd: randomFor(act, met) });   // rnd = 這天的隨機劇情（可能好幾個）
         } else if (homeDay(day)) {   // 沒安排 = 回家
           G().setDay(day);
           G().addStat('visits', 'home', 1);
@@ -523,12 +536,12 @@
       '<b>' + esc(t.weekTitle) + '</b>' +
       '<ul>' + week.map(function (w) {
         var d = dateOf(w.day), a = w.act === 'home' ? { label: t.home } : actOf(w.act);
-        return '<li' + (w.rnd ? ' class="ev"' : '') + '><span class="wk-d">' + (d.getMonth() + 1) + '/' + d.getDate() + '（' + esc(G().weekday(d).replace('星期', '')) + '）</span>' +
+        return '<li' + (w.rnd.length ? ' class="ev"' : '') + '><span class="wk-d">' + (d.getMonth() + 1) + '/' + d.getDate() + '（' + esc(G().weekday(d).replace('星期', '')) + '）</span>' +
           '<span class="wk-a">' + esc(a.label) + '</span>' +
           '<span class="wk-m">' + (w.met.length ? w.met.map(function (id) {
             var c = cast().filter(function (x) { return x.id === id; })[0] || {};
             return '<i title="' + esc(c.name || id) + '"><img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""></i>';
-          }).join('') : (w.act === 'home' ? '' : '<em>' + esc(t.weekNobody) + '</em>')) + (w.rnd ? '<b class="wk-ev">' + esc(t.weekEvent) + '</b>' : '') + '</span></li>';
+          }).join('') : (w.act === 'home' ? '' : '<em>' + esc(t.weekNobody) + '</em>')) + (w.rnd.length ? '<b class="wk-ev">' + esc(t.weekEvent) + '</b>' : '') + '</span></li>';
       }).join('') + '</ul>' +
       '<p>' + esc(t.weekMet.replace('{who}', joinNames(uniq(week)))) + '</p>' +
       '<button type="button" data-wk-go>' + esc(t.weekGo) + '</button>' +
@@ -540,7 +553,8 @@
       document.getElementById('phone').classList.remove('story-full');
       el.classList.remove('show');
       // 這幾天觸發的隨機劇情：依序播完再往下
-      var evs = week.filter(function (w) { return w.rnd; }).map(function (w) { return function (n) { window.STORY.play(w.rnd, n, null, bgOf(w.act)); }; });
+      var evs = [];
+      week.forEach(function (w) { w.rnd.forEach(function (id) { evs.push(function (n) { window.STORY.play(id, n, null, bgOf(w.act)); }); }); });
       setTimeout(function () { el.remove(); series(evs, next); }, 250);
     });
   }

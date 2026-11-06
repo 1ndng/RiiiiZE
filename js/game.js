@@ -264,7 +264,7 @@
     weekday: function (d) { return WEEK[(d || dateOf()).getDay()]; },
     onChange: function (fn) { listeners.push(fn); },
     onNight: function (fn) { nightFns.push(fn); },
-    onPhase: function (phase, fn) { (handlers[phase] = handlers[phase] || []).push(fn); },
+    onPhase: function (phase, fn, first) { var h = (handlers[phase] = handlers[phase] || []); if (first) h.unshift(fn); else h.push(fn); },   // first = 排在最前面
     // 手機上的時鐘（狀態列、鎖定畫面、訊息時間）：setClock("22:00") = 從這個時間開始走；setClock(null) = 用現實時間
     clock: function () {
       var c = load('riiiize-clock', null);
