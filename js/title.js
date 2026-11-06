@@ -16,7 +16,7 @@
     var t = D().title || {}, d = {
       name: 'RiiiiZE', subtitle: '拉完子學院', bg: '',
       start: '開始遊戲', cont: '繼續', load: '讀取存檔', restart: '從頭開始', back: '返回',
-      btnStart: '開始', btnCont: '繼續', btnLoad: '讀檔', btnLang: '語言', btnSound: '音效', on: '開', off: '關',
+      btnStart: '開始', btnCont: '繼續', btnLoad: '讀取', btnLang: '語言', btnSound: '音效', on: '開', off: '關',
       langTitle: '語言', tw: '繁體中文', cn: '简体中文',
       autoSave: '自動存檔', loopSave: '循環前的存檔', slot: '存檔 {n}', noSaves: '還沒有存檔',
       restartTitle: '要從頭開始嗎？', restartText: '目前的進度會清除，回到第 1 天。\n存檔會保留。', ok: '從頭開始', cancel: '取消'
