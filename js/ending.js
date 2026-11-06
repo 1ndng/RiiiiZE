@@ -74,6 +74,11 @@
       if (S()) S().setDarkStatus(false);
       running = false;
       if (location.hash !== '#/home') location.hash = '#/home';
+      // 喚醒結局：拿掉黑底日期畫面，回到手機的鎖定畫面（之後只能探索 App）
+      if (en.after === 'explore') {
+        var stg = document.getElementById('day-stage'); if (stg) stg.remove();
+        if (S() && S().lock) S().lock();
+      }
       done && done();
     });
   }

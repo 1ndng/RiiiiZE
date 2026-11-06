@@ -214,7 +214,13 @@ const TESTS = [
     if (pair !== 15) throw new Error('關係值不對：' + pair);
     return p;
   }],
-  ['結局：六人都覺醒 → 喚醒 = TRUE END', async (b, base) => ending(b, base, true, 0, 'TRUE END')],
+  ['結局：六人都覺醒 → 喚醒 = TRUE END，點一下回到鎖定畫面', async (b, base) => {
+    const p = await ending(b, base, true, 0, 'TRUE END');
+    await p.click('.end-card'); await sleep(2000);
+    const r = await p.evaluate(() => ({ lock: !!document.getElementById('lock'), stage: !!document.getElementById('day-stage'), ended: GAME.ended }));
+    if (!r.lock || r.stage || r.ended !== 'explore') throw new Error('結局之後：' + JSON.stringify(r));
+    return p;
+  }],
   ['結局：六人都覺醒 → 留下 = DREAM END 1，之後回到 9/1（第 2 輪）', async (b, base) => {
     const p = await ending(b, base, true, 1, 'DREAM END 1');
     await p.click('.end-card'); await sleep(2500);
