@@ -897,4 +897,4 @@ function RIIIZE_ADD(part) {
   if (part.tweets) D.x.tweets = D.x.tweets.concat(part.tweets);
 }
 // js/story/ 裡的檔案（index.html 照這個順序載入）
-var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","clues","awake","ending","common"];
+var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","clues","awake","ending","common"];

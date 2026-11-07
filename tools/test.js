@@ -218,7 +218,7 @@ const TESTS = [
     if (!/元彬/.test(t || '')) throw new Error('送禮劇情：' + t);
     return p;
   }],
-  ['14 日送禮：送給一位 → 第一次 gift_m4，下個月再送 → gift_m4_again', async (b, base) => {
+  ['14 日送禮：9/14 送元彬 → 9 月特別版；下個月再送、沒有特別版 → gift_m4_again', async (b, base) => {
     let p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' } }));
     const give = async () => {
       await p.waitForSelector('.sch-col button', { timeout: 8000 });
@@ -227,11 +227,12 @@ const TESTS = [
       return text(p, '#vn-text');
     };
     const t1 = await give();
-    if (!/元彬/.test(t1 || '')) throw new Error('第一次：' + t1);
+    if (!/薄荷糖/.test(t1 || '')) throw new Error('9 月特別版：' + t1);
     if (await p.evaluate(() => GAME.stat('aff', 'm4')) !== 6) throw new Error('好感沒有 +6');
     await p.close();
     // 上個月送過元彬（旗標 gift_09-14_m4）→ 這次播 gift_m4_again
     p = await open(b, base, played({ 'riiiize-game': { day: 44, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'gift_09-14_m4': 1 } }));
+    await p.evaluate(() => { delete SITE_DATA.scenes.gift_m4_10; });   // 拿掉 10 月特別版，確認會播「再送一次」
     const t2 = await give();
     if (!/這次他直接接了過去/.test(t2 || '')) throw new Error('第二次：' + t2);
     return p;

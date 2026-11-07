@@ -288,7 +288,7 @@ RIIIZE_ADD({
     { date: "08-22", room: "g_council", steps: [
       { from: "f6", text: "今天謝謝大家一起唱" },
       { from: "f3", text: "我唱到喉嚨啞了" },
-      { from: "f1", text: "下週就是八月的最後一週了ね" },
+      { from: "f1", text: "下週就是八月的最後一週了耶" },
       { from: "f2", text: "……嗯。" },
       { from: "f5", text: "大家早點睡" },
       { from: "f4", text: "嗯" },
