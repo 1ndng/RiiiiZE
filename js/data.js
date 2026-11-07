@@ -544,6 +544,8 @@ window.SITE_DATA = {
    */
   game: {
     version: "0.1.0",            // 版本號（設定 → 開發者資訊 會顯示；更新遊戲時改這裡）
+    // 音樂：title = 標題畫面、bgm = 背景音樂（自由探索手機的時間不放）；volume 0～1
+    music: { title: "audio/title.mp3", bgm: "audio/bgm.mp3", volume: { title: 0.6, bgm: 0.45 } },
     debug: true,                 // true = 設定裡出現「數值（開發用）」；正式公開前改成 false
     startDate: "2025-09-01",
     endDate: "2026-08-31",

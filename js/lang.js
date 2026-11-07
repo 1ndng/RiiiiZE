@@ -11,7 +11,7 @@
   if (lang === 'cn' && window.OpenCC) conv = window.OpenCC.Converter({ from: 'tw', to: 'cn' });
 
   /* 音效開關（標題畫面、設定都可以切換；記在 riiiizeSound，重新開始不會清掉）
-   * 目前遊戲還沒有音效，開或關都沒有聲音；之後加音效時用 SOSHO_SOUND.on() 判斷要不要播 */
+   * 關掉 = 背景音樂、標題音樂、成員介紹影片的聲音都不放（js/bgm.js 用 SOSHO_SOUND.on() 判斷） */
   window.SOSHO_SOUND = {
     on: function () { try { return localStorage.getItem('riiiizeSound') !== 'off'; } catch (e) { return true; } },
     toggle: function () { try { localStorage.setItem('riiiizeSound', this.on() ? 'off' : 'on'); } catch (e) {} }

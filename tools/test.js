@@ -58,8 +58,8 @@ async function open(browser, base, seed, opt) {
   if (!sunNight) return page;
   let seen = false;
   for (let i = 0; i < 40; i++) {
-    const t = await page.evaluate(() => (document.querySelector('.vn') || {}).textContent || '');
-    if (/自由探索手機|按「睡覺」/.test(t)) { seen = true; await page.click('.vn', { timeout: 1000 }).catch(() => {}); await sleep(200); continue; }
+    // 提醒 = 蓋在鎖定畫面上的劇情框（.vn.over-lock）；不看文字，改了台詞也認得
+    if (await page.$('.vn.over-lock')) { seen = true; await page.click('.vn', { timeout: 1000 }).catch(() => {}); await sleep(200); continue; }
     if (seen && !(await page.$('.vn'))) break;
     if (!seen && i > 15) break;
     await sleep(200);
