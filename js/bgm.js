@@ -15,10 +15,18 @@
   'use strict';
   function cfg() { return ((window.SITE_DATA || {}).game || {}).music || {}; }
   var players = {}, now, unlocked = false;
+  // 重新整理前放的那首、放到第幾秒（sessionStorage）：重新整理後同一首從那裡接著放，不會從頭重放
+  var resumeAt = null;
+  try { resumeAt = JSON.parse(sessionStorage.getItem('riiiizeBgmAt')); sessionStorage.removeItem('riiiizeBgmAt'); } catch (e) {}
+  window.addEventListener('pagehide', function () {
+    var a = now && players[now];
+    if (a && !a.paused && !INSTANT[now]) try { sessionStorage.setItem('riiiizeBgmAt', JSON.stringify({ k: now, t: a.currentTime })); } catch (e) {}
+  });
   function player(k) {
     if (!players[k] && cfg()[k]) {
       var a = new Audio(cfg()[k]);
       a.loop = true; a.preload = 'auto'; a.volume = 0;
+      if (resumeAt && resumeAt.k === k) { var t = resumeAt.t; a.addEventListener('loadedmetadata', function () { try { a.currentTime = t; } catch (e) {} }, { once: true }); a._resume = true; resumeAt = null; }
       players[k] = a;
     }
     return players[k] || null;
@@ -66,17 +74,26 @@
     if (w !== now) {
       now = w;
       var p = w && player(w);
-      if (p && INSTANT[w]) { p.currentTime = 0; p.volume = target(w); }   // 鬧鐘、介紹影片：每次從頭、馬上出聲
-      if (p && unlocked && p.paused) { var q = p.play(); if (q && q.catch) q.catch(function () {}); }
+      if (p && INSTANT[w]) {   // 鬧鐘、介紹影片：每次從頭、馬上出聲；其他音樂馬上停（不淡出）
+        p.currentTime = 0; p.volume = target(w);
+        Object.keys(players).forEach(function (k) { if (k !== w) { players[k].volume = 0; if (!players[k].paused) players[k].pause(); } });
+      }
+      if (p && p.paused) tryPlay(p);
     }
     Object.keys(players).forEach(function (k) {
       var a = players[k], goal = k === now ? target(k) : 0;
       if (INSTANT[k] && goal === 0) { a.volume = 0; if (!a.paused) a.pause(); return; }   // 鬧鐘停：馬上停
-      if (k === now && a.paused && unlocked) { var q = a.play(); if (q && q.catch) q.catch(function () {}); }
+      if (k === now && a.paused) tryPlay(a);
+      if (k === now && a._resume && !a.paused) { a.volume = goal; a._resume = false; }   // 重新整理後接著放：不用再淡入
       var v = a.volume + Math.max(-0.05, Math.min(0.05, goal - a.volume));
       a.volume = Math.max(0, Math.min(1, v));
       if (goal === 0 && a.volume <= 0.001 && !a.paused) a.pause();
     });
+  }
+  // 播放：還沒點過畫面時也先試一次（重新整理後有些瀏覽器允許），被擋就等玩家點畫面；每秒最多試一次
+  function tryPlay(a) {
+    var t = Date.now(); if (!unlocked && t - (a._tried || 0) < 1000) return; a._tried = t;
+    var q = a.play(); if (q && q.catch) q.catch(function () {});
   }
   function unlock() {
     if (unlocked) return;
