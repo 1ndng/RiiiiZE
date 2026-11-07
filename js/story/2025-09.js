@@ -496,33 +496,26 @@ RIIIZE_ADD({
       ] }
     ] },
     { date: "09-03", room: "g_volunteer", steps: [
-      { from: "f6", text: "今天謝謝大家！小朋友們都很開心！" },
-      { from: "f6", text: "{name}也謝謝你一起來🙏🙏" },
-      { from: "f2", text: "燦榮，你知道志工最喜歡什麼動物嗎" },
-      { from: "f6", text: "什麼？" },
-      { from: "f2", text: "服務生" },
-      { from: "f6", text: "ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ" },
-      { from: "f6", text: "那不是動物啦ㅋㅋㅋㅋㅋ" },
+      { from: "f6", text: "今天他們看起來都很開心 太好了" },
+      { from: "f6", text: "@{name} 也謝謝你一起來~" },
+      { from: "f2", text: "下次{name}也一起來吧" },
+      { from: "f2", text: "小孩都很喜歡你" },
       { choices: [
-        { text: "恩奭，下次也陪那個小妹妹一起等吧", reply: [{ from: "f2", text: "……嗯。" }, { from: "f2", text: "下次也一起。" }], effects: { aff: { m2: 2 } } },
-        { text: "ㅋㅋㅋ燦榮你笑點也太低", reply: [{ from: "f6", text: "是恩奭哥太好笑了！" }, { from: "f2", text: "謝謝你，我的頭號粉絲。" }], effects: { aff: { m6: 1, m2: 1 } } }
+        { text: "嗯！", reply: [{ from: "f2", text: "嗯。" }, { from: "f2", text: "祝你今晚have a good dream." }], effects: { aff: { m2: 2 } } },
+        { text: "如果有空的話……", reply: [{ from: "f6", text: "很忙的話不要勉強哦" }, { from: "f6", text: "把自己照顧好還是最優先的呢" }], effects: { aff: { m6: 1, m2: 1 } } }
       ] }
     ] },
     { date: "09-04", room: "f3", steps: [
-      { text: "{name}！！！" },
-      { text: "今天謝謝你來送水！！！" },
-      { text: "（貼圖：一隻狗狗在轉圈圈）" },
-      { text: "我那顆球是不是超帥！！！" },
-      { text: "還有我冷酷歐巴的樣子你要忘掉" },
-      { text: "那是意外" },
-      { text: "（貼圖：一隻狗狗用爪子遮住臉）" },
+      { text: "{name}" },
+      { text: "今天謝謝你來！" },
+      { text: "有吃飽嗎？應該多幫你點一份年糕的……" },
       { choices: [
-        { text: "來不及了，我已經記住了", reply: ["不行！！！", "（貼圖：一隻狗狗在地上打滾）", "那你要保密喔……只有你知道"], effects: { aff: { m3: 2 } } },
-        { text: "其實有一點點帥", reply: ["真的嗎？？？", "那我下次再演一次", "這次我會忍住不笑！！！"], effects: { aff: { m3: 3 } } }
+        { text: "原來你吃消夜是為了吃飽嗎？！", reply: ["也不是..", "但運動完就是要吃飽才會長肌肉呢", "而且這樣比較好睡著……嘿嘿"], effects: { aff: { m3: 2 } } },
+        { text: "哥哥我不像你一樣大食量==", reply: ["真可惜", "元彬跟你相反呢", "說著自己吃得多 結果才吃那麼一點"], effects: { aff: { m3: 3 } } }
       ] },
-      { text: "對了燦榮今天游完好像有點沮喪" },
-      { text: "你明天幫我多看他一下好不好" },
-      { text: "晚安！！！（貼圖：狗狗蓋被子）" }
+      { text: "總言之" },
+      { text: "以後也常常來吧！" },
+      { text: "晚安" }
     ] },
     { date: "09-05", room: "g_club", steps: [
       { from: "f1", text: "今天大家都辛苦了~~♪" },
