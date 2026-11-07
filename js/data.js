@@ -284,7 +284,7 @@ window.SITE_DATA = {
    *   手機只有星期日能用（鎖定畫面 → 自由使用手機 → 睡覺）；星期日先播 weekend.intro，再選今天要見誰
    *   其他有事的日子不解鎖手機：在黑底日期畫面上直接播劇情，播完自動往後跳
    * 好感度（每個日程每次的總量一樣，平分給在場的人；在場 = cast 的 activities 有這個日程）：
-   *   每人好感 = affTotal ÷ 在場人數；每一對關係 = pairTotal ÷ 在場的對數
+   *   每人好感 = affTotal ÷ 在場人數；每一對關係 = pairTotal ÷ 在場的對數（都四捨五入成整數，最少 1）
    *   每次去不會遇到全部的人：從會出現在那裡的成員裡隨機遇到 1 位～全部（閒晃 = 從全部成員裡隨機 1～wanderMeet 位）
    *   總量固定、平分給遇到的人：例如學生會遇到 3 位 → 各 +2；只遇到 1 位 → +6（一年下來每個人平均是公平的）
    *   回家：沒有
@@ -300,7 +300,7 @@ window.SITE_DATA = {
    */
   plan: {
     planFrom: "09-08",
-    affTotal: 6,
+    affTotal: 4,   // 日程每次的好感總量（平分給遇到的人，四捨五入成整數、最少 1）；星期日、送禮比較能指定對象，所以加得比較多
     pairTotal: 15,
     wanderMeet: 2,
     // cell = 月曆格子裡顯示的名字（"|" = 換行），沒寫就用 label
@@ -336,7 +336,7 @@ window.SITE_DATA = {
       { date: "02-14", title: "情人節",     scene: "h0214" },
       { date: "03-14", title: "白色情人節", scene: "h0314" }
     ],
-    gift: { aff: 6, pair: 15 },
+    gift: { aff: 8, pair: 15 },
     /* 友誼線、愛情線（js/plan.js 的 bondFor；劇情在 js/story/bond.js）
      *   好感到 friend → 友誼線 fr_成員（可以好幾條）
      *   到 love1 → 心動 love_成員_1；到 love2 → 曖昧 love_成員_2；到 confess → 告白（從到門檻的人裡選一位；一輪只能一位）
@@ -362,7 +362,7 @@ window.SITE_DATA = {
       wander:    ["1", "2", "3", "4", "12", "13", "14", "23", "24", "34", "17", "67"],
       home:      ["me"]
     },
-    weekend: { bg: "images/bg/wander.jpg", intro: "weekend_intro", single: 6, pairAff: 3, pairBond: 15,
+    weekend: { bg: "images/bg/wander.jpg", intro: "weekend_intro", single: 10, pairAff: 5, pairBond: 15,
       scenes: [
         // 同一個人／同一組：沒寫 chance = 固定劇情（每次都一樣）；chance: 0.2 = 特殊劇情（20% 機率，可以重複）
         { with: ["m1"], scene: "wk_m1_win", repeat: true, if: { day: [92, 181] } }, { with: ["m1"], scene: "wk_m1_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m1"], scene: "wk_m1_sum", repeat: true, if: { day: [274, 365] } },

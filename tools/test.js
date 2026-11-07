@@ -161,7 +161,10 @@ const TESTS = [
     const rows = await p.$$eval('.wk li', a => a.length);
     if (rows !== 5) throw new Error('應該 5 天，顯示了 ' + rows + ' 天');
     const aff = await p.evaluate(() => GAME.cast().reduce((s, c) => s + GAME.stat('aff', c.id), 0));
-    if (aff < 29) throw new Error('好感度總和不對：' + aff);
+    // 每天總量 4，平分後四捨五入（例如 3 人各 1）：5 天大約 15～20，而且都是整數
+    if (aff < 15 || aff > 20) throw new Error('好感度總和不對：' + aff);
+    const frac = await p.evaluate(() => GAME.cast().some(c => GAME.stat('aff', c.id) % 1 !== 0));
+    if (frac) throw new Error('好感有小數點');
     await p.click('[data-wk-go]'); await sleep(3000);
     const g = await game(p); if (g.day !== 13) throw new Error('應該停在 9/13（成燦生日），現在第 ' + g.day + ' 天');
     return p;
@@ -228,7 +231,7 @@ const TESTS = [
     };
     const t1 = await give();
     if (!/薄荷糖/.test(t1 || '')) throw new Error('9 月特別版：' + t1);
-    if (await p.evaluate(() => GAME.stat('aff', 'm4')) !== 6) throw new Error('好感沒有 +6');
+    if (await p.evaluate(() => GAME.stat('aff', 'm4')) !== 8) throw new Error('好感沒有 +8');
     await p.close();
     // 上個月送過元彬（旗標 gift_09-14_m4）→ 這次播 gift_m4_again
     p = await open(b, base, played({ 'riiiize-game': { day: 44, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'gift_09-14_m4': 1 } }));
@@ -346,7 +349,7 @@ const TESTS = [
     if (!/影片之後/.test(t || '')) throw new Error('影片之後的台詞：' + t);
     return p;
   }],
-  ['玩家生日許願：選「和一個人更親近」→ 選元彬 → 好感 +6，台詞帶出名字', async (b, base) => {
+  ['玩家生日許願：選「和一個人更親近」→ 選元彬 → 好感 +10，台詞帶出名字', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' },
       'riiiize-flags': { alarm_done: 1, intro_done: 1, plan_tutorial: 1, phone_unlocked: 1, freephone_14: 1, giftdone_14: 1, daychat_0907_helper: 1 } }));
     await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.remove(); SITE_DATA.storySpeed = 1; STORY.play('birthday_me'); });
@@ -358,7 +361,7 @@ const TESTS = [
     for (let i = 0; i < 20 && !/元彬/.test(t); i++) { t = await text(p, '#vn-text') || ''; await p.evaluate(() => { const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(150); }
     if (!/元彬/.test(t)) throw new Error('許願後的台詞：' + t);
     const aff = await p.evaluate(() => GAME.stat('aff', 'm4'));
-    if (aff !== 6) throw new Error('好感：' + aff);
+    if (aff !== 10) throw new Error('好感：' + aff);
     return p;
   }],
   ['友誼線、愛情線：好感 60 友誼 → 150 心動 → 250 曖昧 → 350 告白（可選多位）→ 戀人後其他人只剩友誼線', async (b, base) => {
@@ -393,7 +396,7 @@ const TESTS = [
     if (r !== 'cp_m4_m6_1,cp_m4_m6_2,cp_m4_m6_3,cp_m4_m6_4!,true,cp_m1_m4_1,-,-') throw new Error(r);
     return p;
   }],
-  ['選人畫面：連點兩次「確定」只算一次（星期日見元彬，好感 +6 不是 +12）', async (b, base) => {
+  ['選人畫面：連點兩次「確定」只算一次（星期日見元彬，好感 +10 不是 +20）', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' },
       'riiiize-flags': { alarm_done: 1, intro_done: 1, plan_tutorial: 1, giftdone_14: 1 } }));
     for (let i = 0; i < 80 && !(await p.$('.sch-cast [data-meet="m4"]')); i++) {
@@ -403,7 +406,7 @@ const TESTS = [
     await p.evaluate(() => { const g = document.querySelector('[data-go]'); g.click(); g.click(); });
     await sleep(1500);
     const a = await p.evaluate(() => GAME.stat('aff', 'm4'));
-    if (a !== 6) throw new Error('好感 ' + a);
+    if (a !== 10) throw new Error('好感 ' + a);
     return p;
   }],
   ['App 內容：from 日期之前看不到', async (b, base) => {

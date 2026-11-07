@@ -14,7 +14,7 @@
  *   （最後一天、看完結局之後也可以用手機）
  *
  * 好感度（公平：每個日程每次的總量一樣，平分給在場的人）：
- *   好感：affTotal（預設 6）÷ 在場人數；成員之間：pairTotal（預設 15）÷ 在場的對數
+ *   好感：affTotal（預設 6）÷ 在場人數；成員之間：pairTotal（預設 15）÷ 在場的對數（四捨五入成整數，最少 1）
  *   在場的人 = cast 的 activities 有這個日程的成員；閒晃 = 隨機 wanderMeet（預設 2）位
  *   特殊劇情發生的那天不加好感
  * ========================================================= */
@@ -200,8 +200,9 @@
   function shareEffects(ids, affTotal, pairTotal) {
     var fx = { aff: {}, pair: {} }, pairs = [];
     ids.forEach(function (a, i) { ids.slice(i + 1).forEach(function (b) { pairs.push(a + '-' + b); }); });
-    ids.forEach(function (id) { fx.aff[id] = affTotal / ids.length; });
-    pairs.forEach(function (k) { fx.pair[k] = pairTotal / pairs.length; });
+    // 平分後四捨五入成整數（最少 1）：好感、關係都不會有小數點
+    ids.forEach(function (id) { fx.aff[id] = Math.max(1, Math.round(affTotal / ids.length)); });
+    pairs.forEach(function (k) { fx.pair[k] = Math.max(1, Math.round(pairTotal / pairs.length)); });
     return fx;
   }
   // 回傳這次遇到的人（日程的一句話用）
