@@ -433,7 +433,9 @@
   // 每段聊天的 id：寫了 id 用 id（同一天好幾段時要寫），沒寫用日期
   function dcId(def) { return def.id || def.date; }
   function dayChatKey(def) { return 'daychat_' + dcId(def); }
+  var dcStarts = [];   // 除錯用：開始過的每日聊天（id）
   function dayChatStart(def, done, free) {
+    dcStarts.push(dcId(def));
     var st = state(); st.dayChat = st.dayChat || {};
     dc = { def: def, room: def.room, i: st.dayChat[dcId(def)] || 0, ask: null, done: done, free: free };
     // dark：先全暗 1 秒，再漸漸亮起來進入這段（例如 9/7 KTV 群組聊完 → 客服小精靈）
@@ -569,6 +571,8 @@
     },
     dayChat: function (def, done, free) { dayChatStart(def, done, free); },
     dayChatting: function () { return !!(dc || dcAfter); },
+    // 除錯用：每日聊天的內部狀態（自動測試卡住時印出來）
+    dayChatDebug: function () { return { dc: dc && { room: dc.room, i: dc.i, ask: !!dc.ask, id: dcId(dc.def), steps: (dc.def.steps || []).length }, after: !!dcAfter, room: dcRoom, starts: dcStarts }; },
     // 鎖定畫面的通知：有未讀的聊天室 → [{ id, title, text, time, count }]（最新的在前）
     // 鎖定畫面的通知：每一則未讀訊息各一張（不疊在一起）→ [{ id, title, text, time }]，新的在前
     unreadList: function () {
