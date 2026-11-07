@@ -121,6 +121,7 @@ RIIIZE_ADD({
       { who: "m2", text: "服務性社團的預算能提高嗎？" },
       { intro: "m2" },   // 宋恩奭出場動畫
       { who: "m6", text: "贊成！" },
+      { who: "m3", text: "燦榮說他也贊成！" },
       { who: "m4", text: "等、等等，先看一下社團提交的規劃吧？" },
       { who: "m1", text: "嗯~我們來看看哦……" },
       { text: "今天的會議並沒有如願地提早結束，但跟大家一同認真討論事項，也完全不讓你感到疲憊。" }
@@ -452,20 +453,47 @@ RIIIZE_ADD({
       { choices: [ { text: "我今天沒有遲到！！！" } ] }
     ] },
     { date: "09-02", room: "g_council", steps: [
-      { from: "f1", text: "今天的會議紀錄～大家辛苦了！" },
-      { from: "f1", text: "1. 這學期預算（有人幫我念出來了）\n2. 迎新活動交給活動長\n3. 公關長負責學生會的 IG" },
-      { from: "f3", text: "🎉🎉🎉🎉🎉" },
-      { from: "f3", text: "迎新交給我！！！我已經想好十個點子了！！！" },
-      { from: "f5", text: "十個裡面能用的有幾個" },
-      { from: "f3", text: "十個！" },
-      { from: "f4", text: "預算只夠一個" },
-      { from: "f3", text: "😢" },
+      { from: "f1", text: "今天大家辛苦了☺️" },
+      { from: "f1", text: "這學期也請多指教 有很多事要忙呢ㅎㅎ" },
+      { from: "f6", text: "我們會做得很好" },
+      { from: "f6", text: "don’t worry :)" },
       { choices: [
-        { text: "公關長收到！學生會 IG 交給我", reply: [{ from: "f1", text: "{name}好可靠～" }, { from: "f5", text: "前輩不要把我的醜照放上去" }], effects: { aff: { m1: 1, m5: 1 } } },
-        { text: "成燦，我幫你從十個裡面挑一個", reply: [{ from: "f3", text: "{name}最懂我！！！" }, { from: "f4", text: "挑最便宜的" }], effects: { aff: { m3: 2 } } }
+        { text: "我們可以做得很好的！", flag: "chat0902_a", reply: [
+          { from: "f3", text: "嗯！一起加油！" },
+          { from: "f2", text: "{name}從來不會預測錯呢" },
+          { from: "f2", text: "會是順風順水的一年。" },
+          { from: "f5", text: "yes" },
+          { from: "f4", text: "🙏🏻" }
+        ] },
+        { text: "只要沒有人開會搗亂⋯⋯", flag: "chat0902_b", reply: [
+          { from: "f5", text: "我覺得成燦哥會" },
+          { from: "f5", text: "我覺得{name}會" },
+          { from: "f6", text: "我覺得炤熙哥會" },
+          { from: "f2", text: "我覺得宋恩奭不會" },
+          { from: "f4", text: "🙄" },
+          { from: "f3", text: "我覺得沒有人不會" },
+          { from: "f1", text: "ㅋㅋㅋ" },
+          { from: "f1", text: "總之 別想讓我收拾場面 適可而止就行☺️" }
+        ] },
+        { text: "喜歡你們🥺", flag: "chat0902_c", reply: [
+          { from: "f3", text: "嗯我也~" },
+          { from: "f5", text: "怎麼突然肉麻？" },
+          { from: "f5", text: "但我也喜歡{name}" },
+          { from: "f2", text: "謝謝" },
+          { from: "f6", text: "恩奭哥ㅋㅋㅋ" },
+          { from: "f2", text: "我也喜歡喜歡我的人~" },
+          { from: "f6", text: "me too!" },
+          { from: "f4", text: "@{name} 知道了" },
+          { from: "f1", text: "我也喜歡大家 嘿嘿" },
+          { from: "f1", text: "大家早點休息！" }
+        ] }
       ] },
-      { from: "f6", text: "海報的草稿我明天再改一版" },
-      { from: "f2", text: "大家早點睡。熬夜的人，明天會變成會議紀錄裡的一行字。" }
+      // 玩家最後一句：照上面選的選項
+      { choices: [
+        { text: "🙏🏻", if: { flag: "chat0902_a" } },
+        { text: "嚴肅收到。", if: { flag: "chat0902_b" } },
+        { text: "嗯！", if: { flag: "chat0902_c" } }
+      ] }
     ] },
     { date: "09-03", room: "g_volunteer", steps: [
       { from: "f6", text: "今天謝謝大家！小朋友們都很開心！" },
