@@ -487,6 +487,11 @@
    *   沒寫 clues 的線索 = 直接算找到、播 awake_線索 */
   var clueRunning = {};
   function clueDef(key) { return (D().clues || {})[key] || null; }
+  function freePhone() {
+    var G = window.GAME, P = window.PLAN;
+    if (!G || !P || !P.phoneDay) return true;
+    return (P.phoneDay() && G.phase === 'night') || !!G.ended;
+  }
   function clue(c) {
     if (!c || !window.GAME) return;
     var key = typeof c === 'object' ? c.id : c, def = clueDef(key) || {};
@@ -505,6 +510,7 @@
     }
     (function start(n) {
       if (busy()) { if (n < 600) setTimeout(function () { start(n + 1); }, 1000); else clueRunning[key] = false; return; }
+      if (!freePhone()) { clueRunning[key] = false; return; }   // 等的時候換天了：這次不算
       if (def.chat && window.SOSHO_KAKAO) {
         var ch = {}; Object.keys(def.chat).forEach(function (k) { ch[k] = def.chat[k]; }); ch.id = 'clue_' + key;
         setTimeout(function () { window.SOSHO_KAKAO.dayChat(ch, found, true); }, def.delay != null ? def.delay : 600);
@@ -518,6 +524,8 @@
     // 看到幾秒後才算（clues[線索].see 毫秒，不寫 = 1 秒；0 = 一看到就算）；時間到之前離開那一頁就不算
     clue: function (c) {
       if (!c) return;
+      // 線索只有在能自由用手機的時候才算（星期日晚上、結局後）：平日被強制打開聊天室時看到的不算，之後再看到才算
+      if (!freePhone()) return;
       var key = typeof c === 'object' ? c.id : c, def = clueDef(key) || {}, ms = def.see != null ? def.see : 1000, h = location.hash;
       if (!ms) { clue(c); return; }
       setTimeout(function () { if (location.hash === h) clue(c); }, ms);
