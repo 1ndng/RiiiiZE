@@ -2,7 +2,7 @@
  * 背景音樂（檔案寫在 data.js 的 game.music；換曲時淡入淡出、每首都循環播放）
  *   title  標題音樂：標題畫面、第一次玩輸入名字／生日／照片
  *   alarm  鬧鐘聲：鬧鐘響的時候（按「稍後提醒」→ 停，再響時從頭）
- *   intro  成員介紹影片的音樂：影片播放中（影片本身的聲音關掉；每次從頭放）
+ *   intro  成員介紹影片的音樂：影片播放中（影片本身的聲音關掉；每次從頭放；開始時馬上出聲，結束時淡出、接下來的音樂淡入）
  *   main   主線音樂：開場（鬧鐘之後）、主線、日程劇情、每週回顧、每月安排、每晚聊天、生日、節日
  *   aff    好感度音樂：星期日白天（開頭、選人、出門）、14 日送禮、友誼線／愛情線／CP 線
  *   home   待在家的音樂：待在家（wk_home、act_home、rand_home_me）、自由探索手機的時間
@@ -82,7 +82,7 @@
     }
     Object.keys(players).forEach(function (k) {
       var a = players[k], goal = k === now ? target(k) : 0;
-      if (INSTANT[k] && goal === 0) { a.volume = 0; if (!a.paused) a.pause(); return; }   // 鬧鐘停：馬上停
+      if (k === 'alarm' && goal === 0) { a.volume = 0; if (!a.paused) a.pause(); return; }   // 鬧鐘停：馬上停（介紹影片結束時照一般的淡出淡入）
       if (k === now && a.paused) tryPlay(a);
       if (k === now && a._resume && !a.paused) { a.volume = goal; a._resume = false; }   // 重新整理後接著放：不用再淡入
       var v = a.volume + Math.max(-0.05, Math.min(0.05, goal - a.volume));
