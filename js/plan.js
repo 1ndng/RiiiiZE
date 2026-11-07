@@ -708,10 +708,6 @@
     return '<div class="wk-gain"><i>' + esc(t.weekAff) + '</i>' + a.join('') + '</div>' +
       (pr.length ? '<div class="wk-gain"><i>' + esc(t.weekPair) + '</i>' + pr.join('') + '</div>' : '');
   }
-  function uniq(week) {
-    var all = [].concat.apply([], week.map(function (w) { return w.met; }));
-    return cast().map(function (c) { return c.id; }).filter(function (id) { return all.indexOf(id) >= 0; });
-  }
   function startDayAfter(f) {
     setTimeout(function () {
       going = false;
@@ -830,10 +826,9 @@
   });
 
   window.PLAN = {
-    sleep: sleep, go: go, wish: wish, bondFor: bondFor, eventsOn: eventsOn, isStop: isStop, planned: plannedOn, phoneDay: function (d) { return phoneDay(d || G().day); },
+    sleep: sleep, go: go, wish: wish, bondFor: bondFor, eventsOn: eventsOn, phoneDay: function (d) { return phoneDay(d || G().day); },
     // 打開網頁時：新遊戲 → 先響鬧鐘；能用手機的日子 → 鎖定畫面；不能 → 直接開始這一天
     boot: boot,
-    membersOf: membersOf, effectsOf: function (act) { var ids = membersOf(act); return shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15); },
     // 開場結束 → 畫面變黑、顯示今天的日期 → 開始這一天（js/intro.js）
     enterDay: function () {
       if (going) return;

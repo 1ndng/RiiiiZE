@@ -235,30 +235,9 @@ img { display: block; max-width: 100%; }
 .ig-acc-list { border: 1px solid #e3e3e3; border-radius: 16px; overflow: hidden; }
 .ig-acc { display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 14px; text-align: left; font-size: 16px; }
 .ig-acc + .ig-acc { border-top: 1px solid #e3e3e3; }
-.ig-acc img, .ig-acc-plus { flex: none; width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
-.ig-acc-plus { display: flex; align-items: center; justify-content: center; background: #f2f3f5; }
-.ig-acc-plus svg { width: 24px; height: 24px; }
+.ig-acc img { flex: none; width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
 .ig-acc-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ig-acc-check svg { width: 26px; height: 26px; display: block; }
-
-/* ---------- 新增帳號（登入畫面） ---------- */
-.ig-login {
-  min-height: 100%; display: flex; flex-direction: column; justify-content: center;
-  padding: 0 16px 60px; position: relative;
-}
-/* 返回鍵固定在左上角，和其他頁同一個位置 */
-.ig-login-top { position: absolute; top: 0; left: 12px; right: 12px; height: 50px; display: flex; justify-content: center; align-items: center; }
-.ig-login-back { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; }
-.ig-login-back svg { width: 26px; height: 26px; }
-.ig-login-logo { height: 30px; width: auto; }
-.ig-login-form { display: flex; flex-direction: column; gap: 12px; }
-.ig-login-form input {
-  height: 56px; border: 1px solid #dcdcdc; border-radius: 16px; padding: 0 18px;
-  font: inherit; font-size: 16px; outline: none; background: #fff;
-}
-.ig-login-form input:focus { border-color: #9aa4b2; }
-.ig-login-btn { height: 48px; border-radius: 24px; background: #0064e0; color: #fff; font-size: 16px; font-weight: 600; }
-.ig-login-btn:active { background: #0052b8; }
 
 /* ---------- 共用：返回鍵＋置中標題（返回鍵和其他頁的位置、大小一致） ---------- */
 .ig-pagehead { position: relative; height: 56px; display: flex; align-items: center; justify-content: center; }

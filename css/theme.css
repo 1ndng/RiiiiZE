@@ -30,9 +30,9 @@
     repeating-linear-gradient(45deg, rgba(255,255,255,.07) 0 1px, transparent 1px 4px);
 }
 
-/* ---------- 對話框：直接用設計圖（images/ui/dialog-box.png），比例固定不變形 ----------
- *   dialog-box.webp      有人說話時（有名字牌）；原圖是 dialog-box.png（設計原檔），網頁用壓縮過的 webp
- *   dialog-narration.webp 旁白（沒有名字牌）；原圖是 dialog-narration.png
+/* ---------- 對話框：直接用設計圖（images/ui/dialog-box.webp），比例固定不變形 ----------
+ *   dialog-box.webp      有人說話時（有名字牌）
+ *   dialog-narration.webp 旁白（沒有名字牌）
  *   文字、名字的位置用百分比對齊圖上的位置 */
 .vn-box {
   left: 8px; right: 8px; bottom: 34px; min-height: 0;
@@ -60,8 +60,8 @@
 .vn-who[hidden] { display: none; }
 
 /* ---------- 共用：粉紅名字牌風格的按鈕 ---------- */
-.vn-choices button, .vn-name button, .sch-grid button, .sch-col button, .sch-cast button, .sch-actions button,
-.pl-blk, .pl-actions button, .end-btns button {
+.vn-choices button, .vn-name button, .sch-col button, .sch-cast button, .sch-actions button,
+.pl-blk, .pl-actions button {
   background: var(--pk-plate) !important; color: #7a3d66 !important;
   border: 2px solid var(--pk-plate-line) !important;
   box-shadow: 0 4px 10px rgba(185, 114, 159, .3), inset 0 -5px 8px rgba(201, 139, 179, .16) !important;

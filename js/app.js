@@ -306,7 +306,6 @@
 
   /* ---------------- Instagram ---------------- */
   var ICON = {
-    plus: '<svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" fill="none"/></svg>',
     chevron: '<svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     check: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#3b6ef5"/><path d="M7 12.5l3.2 3.2L17 9" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     back: '<svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -344,9 +343,9 @@
     });
   }
 
-  /* ---- 帳號：主帳號 + 用帳密登入的其他帳號（登入狀態存在瀏覽器裡） ---- */
+  /* ---- 帳號：玩家自己的帳號（data.js 的 defaultAccount；目前帳號存在瀏覽器裡） ---- */
   var ACC_KEY = 'riiiize-ig-accounts-v2';   // 換了預設帳號，用新的 key 讓舊的登入狀態重來
-  var accState = { current: null, loggedIn: [] };
+  var accState = { current: null };
   try { accState = JSON.parse(localStorage.getItem(ACC_KEY)) || accState; } catch (e) {}
   function saveAcc() {
     try { localStorage.setItem(ACC_KEY, JSON.stringify(accState)); } catch (e) {}
@@ -361,21 +360,10 @@
   function startAccount() { return findAccount(D.instagram.defaultAccount) || D.instagram; }
   // 目前帳號；data.js 改過帳號名稱導致找不到時，回到預設帳號
   function currentAccount() { return findAccount(accState.current) || startAccount(); }
-  // 帳號清單：預設帳號 + 已登入過的帳號
-  function listedAccounts() {
-    var first = startAccount();
-    return byUsername([first].concat(accState.loggedIn.map(findAccount).filter(function (a) {
-      return a && a !== first;
-    })));
-  }
+  // 帳號清單（切換帳號的選單）：只有玩家自己的帳號
+  function listedAccounts() { return [startAccount()]; }
   // IG 的列表都照帳號 id 的字首排序
   function byUsername(list) { return sortByName(list, function (a) { return a.username; }); }
-  // 可以用帳密登入的帳號：有寫 password、而且不是預設帳號
-  function loginAccounts() {
-    return [D.instagram].concat(otherAccounts()).filter(function (a) {
-      return a.password != null && a !== startAccount();
-    });
-  }
 
   // 看過的限時動態、追蹤狀態（存在瀏覽器裡）
   var STORE_KEY = 'riiiize-ig-state';
@@ -591,10 +579,6 @@
                 (a === g ? '<span class="ig-acc-check">' + ICON.check + '</span>' : '') +
               '</button>';
             }).join('') +
-            '<a class="ig-acc" href="#/ig/login">' +
-              '<span class="ig-acc-plus">' + ICON.plus + '</span>' +
-              '<span class="ig-acc-name">' + esc(L.addAccountLabel) + '</span>' +
-            '</a>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -1414,23 +1398,6 @@
     }
   }
 
-  // 登入畫面：只在網頁內比對 data.js 裡的帳密，不會把輸入送到任何地方
-  function renderIGLogin() {
-    var l = D.instagram.login;
-    $('#ig-overlay').innerHTML = '';
-    $('#ig-scroll').innerHTML =
-      '<div class="ig-login">' +
-        '<div class="ig-login-top">' +
-          '<a class="ig-login-back" href="#/ig">' + ICON.back + '</a>' +
-          (l.logo ? '<img class="ig-login-logo" src="' + esc(l.logo) + '" alt="">' : '') +
-        '</div>' +
-        '<form class="ig-login-form" autocomplete="off">' +
-          '<input type="text" name="u" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="' + esc(l.usernamePlaceholder) + '" autocomplete="off">' +
-          '<input type="password" name="p" placeholder="' + esc(l.passwordPlaceholder) + '" autocomplete="off">' +
-          '<button type="submit" class="ig-login-btn">' + esc(l.loginLabel) + '</button>' +
-        '</form>' +
-      '</div>';
-  }
 
   $('#app-ig').addEventListener('click', function (e) {
     var el;
@@ -1548,26 +1515,6 @@
     list.scrollTop = list.scrollHeight;
     refreshPostActions();
   });
-  $('#ig-scroll').addEventListener('submit', function (e) {
-    if (!e.target.classList.contains('ig-login-form')) return;   // 只處理登入表單
-    e.preventDefault();
-    var form = e.target;
-    var u = form.u.value.trim(), pw = form.p.value;
-    var acc = loginAccounts().filter(function (a) {
-      return a.username === u && String(a.password) === pw;
-    })[0];
-    if (!acc) {
-      form.p.value = '';
-      toast(D.instagram.login.errorText || '帳號或密碼錯誤');
-      return;
-    }
-    if (accState.loggedIn.indexOf(acc.username) < 0) accState.loggedIn.push(acc.username);
-    accState.current = acc.username;
-    saveAcc();
-    form.reset();
-    $('#toast').classList.remove('show');
-    replaceHash('#/ig');
-  });
 
   /* ---------------- 路由（網址 #/home、#/ig、#/kakao、#/photos、#/x、#/notes） ---------------- */
   var currentApp = null;
@@ -1648,7 +1595,6 @@
         else if (parts[3] === 'story') renderIGStory(parts[4] === 'me' ? 'me' : +parts[4], who, base);
         else renderIG(who, base);
       }
-      else if (parts[1] === 'login') renderIGLogin();
       else if (parts[1] === 'edit') renderIGEdit();
       else if (parts[1] === 'settings') renderIGSettings();
       else if (parts[1] === 'saved') renderIGSaved();
@@ -1739,7 +1685,7 @@
   /* ---------------- 啟動 ---------------- */
   // 給 js/apps/*.js 用的共用工具
   window.SOSHO = {
-    data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, forceComment: forceComment, buzz: buzz, buzzMessage: buzzMessage, buzzRepeat: buzzRepeat, stopBuzz: stopBuzz, buzzOn: buzzOn, goBack: goBack, prevHash: prevHash, replaceHash: replaceHash,
+    data: D, $: $, esc: esc, multiline: multiline, toast: toast, setFlag: setFlag, hasFlag: hasFlag, forceComment: forceComment, buzz: buzz, buzzMessage: buzzMessage, buzzRepeat: buzzRepeat, stopBuzz: stopBuzz, buzzOn: buzzOn, goBack: goBack, prevHash: prevHash, replaceHash: replaceHash,
     setDarkStatus: function (on) { $('#phone').classList.toggle('dark-status', !!on); },
     lock: function (opt) { renderLock(opt); },
     wallpaper: function (kind) { return wallpaperOf(kind); },               // 'home' / 'lock'

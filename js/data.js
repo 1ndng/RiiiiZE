@@ -609,11 +609,11 @@ window.SITE_DATA = {
   /* ---------- Instagram ----------
    * 貼文、限時動態、精選都可以寫 from: "09-15"（那天起才出現）或 if: 條件（例如 { awakened: "m1" }、{ loop: ">=2" }）
    * 這一段本身 = 帳號「shotaroo0」，同時放全部帳號共用的文字設定。
-   * otherAccounts = 其他帳號；有寫 password 的可以從「新增帳號」登入。
+   * otherAccounts = 其他帳號（玩家自己的帳號寫在這裡）。
    */
   instagram: {
     defaultAccount: "briiii1ze._",   // 打開 IG 時已經登入的帳號（玩家）
-    username: "shotaroo0",         // 成員帳號都不能登入（不寫 password）
+    username: "shotaroo0",
     private: true,                 // 非公開帳號：沒追蹤的人看不到貼文、限時、名單
     name: "SHOTARO",
     cast: "m1",                    // 成員帳號：名字、大頭照用 cast 的（不寫 cast → 用 avatar、name；沒有名字 → 顯示帳號 id）
@@ -687,20 +687,10 @@ window.SITE_DATA = {
       ]
     },
 
-    addAccountLabel: "新增帳號",
-    // 「新增帳號」的登入畫面（只在網頁內比對帳密，不會送出）
-    login: {
-      usernamePlaceholder: "帳號",
-      passwordPlaceholder: "密碼",
-      loginLabel: "登入",
-      errorText: "帳號或密碼錯誤"
-    },
-
     otherAccounts: [
       // 玩家的帳號（名字＝玩家輸入的名字、頭貼＝玩家上傳的照片）
       {
         username: "briiii1ze._",
-        password: "0000",
         following: others(IG_ALL, "briiii1ze._"),
         closeFriendsList: [],
         saved: [],
@@ -712,7 +702,7 @@ window.SITE_DATA = {
         reposts: []
       }
     ],
-    // 其他成員的帳號：只能從名單、搜尋點進去看，不能登入（不寫 password）
+    // 其他成員的帳號：只能從名單、搜尋點進去看，不能切換成他們的帳號
     searchOnlyAccounts: [
       { username: "seokkkk",     cast: "m2", name: "BLACK SHADOW", private: true, following: others(IG_ALL, "seokkkk"),     bio: [ { text: "☃️", from: "11-01", clue: "m2_1" } ],   // 覺醒線索 m2_1：11 月起簡介多了雪人 highlights: [], reposts: [],
         posts: [

@@ -121,5 +121,5 @@
     main();
   }
 
-  window.TITLE = { show: show, skipNext: skipNext };
+  window.TITLE = { show: show };
 })();

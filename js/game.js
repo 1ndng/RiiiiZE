@@ -242,7 +242,6 @@
       for (var i = 0; i < ids.length; i++) for (var j = i + 1; j < ids.length; j++) out.push(ids[i] + '-' + ids[j]);
       return out;
     },
-    pairKey: pairKey,
     stat: function (kind, id) { return statGet(kind, id); },
     addStat: function (kind, id, n) { statAdd(kind, id, n); },
     setStat: function (kind, id, n) { statSet(kind, id, n); },
@@ -254,8 +253,6 @@
     get phase() { return st.phase; },
     get ended() { return st.ended || null; },   // 看完結局後：'explore'（不再換天）或 'continue'（照常過日子）
     setEnded: function (mode) { st.ended = mode; if (mode !== 'explore') delete st.ended; persist(); emit(); },
-    isLover: function (id) { return isLover(id); },
-    isCouple: function (k) { return isCouple(k); },
     allAwake: function () { return allAwake(); },
     isAwake: function (id) { return isAwake(id); },
     awakeCount: function () { return awakeCount(); },
@@ -289,7 +286,6 @@
     totalDays: totalDays,
     dayOf: dayOfMD,            // "12-24" → 第幾天
     md: mdOf,                  // 第幾天 → "12-24"
-    setPhase: function (p) { st.phase = p; persist(); emit(); },
     slots: function () { return G.saveSlots || 10; },
     saves: function () { return saves(); },
     save: function (id) { writeSlot(id); },

@@ -566,7 +566,7 @@
       try { Object.keys(JSON.parse(localStorage.getItem('riiiize-flags')) || {}).forEach(function (k) { if (k.indexOf('scene_') === 0) r[k.slice(6)] = 1; }); } catch (e) {}
       return r;
     },
-    askName: askName, askBirthday: askBirthday,
+    askName: askName,
     playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },
     // 劇情、輸入名字、日程選單、結局畫面進行中（KakaoTalk 橫幅、來電會等這些結束）
     playing: function () { return !!cur || waitingPlay || !!document.querySelector('.vn-name, .sch, .end-card, .day-stage, .pl, .alarm, .wk, .title-scr'); },
