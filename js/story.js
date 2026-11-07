@@ -12,6 +12,7 @@
  *   { text: "頭好痛……", headache: true }     這句出現時畫面模糊（頭痛：想起原本的世界時）
  *   { wait: 1000 }                           停頓（毫秒）：對話框先收起來，時間到自動接下一句
  *   { choices: [ { text, effects, flag, goto, if }, … ] }   選項；goto = 跳到哪個 label（不寫 = 接著往下）
+ *   { text: "…", sfx: "message" }          這句出現時播音效（data.js 的 game.sounds）
  *   { label: "名稱" }                         標記，給 goto 用
  *   { goto: "名稱" }                          跳過去（常和 if 一起用：條件成立才跳）
  *   { effects: { … } } / { flag: "旗標" }     套用效果、記錄旗標（不會顯示）
@@ -207,6 +208,7 @@
       if (s.wait && s.text == null) { pause(s.wait); return; }
       if (s.hold && s.text == null) { hold(s.hold); return; }
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
+      if (s.sfx && !resumed && window.SOSHO_BGM) window.SOSHO_BGM.sfx(s.sfx);   // 音效（data.js 的 game.sounds，例如 "message"）
       if (s.intro) { if (introVideo(s.intro)) return; continue; }
       // 玩家生日許願：選單蓋在劇情上，選完接著往下；{wish} = 許願的對象（例如「元彬」「將太郎和恩奭」）
       if (s.wish && window.PLAN && window.PLAN.wish) {

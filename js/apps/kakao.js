@@ -439,6 +439,16 @@
     dcStarts.push(dcId(def));
     var st = state(); st.dayChat = st.dayChat || {};
     dc = { def: def, room: def.room, i: st.dayChat[dcId(def)] || 0, ask: null, done: done, free: free, last: Date.now() };
+    // before：這天稍早就傳來的訊息（例如早上 10:16 的邀請），打開聊天室時已經在裡面（寫 time，例如 "上午 10:16"）
+    if (def.before && !(st.dayBefore || {})[dcId(def)]) {
+      var f0 = friend(def.room);
+      st.msgs[def.room] = st.msgs[def.room] || [];
+      def.before.forEach(function (m) {
+        st.msgs[def.room].push({ from: f0 && f0.group ? (m.from || (f0.members[0] || {}).id) : 'them', text: m.text, image: m.image, time: m.time || nowTime(), day: gameDay() });
+      });
+      st.dayBefore = st.dayBefore || {}; st.dayBefore[dcId(def)] = 1;
+      S().save(KEY, st);
+    }
     // dark：先全暗 1 秒，再漸漸亮起來進入這段（例如 9/7 KTV 群組聊完 → 客服小精靈）
     var dark = null;
     if (def.dark && dc.i === 0) {
