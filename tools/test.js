@@ -393,6 +393,19 @@ const TESTS = [
     if (r !== 'cp_m4_m6_1,cp_m4_m6_2,cp_m4_m6_3,cp_m4_m6_4!,true,cp_m1_m4_1,-,-') throw new Error(r);
     return p;
   }],
+  ['選人畫面：連點兩次「確定」只算一次（星期日見元彬，好感 +6 不是 +12）', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' },
+      'riiiize-flags': { alarm_done: 1, intro_done: 1, plan_tutorial: 1, giftdone_14: 1 } }));
+    for (let i = 0; i < 80 && !(await p.$('.sch-cast [data-meet="m4"]')); i++) {
+      await p.evaluate(() => { const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(150);
+    }
+    await p.click('.sch-cast [data-meet="m4"]');
+    await p.evaluate(() => { const g = document.querySelector('[data-go]'); g.click(); g.click(); });
+    await sleep(1500);
+    const a = await p.evaluate(() => GAME.stat('aff', 'm4'));
+    if (a !== 6) throw new Error('好感 ' + a);
+    return p;
+  }],
   ['App 內容：from 日期之前看不到', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' } }));
     const r = await p.evaluate(() => [GAME.unlocked({ from: '09-15' }), GAME.unlocked({ from: '09-05' }), GAME.unlocked({ if: { loop: '>=2' } })]);

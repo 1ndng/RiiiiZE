@@ -255,8 +255,11 @@
     render();
     document.getElementById('phone').appendChild(el);
     void el.offsetWidth; el.classList.add('show');
-    function close(fn) { el.classList.remove('show'); setTimeout(function () { el.remove(); fn(); }, 250); }
+    // 關閉中（淡出的 0.25 秒）再點不算：避免連點兩次「確定」執行兩次
+    var closing = false;
+    function close(fn) { if (closing) return; closing = true; el.classList.remove('show'); setTimeout(function () { el.remove(); fn(); }, 250); }
     el.addEventListener('click', function (e) {
+      if (closing) return;
       var b;
       if ((b = e.target.closest('[data-btn]'))) { var bt = opt.buttons[+b.dataset.btn]; close(function () { bt.run(); }); return; }
       if ((b = e.target.closest('[data-meet]'))) {
