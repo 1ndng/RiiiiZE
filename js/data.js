@@ -36,15 +36,16 @@ window.SITE_DATA = {
    *   比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，只寫數字 = 至少這個數字
    */
   // avatar = 大頭照（沒寫就用預設頭貼 images/default_avatar.png）
+  // portrait = 劇情對話時，這個人說話會出現在對話框右上方的頭像（粉紅相框，images/portrait/）
   // no = 編號（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮；隨機劇情的名字 rand_club_14 用這個）
   // short = 劇情對話框裡顯示的名字（只有名、沒有姓）；emoji = 「這週的安排」好感、關係用的符號
   cast: [
-    { id: "m1", no: 1, name: "大﨑将太郎", short: "將太郎", emoji: "🧋", birthday: "11-25", activities: ["club", "council", "games"], avatar: "images/cast/m1.jpg" },
-    { id: "m2", no: 2, name: "宋恩奭", short: "恩奭", emoji: "🪨",     birthday: "03-19", activities: ["volunteer", "council", "games"], avatar: "images/cast/m2.jpg" },
-    { id: "m3", no: 3, name: "鄭成燦", short: "成燦", emoji: "🦌",     birthday: "09-13", activities: ["council", "sports", "karaoke"], avatar: "images/cast/m3.jpg" },
-    { id: "m4", no: 4, name: "朴元彬", short: "元彬", emoji: "🎸",     birthday: "03-02", activities: ["club", "council", "sports"], avatar: "images/cast/m4.jpg" },
-    { id: "m5", no: 6, name: "李炤熙", short: "炤熙", emoji: "💂",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"], avatar: "images/cast/m5.jpg" },
-    { id: "m6", no: 7, name: "李燦榮", short: "燦榮", emoji: "🦕",     birthday: "03-21", activities: ["volunteer", "council", "sports", "karaoke"], avatar: "images/cast/m6.jpg" }
+    { id: "m1", no: 1, name: "大﨑将太郎", short: "將太郎", emoji: "🧋", birthday: "11-25", activities: ["club", "council", "games"], avatar: "images/cast/m1.jpg", portrait: "images/portrait/m1.webp" },
+    { id: "m2", no: 2, name: "宋恩奭", short: "恩奭", emoji: "🪨",     birthday: "03-19", activities: ["volunteer", "council", "games"], avatar: "images/cast/m2.jpg", portrait: "images/portrait/m2.webp" },
+    { id: "m3", no: 3, name: "鄭成燦", short: "成燦", emoji: "🦌",     birthday: "09-13", activities: ["council", "sports", "karaoke"], avatar: "images/cast/m3.jpg", portrait: "images/portrait/m3.webp" },
+    { id: "m4", no: 4, name: "朴元彬", short: "元彬", emoji: "🎸",     birthday: "03-02", activities: ["club", "council", "sports"], avatar: "images/cast/m4.jpg", portrait: "images/portrait/m4.webp" },
+    { id: "m5", no: 6, name: "李炤熙", short: "炤熙", emoji: "💂",     birthday: "11-21", activities: ["club", "council", "karaoke", "games"], avatar: "images/cast/m5.jpg", portrait: "images/portrait/m5.webp" },
+    { id: "m6", no: 7, name: "李燦榮", short: "燦榮", emoji: "🦕",     birthday: "03-21", activities: ["volunteer", "council", "sports", "karaoke"], avatar: "images/cast/m6.jpg", portrait: "images/portrait/m6.webp" }
   ],
 
   /* ---------- 劇情（對話框） ----------

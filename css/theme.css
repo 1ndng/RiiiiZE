@@ -43,6 +43,9 @@
 .vn-box::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: url("../images/ui/dialog-box.webp") no-repeat center / 100% 100%; }
 .vn-box.narration::before { background-image: url("../images/ui/dialog-narration.webp"); }
 .vn-box::after { content: none; }
+/* 成員說話時的頭像（粉紅相框圖，images/portrait/）：在對話框右上方，相框下緣的蕾絲壓在對話框上緣 */
+.vn-face { position: absolute; z-index: 0; right: 1.7%; bottom: 79.3%; width: 50.5%; height: auto; pointer-events: none; }
+.vn-face[hidden] { display: none; }
 .vn-text {
   position: absolute; z-index: 1; left: 6.5%; right: 6.5%; top: 25%; height: 51%; overflow: hidden;
   color: var(--pk-text); font-size: 16px; font-weight: 500; line-height: 1.6; text-shadow: 0 1px 0 rgba(255,255,255,.45);

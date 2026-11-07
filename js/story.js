@@ -141,7 +141,7 @@
         '<button type="button" data-vn-log>' + esc(t.log) + '</button>' +
         ((window.ENDING && window.ENDING.running()) || replay ? '' : '<button type="button" data-vn-save>' + esc(t.save) + '</button>') + '</div>' +
       '<div class="vn-choices" id="vn-choices"></div>' +
-      '<div class="vn-box" id="vn-box"><div class="vn-who" id="vn-who"></div><div class="vn-text" id="vn-text"></div><i class="vn-next"></i></div>';
+      '<div class="vn-box" id="vn-box"><img class="vn-face" id="vn-face" alt="" hidden><div class="vn-who" id="vn-who"></div><div class="vn-text" id="vn-text"></div><i class="vn-next"></i></div>';
     document.getElementById('phone').appendChild(el);
     void el.offsetWidth; el.classList.add('show');
     if (S()) S().setDarkStatus(true);
@@ -315,6 +315,8 @@
     bg.classList.add('in');
   }
   // 逐字出現：點一下 → 整句顯示；再點 → 下一句
+  // 成員的對話頭像先載入（第一次說話時不會晚一下才出現）
+  setTimeout(function () { (D().cast || []).forEach(function (c) { if (c.portrait) { var im = new Image(); im.src = c.portrait; } }); }, 1500);
   function say(who, text, resumed) {
     var name = nameOf(who), full = fill(text, who).replace(/\{wish\}/g, cur.wishText || '');
     if (!resumed || !cur.log.length) cur.log.push({ who: name, text: full });   // 從存檔繼續：這句已經在紀錄裡
@@ -326,6 +328,9 @@
     box.classList.remove('done');
     w.textContent = name;
     w.hidden = !name;
+    // 說話的是成員：對話框右上方顯示他的頭像（data.js 的 cast[].portrait）
+    var face = cur.el.querySelector('#vn-face'), pc = (D().cast || []).filter(function (c) { return c.id === who; })[0], src = pc && pc.portrait;
+    if (src) { if (face.getAttribute('src') !== src) face.setAttribute('src', src); face.hidden = false; } else face.hidden = true;
     tx.textContent = '';
     cur.full = full; cur.typing = true;
     if (mode === 'skip') { finishTyping(); return; }
