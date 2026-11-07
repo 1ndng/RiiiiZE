@@ -27,6 +27,7 @@ RIIIZE_ADD({
       { who: "m1", text: "……我還沒。" },
       { who: "m2", text: "……我也是。" },
       { who: "m3", text: "我也是。" },
+      { who: "me", text: "（……三個人都還沒。明明平常最愛計畫東計畫西的。）" },
       { text: "三個畢業生，互相看了一眼。" },
       { who: "m3", text: "好奇怪喔。" },
       { who: "m3", text: "畢業都兩個月了，我們好像什麼都沒有做。" },
@@ -89,6 +90,7 @@ RIIIZE_ADD({
       { text: "然後是第二個。第三個。" },
       { who: "m3", text: "……誰在哭啦。" },
       { who: "m3", text: "是我。" },
+      { who: "me", text: "（……成燦，你這一年到底哭了幾次啊TT）" },
       { text: "大家笑了。笑著笑著，又更想哭了。" },
       { choices: [
         { text: "「我也很高興，這一年有你們。」", effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } },
@@ -104,7 +106,8 @@ RIIIZE_ADD({
       { text: "七個人在漢江邊野餐。和跨年那天是同一個地方。" },
       { text: "燦榮帶了吉他，炤熙帶了零食，元彬帶了防蚊液，成燦帶了炸雞，將太郎帶了飯糰，恩奭帶了冷笑話。" },
       { who: "m2", text: "這次是新的冷笑話。" },
-      { who: "m6", text: "真的嗎！" },
+      { who: "m6", text: "真的嗎~~" },
+      { who: "me", text: "（恩奭的新冷笑話，我已經做好不笑的準備了。）" },
       { who: "m2", text: "為什麼八月很難過？" },
       { who: "m6", text: "為什麼？" },
       { who: "m2", text: "因為它知道，下一個是九月。" },
@@ -112,6 +115,7 @@ RIIIZE_ADD({
       { text: "大家都沒有笑。" },
       { who: "m2", text: "……不好笑。對不起。" },
       { who: "m3", text: "……很好笑啦。" },
+      { who: "me", text: "（……一點都不好笑。可是為什麼，我笑不出來。）" },
       { text: "成燦用力地拍了拍恩奭的背。" },
       { text: "太陽慢慢地下山了。燦榮彈起吉他，唱了〈七〉。" },
       { text: "這次，大家一起唱。" },
@@ -136,7 +140,7 @@ RIIIZE_ADD({
       { text: "可是你發現，今天每個人都有一點不一樣。" },
       { who: "m1", text: "……{name}。我最近，常常夢到那個白色的房間。", if: { awakened: "m1" } },
       { who: "m1", text: "可是我現在不怕了。我知道那是哪裡。", if: { awakened: "m1" } },
-      { who: "m1", text: "大家～這週要每天都來喔～", if: { notAwakened: "m1" } },
+      { who: "m1", text: "大家~這週要每天都來喔~", if: { notAwakened: "m1" } },
       { who: "m2", text: "……還有一週。這次，我知道一週之後會發生什麼。", if: { awakened: "m2" } },
       { who: "m2", text: "……還有一週。", if: { notAwakened: "m2" } },
       { who: "m3", text: "我想起來了。每天早上的地鐵。我想起來，我其實已經很久沒有這樣笑了。", if: { awakened: "m3" } },
@@ -287,20 +291,20 @@ RIIIZE_ADD({
     ] },
     { date: "08-22", room: "g_council", steps: [
       { from: "f6", text: "今天謝謝大家一起唱" },
-      { from: "f3", text: "我唱到喉嚨啞了" },
+      { from: "f3", text: "我唱到喉嚨啞了TT" },
       { from: "f1", text: "下週就是八月的最後一週了耶" },
       { from: "f2", text: "……嗯。" },
       { from: "f5", text: "大家早點睡" },
       { from: "f4", text: "嗯" },
       { choices: [
         { text: "晚安。明天見", reply: [{ from: "f3", text: "明天見！！！" }, { from: "f6", text: "明天見" }], effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } },
-        { text: "下週也要一起過", reply: [{ from: "f1", text: "當然～" }, { from: "f2", text: "一起。" }], effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } }
+        { text: "下週也要一起過", reply: [{ from: "f1", text: "當然~" }, { from: "f2", text: "一起。" }], effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } }
       ] }
     ] },
     // ↓ 最後一週的晚上（Claude 草稿）
     { date: "08-24", room: "g_council", steps: [
       { from: "f3", text: "最後一週！！！" },
-      { from: "f1", text: "每天都要見面喔～" },
+      { from: "f1", text: "每天都要見面喔~" },
       { from: "f2", text: "……嗯。" },
       { choices: [
         { text: "每天都見", reply: [{ from: "f6", text: "每天！" }, { from: "f4", text: "嗯" }], effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } },
