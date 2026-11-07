@@ -113,7 +113,8 @@
     pattern.forEach(function (ms, i) { if (i % 2 === 0) setTimeout(iosTap, t); t += ms; });
   }
   // 訊息：同一陣子連續傳來的只震一次
-  function buzzMessage() { var now = Date.now(); if (now - lastBuzz < 1500) return; lastBuzz = now; buzz([90]); }
+  // 收到訊息：震一下＋通知聲（1.5 秒內只算一次）
+  function buzzMessage() { var now = Date.now(); if (now - lastBuzz < 1500) return; lastBuzz = now; buzz([90]); if (window.SOSHO_BGM) window.SOSHO_BGM.sfx('message'); }
   // 來電、鬧鐘：一直震到 stopBuzz()
   function buzzRepeat(pattern, every) { stopBuzz(); buzz(pattern); buzzTimer = setInterval(function () { buzz(pattern); }, every || 1600); }
   function stopBuzz() { clearInterval(buzzTimer); buzzTimer = null; try { if (navigator.vibrate) navigator.vibrate(0); } catch (e) {} }

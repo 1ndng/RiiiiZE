@@ -238,7 +238,7 @@
     cur.el.appendChild(w);
     var vid = w.querySelector('video'), cap = w.querySelector('.vn-intro-cap'), at = cfg.captionAt != null ? cfg.captionAt : 3000;
     vid.src = v.video;
-    vid.muted = !(window.SOSHO_SOUND ? window.SOSHO_SOUND.on() : true);
+    vid.muted = true;   // 影片本身不出聲：改放 data.js 的 game.music.intro（js/bgm.js）
     void w.offsetWidth; w.classList.add('show');
     function end() {
       if (done) return; done = true;
@@ -257,8 +257,8 @@
     w.addEventListener('click', function (e) { e.stopPropagation(); if (over) end(); });
     vid.addEventListener('error', end);
     var p = vid.play();
-    // 瀏覽器不讓有聲音的影片自動播：改成靜音再播；還是不行就跳過
-    if (p && p.catch) p.catch(function () { vid.muted = true; var q = vid.play(); if (q && q.catch) q.catch(end); });
+    // 靜音影片可以自動播；還是不行就跳過
+    if (p && p.catch) p.catch(end);
     setTimeout(function () { if (!done && vid.currentTime === 0) end(); }, 15000);   // 影片載不出來：不要卡住
     return true;
   }

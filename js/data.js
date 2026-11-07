@@ -545,9 +545,12 @@ window.SITE_DATA = {
   game: {
     version: "0.1.0",            // 版本號（設定 → 開發者資訊 會顯示；更新遊戲時改這裡）
     // 音樂（什麼時候放哪一首寫在 js/bgm.js 最上面）；volume 0～1
-    //   title 標題、main 主線、aff 好感度（還沒有 → 先用 main）、home 待在家／自由探索手機、awake 覺醒（線索反應、結局）
-    music: { title: "audio/title.mp3", main: "audio/main.mp3", home: "audio/home.mp3", awake: "audio/awake.mp3",
-             volume: { title: 0.6, main: 0.45, aff: 0.45, home: 0.45, awake: 0.5 } },
+    //   title 標題、main 主線、aff 好感度、home 待在家／自由探索手機、awake 覺醒（線索反應、結局）、alarm 鬧鐘、intro 成員介紹影片
+    music: { title: "audio/title.mp3", main: "audio/main.mp3", aff: "audio/aff.mp3", home: "audio/home.mp3", awake: "audio/awake.mp3",
+             alarm: "audio/alarm.mp3", intro: "audio/intro.mp3",
+             volume: { title: 0.6, main: 0.45, aff: 0.45, home: 0.45, awake: 0.5, alarm: 0.7, intro: 0.55 } },
+    // 音效：message = KakaoTalk 收到訊息
+    sounds: { message: "audio/message.mp3", volume: { message: 0.6 } },
     debug: true,                 // true = 設定裡出現「數值（開發用）」；正式公開前改成 false
     startDate: "2025-09-01",
     endDate: "2026-08-31",
