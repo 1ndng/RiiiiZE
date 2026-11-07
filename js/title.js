@@ -14,7 +14,7 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function T() {
     var t = D().title || {}, d = {
-      name: 'RiiiiZE', subtitle: '拉完子學院', bg: '',
+      name: 'RiiiiZE', subtitle: '拉完子學院', bg: '', credit: 'dng',
       start: '開始遊戲', cont: '繼續', load: '讀取存檔', restart: '從頭開始', back: '返回',
       btnStart: '開始', btnCont: '繼續', btnLoad: '讀取', btnLang: '語言', btnSound: '音效', on: '開', off: '關',
       langTitle: '語言', tw: '繁體中文', cn: '简体中文',
@@ -41,6 +41,7 @@
     el.innerHTML = '<div class="title-blur" style="background-image:url(\'' + esc(bg) + '\')"></div>' +
       '<div class="title-art" style="background-image:url(\'' + esc(bg) + '\')">' +
         (bx ? '<div class="title-box" style="left:' + bx.left + '%;top:' + bx.top + '%;width:' + bx.width + '%;height:' + bx.height + '%"></div>' : '') +
+        (t.credit ? '<div class="title-credit">' + esc(t.credit) + '</div>' : '') +   // 最下面粉色花邊上方的小字（比照 SOSHO 論壇頁面底部）
       '</div><div class="title-layer"></div>';
     var box = el.querySelector('.title-box'), layer = el.querySelector('.title-layer');
     phone.appendChild(el);

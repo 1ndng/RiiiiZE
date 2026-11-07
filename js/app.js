@@ -619,7 +619,7 @@
     reposted: '已轉發到你的個人檔案', unreposted: '已取消轉發',
     savedTitle: '已儲存', noSaved: '還沒有儲存任何貼文', noReposts: '還沒有轉發任何貼文', noTagged: '還沒有被標註的相片',
     storyMessageSent: '訊息已傳送',
-    editTitle: '編輯個人檔案', nameLabel: '名稱', bioLabel: '個人簡介', cancelLabel: '取消', doneLabel: '完成',
+    editTitle: '編輯個人檔案', nameLabel: '名稱', bioLabel: '個人簡介', usernameLabel: '用戶名稱', changePhoto: '更換大頭貼照', idFormat: '用戶名稱只能用英文字母、數字、底線和句點（最多 30 個字）。', idTaken: '這個用戶名稱已經有人使用了。', cancelLabel: '取消', doneLabel: '完成',
     closeFriendsTitle: '摯友', noCloseFriends: '還沒有摯友',
     privateTitle: '此帳號不公開', privateDesc: '追蹤這個帳號即可查看相片和影片。', requestedLabel: '已要求',
     soundOn: '開啟聲音', soundOff: '關閉聲音',
@@ -1353,7 +1353,8 @@
     });
   }
   function renderIGEdit() {
-    var g = currentAccount(), t = T();
+    // 玩家自己的帳號：還可以換大頭貼、改用戶名稱（id）
+    var g = currentAccount(), t = T(), I = window.INTRO, mine = !!(I && I.myId && g.username === I.myId('ig')), pic = null;
     $('#ig-overlay').innerHTML = '';
     $('#ig-scroll').innerHTML =
       '<form class="ig-edit" id="ig-edit" autocomplete="off">' +
@@ -1362,19 +1363,36 @@
           '<b>' + esc(t.editTitle) + '</b>' +
           '<button type="submit">' + esc(t.doneLabel) + '</button>' +
         '</div>' +
-        '<div class="ig-edit-av"><img src="' + esc(g.avatar) + '" alt=""></div>' +
+        '<label class="ig-edit-av"><img id="ig-edit-img" src="' + esc(g.avatar) + '" alt="">' +
+          (mine ? '<span>' + esc(t.changePhoto) + '</span><input type="file" accept="image/*" id="ig-edit-file" hidden>' : '') + '</label>' +
         '<label class="ig-edit-row"><span>' + esc(t.nameLabel) + '</span><input name="nm" value="' + esc(g.name || '') + '" placeholder="' + esc(g.username) + '"></label>' +
+        (mine ? '<label class="ig-edit-row"><span>' + esc(t.usernameLabel) + '</span><input name="uid" maxlength="30" autocapitalize="off" spellcheck="false" value="' + esc(g.username) + '"></label>' +
+          '<div class="ig-edit-err" id="ig-edit-err" hidden></div>' : '') +
         '<label class="ig-edit-row"><span>' + esc(t.bioLabel) + '</span><textarea name="bio" rows="4">' + esc((g.bio || []).join('\n')) + '</textarea></label>' +
       '</form>';
+    if (mine) $('#ig-edit-file').addEventListener('change', function (e) {
+      var fl = e.target.files && e.target.files[0];
+      if (fl) I.toAvatar(fl, function (url) { pic = url; $('#ig-edit-img').src = url; });
+    });
     $('#ig-edit').addEventListener('submit', function (e) {
       e.preventDefault();
       var f = e.target;
+      if (mine) {
+        var uid = f.uid.value.trim().replace(/^@/, '');
+        if (uid !== g.username) {
+          var bad = /^[A-Za-z0-9._]{1,30}$/.test(uid) ? '' : 'format';
+          if (!bad && (findAccount(uid) || uid === D.instagram.username)) bad = 'taken';
+          if (bad) { var er = $('#ig-edit-err'); er.textContent = bad === 'taken' ? t.idTaken : t.idFormat; er.hidden = false; return; }
+        }
+        if (pic) I.setAppAvatar('ig', pic);
+      }
       store.profileEdits = store.profileEdits || {};
       store.profileEdits[g.username] = {
         name: f.nm.value.trim(),
         bio: f.bio.value.split('\n').map(function (l) { return l.trim(); }).filter(Boolean)
       };
       saveStore(); applyEdits();
+      if (mine && uid !== g.username) { I.setId('ig', uid); return; }   // 改了 id：重新整理後全部換成新的 id
       goBack('#/ig');
     });
   }

@@ -30,16 +30,68 @@
 
   /* ---- 玩家自己的帳號：名字＝輸入的名字、頭貼＝上傳的照片（沒上傳就用預設頭貼）
    *      用在 KakaoTalk、X 自己的帳號、IG 登入中的帳號 ---- */
+  // IG、X 可以各自換頭貼（編輯個人檔案）：pl.igAvatar / pl.xAvatar，沒換就用一開始上傳的 pl.avatar
   function applyAvatar() {
     var pl = player(), a = pl.avatar || DEFAULT_AVATAR, n = pl.name || '', d = D();
     if (d.kakao && d.kakao.me) d.kakao.me.avatar = a;
-    if (d.x) (d.x.accounts || []).forEach(function (acc) { if (acc.handle === d.x.me) { acc.avatar = a; acc.name = n || acc.name || '我'; } });
-    if (d.instagram) {
-      var ig = d.instagram, def = ig.defaultAccount;
-      var acc = def === ig.username ? ig : (ig.otherAccounts || []).filter(function (x) { return x.username === def; })[0];
-      if (acc) { acc.avatar = a; if (n) acc.name = n; }
-    }
+    if (d.x) (d.x.accounts || []).forEach(function (acc) { if (acc.handle === d.x.me) { acc.avatar = pl.xAvatar || a; acc.name = n || acc.name || '我'; } });
+    var acc = igMe();
+    if (acc) { acc.avatar = pl.igAvatar || a; if (n) acc.name = n; }
   }
+  function igMe() {
+    var ig = D().instagram; if (!ig) return null;
+    var def = ig.defaultAccount;
+    return def === ig.username ? ig : (ig.otherAccounts || []).filter(function (x) { return x.username === def; })[0] || null;
+  }
+
+  /* ---- 玩家的 IG／X 帳號 id 可以改（編輯個人檔案）：pl.igId / pl.xId
+   *      載入時把 data.js 裡原本的 id（briiii1ze._）全部換掉：帳號、追蹤名單、@提到 ---- */
+  var BASE_ID = { ig: (D().instagram || {}).defaultAccount, x: (D().x || {}).me };
+  function swapIn(o, from, to) {
+    if (!o || typeof o !== 'object') return o;
+    Object.keys(o).forEach(function (k) {
+      var v = o[k];
+      if (typeof v === 'string') { if (v === from) o[k] = to; else if (v.indexOf('@' + from) >= 0) o[k] = v.split('@' + from).join('@' + to); }
+      else if (v && typeof v === 'object') swapIn(v, from, to);
+      if (k === from) { o[to] = o[k]; delete o[k]; }
+    });
+    return o;
+  }
+  function applyIds() {
+    var pl = player(), d = D();
+    if (pl.igId && BASE_ID.ig && pl.igId !== BASE_ID.ig) Object.keys(d).forEach(function (k) { if (k !== 'x' && d[k] && typeof d[k] === 'object') swapIn(d[k], BASE_ID.ig, pl.igId); });
+    if (pl.xId && BASE_ID.x && pl.xId !== BASE_ID.x && d.x) swapIn(d.x, BASE_ID.x, pl.xId);
+  }
+  function myId(app) { var pl = player(); return (app === 'ig' ? pl.igId : pl.xId) || BASE_ID[app]; }
+  // 改 id：檢查格式和有沒有跟別人重複 → 把存起來的狀態（追蹤、留言、個人檔案…）裡的舊 id 換成新的 → 重新整理
+  // 回傳錯誤訊息（空字串 = 成功）
+  function setId(app, v) {
+    v = String(v || '').trim().replace(/^@/, '');
+    var old = myId(app);
+    if (v === old) return '';
+    if (!/^[A-Za-z0-9._]{1,30}$/.test(v)) return 'format';
+    var d = D(), taken = app === 'ig'
+      ? [d.instagram.username].concat((d.instagram.otherAccounts || []).map(function (a) { return a.username; }))
+      : (d.x.accounts || []).map(function (a) { return a.handle; });
+    if (taken.indexOf(v) >= 0) return 'taken';
+    var keys = app === 'ig' ? ['riiiize-ig-accounts-v2', 'riiiize-ig-state'] : ['riiiize-x', 'riiiize-flags'];
+    keys.forEach(function (k) {
+      var raw = localStorage.getItem(k); if (!raw) return;
+      raw = raw.split('"' + old + '"').join('"' + v + '"').split('@' + old).join('@' + v);
+      if (app === 'x') raw = raw.split('x_private_' + old + '"').join('x_private_' + v + '"').split('x_public_' + old + '"').join('x_public_' + v + '"');
+      try { localStorage.setItem(k, raw); } catch (e) {}
+    });
+    var pl = player(); pl[app === 'ig' ? 'igId' : 'xId'] = v; store(PKEY, pl);
+    try { sessionStorage.setItem('riiiizeSkipTitle', '1'); } catch (e) {}
+    location.reload();
+    return '';
+  }
+  function setAppAvatar(app, url) {
+    var pl = player(), k = app === 'ig' ? 'igAvatar' : 'xAvatar';
+    if (url) pl[k] = url; else delete pl[k];
+    store(PKEY, pl); applyAvatar();
+  }
+  applyIds();
   applyAvatar();
 
   // 縮成 256×256 的正方形（從中間裁），存成 JPEG（存在瀏覽器裡）
@@ -186,6 +238,7 @@
 
   window.INTRO = {
     setup: setup, afterUnlock: afterUnlock, onCalendar: onCalendar, applyAvatar: applyAvatar,
+    toAvatar: toAvatar, setId: setId, myId: myId, setAppAvatar: setAppAvatar,
     exploring: function () { return exploring; },
     // 鎖定畫面密碼：玩家生日（月月日日）
     passcode: function () { var b = player().birthday || ''; return b ? b.replace('-', '') : ''; }

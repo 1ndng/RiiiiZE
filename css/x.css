@@ -113,6 +113,9 @@ a.x-follow { display: inline-block; }
 .x-edit-save { justify-self: end; background: #0f1419; color: #fff; border-radius: 16px; padding: 5px 14px; font-weight: 700; font-size: 14px; }
 .x-edit-banner { position: relative; top: auto; margin-top: 0; height: 110px; z-index: 0; }
 .x-edit .x-prof-top { margin-top: -34px; }
+.x-edit-av { display: flex; align-items: flex-end; gap: 10px; cursor: pointer; }
+.x-edit-av span { margin-bottom: 4px; color: #1d9bf0; font-size: 14px; font-weight: 600; }
+.x-edit-err { padding: 8px 16px; color: #f4212e; font-size: 13px; }
 .x-field { display: block; width: 100%; padding: 12px 14px; border-bottom: 1px solid var(--x-line); text-align: left; }
 .x-field > span { display: block; font-size: 13px; color: var(--x-gray); margin-bottom: 4px; }
 .x-field input, .x-field textarea { display: block; width: 100%; border: 0; outline: none; resize: none; font: inherit; font-size: 16px; color: #0f1419; background: none; padding: 0; }

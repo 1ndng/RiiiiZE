@@ -126,3 +126,5 @@ npm i -D playwright
 ```bash
 npx playwright install chromium
 ```
+- **IG／X 編輯個人檔案**：玩家自己的帳號可以換頭貼（IG、X 各自分開，存在 `riiiize-player` 的 `igAvatar`／`xAvatar`；沒換就用開場上傳的照片）和改 ID（`igId`／`xId`；英文字母、數字、底線、句點，最多 30 字，不能跟成員重複）。改 ID 後會重新整理頁面，`data.js` 和劇情裡原本的 `briiii1ze._`（帳號、追蹤名單、@提到）全部換成新的 ID，已存的追蹤、留言、個人檔案也一起換（`js/intro.js` 的 `applyIds`／`setId`）。時間循環會保留
+- **標題畫面**：最下面粉色花邊上方置中的小字「dng」（`data.js` 的 `title.credit` 可以改；比照 SOSHO 論壇頁面底部）

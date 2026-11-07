@@ -26,7 +26,7 @@
     postTitle: '貼文', replyingTo: '回覆', retweets: '轉推', likes: '喜歡', retweetedBy: '{name} 已轉推',
     replyPlaceholder: '發佈你的回覆', post: '發佈', reply: '回覆', cancel: '取消', composePlaceholder: '有什麼新鮮事？',
     following: '正在跟隨', followers: '跟隨者', follow: '跟隨', followingBtn: '正在跟隨', requested: '已提出要求',
-    editProfile: '編輯個人資料', save: '儲存', nameLabel: '名稱', bioLabel: '簡介',
+    editProfile: '編輯個人資料', save: '儲存', nameLabel: '名稱', bioLabel: '簡介', idLabel: '使用者名稱', changePhoto: '更換頭貼', idFormat: '使用者名稱只能用英文字母、數字、底線和句點（最多 30 個字）。', idTaken: '這個使用者名稱已經有人使用了。',
     protectLabel: '保護你的貼文', protectNote: '只有你的跟隨者才能看到你的貼文。', noFollowing: '還沒有跟隨任何人', noFollowers: '還沒有跟隨者',
     posts: '貼文', repliesTab: '回覆', retweetsTab: '轉推', likesTab: '喜歡', noPosts: '還沒有貼文', noReplies: '還沒有回覆', noRetweets: '還沒有轉推', noLikes: '還沒有喜歡的貼文', justNow: '剛剛',
     protectedTitle: '這些貼文受到保護', protectedDesc: '只有獲准的跟隨者才能看到 @{handle} 的貼文。'
@@ -362,19 +362,36 @@
         '<div class="x-bar x-edit-bar"><a href="#/x/u/' + encodeURIComponent(m.handle) + '" data-xback class="x-edit-cancel">' + esc(tt.cancel) + '</a>' +
           '<b>' + esc(tt.editProfile) + '</b><button type="submit" class="x-edit-save">' + esc(tt.save) + '</button></div>' +
         '<div class="x-banner x-edit-banner"' + (m.banner ? ' style="background-image:url(&quot;' + esc(m.banner) + '&quot;)"' : '') + '></div>' +
-        '<div class="x-prof"><div class="x-prof-top"><img class="x-prof-av" src="' + esc(m.avatar) + '" alt=""></div></div>' +
+        '<div class="x-prof"><div class="x-prof-top"><label class="x-edit-av"><img class="x-prof-av" id="x-edit-img" src="' + esc(m.avatar) + '" alt="">' +
+          '<span>' + esc(tt.changePhoto) + '</span><input type="file" accept="image/*" id="x-edit-file" hidden></label></div></div>' +
         '<label class="x-field"><span>' + esc(tt.nameLabel) + '</span><input name="nm" maxlength="50" value="' + esc(m.name) + '"></label>' +
+        '<label class="x-field"><span>' + esc(tt.idLabel) + '</span><input name="uid" maxlength="30" autocapitalize="off" spellcheck="false" value="@' + esc(m.handle) + '"></label>' +
+        '<div class="x-edit-err" id="x-edit-err" hidden></div>' +
         '<label class="x-field"><span>' + esc(tt.bioLabel) + '</span><textarea name="bio" rows="3" maxlength="160">' + esc(m.bio || '') + '</textarea></label>' +
         '<button type="button" class="x-field x-switch-row" data-xprivacy><span><b>' + esc(tt.protectLabel) + '</b>' +
           '<small id="x-privacy-note"' + (m.protected ? '' : ' hidden') + '>' + esc(tt.protectNote) + '</small></span>' +
           '<i class="x-switch' + (m.protected ? ' on' : '') + '" id="x-privacy"></i></button>' +
       '</form>';
+    var pic = null, I = window.INTRO;
+    S().$('#x-edit-file').addEventListener('change', function (e) {
+      var fl = e.target.files && e.target.files[0];
+      if (fl && I) I.toAvatar(fl, function (url) { pic = url; S().$('#x-edit-img').src = url; });
+    });
     S().$('#x-edit').addEventListener('submit', function (e) {
       e.preventDefault();
       var f = e.target, st = state(), was = !!me().protected, now = S().$('#x-privacy').classList.contains('on');
+      // 使用者名稱（id）：檢查格式、有沒有跟別人重複
+      var uid = f.uid.value.trim().replace(/^@/, '');
+      if (uid !== me().handle) {
+        var bad = /^[A-Za-z0-9._]{1,30}$/.test(uid) ? '' : 'format';
+        if (!bad && acc(uid)) bad = 'taken';
+        if (bad) { var er = S().$('#x-edit-err'); er.textContent = bad === 'taken' ? tt.idTaken : tt.idFormat; er.hidden = false; return; }
+      }
+      if (pic && I) I.setAppAvatar('x', pic);
       st.profile = { name: f.nm.value.trim() || me().handle, bio: f.bio.value.trim(), protected: now };
       save(st);
       if (was !== now) S().setFlag((now ? 'x_private_' : 'x_public_') + me().handle);   // 改成不公開／公開（進度旗標）
+      if (uid !== me().handle && I) { I.setId('x', uid); return; }   // 改了 id：重新整理後全部換成新的 id
       S().goBack('#/x/u/' + encodeURIComponent(me().handle));
     });
   }
