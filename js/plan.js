@@ -652,8 +652,14 @@
       });
     }, 600);
   }
-  // 「這週的放學後」卡片：每天一行（日期、日程、遇到誰的大頭照），點「繼續」往下
+  // 「這週的放學後」卡片：每天一行（日期、日程、遇到誰的大頭照），點「繼續」往下；這幾天的隨機劇情會先播完，卡片最後才出現
   function weekCard(week, next) {
+    // 這幾天觸發的隨機劇情先依序播完，最後才出現「這週的放學後」卡片
+    var evs = [];
+    week.forEach(function (w) { w.rnd.forEach(function (id) { evs.push(function (n) { window.STORY.play(id, n, null, bgOf(w.act)); }); }); });
+    series(evs, function () { showWeekCard(week, next); });
+  }
+  function showWeekCard(week, next) {
     var t = T(), el = document.createElement('div'), d0 = dateOf(week[0].day), d1 = dateOf(week[week.length - 1].day);
     var md = function (d) { return (d.getMonth() + 1) + '月' + d.getDate() + '日'; };
     el.className = 'wk';
@@ -678,10 +684,7 @@
     el.querySelector('[data-wk-go]').addEventListener('click', function () {
       document.getElementById('phone').classList.remove('story-full');
       el.classList.remove('show');
-      // 這幾天觸發的隨機劇情：依序播完再往下
-      var evs = [];
-      week.forEach(function (w) { w.rnd.forEach(function (id) { evs.push(function (n) { window.STORY.play(id, n, null, bgOf(w.act)); }); }); });
-      setTimeout(function () { el.remove(); series(evs, next); }, 250);
+      setTimeout(function () { el.remove(); next(); }, 250);
     });
   }
   // 這幾天每個人、每一對加了多少（照 doActivity 的算法：每次的總量平分給遇到的人）
@@ -785,6 +788,18 @@
     if (S().buzzRepeat) S().buzzRepeat([500, 300, 500], 1600);   // 鬧鐘：一直震到停止
   }
 
+  /* 開始自由使用手機：回到主畫面 → 星期日先馬上跳劇情框提醒（scenes.free_phone，一天一次，不等劇情間隔）→ 鎖定畫面
+   *   解鎖後就是主畫面；有每晚聊天的星期日也一樣（聊完才跳） */
+  function freePhone() {
+    if (location.hash !== '#/home') S().replaceHash('#/home');
+    var lockNow = function () { if (S() && S().lock) S().lock({ onUnlock: function () {} }); };
+    var fpKey = 'freephone_' + G().day;   // 一天只提醒一次（重新整理不會再跳）
+    if (dateOf(G().day).getDay() === 0 && scene('free_phone') && window.STORY && !(S() && S().hasFlag(fpKey))) {
+      if (S()) S().setFlag(fpKey);
+      window.STORY.play('free_phone', lockNow, null, 'phone-dim', { noGap: true });
+    }
+    else lockNow();
+  }
   // 晚上：不能用手機的日子 → 直接往後跳
   if (window.GAME) G().onNight(function () {
     // 今天有每日聊天（data.js 的 kakao.dayChats）：主線劇情結束 → 打開手機、自動進入聊天室
@@ -803,25 +818,13 @@
         K.dayChat(c, function () {
           var next = K.dayChatFor(md);
           if (next) setTimeout(function () { run(next); }, 400);
-          else { chaining = false; if (!free) setTimeout(go, 300); }
+          else { chaining = false; if (!free) setTimeout(go, 300); else freePhone(); }   // 能用手機的日子：聊完 → 提醒 → 鎖定畫面
         }, free || !last);
       })(chat);
       return;
     }
-    // 能用手機的日子（星期日、最後一天、結局後）：劇情、出去玩都結束 → 鎖定畫面，解鎖後自由使用手機
-    if (phoneDay(G().day)) {
-      G().setClock((D().game || {}).nightTime || '22:00');   // 手機上的時間從晚上 22:00 開始（data.js 的 game.nightTime）
-      stage(null);
-      // 星期日：開放自由探索手機前，先跳劇情框提醒（scenes.free_phone）
-      var lockNow = function () { if (S() && S().lock) S().lock({ onUnlock: function () {} }); };
-      var fpKey = 'freephone_' + G().day;   // 一天只提醒一次（重新整理不會再跳）
-      if (dateOf(G().day).getDay() === 0 && scene('free_phone') && window.STORY && !(S() && S().hasFlag(fpKey))) {
-        if (S()) S().setFlag(fpKey);
-        window.STORY.play('free_phone', lockNow, null, 'phone-dim');
-      }
-      else lockNow();
-      return;
-    }
+    // 能用手機的日子（星期日、最後一天、結局後）：劇情、出去玩都結束 → 提醒 → 鎖定畫面，解鎖後從主畫面自由使用手機
+    if (phoneDay(G().day)) { G().setClock((D().game || {}).nightTime || '22:00'); stage(null); freePhone(); return; }
     setTimeout(go, 400);
   });
 

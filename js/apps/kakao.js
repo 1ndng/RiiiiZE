@@ -513,6 +513,12 @@
     var d = dc;
     S().setFlag(dayChatKey(d.def));
     dc = null;
+    // 聊完：玩家傳的訊息都變成已讀（「1」、群組的未讀人數消失）；寫 readAtEnd: false 就不會
+    if (d.def.readAtEnd !== false) {
+      var stR = state();
+      (stR.msgs[d.room] || []).forEach(function (m) { if (m.from === 'me') m.read = true; });
+      S().save(KEY, stR);
+    }
     // 星期日：聊完直接自由使用手機（返回鍵回來了）；其他日子：最後一則出現後等 endWait 毫秒（不寫 = 1.5 秒）自動進入下一天
     if (!d.free) { dcAfter = d.done; dcRoom = d.room; }
     if (openChatId === d.room) renderChat(d.room);
@@ -755,9 +761,9 @@
     if (kc && openChatId) { window.SOSHO_KAKAO_CALL.start(openChatId); return; }
     var back = e.target.closest('[data-kback]');
     if (back) {
-      // 聊天室的返回：回到聊天列表
+      // 聊天室的返回：一律回到 KakaoTalk 主頁（聊天列表），不會回到前一個聊天室
       e.preventDefault();
-      S().goBack('#/kakao');
+      if (S().prevHash && S().prevHash() === '#/kakao') history.back(); else S().replaceHash('#/kakao');
       return;
     }
     var vd = e.target.closest('[data-video]');

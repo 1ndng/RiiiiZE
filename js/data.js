@@ -75,17 +75,17 @@ window.SITE_DATA = {
     box: { left: 5.7, top: 28.9, width: 88.5, height: 22.7 }
   },
   // 成員出場介紹動畫（劇情裡寫 { intro: "m1" } 的地方播；js/story.js）
-  //   影片 9:16；播到 captionAt 毫秒時介紹台詞出現在影片的粉紅框裡，影片播完台詞和影片一起消失
+  //   影片 9:16、5 秒；播到 captionAt 毫秒時介紹台詞出現在影片的粉紅框裡；播完停在最後一格，玩家點一下畫面，台詞和影片一起消失
   //   box = 粉紅框在影片上的位置（百分比，從左上角算）；caption 用 \n 換行
   //   播放中點畫面沒反應（快轉模式會直接跳過）；音效關掉時影片靜音
   introVideo: { captionAt: 3000, box: { left: 30, top: 65, width: 54.4, height: 13.8 } },
   introVideos: {
-    m1: { video: "videos/intro_m1.mp4", caption: "姓名：大﨑將太郎\n生日：11月25日\n常出沒的地點：社團活動、學生會、網咖" },
-    m2: { video: "videos/intro_m2.mp4", caption: "姓名：宋恩奭\n生日：3月19日\n常出沒的地點：志工活動、學生會、網咖" },
-    m3: { video: "videos/intro_m3.mp4", caption: "姓名：鄭成燦\n生日：9月13日\n常出沒的地點：學生會、體育館、KTV" },
-    m4: { video: "videos/intro_m4.mp4", caption: "姓名：朴元彬\n生日：3月2日\n常出沒的地點：社團活動、學生會、體育館" },
-    m5: { video: "videos/intro_m5.mp4", caption: "姓名：李炤熙\n生日：11月21日\n常出沒的地點：\n社團活動、學生會、KTV、網咖" },
-    m6: { video: "videos/intro_m6.mp4", caption: "姓名：李燦榮\n生日：3月21日\n常出沒的地點：\n志工活動、學生會、體育館、KTV" }
+    m1: { video: "videos/intro_m1.mp4", caption: "生日：\n11月25日\n出現地點：\n社團活動、學生會、網咖" },
+    m2: { video: "videos/intro_m2.mp4", caption: "生日：\n3月19日\n出現地點：\n志工活動、學生會、網咖" },
+    m3: { video: "videos/intro_m3.mp4", caption: "生日：\n9月13日\n出現地點：\n學生會、體育館、KTV" },
+    m4: { video: "videos/intro_m4.mp4", caption: "生日：\n3月2日\n出現地點：\n社團活動、學生會、體育館" },
+    m5: { video: "videos/intro_m5.mp4", caption: "生日：\n11月21日\n出現地點：\n社團活動、學生會、KTV、網咖" },
+    m6: { video: "videos/intro_m6.mp4", caption: "生日：\n3月21日\n出現地點：\n志工活動、學生會、體育館、KTV" }
   },
   storyGap: 2000,                // 兩段劇情之間至少隔幾毫秒（上一段結束到下一段開始）
   storySpeed: 22,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）

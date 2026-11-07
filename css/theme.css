@@ -253,7 +253,13 @@
 .vn-intro-frame video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
 .vn-intro-cap {
   position: absolute; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center;
-  padding: 3.4cqw 2.2cqw 1.4cqw 2.6cqw; color: var(--pk-text); font-size: 2.62cqw; letter-spacing: -.01em; font-weight: 600; line-height: 1.55;
+  padding: 3.6cqw 2cqw .8cqw 3cqw; color: var(--pk-text); font-size: 3.15cqw; letter-spacing: -.01em; font-weight: 600; line-height: 1.3;
   text-shadow: 0 1px 0 rgba(255,255,255,.5); opacity: 0; transition: opacity .5s;
 }
 .vn-intro-cap.on { opacity: 1; }
+
+/* 出場動畫播完：停在最後一格，右下角出現「點一下繼續」的小三角形 */
+.vn-intro-tap { position: absolute; right: 5cqw; bottom: 5cqw; width: 0; height: 0; border-left: 2.4cqw solid transparent; border-right: 2.4cqw solid transparent; border-top: 3cqw solid rgba(255, 214, 239, .95); opacity: 0; transition: opacity .3s; filter: drop-shadow(0 1px 2px rgba(0,0,0,.4)); }
+.vn-intro.over .vn-intro-tap { opacity: 1; animation: vnTapBob 1s ease-in-out infinite; }
+.vn-intro.over { cursor: pointer; }
+@keyframes vnTapBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1cqw); } }

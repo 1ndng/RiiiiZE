@@ -112,7 +112,8 @@
     var replay = !!(opts && opts.replay);
     if (!steps || !steps.length || cur) { done && done(); return; }
     var gap = (D().storyGap != null ? D().storyGap : 2000) - (Date.now() - lastEnd);
-    if (gap > 0 && !resume && !replay) { waitingPlay = true; setTimeout(function () { waitingPlay = false; play(id, done, resume, bg, opts); }, gap); return; }
+    // opts.noGap = 不等兩段劇情之間的間隔（例如自由探索的提醒要馬上跳出來）
+    if (gap > 0 && !resume && !replay && !(opts && opts.noGap)) { waitingPlay = true; setTimeout(function () { waitingPlay = false; play(id, done, resume, bg, opts); }, gap); return; }
     var t = T(), el = document.createElement('div');
     el.className = 'vn';
     el.innerHTML =
@@ -207,7 +208,7 @@
     finish();
   }
   /* 成員出場介紹動畫（data.js 的 introVideo、introVideos）：對話框收起來，影片蓋在畫面上；
-   *   播到 captionAt 時介紹台詞淡入粉紅框，播完影片和台詞一起淡出，接下一句。播放中點畫面沒反應 */
+   *   播到 captionAt 時介紹台詞淡入粉紅框；播完停在最後一格，玩家點一下畫面，影片和台詞一起淡出，接下一句。播放中點畫面沒反應 */
   function introVideo(id) {
     var v = (D().introVideos || {})[id], cfg = D().introVideo || {}, b = cfg.box || {};
     if (!v || !v.video || mode === 'skip') return false;   // 沒有影片、快轉中：跳過
@@ -217,7 +218,7 @@
     w.className = 'vn-intro';
     w.innerHTML = '<div class="vn-intro-frame"><video playsinline webkit-playsinline preload="auto"></video>' +
       '<div class="vn-intro-cap" style="left:' + (b.left || 0) + '%;top:' + (b.top || 0) + '%;width:' + (b.width || 100) + '%;height:' + (b.height || 20) + '%">' +
-      esc(fill(v.caption || '')).replace(/\n/g, '<br>') + '</div></div>';
+      esc(fill(v.caption || '')).replace(/\n/g, '<br>') + '</div><i class="vn-intro-tap"></i></div>';
     cur.el.appendChild(w);
     var vid = w.querySelector('video'), cap = w.querySelector('.vn-intro-cap'), at = cfg.captionAt != null ? cfg.captionAt : 3000;
     vid.src = v.video;
@@ -234,7 +235,10 @@
       }, 400);
     }
     vid.addEventListener('timeupdate', function () { if (vid.currentTime * 1000 >= at) cap.classList.add('on'); });
-    vid.addEventListener('ended', end);
+    // 播完：停在最後一格（台詞也留著），玩家點一下畫面才回到劇情
+    var over = false;
+    vid.addEventListener('ended', function () { over = true; cap.classList.add('on'); w.classList.add('over'); });
+    w.addEventListener('click', function (e) { e.stopPropagation(); if (over) end(); });
     vid.addEventListener('error', end);
     var p = vid.play();
     // 瀏覽器不讓有聲音的影片自動播：改成靜音再播；還是不行就跳過

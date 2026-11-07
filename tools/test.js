@@ -180,19 +180,22 @@ const TESTS = [
     const g = await game(p); if (g.day !== 8) throw new Error('應該停在 9/8，現在第 ' + g.day + ' 天');
     return p;
   }],
-  ['隨機劇情：機率 100% 時按繼續後播；每週回顧顯示加了多少好感', async (b, base) => {
-    const days = { '09-08': 'club', '09-09': 'club', '09-10': 'club', '09-11': 'club', '09-12': 'club' };
+  ['隨機劇情：機率 100% 時先播完，最後才出現每週回顧（顯示加了多少好感）', async (b, base) => {
+    const days = { '09-08': 'club', '09-09': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 10 } } }));
-    await p.evaluate(() => { SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
-    await p.waitForSelector('.wk', { timeout: 8000 });
-    // 卡片不標「有事發生」，改成顯示每個人、每一對加了多少
+    await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    await p.waitForSelector('.vn', { timeout: 8000 }); await sleep(400);
+    if (await p.$('.wk')) throw new Error('隨機劇情還沒播，每週回顧就出現了');
+    const t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || '');
+    const firsts = await p.evaluate(() => Object.keys(SITE_DATA.scenes).filter(k => k.indexOf('rand_club_') === 0).map(k => SITE_DATA.scenes[k][0].text));
+    if (!firsts.some(f => t.indexOf(f.slice(0, 8)) >= 0)) throw new Error('先播的不是隨機劇情：' + t.slice(0, 40));
+    for (let i = 0; i < 1500 && !(await p.$('.wk')); i++) {
+      await p.evaluate(() => { const c = document.querySelector('[data-vn-choice]'); if (c) c.click(); const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(60);
+    }
+    if (!(await p.$('.wk'))) throw new Error('隨機劇情播完沒有出現每週回顧');
     if (await p.$('.wk-ev')) throw new Error('卡片不應該再標「有事發生」');
     const gain = await p.$eval('.wk-gain', e => e.textContent).catch(() => '');
     if (!/\+\d/.test(gain)) throw new Error('卡片沒有顯示加了多少好感：' + gain);
-    await p.click('[data-wk-go]'); await sleep(800);
-    const t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || '');
-    const firsts = await p.evaluate(() => Object.keys(SITE_DATA.scenes).filter(k => k.indexOf('rand_club_') === 0).map(k => SITE_DATA.scenes[k][0].text));
-    if (!firsts.some(f => t.indexOf(f.slice(0, 8)) >= 0)) throw new Error('按繼續後沒有播隨機劇情：' + t.slice(0, 40));
     return p;
   }],
   ['星期日：選人出門 → 22:00 鎖定畫面 → 解鎖', async (b, base) => {
@@ -331,19 +334,24 @@ const TESTS = [
     if (await p.$('[data-kback]')) throw new Error('不該有返回鍵');
     return p;
   }],
-  ['出場動畫：開口第一句之後播影片，3 秒出現介紹台詞，播完一起消失再接下一句', async (b, base) => {
+  ['出場動畫：開口第一句之後播影片，3 秒出現介紹台詞，播完停格，點一下才一起消失、接下一句', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' } }));
     await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.scenes.__intro = [{ who: 'm1', text: '嗨' }, { intro: 'm1' }, { text: '影片之後' }]; STORY.play('__intro'); });
     await sleep(2600); await p.evaluate(() => document.getElementById('vn-box').click()); await sleep(800);
     if (!(await p.$('.vn-intro video'))) throw new Error('沒有出現影片');
     const t0 = Date.now(); let capAt = null;
-    while (Date.now() - t0 < 15000 && await p.$('.vn-intro')) {
+    while (Date.now() - t0 < 15000 && await p.$('.vn-intro') && !(await p.$('.vn-intro.over'))) {
       const r = await p.evaluate(() => { const v = document.querySelector('.vn-intro video'); return v ? { t: v.currentTime, on: document.querySelector('.vn-intro-cap').classList.contains('on') } : null; });
       if (r && r.on && capAt == null) capAt = r.t;
       await sleep(150);
     }
     if (capAt == null || capAt < 2.9 || capAt > 3.6) throw new Error('介紹台詞出現的時間：' + capAt);
-    if (await p.$('.vn-intro')) throw new Error('影片播完沒有消失');
+    // 播完停在最後一格，點一下才消失
+    if (!(await p.$('.vn-intro.over'))) throw new Error('影片播完沒有停在最後一格');
+    await sleep(1500);
+    if (!(await p.$('.vn-intro'))) throw new Error('沒點就自己消失了');
+    await p.evaluate(() => document.querySelector('.vn-intro').click()); await sleep(700);
+    if (await p.$('.vn-intro')) throw new Error('點了沒有消失');
     await sleep(300);
     const t = await text(p, '#vn-text');
     if (!/影片之後/.test(t || '')) throw new Error('影片之後的台詞：' + t);

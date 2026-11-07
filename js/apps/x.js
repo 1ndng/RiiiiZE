@@ -149,7 +149,21 @@
         '<a class="x-me" href="#/x/u/' + encodeURIComponent(m.handle) + '"><img src="' + esc(m.avatar) + '" alt=""></a>' +
         '<span class="x-logo">' + ICON.logo + '</span><span></span>' +
       '</div>' +
-      allTweets().filter(function (t) { return !hidden(acc(t.by)); }).map(function (t) { return row(t); }).join('');
+      (function () {
+        var list = allTweets().filter(function (t) { return !hidden(acc(t.by)) && thisWeek(t); });
+        // 新的在前（玩家自己發的最前面）
+        var dayOf = function (t) { return t.mine ? 9999 : (window.GAME && t.from ? window.GAME.dayOf(t.from) : 0); };
+        list = list.map(function (t, i) { return { t: t, i: i }; }).sort(function (x, y) { return dayOf(y.t) - dayOf(x.t) || x.i - y.i; }).map(function (x) { return x.t; });
+        return list.length ? list.map(function (t) { return row(t); }).join('') : '<p class="x-empty">' + esc(T().noWeekPosts || '這週還沒有新的貼文。') + '</p>';
+      })();
+  }
+  // 主頁只顯示這一週（星期一～今天）的貼文；更早的到成員的個人主頁看。玩家自己發的都會顯示
+  function thisWeek(t) {
+    var G = window.GAME;
+    if (t.mine || !G || !G.dayOf) return true;
+    if (!t.from) return false;
+    var d = G.dayOf(t.from), today = G.day, wd = G.date(today).getDay(), monday = today - ((wd + 6) % 7);
+    return d >= monday && d <= today;
   }
 
   /* ---- 貼文內頁 ---- */

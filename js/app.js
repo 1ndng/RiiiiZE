@@ -1715,7 +1715,7 @@
   /* ---------------- 啟動 ---------------- */
   // 給 js/apps/*.js 用的共用工具
   window.SOSHO = {
-    data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, forceComment: forceComment, buzz: buzz, buzzMessage: buzzMessage, buzzRepeat: buzzRepeat, stopBuzz: stopBuzz, buzzOn: buzzOn, goBack: goBack, replaceHash: replaceHash,
+    data: D, $: $, esc: esc, multiline: multiline, toast: toast, sortByName: sortByName, setFlag: setFlag, hasFlag: hasFlag, forceComment: forceComment, buzz: buzz, buzzMessage: buzzMessage, buzzRepeat: buzzRepeat, stopBuzz: stopBuzz, buzzOn: buzzOn, goBack: goBack, prevHash: prevHash, replaceHash: replaceHash,
     setDarkStatus: function (on) { $('#phone').classList.toggle('dark-status', !!on); },
     lock: function (opt) { renderLock(opt); },
     wallpaper: function (kind) { return wallpaperOf(kind); },               // 'home' / 'lock'
