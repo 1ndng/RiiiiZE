@@ -546,7 +546,8 @@ window.SITE_DATA = {
     version: "0.1.0",            // 版本號（設定 → 開發者資訊 會顯示；更新遊戲時改這裡）
     // 音樂（什麼時候放哪一首寫在 js/bgm.js 最上面）；volume 0～1
     //   title 標題、main 主線、aff 好感度、home 待在家／自由探索手機、awake 覺醒（線索反應、結局）、alarm 鬧鐘、intro 成員介紹影片
-    music: { title: "audio/title.mp3", main: "audio/main.mp3", aff: "audio/aff.mp3", home: "audio/home.mp3", awake: "audio/awake.mp3",
+    // title.mp3 從原曲 0:07 開始剪、awake.mp3 從 0:01 開始剪（循環時也從這裡重來）
+    music: { title: "audio/title.mp3?v=2", main: "audio/main.mp3", aff: "audio/aff.mp3", home: "audio/home.mp3", awake: "audio/awake.mp3?v=2",
              alarm: "audio/alarm.mp3", intro: "audio/intro.mp3",
              volume: { title: 0.6, main: 0.45, aff: 0.45, home: 0.45, awake: 0.5, alarm: 0.7, intro: 0.55 } },
     // 音效：message = KakaoTalk 收到訊息
