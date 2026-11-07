@@ -455,10 +455,10 @@
       setTimeout(function () { window.STORY.play(def.intro, function () { setTimeout(dayChatNext, 500); }, null, 'phone-dim'); lightUp(); }, wait);
     } else setTimeout(function () { lightUp(); dayChatNext(); }, def.dark ? wait : 800);
   }
-  // 保險：訊息都傳完了、超過 3 秒還沒收尾（計時器沒有觸發）→ 直接收尾，避免停在聊天室不換天
+  // 保險：訊息都傳完了（包括選項之後的回覆）、超過 8 秒沒有動靜（計時器沒有觸發）→ 直接收尾，避免停在聊天室不換天
   setInterval(function () {
-    if (!dc || dc.ask || dc.i < (dc.def.steps || []).length) return;
-    if (Date.now() - (dc.last || 0) < 3000) return;
+    if (!dc || dc.ask || dc.replying || dc.i < (dc.def.steps || []).length) return;
+    if (Date.now() - (dc.last || 0) < 8000) return;
     dayChatEnd();
   }, 1000);
   function dayChatSave() { if (dc) dc.last = Date.now(); var st = state(); st.dayChat = st.dayChat || {}; st.dayChat[dcId(dc.def)] = dc.i; S().save(KEY, st); }
@@ -480,6 +480,7 @@
   }
   // 對方傳來一則：先顯示「輸入中」，再出現訊息
   function dayChatIncoming(s, next) {
+    dc.last = Date.now();
     var f = friend(dc.room), from = f && f.group ? (s.from || (f.members[0] || {}).id) : 'them';
     setTimeout(function () {
       if (!dc) return;
@@ -492,6 +493,7 @@
         if (s.image) msg.image = s.image;
         if (s.clue) msg.clue = s.clue;
         push(dc.room, msg);
+        dc.last = Date.now();
         dayChatPaint();
         next();
       }, s.typing != null ? s.typing : 900 + Math.min(1600, String(s.text || '').length * 40));
@@ -504,9 +506,10 @@
     dc.ask = null; dc.i++; dayChatSave();
     pick(null); dayChatPaint();
     var lines = [].concat(o.reply || []).map(function (l) { return typeof l === 'string' ? { text: l } : l; }), k = 0;
+    dc.replying = true;   // 回覆還沒傳完：不能收尾
     (function one() {
       if (!dc) return;
-      if (k >= lines.length) { setTimeout(dayChatNext, 400); return; }
+      if (k >= lines.length) { dc.replying = false; dc.last = Date.now(); setTimeout(dayChatNext, 400); return; }
       dayChatIncoming(lines[k++], one);
     })();
   }

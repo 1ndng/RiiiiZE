@@ -302,6 +302,8 @@
   // 背景：寫圖片路徑；"phone" = 不放背景，直接看到後面的手機畫面；"phone-dim" = 手機畫面變暗
   function setBg(src) {
     var bg = cur.el.querySelector('#vn-bg'), orig = src;
+    if (mode === 'skip' && cur.bgSet && src !== cur.bg) setMode(null);   // 快轉：劇情中途換場景就取消
+    cur.bgSet = true;
     cur.el.classList.toggle('see-phone', src === 'phone' || src === 'phone-dim');
     cur.el.classList.toggle('dim', src === 'phone-dim');
     // 背景不是手機畫面：上面的狀態列（時間、電量）不顯示
@@ -366,6 +368,7 @@
   }
   function finish() {
     if (!cur) return;
+    if (mode === 'skip') setMode(null);   // 快轉：一段劇情結束（換場景、換天）就取消
     clearInterval(cur.timer);
     var c = cur;
     cur = null;
