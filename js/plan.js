@@ -89,7 +89,7 @@
   }
   /* ---- 日程劇情 ----
    * 固定：第幾次去某個日程（plan.activities 的 milestones；回家 = plan.homeMilestones）→ scenes.act_日程_次數，那天停下來播
-   * 隨機：plan.random（遇到那個人／那兩個人時 chance 機率觸發，可重複）→ scenes.rand_日程_編號 */
+   * 隨機：plan.random（一天 chance 機率有一段：從遇到的人符合的名單裡抽一段，可重複）→ scenes.rand_日程_編號 */
   function bgOf(act) { return act === 'home' ? C().homeBg : actOf(act).bg; }
   function milestoneOf(act, n) {
     var list = act === 'home' ? (C().homeMilestones || []) : (actOf(act).milestones || []), id = 'act_' + act + '_' + n;
@@ -103,8 +103,9 @@
     var list = (r[act] || []).filter(function (k) {
       return scene('rand_' + act + '_' + k) && (k === 'me' || idsOf(k).every(function (id) { return id && met.indexOf(id) >= 0; }));
     });
-    // 每一項各自擲一次，符合的都播（照名單順序）
-    return list.filter(function () { return Math.random() < chance; }).map(function (k) { return 'rand_' + act + '_' + k; });
+    // 一天最多一段：先用 chance 決定今天有沒有隨機劇情，有的話從符合條件的裡面抽一段（名單長短不影響觸發機率）
+    if (!list.length || Math.random() >= chance) return [];
+    return ['rand_' + act + '_' + list[Math.floor(Math.random() * list.length)]];
   }
   // 回家（平日沒安排）：開學週（planFrom 之前）不算
   function homeDay(day) { return !isWeekend(day) && !forcedOn(day) && !plannedOn(day) && day >= G().dayOf(C().planFrom || '09-08'); }
@@ -558,7 +559,7 @@
         if (act) {   // 有安排：加好感，記進這週的回顧（可能觸發隨機劇情）
           G().setDay(day);
           var met = doActivity(act);
-          week.push({ day: day, act: act, met: met, rnd: randomFor(act, met) });   // rnd = 這天的隨機劇情（可能好幾個）
+          week.push({ day: day, act: act, met: met, rnd: randomFor(act, met) });   // rnd = 這天的隨機劇情（最多一段）
         } else if (homeDay(day)) {   // 沒安排 = 回家
           G().setDay(day);
           G().addStat('visits', 'home', 1);
