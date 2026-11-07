@@ -164,7 +164,7 @@ RIIIZE_ADD({
     { date: "01-06", room: "g_council", steps: [
       { from: "f3", text: "（照片：七個人在巴士上睡成一團）" },
       { from: "f3", text: "誰拍的！！！" },
-      { from: "f5", text: "前輩拍的" },
+      { from: "f5", text: "{name}拍的" },
       { from: "f6", text: "我的嘴巴是開著的TT" },
       { from: "f4", text: "刪、刪掉" },
       { choices: [
@@ -183,11 +183,11 @@ RIIIZE_ADD({
       { text: "晚安！！！明天我又是活力成燦了！！！" }
     ] },
     { date: "01-21", room: "f5", steps: [
-      { text: "前輩" },
+      { text: "{name}" },
       { text: "昨天晚上你是不是醒著" },
       { choices: [
         { text: "沒有，我睡得很熟", reply: ["……", "騙人", "你的睫毛在動"], effects: { aff: { m5: 2 } } },
-        { text: "……嗯。對不起", reply: ["不用對不起", "前輩聽到就算了", "……不要跟別人說"], effects: { aff: { m5: 3 } } }
+        { text: "……嗯。對不起", reply: ["不用對不起", "{name}聽到就算了", "……不要跟別人說"], effects: { aff: { m5: 3 } } }
       ] }
     ] }
   ],

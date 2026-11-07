@@ -75,7 +75,7 @@ RIIIZE_ADD({
       { who: "m1", text: "炤熙~我們都看到了喔~♪" },
       { who: "m5", text: "……會長很吵。" },
       { text: "切蛋糕的時候，他湊到你旁邊。" },
-      { who: "m5", text: "前輩。禮物呢？" },
+      { who: "m5", text: "{name}。禮物呢？" },
       { who: "me", text: "（來了，壽星的勒索。）" },
       { choices: [
         { text: "把那張紙箱獎盃的照片洗出來，裝進相框送他", effects: { aff: { m5: 3 } }, goto: "photo" },
@@ -83,7 +83,7 @@ RIIIZE_ADD({
       ] },
       { label: "photo" },
       { who: "m5", text: "……這是校慶那天的。" },
-      { who: "m5", text: "前輩，你真的很會耶。" },
+      { who: "m5", text: "{name}，你真的很會耶。" },
       { text: "他把相框抱在懷裡，一整天都沒有放下來。" },
       { goto: "end" },
       { label: "game" },
@@ -271,7 +271,7 @@ RIIIZE_ADD({
         { text: "「我知道是你做的。燦榮也知道。這樣夠嗎？」", effects: { aff: { m5: 3 } }, goto: "know" }
       ] },
       { label: "fight" },
-      { who: "m5", text: "……不用啦，前輩。" },
+      { who: "m5", text: "……不用啦，{name}。" },
       { who: "m5", text: "不過你這麼生氣，我有一點開心。" },
       { who: "me", text: "（……這種時候你還笑得出來，我反而更生氣了。）" },
       { goto: "night" },
@@ -370,16 +370,16 @@ RIIIZE_ADD({
       { from: "f4", text: "我、我沒有誇" },
       { choices: [
         { text: "大家都辛苦了！今年最棒！", reply: [{ from: "f1", text: "😭😭😭" }, { from: "f6", text: "最棒！" }], effects: { aff: { m1: 1, m3: 1, m6: 1 } } },
-        { text: "炤熙，那個海報……", reply: [{ from: "f5", text: "前輩，不用說了" }, { from: "f5", text: "你知道就好" }], effects: { aff: { m5: 2 } } }
+        { text: "炤熙，那個海報……", reply: [{ from: "f5", text: "{name}，不用說了" }, { from: "f5", text: "你知道就好" }], effects: { aff: { m5: 2 } } }
       ] }
     ] },
     { date: "11-17", room: "f5", steps: [
-      { text: "前輩" },
+      { text: "{name}" },
       { text: "紙箱獎盃我放在書桌上了" },
       { text: "醜得很可愛" },
       { choices: [
         { text: "那是成燦剪的，他會很高興", reply: ["不要跟他說", "他會再剪十個"], effects: { aff: { m5: 2 } } },
-        { text: "你值得一個真的獎盃", reply: ["……", "那等我以後拿到真的，第一個給前輩看"], effects: { aff: { m5: 3 } } }
+        { text: "你值得一個真的獎盃", reply: ["……", "那等我以後拿到真的，第一個給{name}看"], effects: { aff: { m5: 3 } } }
       ] }
     ] },
     { date: "11-25", room: "f1", steps: [

@@ -60,7 +60,7 @@ RIIIZE_ADD({
       { goto: "after" },
       { label: "g5" },
       { text: "你把禮物交給炤熙。是一個遊戲手把。" },
-      { who: "m5", text: "前輩，你這是在資助敵人。" },
+      { who: "m5", text: "{name}，你這是在資助敵人。" },
       { who: "me", text: "我在資助我的對手。" },
       { who: "m5", text: "……謝了。下次你會後悔的。" },
       { goto: "after" },
@@ -121,7 +121,7 @@ RIIIZE_ADD({
       { goto: "end" },
       { label: "c5" },
       { text: "炤熙約你在遊樂場門口。今天的遊樂場被雪蓋得一片白。" },
-      { who: "m5", text: "前輩，打雪仗。輸的人請熱可可。" },
+      { who: "m5", text: "{name}，打雪仗。輸的人請熱可可。" },
       { text: "結果你們兩個都輸給了路過的小學生。最後一起請了小學生熱可可。" },
       { who: "me", text: "（現在的小學生到底都在練什麼……）" },
       { goto: "end" },
@@ -258,7 +258,7 @@ RIIIZE_ADD({
       { who: "m4", text: "……先、先寫作業。" },
       { who: "m3", text: "元彬你好掃興！" },
       { text: "最後白板上的計畫是：跨年一起倒數、元旦看日出、去滑雪、KTV 通宵、網咖通宵、還有元彬堅持加上的「寫作業」。" },
-      { who: "m5", text: "前輩，你想去哪裡？" },
+      { who: "m5", text: "{name}，你想去哪裡？" },
       { choices: [
         { text: "「滑雪！」", effects: { aff: { m3: 1, m5: 1 } } },
         { text: "「哪裡都好，大家一起就好。」", effects: { aff: { m1: 1, m2: 1, m6: 1 } } }
@@ -339,7 +339,7 @@ RIIIZE_ADD({
       { from: "f2", text: "我抽到的人，你等著。" },
       { choices: [
         { text: "恩奭你不要劇透！", reply: [{ from: "f2", text: "我什麼都沒說。" }, { from: "f3", text: "你說了！！！" }], effects: { aff: { m2: 1 } } },
-        { text: "我已經想好要送什麼了", reply: [{ from: "f1", text: "好期待~~♪" }, { from: "f5", text: "前輩不要送奇怪的東西" }], effects: { aff: { m1: 1, m5: 1 } } }
+        { text: "我已經想好要送什麼了", reply: [{ from: "f1", text: "好期待~~♪" }, { from: "f5", text: "{name}不要送奇怪的東西" }], effects: { aff: { m1: 1, m5: 1 } } }
       ] }
     ] },
     { date: "12-26", room: "g_council", steps: [

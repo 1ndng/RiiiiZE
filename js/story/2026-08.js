@@ -145,7 +145,7 @@ RIIIZE_ADD({
       { who: "m2", text: "……還有一週。", if: { notAwakened: "m2" } },
       { who: "m3", text: "我想起來了。每天早上的地鐵。我想起來，我其實已經很久沒有這樣笑了。", if: { awakened: "m3" } },
       { who: "m4", text: "……我想起來那些「每次」是什麼了。可是現在，好像沒那麼痛了。", if: { awakened: "m4" } },
-      { who: "m5", text: "前輩。那些辦公室裡的聲音，我想起來是誰的了。", if: { awakened: "m5" } },
+      { who: "m5", text: "{name}。那些辦公室裡的聲音，我想起來是誰的了。", if: { awakened: "m5" } },
       { who: "m6", text: "計時板上的第四名，三個讚的歌。那些都是真的，對不對。", if: { awakened: "m6" } },
       { goto: "none", if: { awakeCount: "==0" } },
       { text: "辦公室安靜了一下。" },
@@ -226,7 +226,7 @@ RIIIZE_ADD({
       { text: "沉默了很久。" },
       { who: "m1", text: "……可是，{name}呢？" },
       { who: "m1", text: "{name}不在那個夏天。可是在這裡，{name}一直都在。" },
-      { who: "m5", text: "前輩是誰？" },
+      { who: "m5", text: "{name}是誰？" },
       { who: "m2", text: "……是來找我們的人吧。" },
       { text: "你站在門外，眼淚掉了下來。" },
       { text: "你想起來了。" },
@@ -308,7 +308,7 @@ RIIIZE_ADD({
       { from: "f2", text: "……嗯。" },
       { choices: [
         { text: "每天都見", reply: [{ from: "f6", text: "每天！" }, { from: "f4", text: "嗯" }], effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } },
-        { text: "為什麼覺得有點想哭", reply: [{ from: "f5", text: "前輩……" }, { from: "f5", text: "我也是" }], effects: { aff: { m5: 2 } } }
+        { text: "為什麼覺得有點想哭", reply: [{ from: "f5", text: "{name}……" }, { from: "f5", text: "我也是" }], effects: { aff: { m5: 2 } } }
       ] }
     ] },
     { date: "08-30", room: "g_council", steps: [
@@ -318,7 +318,7 @@ RIIIZE_ADD({
       { from: "f1", text: "明天，學生會辦公室" },
       { from: "f1", text: "大家都來" },
       { choices: [
-        { text: "一定到", reply: [{ from: "f4", text: "嗯" }, { from: "f5", text: "前輩不要遲到" }], effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } },
+        { text: "一定到", reply: [{ from: "f4", text: "嗯" }, { from: "f5", text: "{name}不要遲到" }], effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } },
         { text: "晚安，大家", reply: [{ from: "f3", text: "晚安！！！" }, { from: "f6", text: "晚安" }, { from: "f2", text: "……晚安。" }], effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } }
       ] }
     ] }

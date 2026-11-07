@@ -86,7 +86,7 @@ RIIIZE_ADD({
       { text: "恩奭示範了一個，漂亮得像店裡賣的。" },
       { text: "五分鐘後——" },
       { who: "m3", text: "恩奭！我的破掉了！" },
-      { who: "m5", text: "前輩，你那個是什麼形狀？" },
+      { who: "m5", text: "{name}，你那個是什麼形狀？" },
       { who: "me", text: "……半月形啊。（心虛）" },
       { who: "m5", text: "那是長了腳的馬鈴薯。" },
       { who: "me", text: "李炤熙你給我記住==" },
@@ -179,10 +179,10 @@ RIIIZE_ADD({
       { from: "f4", text: "預算" },
       { from: "f1", text: "ㅋㅋㅋㅋ" },
       { from: "f6", text: "海報我會畫得跟去年不一樣！" },
-      { from: "f5", text: "前輩，公關長的宣傳計畫什麼時候交" },
+      { from: "f5", text: "{name}，公關長的宣傳計畫什麼時候交" },
       { choices: [
-        { text: "明天！我已經想好了", reply: [{ from: "f5", text: "這麼快？前輩是不是發燒了" }, { from: "f1", text: "{name}好可靠~~♪" }], effects: { aff: { m1: 1, m5: 1 } } },
-        { text: "副會長先交場地計畫我再交==", reply: [{ from: "f5", text: "……前輩好狡猾" }, { from: "f2", text: "場地計畫，我跟炤熙明天交。" }], effects: { aff: { m5: 2 } } }
+        { text: "明天！我已經想好了", reply: [{ from: "f5", text: "這麼快？{name}是不是發燒了" }, { from: "f1", text: "{name}好可靠~~♪" }], effects: { aff: { m1: 1, m5: 1 } } },
+        { text: "副會長先交場地計畫我再交==", reply: [{ from: "f5", text: "……{name}好狡猾" }, { from: "f2", text: "場地計畫，我跟炤熙明天交。" }], effects: { aff: { m5: 2 } } }
       ] },
       { from: "f3", text: "總之！今年一定要不一樣！" },
       { from: "f2", text: "睡覺吧，活動長。" }

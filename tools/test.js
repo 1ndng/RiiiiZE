@@ -237,7 +237,8 @@ const TESTS = [
       return text(p, '#vn-text');
     };
     const t1 = await give();
-    if (!/薄荷糖/.test(t1 || '')) throw new Error('9 月特別版：' + t1);
+    const exp1 = await p.evaluate(() => SITE_DATA.scenes.gift_m4_9.filter(s => s.text)[0].text.slice(0, 6));   // 不寫死台詞：改了劇情也不會壞
+    if (!(t1 || '').includes(exp1)) throw new Error('9 月特別版：' + t1);
     if (await p.evaluate(() => GAME.stat('aff', 'm4')) !== 8) throw new Error('好感沒有 +8');
     await p.close();
     // 上個月送過元彬（旗標 gift_09-14_m4）→ 這次播 gift_m4_again
