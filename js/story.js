@@ -554,6 +554,9 @@
       setTimeout(function () { if (location.hash === h) clue(c); }, ms);
     },
     play: play, fill: fill, playerName: playerName, playerNick: playerNick,
+    // 現在正在播的劇情 id（沒有 = null；背景音樂用）；clueBusy = 找到線索後的強制聊天／留言進行中
+    scene: function () { return cur ? cur.id : null; },
+    clueBusy: function () { return Object.keys(clueRunning).some(function (k) { return clueRunning[k]; }); },
     // 設定：改名字、改稱呼（稱呼寫空的 = 跟名字一樣）
     setNick: function (v) { var pl = load(PKEY, {}) || {}; v = String(v || '').trim(); if (v && v !== pl.name) pl.nick = v; else delete pl.nick; store(PKEY, pl); },
     // 回想：replay(劇情id, 播完, 背景)；seenScenes() = 看過的劇情 { id: 1 }（包含這一輪的 scene_ 旗標）
