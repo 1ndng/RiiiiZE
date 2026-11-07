@@ -363,7 +363,7 @@ window.SITE_DATA = {
       wander:    ["1", "2", "3", "4", "12", "13", "14", "23", "24", "34", "17", "67"],
       home:      ["me"]
     },
-    weekend: { bg: "images/bg/wander.jpg", intro: "weekend_intro", single: 10, pairAff: 5, pairBond: 15,
+    weekend: { bg: "images/bg/outing.jpg", intro: "weekend_intro", single: 10, pairAff: 5, pairBond: 15,
       scenes: [
         // 同一個人／同一組：沒寫 chance = 固定劇情（每次都一樣）；chance: 0.2 = 特殊劇情（20% 機率，可以重複）
         { with: ["m1"], scene: "wk_m1_win", repeat: true, if: { day: [92, 181] } }, { with: ["m1"], scene: "wk_m1_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m1"], scene: "wk_m1_sum", repeat: true, if: { day: [274, 365] } },
