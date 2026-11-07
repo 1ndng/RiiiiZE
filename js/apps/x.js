@@ -70,7 +70,9 @@
   // 全部貼文：玩家發的（新的在前）＋ data.js 的
   function allTweets() {
     var mine = state().posts.slice().reverse().map(function (p) {
-      return { id: p.id, by: me().handle, text: p.text, time: T().justNow, date: p.date, mine: true };
+      // 遊戲裡發文那天（md: "09-03"）：時間顯示「9月3日」，過了那一週就不在首頁
+      var md = p.md, mm = md ? md.split('-') : null;
+      return { id: p.id, by: me().handle, text: p.text, time: mm ? (+mm[0]) + '月' + (+mm[1]) + '日' : T().justNow, date: p.date, from: md, mine: true };
     });
     // 貼文什麼時候出現：from: "09-15"（那天起）或 if（條件）；回覆也可以寫
     var un = function (t) { return !window.GAME || window.GAME.unlocked(t); };
@@ -152,7 +154,7 @@
       (function () {
         var list = allTweets().filter(function (t) { return !hidden(acc(t.by)) && thisWeek(t); });
         // 新的在前（玩家自己發的最前面）
-        var dayOf = function (t) { return t.mine ? 9999 : (window.GAME && t.from ? window.GAME.dayOf(t.from) : 0); };
+        var dayOf = function (t) { return window.GAME && t.from ? window.GAME.dayOf(t.from) + (t.mine ? .5 : 0) : (t.mine ? 9999 : 0); };
         list = list.map(function (t, i) { return { t: t, i: i }; }).sort(function (x, y) { return dayOf(y.t) - dayOf(x.t) || x.i - y.i; }).map(function (x) { return x.t; });
         return list.length ? list.map(function (t) { return row(t); }).join('') : '<p class="x-empty">' + esc(T().noWeekPosts || '這週還沒有新的貼文。') + '</p>';
       })();
@@ -160,7 +162,7 @@
   // 主頁只顯示這一週（星期一～今天）的貼文；更早的到成員的個人主頁看。玩家自己發的都會顯示
   function thisWeek(t) {
     var G = window.GAME;
-    if (t.mine || !G || !G.dayOf) return true;
+    if (!G || !G.dayOf || (t.mine && !t.from)) return true;
     if (!t.from) return false;
     var d = G.dayOf(t.from), today = G.day, wd = G.date(today).getDay(), monday = today - ((wd + 6) % 7);
     return d >= monday && d <= today;
@@ -398,7 +400,8 @@
       var v = f.t.value.trim();
       if (!v) return;
       var st = state();
-      st.posts.push({ id: 'my' + Date.now(), text: v, date: nowTime() });
+      var gd = window.GAME ? window.GAME.date() : new Date();
+      st.posts.push({ id: 'my' + Date.now(), text: v, date: nowTime(), md: String(gd.getMonth() + 1).padStart(2, '0') + '-' + String(gd.getDate()).padStart(2, '0') });
       save(st);
       S().setFlag('x_posted');
       route(current);

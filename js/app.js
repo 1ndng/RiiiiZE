@@ -120,7 +120,8 @@
 
   /* ---- App 圖示的紅點：IG、X、相簿、備忘錄出現「後來才有的內容」（寫了 from 或 if、現在看得到），
    *      而且玩家還沒點進那個 App 看過 → 圖示右上角有紅點；點進去就消失。記在 riiiize-newseen（重新開始、時間循環會清掉） */
-  var NEW_APPS = ['ig', 'x', 'photos', 'notes'], NEW_KEY = 'riiiize-newseen';
+  // App 圖示右上角的紅點：KakaoTalk（有未讀訊息）、IG、X（有還沒看過的新內容）；相簿、備忘錄、設定不顯示
+  var NEW_APPS = ['kakao', 'ig', 'x'], NEW_KEY = 'riiiize-newseen';
   function newSeen() { try { return JSON.parse(localStorage.getItem(NEW_KEY)) || {}; } catch (e) { return {}; } }
   function dynamicKeys(app) {
     var out = [], dyn = function (x) { return x && typeof x === 'object' && (x.from != null || x.if != null) && unlocked(x); };
@@ -140,7 +141,9 @@
     if (app === 'notes') ((D.notes || {}).notes || []).forEach(function (n) { if (dyn(n)) out.push('nt/' + n.id); });
     return out;
   }
-  function hasNew(app) { var seen = newSeen(); return dynamicKeys(app).some(function (k) { return !seen[k]; }); }
+  function hasNew(app) {
+    if (app === 'kakao') return !!(window.SOSHO_KAKAO && window.SOSHO_KAKAO.unreadList && window.SOSHO_KAKAO.unreadList().length);
+    var seen = newSeen(); return dynamicKeys(app).some(function (k) { return !seen[k]; }); }
   function markSeen(app) {
     var seen = newSeen(), keys = dynamicKeys(app), changed = false;
     keys.forEach(function (k) { if (!seen[k]) { seen[k] = 1; changed = true; } });
@@ -171,6 +174,7 @@
   }
   if (window.GAME) window.GAME.onChange(paintSleep);
   if (window.GAME) window.GAME.onChange(function () { paintDots(); });   // 換天：新內容出現 → 紅點
+  setInterval(function () { if ($('#phone') && $('#phone').classList.contains('on-home')) paintDots(); }, 1500);   // 在主畫面時收到新訊息 → 紅點
 
   /* ---------------- 睡覺：確認 → 畫面變暗、顯示隔天日期 → 鎖定畫面 ---------------- */
   function askSleep() {

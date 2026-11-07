@@ -10,6 +10,7 @@
   'use strict';
 
   var ICON = {
+    info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="1.8" fill="none"/><path d="M12 11v6" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="7.6" r="1.3" fill="#fff"/></svg>',
     person: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6z" fill="currentColor"/></svg>',
     chat: '<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" fill="currentColor"/></svg>',
     back: '<svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -44,11 +45,11 @@
     langToCn: '要切換成简体中文嗎？', langToTw: '要切換成繁體中文嗎？', langText: '切換後畫面會重新整理一次，遊戲進度不會不見。', langOk: '切換',
     clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。每個人有 {n} 個，這裡只會告訴你找到了幾個。', cluesDone: '全部找到了',
     replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
-    gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談',
+    gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談', mainEndings: '主線結局', dev: '開發者資訊', devName: '開發者', devPrev: '前作', devPrevTitle: '熙醬cp向撿手機解謎', devPrevGo: '前往遊玩',
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
-    myName: '我的名字', nickName: '成員怎麼叫我', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
+    myName: '名字', nickName: '稱呼', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
     loopSave: '循環前的存檔', loopSaveName: '第 {n} 輪結束時', loopNote: 'DREAM END 之後回到 9/1 之前自動存的檔，只能讀取。讀取後在 8/31 晚上睡覺，就會再次回到 9/1。', loopNo: '第 {n} 輪',
     wallpaper: '背景圖片', wpLock: '鎖定畫面', wpHome: '主畫面', wpChange: '更換', wpDefault: '恢復預設',
     wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。存在這個瀏覽器裡，「重新開始」也不會清掉。', wpTooBig: '照片太大了，換一張試試看。',
@@ -95,7 +96,8 @@
         row(ICON.bell, '#ff9500', esc(t.buzz), esc(S().buzzOn() ? t.on : t.off), 'data-st-buzz', false) +
         (window.SOSHO_LANG ? row(ICON.globe, '#5856d6', esc(t.language), '<span data-noconv>' + (window.SOSHO_LANG.lang === 'cn' ? '简体中文' : '繁體中文') + '</span>', 'data-st-lang', true) : '') +
         row(ICON.restart, '#8e8e93', '<span class="st-red">' + esc(t.restart) + '</span>', '', 'data-st-restart', false) +
-      '</div>';
+      '</div>' +
+      '<div class="st-group">' + row(ICON.info, '#b9729f', esc(t.dev), '', 'data-st-go="#/settings/dev"', true) + '</div>';
   }
 
   /* ---- 存檔與讀檔 ---- */
@@ -275,7 +277,7 @@
         g.items.map(function (it) {
           var open = !!seen[it.id];
           return '<button type="button" class="st-slot st-rp-item"' + (open ? ' data-rp="' + esc(it.id) + '" data-rpbg="' + esc(it.bg || '') + '"' : ' disabled') + '>' +
-            '<b>' + esc(it.label) + (it.label && it.sub ? '　' : '') + (open ? esc(it.sub) : '<span class="st-dim">' + esc(t.locked) + '</span>') + '</b></button>';
+            '<b>' + (open ? esc(it.label) + (it.label && it.sub ? '　' : '') + esc(it.sub) : '<span class="st-dim">' + esc(t.locked) + '</span>') + '</b></button>';
         }).join('') + '</div>';
     });
     S().$('#settings-overlay').innerHTML = '';
@@ -309,26 +311,41 @@
   }
 
   function renderGallery() {
-    var t = T(), all = window.ENDING.list(), g = window.ENDING.gallery(), got = 0, total = 0, body = '';
+    // 上面：主線結局；下面：每個結局的後日談各一區
+    var t = T(), all = window.ENDING.list(), g = window.ENDING.gallery(), got = 0, total = 0, mains = '', eps = '';
     Object.keys(all).forEach(function (id) {
       var en = all[id], has = (g.endings || {})[id];
       total++; if (has) got++;
-      var eps = (en.epilogues || []).map(function (e) {
+      mains += '<button type="button" class="st-slot"' + (has && en.scene ? ' data-replay="' + esc(en.scene) + '"' : (has ? '' : ' disabled')) + '>' +
+        '<b>' + esc(has ? en.title || id : t.locked) + '</b>' + (has && en.text ? '<small class="st-dim">' + esc(en.text) + '</small>' : '') + '</button>';
+      var list = (en.epilogues || []).map(function (e) {
         var k = id + '/' + e.id, open = (g.epilogues || {})[k];
         total++; if (open) got++;
         return '<button type="button" class="st-slot st-ep"' + (open ? ' data-replay="' + esc(e.scene) + '"' : ' disabled') + '>' +
-          '<small>' + esc(t.epilogue) + '</small><b>' + esc(open ? e.title || e.id : t.locked) + '</b></button>';
+          '<b>' + esc(open ? e.title || e.id : t.locked) + '</b></button>';
       }).join('');
-      body += '<div class="st-group">' +
-        '<button type="button" class="st-slot"' + (has && en.scene ? ' data-replay="' + esc(en.scene) + '"' : (has ? '' : ' disabled')) + '>' +
-          '<b>' + esc(has ? en.title || id : t.locked) + '</b>' + (has && en.text ? '<small class="st-dim">' + esc(en.text) + '</small>' : '') + '</button>' +
-        eps + '</div>';
+      if (list) eps += '<div class="st-sec">' + esc(t.epilogue) + '・' + esc(has ? en.title || id : t.locked) + '</div><div class="st-group">' + list + '</div>';
     });
+    var body = '<div class="st-sec">' + esc(t.mainEndings) + '</div><div class="st-group">' + mains + '</div>' + eps;
     S().$('#settings-overlay').innerHTML = '';
     S().$('#settings-scroll').innerHTML =
       '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
       '<h1 class="st-h1 st-h1-s">' + esc(t.gallery) + '</h1>' +
       '<div class="st-note st-note-top">' + esc(t.galleryCount.replace('{n}', got).replace('{all}', total)) + '　' + esc(t.galleryNote) + '</div>' + body;
+  }
+
+  /* ---- 開發者資訊 ---- */
+  var PREV_URL = 'https://1ndng.github.io/sosho/';
+  function renderDev() {
+    var t = T();
+    S().$('#settings-overlay').innerHTML = '';
+    S().$('#settings-scroll').innerHTML =
+      '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
+      '<h1 class="st-h1 st-h1-s">' + esc(t.dev) + '</h1>' +
+      '<div class="st-group"><div class="st-slot st-dev"><b>' + esc(t.devName) + '</b><span>dng</span></div></div>' +
+      '<div class="st-sec">' + esc(t.devPrev) + '</div>' +
+      '<div class="st-group"><a class="st-slot st-dev st-dev-link" href="' + PREV_URL + '" target="_blank" rel="noopener">' +
+        '<b>' + esc(t.devPrevTitle) + '</b><span>' + esc(t.devPrevGo) + ' ›</span></a></div>';
   }
 
   /* ---- 背景圖片 ---- */
@@ -376,6 +393,7 @@
     if (parts[0] === 'gallery' && window.ENDING) { renderGallery(); return; }
     if (parts[0] === 'replay' && window.STORY) { renderReplay(); return; }
     if (parts[0] === 'clues') { renderClues(); return; }
+    if (parts[0] === 'dev') { renderDev(); return; }
     if (parts[0] === 'stats' && (D().game || {}).debug) renderStats();
     else if (parts[0] === 'saves') renderSaves();
     else if (parts[0] === 'wallpaper') renderWallpaper();

@@ -57,7 +57,7 @@
 .st-flags small { color: #8a8a8e; font-size: 14px; padding: 2px 4px; }
 
 /* 結局圖鑑：後日談縮排 */
-.st-ep { padding-left: 30px !important; }
+.st-ep { padding-left: 16px !important; }
 .st-ep small { color: #8a8a8e !important; margin: 0 0 1px !important; font-size: 12px !important; }
 .st-ep b { font-weight: 500 !important; }
 .st-slot[disabled] small { color: #c4c4c7; }
@@ -85,6 +85,11 @@
 .st-clue b { flex: 1; }
 .st-clue-emoji { display: inline-block; width: 26px; }
 .st-clue-dots { display: flex; gap: 6px; }
-.st-clue-dots i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid #ff2d55; }
-.st-clue-dots i.on { background: #ff2d55; }
-.st-clue small { margin: 0 0 0 6px; color: #ff2d55; font-weight: 600; }
+.st-clue-dots i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--pk-plate-line, #c98bb3); background: var(--pk-light, #fde4f2); }
+.st-clue-dots i.on { background: var(--pk-deep, #b9729f); border-color: var(--pk-deep, #b9729f); }
+.st-clue small { margin: 0 0 0 6px; color: var(--pk-deep, #b9729f); font-weight: 600; }
+
+/* 開發者資訊 */
+.st-dev { display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: inherit; }
+.st-dev span { color: #8a8a8e; font-size: 15px; }
+.st-dev-link span { color: var(--pk-deep, #b9729f); font-weight: 600; }
