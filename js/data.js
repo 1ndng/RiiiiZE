@@ -307,13 +307,13 @@ window.SITE_DATA = {
     // milestones = 第幾次去的時候有固定劇情（scenes.act_日程_次數，例如 act_club_5；那天會停下來播）
     // bg = 這個日程的背景（一句話、特殊劇情、主線強制日程的劇情都用它；劇情裡寫 { bg } 會換掉；沒寫就用 storyBg）
     activities: [
-      { id: "club",      label: "社團活動", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [1, 5, 10, 20, 30, 50] },
-      { id: "volunteer", label: "志工活動", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [1, 5, 10, 20, 30, 50] },
-      { id: "sports",    label: "體育館",   bg: "images/bg/sports.jpg", milestones: [1, 5, 10, 20, 30, 50] },
+      { id: "club",      label: "社團活動", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "volunteer", label: "志工活動", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "sports",    label: "體育館",   bg: "images/bg/sports.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
       { id: "council",   label: "學生會",   bg: "images/bg/council.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "games",     label: "網咖",     bg: "images/bg/games.jpg", milestones: [1, 5, 10, 20, 30, 50] },
-      { id: "karaoke",   label: "KTV",      bg: "images/bg/karaoke.jpg", milestones: [1, 5, 10, 20, 30, 50] },
-      { id: "wander",    label: "閒晃",     bg: "images/bg/wander.jpg", milestones: [1, 10, 30, 50] }
+      { id: "games",     label: "網咖",     bg: "images/bg/games.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "karaoke",   label: "KTV",      bg: "images/bg/karaoke.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "wander",    label: "閒晃",     bg: "images/bg/wander.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] }
     ],
     specials: [
       // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },
@@ -324,6 +324,8 @@ window.SITE_DATA = {
     dayLabels: { "09-01": "開學日", "09-02": "學生會聚" },
     holidays: [
       { date: "05-05", title: "兒童節",  scene: "h0505" },
+      { date: "05-08", title: "어버이날",  scene: "h0508" },
+      { date: "10-31", title: "萬聖節",  scene: "h1031" },
       { date: "02-17", title: "설날",  scene: "h0217" },
       { date: "12-31", title: "跨年夜",  scene: "d1231" },
       { date: "11-11", title: "빼빼로데이",  scene: "h1111" },
@@ -355,11 +357,17 @@ window.SITE_DATA = {
     weekend: { bg: "images/bg/wander.jpg", intro: "weekend_intro", single: 6, pairAff: 3, pairBond: 15,
       scenes: [
         // 同一個人／同一組：沒寫 chance = 固定劇情（每次都一樣）；chance: 0.2 = 特殊劇情（20% 機率，可以重複）
+        { with: ["m1"], scene: "wk_m1_win", repeat: true, if: { day: [92, 181] } }, { with: ["m1"], scene: "wk_m1_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m1"], scene: "wk_m1_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m1"], scene: "wk_m1", repeat: true }, { with: ["m1"], scene: "wk_m1_sp", repeat: true, chance: 0.2 },
+        { with: ["m2"], scene: "wk_m2_win", repeat: true, if: { day: [92, 181] } }, { with: ["m2"], scene: "wk_m2_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m2"], scene: "wk_m2_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m2"], scene: "wk_m2", repeat: true }, { with: ["m2"], scene: "wk_m2_sp", repeat: true, chance: 0.2 },
+        { with: ["m3"], scene: "wk_m3_win", repeat: true, if: { day: [92, 181] } }, { with: ["m3"], scene: "wk_m3_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m3"], scene: "wk_m3_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m3"], scene: "wk_m3", repeat: true }, { with: ["m3"], scene: "wk_m3_sp", repeat: true, chance: 0.2 },
+        { with: ["m4"], scene: "wk_m4_win", repeat: true, if: { day: [92, 181] } }, { with: ["m4"], scene: "wk_m4_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m4"], scene: "wk_m4_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m4"], scene: "wk_m4", repeat: true }, { with: ["m4"], scene: "wk_m4_sp", repeat: true, chance: 0.2 },
+        { with: ["m5"], scene: "wk_m5_win", repeat: true, if: { day: [92, 181] } }, { with: ["m5"], scene: "wk_m5_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m5"], scene: "wk_m5_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m5"], scene: "wk_m5", repeat: true }, { with: ["m5"], scene: "wk_m5_sp", repeat: true, chance: 0.2 },
+        { with: ["m6"], scene: "wk_m6_win", repeat: true, if: { day: [92, 181] } }, { with: ["m6"], scene: "wk_m6_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m6"], scene: "wk_m6_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m6"], scene: "wk_m6", repeat: true }, { with: ["m6"], scene: "wk_m6_sp", repeat: true, chance: 0.2 },
         { with: ["m1", "m2"], scene: "wk_m1_m2", repeat: true }, { with: ["m1", "m2"], scene: "wk_m1_m2_sp", repeat: true, chance: 0.2 },
         { with: ["m1", "m3"], scene: "wk_m1_m3", repeat: true }, { with: ["m1", "m3"], scene: "wk_m1_m3_sp", repeat: true, chance: 0.2 },
@@ -377,7 +385,8 @@ window.SITE_DATA = {
         { with: ["m4", "m6"], scene: "wk_m4_m6", repeat: true }, { with: ["m4", "m6"], scene: "wk_m4_m6_sp", repeat: true, chance: 0.2 },
         { with: ["m5", "m6"], scene: "wk_m5_m6", repeat: true }, { with: ["m5", "m6"], scene: "wk_m5_m6_sp", repeat: true, chance: 0.2 }
       ],
-      home: [ { scene: "wk_home", repeat: true } ] }
+      // 待在家：照季節（12～2 月、3～5 月、6～8 月），9～11 月是 wk_home
+      home: [ { scene: "wk_home_win", repeat: true, if: { day: [92, 181] } }, { scene: "wk_home_spr", repeat: true, if: { day: [182, 273] } }, { scene: "wk_home_sum", repeat: true, if: { day: [274, 365] } }, { scene: "wk_home", repeat: true } ] }
   },
 
   /* ---------- 戀愛與覺醒的門檻 ----------
@@ -897,4 +906,4 @@ function RIIIZE_ADD(part) {
   if (part.tweets) D.x.tweets = D.x.tweets.concat(part.tweets);
 }
 // js/story/ 裡的檔案（index.html 照這個順序載入）
-var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","gift-by-month","clues","awake","ending","common"];
+var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","gift-by-month","side-extra","clues","awake","ending","common"];
