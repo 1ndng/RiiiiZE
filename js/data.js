@@ -37,7 +37,7 @@ window.SITE_DATA = {
    */
   // avatar = 大頭照（沒寫就用預設頭貼 images/default_avatar.png）
   // no = 編號（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮；隨機劇情的名字 rand_club_14 用這個）
-  // short = 劇情對話框裡顯示的名字（只有名、沒有姓）；emoji = 「這週的放學後」好感、關係用的符號
+  // short = 劇情對話框裡顯示的名字（只有名、沒有姓）；emoji = 「這週的安排」好感、關係用的符號
   cast: [
     { id: "m1", no: 1, name: "大﨑将太郎", short: "將太郎", emoji: "🧋", birthday: "11-25", activities: ["club", "council", "games"], avatar: "images/cast/m1.jpg" },
     { id: "m2", no: 2, name: "宋恩奭", short: "恩奭", emoji: "🪨",     birthday: "03-19", activities: ["volunteer", "council", "games"], avatar: "images/cast/m2.jpg" },
@@ -350,7 +350,7 @@ window.SITE_DATA = {
     /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（目前 20%）（可以重複觸發；每一項各自擲，中的都播）
      *   寫編號：單人 "1"、配對 "14"（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮）；回家寫 "me"（跟自己對話）
      *   劇情寫在 scenes.rand_日程_編號（例如 rand_club_14、rand_home_me）；沒寫劇情的不會觸發
-     *   被跳過的日子觸發的，在「這週的放學後」之後依序播 */
+     *   被跳過的日子觸發的，在「這週的安排」之後依序播 */
     random: {
       chance: 0.2,
       club:      ["1", "4", "6", "14", "16", "46"],

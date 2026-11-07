@@ -43,8 +43,8 @@
       giftPickOne: '要送給誰？', giftPickGiver: '請誰送禮物？', giftPickTo: '要送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
       giftMeText: '你把禮物送給了{a}。', giftAskText: '你請{a}送禮物給{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
-      dayLine: '{date}\n放學後去了{act}，遇到了{who}。',
-      weekTitle: '這週的放學後', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekMet: '這幾天見到了{who}。', weekAff: '好感', weekPair: '關係', weekNoGain: '這幾天沒有遇到人。'
+      dayLine: '{date}\n去了{act}，遇到了{who}。',
+      weekTitle: '這週的安排', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekMet: '這幾天見到了{who}。', weekAff: '好感', weekPair: '關係', weekNoGain: '這幾天沒有遇到人。'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
     return d;
@@ -214,7 +214,7 @@
     if (ids.length) G().apply(shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15));
     return ids;
   }
-  // 「9月8日（星期一）\n放學後去了學生會，遇到了鄭成燦和李炤熙。」（plan.text.dayLine 可以改；活動可以寫自己的 line）
+  // 「9月8日（星期一）\n去了學生會，遇到了鄭成燦和李炤熙。」（plan.text.dayLine 可以改；活動可以寫自己的 line）
   function joinNames(ids) {
     var n = ids.map(nameOf);
     return n.length <= 1 ? (n[0] || '') : n.slice(0, -1).join('、') + '和' + n[n.length - 1];
@@ -539,7 +539,7 @@
   /* ---- 睡覺：往後跳到下一個有事的日子（沒事的日子照月曆加好感） ----
    * cb({ from, to })：from = 跳過的第一天，to = 停下來的那天 */
   // onLine(day, text, next)：有安排日程、沒有劇情的日子，用一句話告訴玩家今天和誰做了什麼
-  // 跳過去的日子（有安排日程、沒有劇情）先收集起來，停下來之前用「這週的放學後」一次顯示（onWeek）
+  // 跳過去的日子（有安排日程、沒有劇情）先收集起來，停下來之前用「這週的安排」一次顯示（onWeek）
   //   之後想在每週回顧裡加隨機事件、小劇情，就在 go() 的 onWeek 這裡加
   function sleep(cb, onWeek) {
     var day = G().day + 1, from = day, week = [];
@@ -643,7 +643,7 @@
         f.classList.add('text');
         startDayAfter(f);
       }, function (week, next) {
-        // 這週的放學後：黑底日期畫面上一次列出這幾天去了哪裡、遇到誰
+        // 這週的安排：黑底日期畫面上一次列出這幾天去了哪裡、遇到誰
         if (f.parentNode) { f.classList.remove('show'); var old = f; setTimeout(function () { old.remove(); }, 600); }
         var lk = document.getElementById('lock'); if (lk) lk.remove();
         document.getElementById('phone').classList.remove('locked');
@@ -652,9 +652,9 @@
       });
     }, 600);
   }
-  // 「這週的放學後」卡片：每天一行（日期、日程、遇到誰的大頭照），點「繼續」往下；這幾天的隨機劇情會先播完，卡片最後才出現
+  // 「這週的安排」卡片：每天一行（日期、日程、遇到誰的大頭照），點「繼續」往下；這幾天的隨機劇情會先播完，卡片最後才出現
   function weekCard(week, next) {
-    // 這幾天觸發的隨機劇情先依序播完，最後才出現「這週的放學後」卡片
+    // 這幾天觸發的隨機劇情先依序播完，最後才出現「這週的安排」卡片
     var evs = [];
     week.forEach(function (w) { w.rnd.forEach(function (id) { evs.push(function (n) { window.STORY.play(id, n, null, bgOf(w.act)); }); }); });
     series(evs, function () { showWeekCard(week, next); });
