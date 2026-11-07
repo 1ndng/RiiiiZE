@@ -136,7 +136,7 @@ const TESTS = [
     const bday = await p.evaluate(() => JSON.parse(localStorage.getItem('riiiize-player')).birthday.replace('-', ''));
     await unlock(p, bday);
     if (!(await p.$('.vn'))) throw new Error('解鎖後沒有開場劇情');
-    await clickStory(p, async () => p.evaluate(() => INTRO.exploring()), 200);   // 中間有停在手機畫面的 3、2、2 秒
+    await clickStory(p, async () => p.evaluate(() => INTRO.exploring()), 200);   // 中間有停在手機畫面的 2、2、2 秒
     await p.evaluate(() => location.hash = '#/kakao'); await sleep(1500);
     const ok = await clickStory(p, async () => (await text(p, '.vn-text') || '').indexOf('校門') >= 0, 120);
     if (!ok) throw new Error('打開 KakaoTalk 後沒有進到 9/1');
