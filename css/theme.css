@@ -194,7 +194,7 @@
 .title-layer > * { pointer-events: auto; }
 .title-scr.show { opacity: 1; }
 /* 開發者小字：置中、在最下面粉色花邊上方（比照 SOSHO 論壇頁面底部的小字） */
-.title-credit { position: absolute; left: 0; right: 0; bottom: 6.4%; text-align: center; font-family: -apple-system, "Noto Sans TC", sans-serif; font-size: 12px; color: #fff; letter-spacing: .5px; text-shadow: 0 1px 3px rgba(107, 51, 88, .55); pointer-events: none; }
+.title-credit { position: absolute; left: 0; right: 0; bottom: 6.4%; text-align: center; font-family: -apple-system, "Noto Sans TC", sans-serif; font-size: 12px; color: rgba(255, 255, 255, .55); letter-spacing: .5px; text-shadow: 0 1px 2px rgba(107, 51, 88, .25); pointer-events: none; }
 .title-logo { text-align: center; color: #fff; text-shadow: 0 2px 16px rgba(120, 50, 95, .55), 0 1px 3px rgba(120, 50, 95, .4); }
 .title-logo b { display: block; font-size: 58px; font-weight: 700; letter-spacing: 2px; line-height: 1.1; }
 .title-logo span { display: block; margin-top: 10px; font-size: 17px; letter-spacing: 8px; }

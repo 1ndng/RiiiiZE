@@ -14,7 +14,7 @@
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   function T() {
     var t = D().title || {}, d = {
-      name: 'RiiiiZE', subtitle: '拉完子學院', bg: '', credit: 'dng',
+      name: 'Reriize', subtitle: '拉完子學院', bg: '', credit: 'dng',
       start: '開始遊戲', cont: '繼續', load: '讀取存檔', restart: '從頭開始', back: '返回',
       btnStart: '開始', btnCont: '繼續', btnLoad: '讀取', btnLang: '語言', btnSound: '音效', on: '開', off: '關',
       langTitle: '語言', tw: '繁體中文', cn: '简体中文',

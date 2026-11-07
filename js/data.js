@@ -69,7 +69,7 @@ window.SITE_DATA = {
    */
   // 標題畫面（js/title.js）：name = 遊戲名稱、subtitle = 副標、bg = 背景（不寫 = 主畫面桌布）
   title: {
-    name: "RiiiiZE", subtitle: "拉完子學院",
+    name: "Reriize", subtitle: "拉完子學院",
     bg: "images/ui/title.jpg",   // 標題圖（9:16；圖上已經有遊戲名稱，所以畫面上不再打字）
     // 按鈕放在圖上的粉紅框裡：框在圖上的位置（百分比，從左上角算）；換圖時改這裡
     box: { left: 5.7, top: 28.9, width: 88.5, height: 22.7 }
@@ -543,6 +543,7 @@ window.SITE_DATA = {
    * saveSlots = 手動存檔的格數（設定 → 存檔與讀檔）
    */
   game: {
+    version: "0.1.0",            // 版本號（設定 → 開發者資訊 會顯示；更新遊戲時改這裡）
     debug: true,                 // true = 設定裡出現「數值（開發用）」；正式公開前改成 false
     startDate: "2025-09-01",
     endDate: "2026-08-31",

@@ -45,7 +45,7 @@
     langToCn: '要切換成简体中文嗎？', langToTw: '要切換成繁體中文嗎？', langText: '切換後畫面會重新整理一次，遊戲進度不會不見。', langOk: '切換',
     clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。每個人有 {n} 個，這裡只會告訴你找到了幾個。', cluesDone: '全部找到了',
     replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
-    gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談', mainEndings: '主線結局', dev: '開發者資訊', devName: '開發者', devPrev: '前作', devPrevTitle: '熙醬cp向撿手機解謎', devPrevGo: '前往遊玩',
+    gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談', mainEndings: '主線結局', dev: '開發者資訊', devName: '開發者', devVer: '版本', devPrev: '前作', devPrevTitle: '熙醬cp向撿手機解謎', devPrevGo: '前往遊玩',
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
@@ -342,7 +342,8 @@
     S().$('#settings-scroll').innerHTML =
       '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
       '<h1 class="st-h1 st-h1-s">' + esc(t.dev) + '</h1>' +
-      '<div class="st-group"><div class="st-slot st-dev"><b>' + esc(t.devName) + '</b><span>dng</span></div></div>' +
+      '<div class="st-group"><div class="st-slot st-dev"><b>' + esc(t.devName) + '</b><span>dng</span></div>' +
+        '<div class="st-slot st-dev"><b>' + esc(t.devVer) + '</b><span>' + esc((D().game || {}).version || '—') + '</span></div></div>' +
       '<div class="st-sec">' + esc(t.devPrev) + '</div>' +
       '<div class="st-group"><a class="st-slot st-dev st-dev-link" href="' + PREV_URL + '" target="_blank" rel="noopener">' +
         '<b>' + esc(t.devPrevTitle) + '</b><span>' + esc(t.devPrevGo) + ' ›</span></a></div>';

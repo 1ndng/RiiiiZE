@@ -1,5 +1,5 @@
 /* =========================================================
- * RiiiiZE 自動測試：改完劇情或程式後跑一次，確認主要流程沒有壞掉
+ * Reriize 自動測試：改完劇情或程式後跑一次，確認主要流程沒有壞掉
  *
  *   node tools/test.js            全部跑一次（約 2～3 分鐘）
  *   node tools/test.js 結局        只跑名稱裡有「結局」的項目
@@ -199,7 +199,8 @@ const TESTS = [
     return p;
   }],
   ['星期日：選人出門 → 22:00 鎖定畫面＋自由探索提醒 → 解鎖', async (b, base) => {
-    const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'morning' } }));
+    // 9/21 晚上有炤熙的每晚聊天：這個測試只測沒有聊天的星期日 → 先當作聊過了
+    const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'daychat_09-21': 1 } }));
     await clickStory(p, async () => !!(await p.$('.sch')));
     await p.click('.sch-cast button >> nth=1'); await p.click('[data-go]'); await sleep(800);
     // 鎖定畫面先出現，「自由探索」提醒蓋在鎖定畫面上；點完提醒才解鎖
@@ -273,7 +274,7 @@ const TESTS = [
     return p;
   }],
   ['劇情：快轉只跳過看過的台詞', async (b, base) => {
-    const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'night' } }));
+    const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'daychat_09-21': 1 } }));
     await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked');
       SITE_DATA.scenes.__t1 = [{ text: '第一句' }, { text: '第二句' }, { text: '第三句' }];
       window.__d = 0; STORY.play('__t1', () => { window.__d = 1; }); });
@@ -285,7 +286,7 @@ const TESTS = [
     return p;
   }],
   ['覺醒線索：看到 IG 貼文 1 秒 → 覺醒度 +1，劇情加覺醒度無效', async (b, base) => {
-    const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'night' } }));
+    const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'daychat_09-21': 1 } }));
     await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked');
       delete SITE_DATA.clues.m4_2;   // 這個測試只測「看到 1 秒就算」：拿掉 m4_2 的強制聊天
       SITE_DATA.instagram.searchOnlyAccounts.filter(a => a.username === 'bin032')[0].posts.push({ images: ['images/cast/m4.jpg'], caption: '線索', time: '9月20日', clue: 'm4_2' });

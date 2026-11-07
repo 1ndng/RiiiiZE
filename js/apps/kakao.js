@@ -438,7 +438,7 @@
   function dayChatStart(def, done, free) {
     dcStarts.push(dcId(def));
     var st = state(); st.dayChat = st.dayChat || {};
-    dc = { def: def, room: def.room, i: st.dayChat[dcId(def)] || 0, ask: null, done: done, free: free };
+    dc = { def: def, room: def.room, i: st.dayChat[dcId(def)] || 0, ask: null, done: done, free: free, last: Date.now() };
     // dark：先全暗 1 秒，再漸漸亮起來進入這段（例如 9/7 KTV 群組聊完 → 客服小精靈）
     var dark = null;
     if (def.dark && dc.i === 0) {
@@ -472,33 +472,47 @@
       if (s.choices) { dc.ask = s; dayChatPaint(); return; }   // 等玩家選、按送出
       if (s.effects) fx(s.effects);
       if (s.flag) [].concat(s.flag).forEach(function (fl) { S().setFlag(fl); });
-      if (s.text == null && !s.image) { dc.i++; dayChatSave(); if (s.wait) { setTimeout(dayChatNext, s.wait); return; } continue; }
+      if (s.text == null && !s.image) { dc.i++; dayChatSave(); if (s.wait) { dc.last = Date.now() + s.wait; setTimeout(dayChatNext, s.wait); return; } continue; }
       dayChatIncoming(s, function () { dc.i++; dayChatSave(); setTimeout(dayChatNext, 500); });
       return;
     }
     dayChatEnd();
   }
   // 對方傳來一則：先顯示「輸入中」，再出現訊息
+  //   dc.pending = 還沒傳出來的這一則；計時器沒有觸發時，下面的保險會直接把它傳出來（只會傳一次）
   function dayChatIncoming(s, next) {
     dc.last = Date.now();
-    var f = friend(dc.room), from = f && f.group ? (s.from || (f.members[0] || {}).id) : 'them';
+    var f = friend(dc.room), from = f && f.group ? (s.from || (f.members[0] || {}).id) : 'them', mine = dc, sent = false;
+    function deliver() {
+      if (sent || dc !== mine) return; sent = true;
+      if (dc.pending === pend) dc.pending = null;
+      typing[dc.room] = false;
+      var msg = { from: from, time: nowTime() };
+      if (s.text != null) msg.text = s.text;
+      if (s.image) msg.image = s.image;
+      if (s.clue) msg.clue = s.clue;
+      push(dc.room, msg);
+      dc.last = Date.now();
+      dayChatPaint();
+      next();
+    }
+    var pend = { at: Date.now(), go: deliver, ms: (s.wait || 300) + (s.typing != null ? s.typing : 900 + Math.min(1600, String(s.text || '').length * 40)) };
+    dc.pending = pend;
     setTimeout(function () {
-      if (!dc) return;
+      if (sent || dc !== mine) return;
       setTyping(dc.room, f && f.group ? from : true);
-      setTimeout(function () {
-        if (!dc) return;
-        typing[dc.room] = false;
-        var msg = { from: from, time: nowTime() };
-        if (s.text != null) msg.text = s.text;
-        if (s.image) msg.image = s.image;
-        if (s.clue) msg.clue = s.clue;
-        push(dc.room, msg);
-        dc.last = Date.now();
-        dayChatPaint();
-        next();
-      }, s.typing != null ? s.typing : 900 + Math.min(1600, String(s.text || '').length * 40));
+      setTimeout(deliver, s.typing != null ? s.typing : 900 + Math.min(1600, String(s.text || '').length * 40));
     }, s.wait || 300);
   }
+  // 保險：聊天途中（不是在等玩家選）超過預定時間 5 秒還沒有動靜 → 直接傳出卡住的那一則／接著跑下一則
+  setInterval(function () {
+    if (!dc || dc.ask) return;
+    var now = Date.now();
+    if (dc.pending) { if (now - dc.pending.at > dc.pending.ms + 5000) dc.pending.go(); return; }
+    if (dc.replying || dc.i >= (dc.def.steps || []).length) return;
+    if (window.STORY && window.STORY.playing && window.STORY.playing()) { dc.last = now; return; }   // 開頭的劇情（intro）還在播
+    if (now - (dc.last || 0) > 6000) { dc.last = now; dayChatNext(); }
+  }, 1000);
   // 玩家選了一個選項、按了送出：套用效果、旗標，對方照 reply 回覆後接著往下
   function dayChatChose(o) {
     fx(o.effects);
