@@ -337,6 +337,11 @@ window.SITE_DATA = {
       { date: "03-14", title: "白色情人節", scene: "h0314" }
     ],
     gift: { aff: 6, pair: 15 },
+    /* 友誼線、愛情線（js/plan.js 的 bondFor；劇情在 js/story/bond.js）
+     *   好感到 friend → 友誼線 fr_成員（可以好幾條）
+     *   到 love1 → 心動 love_成員_1；到 love2 → 曖昧 love_成員_2；到 confess → 告白（從到門檻的人裡選一位；一輪只能一位）
+     *   from～until 之間才會觸發；一天最多一段 */
+    bond: { friend: 60, love1: 150, love2: 250, confess: 350, from: "09-08", until: "08-23" },
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
     homeMilestones: [1, 10, 30, 50],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
     /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（目前 20%）（可以重複觸發；每一項各自擲，中的都播）
@@ -412,7 +417,7 @@ window.SITE_DATA = {
    * （一年下來的好感度很高，下面的數字是暫定，之後照試玩結果調）
    */
   romance: {
-    lover: { aff: 120, flag: "confess_{id}" },
+    lover: { aff: 350, flag: "confess_{id}" },   // 告白過（plan.bond.confess）＝戀人
     couple: { pair: 150, flag: "couple_{pair}" },
     // 個人覺醒 = 覺醒度到 value（每人一樣、不會下降）
     //   覺醒度只能靠「在手機裡找到線索」增加：IG 貼文／限動、X 貼文、照片、備忘錄、KakaoTalk 訊息寫 clue: "m3_1"，
@@ -440,21 +445,40 @@ window.SITE_DATA = {
         { id: "m3", title: "成燦", scene: "ep_true_m3" },
         { id: "m4", title: "元彬", scene: "ep_true_m4" },
         { id: "m5", title: "炤熙", scene: "ep_true_m5" },
-        { id: "m6", title: "燦榮", scene: "ep_true_m6" }
+        { id: "m6", title: "燦榮", scene: "ep_true_m6" },
+        // 戀人（告白過的那位）多一段
+        { id: "lover_m1", title: "將太郎（戀人）", scene: "ep_true_lover_m1", if: { lover: "m1" } },
+        { id: "lover_m2", title: "恩奭（戀人）", scene: "ep_true_lover_m2", if: { lover: "m2" } },
+        { id: "lover_m3", title: "成燦（戀人）", scene: "ep_true_lover_m3", if: { lover: "m3" } },
+        { id: "lover_m4", title: "元彬（戀人）", scene: "ep_true_lover_m4", if: { lover: "m4" } },
+        { id: "lover_m5", title: "炤熙（戀人）", scene: "ep_true_lover_m5", if: { lover: "m5" } },
+        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_true_lover_m6", if: { lover: "m6" } }
       ]
     },
     // 六人都覺醒、選擇留下：七人繼續留在學院的一年
     dream1: {
       title: "DREAM END 1", text: "七人選擇留在這段美好的時光。", scene: "ending_dream1", after: "loop",
       epilogues: [
-        { id: "again", title: "又是九月了", scene: "ep_dream1" }
+        { id: "again", title: "又是九月了", scene: "ep_dream1" },
+        { id: "lover_m1", title: "將太郎（戀人）", scene: "ep_dream1_lover_m1", if: { lover: "m1" } },
+        { id: "lover_m2", title: "恩奭（戀人）", scene: "ep_dream1_lover_m2", if: { lover: "m2" } },
+        { id: "lover_m3", title: "成燦（戀人）", scene: "ep_dream1_lover_m3", if: { lover: "m3" } },
+        { id: "lover_m4", title: "元彬（戀人）", scene: "ep_dream1_lover_m4", if: { lover: "m4" } },
+        { id: "lover_m5", title: "炤熙（戀人）", scene: "ep_dream1_lover_m5", if: { lover: "m5" } },
+        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_dream1_lover_m6", if: { lover: "m6" } }
       ]
     },
     // 8/31 時有人還沒覺醒：沒有選擇，直接進入這個結局
     dream2: {
       title: "DREAM END 2", text: "還有人沒有醒來。", scene: "ending_dream2", after: "loop",
       epilogues: [
-        { id: "some", title: "一點點", scene: "ep_dream2_some", if: { awakeCount: ">=1" } }
+        { id: "some", title: "一點點", scene: "ep_dream2_some", if: { awakeCount: ">=1" } },
+        { id: "lover_m1", title: "將太郎（戀人）", scene: "ep_dream2_lover_m1", if: { lover: "m1" } },
+        { id: "lover_m2", title: "恩奭（戀人）", scene: "ep_dream2_lover_m2", if: { lover: "m2" } },
+        { id: "lover_m3", title: "成燦（戀人）", scene: "ep_dream2_lover_m3", if: { lover: "m3" } },
+        { id: "lover_m4", title: "元彬（戀人）", scene: "ep_dream2_lover_m4", if: { lover: "m4" } },
+        { id: "lover_m5", title: "炤熙（戀人）", scene: "ep_dream2_lover_m5", if: { lover: "m5" } },
+        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_dream2_lover_m6", if: { lover: "m6" } }
       ]
     }
   },
@@ -921,4 +945,4 @@ function RIIIZE_ADD(part) {
   if (part.tweets) D.x.tweets = D.x.tweets.concat(part.tweets);
 }
 // js/story/ 裡的檔案（index.html 照這個順序載入）
-var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","gift-by-month","side-extra","weekend-pair","clues","awake","ending","common"];
+var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","gift-by-month","side-extra","weekend-pair","bond","clues","awake","ending","common"];

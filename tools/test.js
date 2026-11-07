@@ -361,6 +361,21 @@ const TESTS = [
     if (aff !== 6) throw new Error('好感：' + aff);
     return p;
   }],
+  ['友誼線、愛情線：好感 60 友誼 → 150 心動 → 250 曖昧 → 350 告白（可選多位）→ 戀人後其他人只剩友誼線', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
+    const r = await p.evaluate(() => {
+      const A = (id, v) => GAME.addStat('aff', id, v - GAME.stat('aff', id)), F = f => SOSHO.setFlag(f), q = () => { const x = PLAN.bondFor(GAME.day); return x ? (x.id || x.kind + ':' + x.ids.join('+')) : '-'; };
+      const out = [];
+      A('m4', 65); out.push(q()); F('scene_fr_m4');
+      A('m4', 160); out.push(q()); F('scene_love_m4_1');
+      A('m4', 260); out.push(q()); F('scene_love_m4_2');
+      A('m4', 360); A('m1', 360); F('scene_love_m1_1'); F('scene_love_m1_2'); F('scene_fr_m1'); out.push(q());
+      F('confess_m4'); A('m2', 70); out.push(q()); out.push(GAME.check({ lover: 'm4' }) && !GAME.check({ lover: 'm1' }));
+      return out.join(',');
+    });
+    if (r !== 'fr_m4,love_m4_1,love_m4_2,confess:m1+m4,fr_m2,true') throw new Error(r);
+    return p;
+  }],
   ['App 內容：from 日期之前看不到', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' } }));
     const r = await p.evaluate(() => [GAME.unlocked({ from: '09-15' }), GAME.unlocked({ from: '09-05' }), GAME.unlocked({ if: { loop: '>=2' } })]);

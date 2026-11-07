@@ -109,9 +109,48 @@
   // 回家（平日沒安排）：開學週（planFrom 之前）不算
   function homeDay(day) { return !isWeekend(day) && !forcedOn(day) && !plannedOn(day) && day >= G().dayOf(C().planFrom || '09-08'); }
 
+  /* ---- 友誼線、愛情線（data.js 的 plan.bond；劇情在 js/story/bond.js）----
+   *   好感到 friend → fr_成員（友誼線，可以好幾條）
+   *   好感到 love1 → love_成員_1（心動）；到 love2 → love_成員_2（曖昧）；到 confess → 告白（讓玩家從到門檻的人裡選一位）
+   *   一輪只能有一位戀人：告白之後，其他人的愛情線就停在原地；友誼線照常
+   *   一天最多一段；from～until 之間才會觸發（開學週、最後一週不會） */
+  function B() { return C().bond || null; }
+  function aff(id) { return G().stat('aff', id); }
+  function hasLover() { return cast().some(function (c) { return S() && S().hasFlag('confess_' + c.id); }); }
+  function bondFor(day) {
+    var b = B();
+    if (!b || !S()) return null;
+    if (day < G().dayOf(b.from || '09-08') || day > G().dayOf(b.until || '08-23')) return null;
+    var byAff = cast().map(function (c) { return c.id; }).sort(function (x, y) { return aff(y) - aff(x); });
+    var lover = hasLover();
+    if (!lover) {
+      var can = byAff.filter(function (id) { return aff(id) >= b.confess && seen('love_' + id + '_2'); });
+      if (can.length && !S().hasFlag('confess_wait_' + ym(day))) return { kind: 'confess', ids: can };
+      var l2 = byAff.filter(function (id) { return aff(id) >= b.love2 && seen('love_' + id + '_1') && !seen('love_' + id + '_2') && scene('love_' + id + '_2'); })[0];
+      if (l2) return { kind: 'scene', id: 'love_' + l2 + '_2' };
+      var l1 = byAff.filter(function (id) { return aff(id) >= b.love1 && !seen('love_' + id + '_1') && scene('love_' + id + '_1'); })[0];
+      if (l1) return { kind: 'scene', id: 'love_' + l1 + '_1' };
+    }
+    var fr = byAff.filter(function (id) { return aff(id) >= b.friend && !seen('fr_' + id) && scene('fr_' + id); })[0];
+    if (fr) return { kind: 'scene', id: 'fr_' + fr };
+    return null;
+  }
+  // 告白：先播 confess_intro，再選一位（或「還不是時候」= 這個月不再問）
+  function confess(ids, done) {
+    var t = T();
+    playIf('confess_intro', function () {
+      chooser({ title: t.confessTitle || '你想告白的人是——', hint: t.confessHint || '一輪只能選一位', max: 1, min: 1,
+        exclude: cast().map(function (c) { return c.id; }).filter(function (id) { return ids.indexOf(id) < 0; }),
+        goLabel: t.confessGo || '告白', altLabel: t.confessWait || '還不是時候',
+        onAlt: function () { S().setFlag('confess_wait_' + ym(G().day)); playIf('confess_wait', done); },
+        onGo: function (pick) { S().setFlag('confess_' + pick[0]); playIf('confess_' + pick[0], done); } });
+    });
+  }
+
   // 有事的日子 = 要停下來（可以使用手機）
   function isStop(day) {
     if (storyOn(day).length || holidaysOn(day).length || birthdaysOn(day).length || isGiftDay(day)) return true;
+    if (bondFor(day)) return true;   // 友誼線、愛情線的劇情
     if (dateOf(day).getDay() === 0) return true;   // 星期日：夜間自由使用手機
     if (day >= G().totalDays()) return true;
     if (!isWeekend(day) && !forcedOn(day)) {   // 這次去剛好是第幾次的固定劇情
@@ -355,6 +394,12 @@
       }
       // 星期日：出去玩（送禮已經在早上最先做了）
       if (sunday && !forced && !(C().weekend || {}).off) steps.push(weekend);
+      // 友誼線、愛情線：一天最多一段，在當天其他劇情之後（判斷放到那時候，才會算進今天加的好感）
+      steps.push(function (next) {
+        var bd = bondFor(G().day);
+        if (!bd) { next(); return; }
+        if (bd.kind === 'confess') confess(bd.ids, next); else playIf(bd.id, next);
+      });
       setTimeout(function () { series(steps, done); }, steps.length ? 300 : 0);
     });
   }
@@ -751,7 +796,7 @@
   });
 
   window.PLAN = {
-    sleep: sleep, go: go, wish: wish, eventsOn: eventsOn, isStop: isStop, planned: plannedOn, phoneDay: function (d) { return phoneDay(d || G().day); },
+    sleep: sleep, go: go, wish: wish, bondFor: bondFor, eventsOn: eventsOn, isStop: isStop, planned: plannedOn, phoneDay: function (d) { return phoneDay(d || G().day); },
     // 打開網頁時：新遊戲 → 先響鬧鐘；能用手機的日子 → 鎖定畫面；不能 → 直接開始這一天
     boot: boot,
     membersOf: membersOf, effectsOf: function (act) { var ids = membersOf(act); return shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15); },
