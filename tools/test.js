@@ -376,6 +376,23 @@ const TESTS = [
     if (r !== 'fr_m4,love_m4_1,love_m4_2,confess:m1+m4,fr_m2,true') throw new Error(r);
     return p;
   }],
+  ['CP 線：關係 60 → 150 → 250 → 350 在一起；已經在一對、或是玩家戀人的人只剩第一段', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
+    const r = await p.evaluate(() => {
+      const P = (k, v) => GAME.addStat('pair', k, v - GAME.stat('pair', k)), F = f => SOSHO.setFlag(f), q = () => { const x = PLAN.bondFor(GAME.day); return x ? x.id + (x.couple ? '!' : '') : '-'; };
+      const out = [];
+      P('m4-m6', 65); out.push(q()); F('scene_cp_m4_m6_1');
+      P('m4-m6', 160); out.push(q()); F('scene_cp_m4_m6_2');
+      P('m4-m6', 260); out.push(q()); F('scene_cp_m4_m6_3');
+      P('m4-m6', 360); out.push(q()); F('couple_m4-m6'); F('scene_cp_m4_m6_4');
+      out.push(GAME.check({ couple: 'm4-m6' }));
+      P('m1-m4', 200); out.push(q()); F('scene_cp_m1_m4_1'); out.push(q());
+      P('m1-m2', 200); F('scene_cp_m1_m2_1'); F('confess_m2'); out.push(q());
+      return out.join(',');
+    });
+    if (r !== 'cp_m4_m6_1,cp_m4_m6_2,cp_m4_m6_3,cp_m4_m6_4!,true,cp_m1_m4_1,-,-') throw new Error(r);
+    return p;
+  }],
   ['App 內容：from 日期之前看不到', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' } }));
     const r = await p.evaluate(() => [GAME.unlocked({ from: '09-15' }), GAME.unlocked({ from: '09-05' }), GAME.unlocked({ if: { loop: '>=2' } })]);

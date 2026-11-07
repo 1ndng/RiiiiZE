@@ -341,7 +341,10 @@ window.SITE_DATA = {
      *   好感到 friend → 友誼線 fr_成員（可以好幾條）
      *   到 love1 → 心動 love_成員_1；到 love2 → 曖昧 love_成員_2；到 confess → 告白（從到門檻的人裡選一位；一輪只能一位）
      *   from～until 之間才會觸發；一天最多一段 */
-    bond: { friend: 60, love1: 150, love2: 250, confess: 350, from: "09-08", until: "08-23" },
+    //   cp = 成員之間的 CP 線：關係到 stage1 親近 → stage2 心動 → stage3 曖昧 → together 在一起（記旗標 couple_m1-m2）
+    //   每位成員最多一對；玩家的戀人、已經在一對裡的人不會進第 2 階段以後；CP 成立的人也不會進玩家的愛情線
+    bond: { friend: 60, love1: 150, love2: 250, confess: 350, from: "09-08", until: "08-23",
+      cp: { stage1: 60, stage2: 150, stage3: 250, together: 350 } },
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
     homeMilestones: [1, 10, 30, 50],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
     /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（目前 20%）（可以重複觸發；每一項各自擲，中的都播）
@@ -418,7 +421,7 @@ window.SITE_DATA = {
    */
   romance: {
     lover: { aff: 350, flag: "confess_{id}" },   // 告白過（plan.bond.confess）＝戀人
-    couple: { pair: 150, flag: "couple_{pair}" },
+    couple: { pair: 350, flag: "couple_{pair}" },   // CP 線走到「在一起」（plan.bond.cp.together）＝一對
     // 個人覺醒 = 覺醒度到 value（每人一樣、不會下降）
     //   覺醒度只能靠「在手機裡找到線索」增加：IG 貼文／限動、X 貼文、照片、備忘錄、KakaoTalk 訊息寫 clue: "m3_1"，
     //   玩家看到 1 秒就算找到（覺醒度 +1、記錄旗標 clue_m3_1）；劇情、日程只會有跡象，不會加覺醒度
@@ -452,7 +455,23 @@ window.SITE_DATA = {
         { id: "lover_m3", title: "成燦（戀人）", scene: "ep_true_lover_m3", if: { lover: "m3" } },
         { id: "lover_m4", title: "元彬（戀人）", scene: "ep_true_lover_m4", if: { lover: "m4" } },
         { id: "lover_m5", title: "炤熙（戀人）", scene: "ep_true_lover_m5", if: { lover: "m5" } },
-        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_true_lover_m6", if: { lover: "m6" } }
+        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_true_lover_m6", if: { lover: "m6" } },
+        // 成員之間的 CP（在一起的那幾對）
+        { id: "cp_m1_m2", title: "將太郎 × 恩奭", scene: "ep_true_cp_m1_m2", if: { couple: "m1-m2" } },
+        { id: "cp_m1_m3", title: "將太郎 × 成燦", scene: "ep_true_cp_m1_m3", if: { couple: "m1-m3" } },
+        { id: "cp_m1_m4", title: "將太郎 × 元彬", scene: "ep_true_cp_m1_m4", if: { couple: "m1-m4" } },
+        { id: "cp_m1_m5", title: "將太郎 × 炤熙", scene: "ep_true_cp_m1_m5", if: { couple: "m1-m5" } },
+        { id: "cp_m1_m6", title: "將太郎 × 燦榮", scene: "ep_true_cp_m1_m6", if: { couple: "m1-m6" } },
+        { id: "cp_m2_m3", title: "恩奭 × 成燦", scene: "ep_true_cp_m2_m3", if: { couple: "m2-m3" } },
+        { id: "cp_m2_m4", title: "恩奭 × 元彬", scene: "ep_true_cp_m2_m4", if: { couple: "m2-m4" } },
+        { id: "cp_m2_m5", title: "恩奭 × 炤熙", scene: "ep_true_cp_m2_m5", if: { couple: "m2-m5" } },
+        { id: "cp_m2_m6", title: "恩奭 × 燦榮", scene: "ep_true_cp_m2_m6", if: { couple: "m2-m6" } },
+        { id: "cp_m3_m4", title: "成燦 × 元彬", scene: "ep_true_cp_m3_m4", if: { couple: "m3-m4" } },
+        { id: "cp_m3_m5", title: "成燦 × 炤熙", scene: "ep_true_cp_m3_m5", if: { couple: "m3-m5" } },
+        { id: "cp_m3_m6", title: "成燦 × 燦榮", scene: "ep_true_cp_m3_m6", if: { couple: "m3-m6" } },
+        { id: "cp_m4_m5", title: "元彬 × 炤熙", scene: "ep_true_cp_m4_m5", if: { couple: "m4-m5" } },
+        { id: "cp_m4_m6", title: "元彬 × 燦榮", scene: "ep_true_cp_m4_m6", if: { couple: "m4-m6" } },
+        { id: "cp_m5_m6", title: "炤熙 × 燦榮", scene: "ep_true_cp_m5_m6", if: { couple: "m5-m6" } }
       ]
     },
     // 六人都覺醒、選擇留下：七人繼續留在學院的一年
@@ -465,7 +484,23 @@ window.SITE_DATA = {
         { id: "lover_m3", title: "成燦（戀人）", scene: "ep_dream1_lover_m3", if: { lover: "m3" } },
         { id: "lover_m4", title: "元彬（戀人）", scene: "ep_dream1_lover_m4", if: { lover: "m4" } },
         { id: "lover_m5", title: "炤熙（戀人）", scene: "ep_dream1_lover_m5", if: { lover: "m5" } },
-        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_dream1_lover_m6", if: { lover: "m6" } }
+        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_dream1_lover_m6", if: { lover: "m6" } },
+        // 成員之間的 CP（在一起的那幾對）
+        { id: "cp_m1_m2", title: "將太郎 × 恩奭", scene: "ep_dream1_cp_m1_m2", if: { couple: "m1-m2" } },
+        { id: "cp_m1_m3", title: "將太郎 × 成燦", scene: "ep_dream1_cp_m1_m3", if: { couple: "m1-m3" } },
+        { id: "cp_m1_m4", title: "將太郎 × 元彬", scene: "ep_dream1_cp_m1_m4", if: { couple: "m1-m4" } },
+        { id: "cp_m1_m5", title: "將太郎 × 炤熙", scene: "ep_dream1_cp_m1_m5", if: { couple: "m1-m5" } },
+        { id: "cp_m1_m6", title: "將太郎 × 燦榮", scene: "ep_dream1_cp_m1_m6", if: { couple: "m1-m6" } },
+        { id: "cp_m2_m3", title: "恩奭 × 成燦", scene: "ep_dream1_cp_m2_m3", if: { couple: "m2-m3" } },
+        { id: "cp_m2_m4", title: "恩奭 × 元彬", scene: "ep_dream1_cp_m2_m4", if: { couple: "m2-m4" } },
+        { id: "cp_m2_m5", title: "恩奭 × 炤熙", scene: "ep_dream1_cp_m2_m5", if: { couple: "m2-m5" } },
+        { id: "cp_m2_m6", title: "恩奭 × 燦榮", scene: "ep_dream1_cp_m2_m6", if: { couple: "m2-m6" } },
+        { id: "cp_m3_m4", title: "成燦 × 元彬", scene: "ep_dream1_cp_m3_m4", if: { couple: "m3-m4" } },
+        { id: "cp_m3_m5", title: "成燦 × 炤熙", scene: "ep_dream1_cp_m3_m5", if: { couple: "m3-m5" } },
+        { id: "cp_m3_m6", title: "成燦 × 燦榮", scene: "ep_dream1_cp_m3_m6", if: { couple: "m3-m6" } },
+        { id: "cp_m4_m5", title: "元彬 × 炤熙", scene: "ep_dream1_cp_m4_m5", if: { couple: "m4-m5" } },
+        { id: "cp_m4_m6", title: "元彬 × 燦榮", scene: "ep_dream1_cp_m4_m6", if: { couple: "m4-m6" } },
+        { id: "cp_m5_m6", title: "炤熙 × 燦榮", scene: "ep_dream1_cp_m5_m6", if: { couple: "m5-m6" } }
       ]
     },
     // 8/31 時有人還沒覺醒：沒有選擇，直接進入這個結局
@@ -478,7 +513,23 @@ window.SITE_DATA = {
         { id: "lover_m3", title: "成燦（戀人）", scene: "ep_dream2_lover_m3", if: { lover: "m3" } },
         { id: "lover_m4", title: "元彬（戀人）", scene: "ep_dream2_lover_m4", if: { lover: "m4" } },
         { id: "lover_m5", title: "炤熙（戀人）", scene: "ep_dream2_lover_m5", if: { lover: "m5" } },
-        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_dream2_lover_m6", if: { lover: "m6" } }
+        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_dream2_lover_m6", if: { lover: "m6" } },
+        // 成員之間的 CP（在一起的那幾對）
+        { id: "cp_m1_m2", title: "將太郎 × 恩奭", scene: "ep_dream2_cp_m1_m2", if: { couple: "m1-m2" } },
+        { id: "cp_m1_m3", title: "將太郎 × 成燦", scene: "ep_dream2_cp_m1_m3", if: { couple: "m1-m3" } },
+        { id: "cp_m1_m4", title: "將太郎 × 元彬", scene: "ep_dream2_cp_m1_m4", if: { couple: "m1-m4" } },
+        { id: "cp_m1_m5", title: "將太郎 × 炤熙", scene: "ep_dream2_cp_m1_m5", if: { couple: "m1-m5" } },
+        { id: "cp_m1_m6", title: "將太郎 × 燦榮", scene: "ep_dream2_cp_m1_m6", if: { couple: "m1-m6" } },
+        { id: "cp_m2_m3", title: "恩奭 × 成燦", scene: "ep_dream2_cp_m2_m3", if: { couple: "m2-m3" } },
+        { id: "cp_m2_m4", title: "恩奭 × 元彬", scene: "ep_dream2_cp_m2_m4", if: { couple: "m2-m4" } },
+        { id: "cp_m2_m5", title: "恩奭 × 炤熙", scene: "ep_dream2_cp_m2_m5", if: { couple: "m2-m5" } },
+        { id: "cp_m2_m6", title: "恩奭 × 燦榮", scene: "ep_dream2_cp_m2_m6", if: { couple: "m2-m6" } },
+        { id: "cp_m3_m4", title: "成燦 × 元彬", scene: "ep_dream2_cp_m3_m4", if: { couple: "m3-m4" } },
+        { id: "cp_m3_m5", title: "成燦 × 炤熙", scene: "ep_dream2_cp_m3_m5", if: { couple: "m3-m5" } },
+        { id: "cp_m3_m6", title: "成燦 × 燦榮", scene: "ep_dream2_cp_m3_m6", if: { couple: "m3-m6" } },
+        { id: "cp_m4_m5", title: "元彬 × 炤熙", scene: "ep_dream2_cp_m4_m5", if: { couple: "m4-m5" } },
+        { id: "cp_m4_m6", title: "元彬 × 燦榮", scene: "ep_dream2_cp_m4_m6", if: { couple: "m4-m6" } },
+        { id: "cp_m5_m6", title: "炤熙 × 燦榮", scene: "ep_dream2_cp_m5_m6", if: { couple: "m5-m6" } }
       ]
     }
   },
@@ -945,4 +996,4 @@ function RIIIZE_ADD(part) {
   if (part.tweets) D.x.tweets = D.x.tweets.concat(part.tweets);
 }
 // js/story/ 裡的檔案（index.html 照這個順序載入）
-var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","gift-by-month","side-extra","weekend-pair","bond","clues","awake","ending","common"];
+var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","gift-by-month","side-extra","weekend-pair","bond","cp","cp-ending","clues","awake","ending","common"];

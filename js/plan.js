@@ -124,15 +124,40 @@
     var byAff = cast().map(function (c) { return c.id; }).sort(function (x, y) { return aff(y) - aff(x); });
     var lover = hasLover();
     if (!lover) {
-      var can = byAff.filter(function (id) { return aff(id) >= b.confess && seen('love_' + id + '_2'); });
+      var loveIds = byAff.filter(function (id) { return !inCouple(id); });   // 已經跟別的成員在一起的人，不會進玩家的愛情線
+      var can = loveIds.filter(function (id) { return aff(id) >= b.confess && seen('love_' + id + '_2'); });
       if (can.length && !S().hasFlag('confess_wait_' + ym(day))) return { kind: 'confess', ids: can };
-      var l2 = byAff.filter(function (id) { return aff(id) >= b.love2 && seen('love_' + id + '_1') && !seen('love_' + id + '_2') && scene('love_' + id + '_2'); })[0];
+      var l2 = loveIds.filter(function (id) { return aff(id) >= b.love2 && seen('love_' + id + '_1') && !seen('love_' + id + '_2') && scene('love_' + id + '_2'); })[0];
       if (l2) return { kind: 'scene', id: 'love_' + l2 + '_2' };
-      var l1 = byAff.filter(function (id) { return aff(id) >= b.love1 && !seen('love_' + id + '_1') && scene('love_' + id + '_1'); })[0];
+      var l1 = loveIds.filter(function (id) { return aff(id) >= b.love1 && !seen('love_' + id + '_1') && scene('love_' + id + '_1'); })[0];
       if (l1) return { kind: 'scene', id: 'love_' + l1 + '_1' };
     }
+    // 成員之間的 CP 線（plan.bond.cp）：關係到 60 親近 → 150 心動 → 250 曖昧 → 350 在一起（記旗標 couple_a-b）
+    //   每位成員最多一對；玩家的戀人不會進 CP 的第 2 階段以後；已經在一對裡的人也不會
+    var cp = cpFor();
+    if (cp) return cp;
     var fr = byAff.filter(function (id) { return aff(id) >= b.friend && !seen('fr_' + id) && scene('fr_' + id); })[0];
     if (fr) return { kind: 'scene', id: 'fr_' + fr };
+    return null;
+  }
+  function pairs() { var ids = cast().map(function (c) { return c.id; }), out = []; ids.forEach(function (a, i) { ids.slice(i + 1).forEach(function (b) { out.push([a, b]); }); }); return out; }
+  function inCouple(id) { return pairs().some(function (p) { return p.indexOf(id) >= 0 && S().hasFlag('couple_' + p[0] + '-' + p[1]); }); }
+  function cpFor() {
+    var c = (B() || {}).cp;
+    if (!c) return null;
+    var steps = [c.stage1, c.stage2, c.stage3, c.together];
+    var list = pairs().map(function (p) { return { p: p, key: p[0] + '-' + p[1], v: G().stat('pair', p[0] + '-' + p[1]) }; })
+      .sort(function (x, y) { return y.v - x.v; });
+    for (var i = 0; i < list.length; i++) {
+      var it = list[i], base = 'cp_' + it.p[0] + '_' + it.p[1] + '_';
+      if (S().hasFlag('couple_' + it.key)) continue;
+      // 第幾段還沒看過
+      var n = 1; while (n <= 4 && seen(base + n)) n++;
+      if (n > 4 || it.v < steps[n - 1] || !scene(base + n)) continue;
+      // 第 2 段以後：兩個人都不能是玩家的戀人、也不能已經在別的一對裡
+      if (n >= 2 && it.p.some(function (id) { return S().hasFlag('confess_' + id) || inCouple(id); })) continue;
+      return { kind: 'scene', id: base + n, couple: n === 4 ? it.key : null };
+    }
     return null;
   }
   // 告白：先播 confess_intro，再選一位（或「還不是時候」= 這個月不再問）
@@ -398,7 +423,8 @@
       steps.push(function (next) {
         var bd = bondFor(G().day);
         if (!bd) { next(); return; }
-        if (bd.kind === 'confess') confess(bd.ids, next); else playIf(bd.id, next);
+        if (bd.kind === 'confess') confess(bd.ids, next);
+        else { if (bd.couple && S()) S().setFlag('couple_' + bd.couple); playIf(bd.id, next); }
       });
       setTimeout(function () { series(steps, done); }, steps.length ? 300 : 0);
     });
