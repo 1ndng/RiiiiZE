@@ -41,7 +41,23 @@
 
   /* ---- 玩家名字 ---- */
   function playerName() { return (load(PKEY, {}) || {}).name || ''; }
-  function fill(s) { var n = playerName() || T().defaultName; return String(s == null ? '' : s).replace(/\{name\}/g, n); }
+  // 成員對玩家的稱呼（設定裡可以改；沒設定 = 跟名字一樣）
+  function playerNick() { var pl = load(PKEY, {}) || {}; return pl.nick || pl.name || ''; }
+  // 是不是成員在說話：cast 的 id（m1）或 KakaoTalk 的成員 id（f1）、"them"、"member"
+  function isMember(who) {
+    if (!who || who === 'me') return false;
+    if (who === 'member' || who === 'them') return true;
+    if ((D().cast || []).some(function (c) { return c.id === who; })) return true;
+    return /^f\d+$/.test(who);
+  }
+  /* 文字裡的名字：
+   *   {name} = 成員說的話 → 成員對你的稱呼；其他（旁白、你自己說的話、名字欄）→ 你的名字
+   *   {nick} = 一定是稱呼；{myname} = 一定是名字
+   *   who = 誰在說（劇情的 who、聊天訊息的 from），不寫 = 當作不是成員 */
+  function fill(s, who) {
+    var n = playerName() || T().defaultName, k = playerNick() || n;
+    return String(s == null ? '' : s).replace(/\{name\}/g, isMember(who) ? k : n).replace(/\{nick\}/g, k).replace(/\{myname\}/g, n);
+  }
   function askName(done) {
     var t = T(), w = document.createElement('div');
     w.className = 'vn-name';
@@ -298,7 +314,7 @@
   }
   // 逐字出現：點一下 → 整句顯示；再點 → 下一句
   function say(who, text, resumed) {
-    var name = nameOf(who), full = fill(text).replace(/\{wish\}/g, cur.wishText || '');
+    var name = nameOf(who), full = fill(text, who).replace(/\{wish\}/g, cur.wishText || '');
     if (!resumed || !cur.log.length) cur.log.push({ who: name, text: full });   // 從存檔繼續：這句已經在紀錄裡
     var k = seenKey(full);
     cur.seen = !!seen[k]; markSeen(k);
@@ -534,7 +550,9 @@
       if (!ms) { clue(c); return; }
       setTimeout(function () { if (location.hash === h) clue(c); }, ms);
     },
-    play: play, fill: fill, playerName: playerName,
+    play: play, fill: fill, playerName: playerName, playerNick: playerNick,
+    // 設定：改名字、改稱呼（稱呼寫空的 = 跟名字一樣）
+    setNick: function (v) { var pl = load(PKEY, {}) || {}; v = String(v || '').trim(); if (v && v !== pl.name) pl.nick = v; else delete pl.nick; store(PKEY, pl); },
     // 回想：replay(劇情id, 播完, 背景)；seenScenes() = 看過的劇情 { id: 1 }（包含這一輪的 scene_ 旗標）
     replay: function (id, done, bg) { play(id, done, null, bg, { replay: true }); },
     seenScenes: function () {

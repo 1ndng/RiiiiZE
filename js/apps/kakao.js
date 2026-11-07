@@ -20,7 +20,8 @@
   };
 
   function S() { return window.SOSHO; }
-  function F(t) { return window.STORY ? window.STORY.fill(t) : t; }   // {name} → 玩家的名字
+  // {name} → 成員傳的訊息用「成員對你的稱呼」，你自己傳的用你的名字（from = 誰傳的）
+  function F(t, from) { return window.STORY ? window.STORY.fill(t, from) : t; }
   function ok(c) { return !window.GAME || window.GAME.check(c); }   // 條件（if）：js/game.js 的 GAME.check
   function fx(e) { if (window.GAME) window.GAME.apply(e); }           // 效果（effects）：好感度、關係、覺醒度、旗標
 
@@ -147,7 +148,7 @@
         var msgs = messagesOf(f).filter(function (m) { return m.text || m.image || m.video || m.expired || m.call || m.link || m.recalled; }), last = msgs[msgs.length - 1] || {}, n = unreadOf(f);
         return '<a class="kk-chatrow" href="#/kakao/chat/' + encodeURIComponent(f.id) + '">' +
           roomAvatar(f, 'kk-chatrow-av') +
-          '<span class="kk-chatrow-mid"><b>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b><small>' + esc(F(last.text) || (last.recalled ? TX().recalledText || '已收回訊息' : '') || (last.link ? linkInfo(last).title : '') || ((last.video || last.expired === 'video') ? TX().videoLabel || '影片' : (last.image || last.expired) ? TX().photoLabel || '照片' : last.call ? TX().voiceCall || '語音通話' : '')) + '</small></span>' +
+          '<span class="kk-chatrow-mid"><b>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b><small>' + esc(F(last.text, last.from) || (last.recalled ? TX().recalledText || '已收回訊息' : '') || (last.link ? linkInfo(last).title : '') || ((last.video || last.expired === 'video') ? TX().videoLabel || '影片' : (last.image || last.expired) ? TX().photoLabel || '照片' : last.call ? TX().voiceCall || '語音通話' : '')) + '</small></span>' +
           '<span class="kk-chatrow-r"><small>' + esc(listTime(f, last)) + '</small>' + (n ? '<i class="kk-badge">' + n + '</i>' : '') + '</span>' +
         '</a>';
       }).join('');
@@ -194,7 +195,7 @@
         '<i class="kk-play"></i></button>';
     }
     if (m.image) return '<button class="kk-photo" data-photo="' + esc(m.image) + '"><img src="' + esc(m.image) + '" alt=""></button>';
-    return '<div class="kk-bubble' + (first ? ' tail' : '') + '">' + S().multiline(F(m.text)) + '</div>';
+    return '<div class="kk-bubble' + (first ? ' tail' : '') + '">' + S().multiline(F(m.text, m.from)) + '</div>';
   }
 
   function bubblesHTML(f) {
@@ -593,7 +594,7 @@
         var msgs = messagesOf(f).filter(function (m) { return m.from !== 'me' && !m.date && (m.text || m.image || m.video || m.call || m.link || m.expired || m.recalled); });
         msgs.slice(-unreadOf(f)).reverse().forEach(function (m) {   // 這個聊天室的未讀訊息（新的在前）
           var who = f.group ? (findFriend(m.from) || {}).name : '';
-          var text = F(m.text) || (m.link ? linkInfo(m).title : m.call ? (m.duration ? t.voiceCall || '語音通話' : t.missedCall || '未接來電')
+          var text = F(m.text, m.from) || (m.link ? linkInfo(m).title : m.call ? (m.duration ? t.voiceCall || '語音通話' : t.missedCall || '未接來電')
             : (m.video || m.expired === 'video') ? t.videoLabel || '影片' : (m.image || m.expired) ? t.photoLabel || '照片' : m.recalled ? t.recalledText || '已收回訊息' : '');
           out.push({ id: f.id, title: f.group ? (who ? who + ' · ' : '') + f.name : f.name, text: text, time: m.time || '' });
         });

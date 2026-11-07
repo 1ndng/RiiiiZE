@@ -936,7 +936,8 @@
    *   舊寫法 { text, reply: { user, text } } 也可以
    * 全部做完之前留言框不能關、也不能離開這則貼文 */
   var forcedCmt = null;   // { hash, steps, i, done, waiting }
-  function fillName(str) { return window.STORY && window.STORY.fill ? window.STORY.fill(str) : str; }
+  // who = 'member'：成員的留言 {name} 用稱呼；不寫 = 你自己的留言，用名字
+  function fillName(str, who) { return window.STORY && window.STORY.fill ? window.STORY.fill(str, who) : str; }
   function openForcedComment() {
     if (!forcedCmt || !curPost) return;
     openComments();
@@ -977,7 +978,7 @@
     setTimeout(function () {
       if (forcedCmt !== fc) return;
       var key = curPost.key;
-      (store.comments[key] = store.comments[key] || []).push({ user: st.user, text: fillName(st.text) });
+      (store.comments[key] = store.comments[key] || []).push({ user: st.user, text: fillName(st.text, 'member') });
       saveStore();
       var list = $('#ig-cmt-list'); if (list) { list.innerHTML = commentsListHTML(); list.scrollTop = list.scrollHeight; }
       fc.i++; forcedRun();

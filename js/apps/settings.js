@@ -10,6 +10,8 @@
   'use strict';
 
   var ICON = {
+    person: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6z" fill="currentColor"/></svg>',
+    chat: '<svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z" fill="currentColor"/></svg>',
     back: '<svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8" stroke="currentColor" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     right: '<svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     save: '<svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z" fill="currentColor"/><rect x="8" y="3" width="7" height="5" rx="1" fill="#fff"/><rect x="8" y="13" width="8" height="5" rx="1" fill="#fff"/></svg>',
@@ -46,6 +48,7 @@
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
+    myName: '我的名字', nickName: '成員怎麼叫我', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
     loopSave: '循環前的存檔', loopSaveName: '第 {n} 輪結束時', loopNote: 'DREAM END 之後回到 9/1 之前自動存的檔，只能讀取。讀取後在 8/31 晚上睡覺，就會再次回到 9/1。', loopNo: '第 {n} 輪',
     wallpaper: '背景圖片', wpLock: '鎖定畫面', wpHome: '主畫面', wpChange: '更換', wpDefault: '恢復預設',
     wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。存在這個瀏覽器裡，「重新開始」也不會清掉。', wpTooBig: '照片太大了，換一張試試看。',
@@ -82,6 +85,11 @@
         row(ICON.star, '#ff2d55', esc(t.clues), esc(clueTotal()), 'data-st-go="#/settings/clues"', true) +
       '</div>' +
       ((D().game || {}).debug ? '<div class="st-group">' + row(ICON.wrench, '#34c759', esc(t.statsTitle), '', 'data-st-go="#/settings/stats"', true) + '</div>' : '') +
+      // 名字：我的名字（旁白、你說的話、App 的個人資料）／成員怎麼叫我（成員說的話、傳的訊息）
+      '<div class="st-group">' +
+        row(ICON.person, '#007aff', esc(t.myName), esc(window.STORY ? window.STORY.playerName() || '—' : '—'), 'data-st-myname', true) +
+        row(ICON.chat, '#34c759', esc(t.nickName), esc(window.STORY ? (window.STORY.playerNick() === window.STORY.playerName() ? t.sameAsName + '（' + window.STORY.playerNick() + '）' : window.STORY.playerNick()) : '—'), 'data-st-nick', true) +
+      '</div>' +
       '<div class="st-group">' +
         row(ICON.sound, '#ff2d55', esc(t.sound), esc(window.SOSHO_SOUND && window.SOSHO_SOUND.on() ? t.on : t.off), 'data-st-sound', false) +
         row(ICON.bell, '#ff9500', esc(t.buzz), esc(S().buzzOn() ? t.on : t.off), 'data-st-buzz', false) +
@@ -414,6 +422,16 @@
     if ((el = e.target.closest('[data-replay]'))) { window.STORY.replay(el.dataset.replay); return; }   // 結局圖鑑：回想模式
     if ((el = e.target.closest('[data-rp]'))) { window.STORY.replay(el.dataset.rp, null, el.dataset.rpbg || ''); return; }   // 劇情回想
     if ((el = e.target.closest('[data-st-scene]'))) { window.STORY.play(el.dataset.stScene, renderStats); return; }
+    if (e.target.closest('[data-st-myname]')) {
+      var n1 = prompt(t.renameTitle, window.STORY.playerName());
+      if (n1 && n1.trim()) { window.STORY.setName(n1.trim()); if (window.INTRO && window.INTRO.applyAvatar) window.INTRO.applyAvatar(); renderMain(); }
+      return;
+    }
+    if (e.target.closest('[data-st-nick]')) {
+      var n2 = prompt(t.nickTitle, window.STORY.playerNick());
+      if (n2 !== null) { window.STORY.setNick(n2); renderMain(); }
+      return;
+    }
     if (e.target.closest('[data-st-rename]')) {
       var n = prompt(t.renameTitle, window.STORY.playerName());
       if (n && n.trim()) { window.STORY.setName(n.trim()); renderStats(); }

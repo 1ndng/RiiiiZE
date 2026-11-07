@@ -175,10 +175,11 @@
   function addCap(who, text, sub) {
     var box = el('kc-caps'), d = document.createElement('div');
     d.className = 'kc-cap ' + (who === 'me' ? 'me' : 'them');
-    var F = window.STORY ? window.STORY.fill : function (x) { return x; };   // {name} → 玩家的名字
+    var F = window.STORY ? window.STORY.fill : function (x) { return x; };
     // 群組通話：who 寫好友 id → 字幕上面顯示是誰在說話
     var m = call.f.group && who !== 'me' && (call.f.members || []).filter(function (x) { return x.id === who; })[0];
-    d.innerHTML = (m ? '<i>' + esc(m.name) + '</i>' : '') + '<div>' + esc(F(text)) + '</div>' + (sub ? '<small>' + esc(F(sub)) + '</small>' : '');
+    var by = who === 'me' ? 'me' : 'member';   // 成員說的話 {name} = 稱呼；你說的 = 名字
+    d.innerHTML = (m ? '<i>' + esc(m.name) + '</i>' : '') + '<div>' + esc(F(text, by)) + '</div>' + (sub ? '<small>' + esc(F(sub, by)) + '</small>' : '');
     box.appendChild(d);
     box.scrollTop = box.scrollHeight;
   }
