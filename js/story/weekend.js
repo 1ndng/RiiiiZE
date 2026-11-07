@@ -6,15 +6,12 @@ RIIIZE_ADD({
   // 劇情（data.js 的 scenes）
   scenes: {
     // ↓ 星期日：選要見誰之前的劇情樣式開場（plan.weekend.intro）
-    weekend_intro: [
-      { text: "星期日。" },
-      { text: "不用上課的早上，連窗外的陽光都好像比較慢。" },
-      { text: "今天要和誰一起度過呢？" }
-    ],
+    weekend_intro: [ { text: "今天是星期日。可以自由決定要和誰見面。" } ],
     // 星期日：劇情都結束、開放自由探索手機之前的提醒（背景是變暗的手機畫面）
     free_phone: [
-      { text: "現在是自由探索手機的時間。" },
-      { text: "看看大家今天在做什麼吧。想休息的時候，回到主畫面按「睡覺」就會到下一天。" }
+      { who: "me", text: "終於能玩手機了TT" },
+      { text: "現在是自由使用手機的時間。" },
+      { text: "點選主畫面的「睡覺」則結束探索，進入下一天。" },
     ],
     // ↓ 星期日出門（plan.weekend.scenes / home；Claude 草稿）
     wk_m1: [
