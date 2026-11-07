@@ -133,7 +133,7 @@
     var t = T(), el = document.createElement('div');
     el.className = 'vn' + (opts && opts.overLock ? ' over-lock' : '');   // overLock = 蓋在鎖定畫面上（自由探索的提醒）
     el.innerHTML =
-      '<div class="vn-bg" id="vn-bg"></div>' +
+      '<div class="vn-bg" id="vn-bg"></div><div class="vn-black"></div>' +
       // 右上角：紀錄、存檔（結局進行中不能存檔）
       // 自動：一句講完自己接下一句；快轉：看過的台詞直接跳過（遇到沒看過的、或要選擇時停下）
       '<div class="vn-tools"><button type="button" data-vn-auto' + (mode === 'auto' ? ' class="on"' : '') + '>' + esc(t.auto) + '</button>' +
@@ -196,7 +196,11 @@
       if (s.end) break;
       if (s.ending) { if (!cur.replay) cur.ending = s.ending; break; }   // 進入結局（js/ending.js）；回想時只停下來
       if (s.label != null && s.text == null) continue;
-      if (s.bg != null) setBg(s.bg);
+      if (s.bg != null) {
+        // 劇情中途換場景：先漸黑（對話框收起來）→ 換背景 → 再漸亮，接著出現下一句（約 1 秒）
+        if (cur.bgSet && s.bg !== cur.bg && cur.cutAt !== cur.i - 1) { cut(s.bg, cur.i - 1); return; }
+        setBg(s.bg);
+      }
       if (!resumed && !cur.replay && s.effects && window.GAME) window.GAME.apply(s.effects);
       if (!resumed && !cur.replay && s.flag && S()) [].concat(s.flag).forEach(function (f) { S().setFlag(f); });
       if (s.goto && s.text == null && !s.choices) { var k = findLabel(s.goto); if (k >= 0) cur.i = k; continue; }
@@ -300,6 +304,21 @@
     }, ms);
   }
   // 背景：寫圖片路徑；"phone" = 不放背景，直接看到後面的手機畫面；"phone-dim" = 手機畫面變暗
+  function cut(src, at) {
+    var mine = cur;
+    cur.waiting = true; cur.el.classList.add('vn-cut', 'vn-nobox');
+    setTimeout(function () {
+      if (cur !== mine) return;
+      setBg(src);
+      cur.el.classList.remove('vn-cut');
+      setTimeout(function () {
+        if (cur !== mine) return;
+        cur.waiting = false; cur.cutAt = at; cur.i = at;   // 回到這一步，接著往下（這次不會再轉場）
+        cur.el.classList.remove('vn-nobox');
+        step();
+      }, 500);
+    }, 550);
+  }
   function setBg(src) {
     var bg = cur.el.querySelector('#vn-bg'), orig = src;
     if (mode === 'skip' && cur.bgSet && src !== cur.bg) setMode(null);   // 快轉：劇情中途換場景就取消

@@ -5,6 +5,10 @@
 .vn.show { opacity: 1; }
 .vn-bg { position: absolute; inset: 0; background: #222 center / cover no-repeat; opacity: 0; transition: opacity .6s; }
 .vn-bg.in { opacity: 1; }
+/* 劇情中途換場景：漸黑 → 換背景 → 漸亮（js/story.js 的 cut）；黑屏時對話框、頭像不出現 */
+.vn-black { position: absolute; inset: 0; z-index: 3; background: #000; opacity: 0; transition: opacity .5s; pointer-events: none; }
+.vn.vn-cut .vn-black { opacity: 1; }
+.vn.vn-nobox .vn-box, .vn.vn-nobox .vn-choices { visibility: hidden; }
 /* 讓上方狀態列、下方對話框的字看得清楚 */
 .vn::after { content: ""; position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,.35), transparent 18%, transparent 55%, rgba(0,0,0,.45)); pointer-events: none; }
 
