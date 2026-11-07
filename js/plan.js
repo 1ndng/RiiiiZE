@@ -285,6 +285,32 @@
     ] }, done);
   }
 
+  /* 玩家生日許願（劇情步驟 { wish: { aff: 6, pair: 15 } }，js/story.js 呼叫）：
+   *   和一個人更親近 → 那位好感 +aff；讓兩個人感情更好 → 那一對關係 +pair
+   *   done({ kind: 'aff' | 'pair', ids }）；noFx = 回想，不加數值 */
+  function wish(opt, done, noFx) {
+    var t = T(), aff = opt.aff != null ? opt.aff : 6, pair = opt.pair != null ? opt.pair : 15;
+    chooser({ title: t.wishTitle || '許一個願望', hint: t.wishHint || '蠟燭還亮著。', buttons: [
+      { label: t.wishAff || '希望和一個人更親近', run: function () {
+        chooser({ title: t.wishPickOne || '和誰？', max: 1, min: 1, goLabel: t.giftOk, altLabel: t.back,
+          onAlt: function () { wish(opt, done, noFx); },
+          onGo: function (ids) {
+            if (!noFx) { var fx = { aff: {} }; fx.aff[ids[0]] = aff; G().apply(fx); if (S()) S().setFlag('wish_aff_' + ids[0]); }
+            done({ kind: 'aff', ids: ids });
+          } });
+      } },
+      { label: t.wishPair || '希望兩個人感情更好', run: function () {
+        chooser({ title: t.wishPickTwo || '哪兩個人？', hint: t.wishPickTwoHint || '選兩位', max: 2, min: 2, goLabel: t.giftOk, altLabel: t.back,
+          onAlt: function () { wish(opt, done, noFx); },
+          onGo: function (ids) {
+            var key = ids.slice().sort().join('-');
+            if (!noFx) { var fx = { pair: {} }; fx.pair[key] = pair; G().apply(fx); if (S()) S().setFlag('wish_pair_' + key); }
+            done({ kind: 'pair', ids: ids });
+          } });
+      } }
+    ] }, function () {});
+  }
+
   /* ---- 有事的日子的放學 ---- */
   if (window.GAME) {
     // 14 日：送禮最先（在早上的主線劇情之前；星期日也一樣）
@@ -725,7 +751,7 @@
   });
 
   window.PLAN = {
-    sleep: sleep, go: go, eventsOn: eventsOn, isStop: isStop, planned: plannedOn, phoneDay: function (d) { return phoneDay(d || G().day); },
+    sleep: sleep, go: go, wish: wish, eventsOn: eventsOn, isStop: isStop, planned: plannedOn, phoneDay: function (d) { return phoneDay(d || G().day); },
     // 打開網頁時：新遊戲 → 先響鬧鐘；能用手機的日子 → 鎖定畫面；不能 → 直接開始這一天
     boot: boot,
     membersOf: membersOf, effectsOf: function (act) { var ids = membersOf(act); return shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15); },

@@ -175,6 +175,7 @@
       var s = cur.steps[cur.i++], resumed = cur.resuming;
       cur.resuming = false;   // 從存檔繼續的那一句：效果、旗標存檔時已經套用過，不重複
       if (!resumed && !ok(s.if)) continue;
+      if (s.wishIs && s.wishIs !== cur.wishKind) continue;   // 許願之後：wishIs: "aff" / "pair" = 只在選了那種願望時播
       if (s.end) break;
       if (s.ending) { if (!cur.replay) cur.ending = s.ending; break; }   // 進入結局（js/ending.js）；回想時只停下來
       if (s.label != null && s.text == null) continue;
@@ -186,6 +187,18 @@
       if (s.hold && s.text == null) { hold(s.hold); return; }
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
       if (s.intro) { if (introVideo(s.intro)) return; continue; }
+      // 玩家生日許願：選單蓋在劇情上，選完接著往下；{wish} = 許願的對象（例如「元彬」「將太郎和恩奭」）
+      if (s.wish && window.PLAN && window.PLAN.wish) {
+        var mine = cur; cur.waiting = true; cur.el.classList.add('vn-hold');
+        window.PLAN.wish(s.wish, function (r) {
+          if (cur !== mine) return;
+          cur.wishText = r.ids.map(function (id) { return nameOf(id); }).join(T().wishAnd || '和');
+          cur.wishKind = r.kind;
+          cur.waiting = false; cur.el.classList.remove('vn-hold');
+          step();
+        }, cur.replay);
+        return;
+      }
       if (s.choices) { showChoices(s.choices); return; }
       if (s.shake) shake();
       if (s.headache) headache();
@@ -281,7 +294,7 @@
   }
   // 逐字出現：點一下 → 整句顯示；再點 → 下一句
   function say(who, text, resumed) {
-    var name = nameOf(who), full = fill(text);
+    var name = nameOf(who), full = fill(text).replace(/\{wish\}/g, cur.wishText || '');
     if (!resumed || !cur.log.length) cur.log.push({ who: name, text: full });   // 從存檔繼續：這句已經在紀錄裡
     var k = seenKey(full);
     cur.seen = !!seen[k]; markSeen(k);

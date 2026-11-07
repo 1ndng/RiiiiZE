@@ -369,20 +369,35 @@ window.SITE_DATA = {
         { with: ["m5"], scene: "wk_m5", repeat: true }, { with: ["m5"], scene: "wk_m5_sp", repeat: true, chance: 0.2 },
         { with: ["m6"], scene: "wk_m6_win", repeat: true, if: { day: [92, 181] } }, { with: ["m6"], scene: "wk_m6_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m6"], scene: "wk_m6_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m6"], scene: "wk_m6", repeat: true }, { with: ["m6"], scene: "wk_m6_sp", repeat: true, chance: 0.2 },
+        { with: ["m1", "m2"], scene: "wk_m1_m2_win", repeat: true, if: { day: [92, 181] } }, { with: ["m1", "m2"], scene: "wk_m1_m2_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m1", "m2"], scene: "wk_m1_m2_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m1", "m2"], scene: "wk_m1_m2", repeat: true }, { with: ["m1", "m2"], scene: "wk_m1_m2_sp", repeat: true, chance: 0.2 },
+        { with: ["m1", "m3"], scene: "wk_m1_m3_win", repeat: true, if: { day: [92, 181] } }, { with: ["m1", "m3"], scene: "wk_m1_m3_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m1", "m3"], scene: "wk_m1_m3_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m1", "m3"], scene: "wk_m1_m3", repeat: true }, { with: ["m1", "m3"], scene: "wk_m1_m3_sp", repeat: true, chance: 0.2 },
+        { with: ["m1", "m4"], scene: "wk_m1_m4_win", repeat: true, if: { day: [92, 181] } }, { with: ["m1", "m4"], scene: "wk_m1_m4_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m1", "m4"], scene: "wk_m1_m4_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m1", "m4"], scene: "wk_m1_m4", repeat: true }, { with: ["m1", "m4"], scene: "wk_m1_m4_sp", repeat: true, chance: 0.2 },
+        { with: ["m1", "m5"], scene: "wk_m1_m5_win", repeat: true, if: { day: [92, 181] } }, { with: ["m1", "m5"], scene: "wk_m1_m5_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m1", "m5"], scene: "wk_m1_m5_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m1", "m5"], scene: "wk_m1_m5", repeat: true }, { with: ["m1", "m5"], scene: "wk_m1_m5_sp", repeat: true, chance: 0.2 },
+        { with: ["m1", "m6"], scene: "wk_m1_m6_win", repeat: true, if: { day: [92, 181] } }, { with: ["m1", "m6"], scene: "wk_m1_m6_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m1", "m6"], scene: "wk_m1_m6_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m1", "m6"], scene: "wk_m1_m6", repeat: true }, { with: ["m1", "m6"], scene: "wk_m1_m6_sp", repeat: true, chance: 0.2 },
+        { with: ["m2", "m3"], scene: "wk_m2_m3_win", repeat: true, if: { day: [92, 181] } }, { with: ["m2", "m3"], scene: "wk_m2_m3_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m2", "m3"], scene: "wk_m2_m3_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m2", "m3"], scene: "wk_m2_m3", repeat: true }, { with: ["m2", "m3"], scene: "wk_m2_m3_sp", repeat: true, chance: 0.2 },
+        { with: ["m2", "m4"], scene: "wk_m2_m4_win", repeat: true, if: { day: [92, 181] } }, { with: ["m2", "m4"], scene: "wk_m2_m4_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m2", "m4"], scene: "wk_m2_m4_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m2", "m4"], scene: "wk_m2_m4", repeat: true }, { with: ["m2", "m4"], scene: "wk_m2_m4_sp", repeat: true, chance: 0.2 },
+        { with: ["m2", "m5"], scene: "wk_m2_m5_win", repeat: true, if: { day: [92, 181] } }, { with: ["m2", "m5"], scene: "wk_m2_m5_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m2", "m5"], scene: "wk_m2_m5_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m2", "m5"], scene: "wk_m2_m5", repeat: true }, { with: ["m2", "m5"], scene: "wk_m2_m5_sp", repeat: true, chance: 0.2 },
+        { with: ["m2", "m6"], scene: "wk_m2_m6_win", repeat: true, if: { day: [92, 181] } }, { with: ["m2", "m6"], scene: "wk_m2_m6_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m2", "m6"], scene: "wk_m2_m6_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m2", "m6"], scene: "wk_m2_m6", repeat: true }, { with: ["m2", "m6"], scene: "wk_m2_m6_sp", repeat: true, chance: 0.2 },
+        { with: ["m3", "m4"], scene: "wk_m3_m4_win", repeat: true, if: { day: [92, 181] } }, { with: ["m3", "m4"], scene: "wk_m3_m4_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m3", "m4"], scene: "wk_m3_m4_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m3", "m4"], scene: "wk_m3_m4", repeat: true }, { with: ["m3", "m4"], scene: "wk_m3_m4_sp", repeat: true, chance: 0.2 },
+        { with: ["m3", "m5"], scene: "wk_m3_m5_win", repeat: true, if: { day: [92, 181] } }, { with: ["m3", "m5"], scene: "wk_m3_m5_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m3", "m5"], scene: "wk_m3_m5_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m3", "m5"], scene: "wk_m3_m5", repeat: true }, { with: ["m3", "m5"], scene: "wk_m3_m5_sp", repeat: true, chance: 0.2 },
+        { with: ["m3", "m6"], scene: "wk_m3_m6_win", repeat: true, if: { day: [92, 181] } }, { with: ["m3", "m6"], scene: "wk_m3_m6_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m3", "m6"], scene: "wk_m3_m6_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m3", "m6"], scene: "wk_m3_m6", repeat: true }, { with: ["m3", "m6"], scene: "wk_m3_m6_sp", repeat: true, chance: 0.2 },
+        { with: ["m4", "m5"], scene: "wk_m4_m5_win", repeat: true, if: { day: [92, 181] } }, { with: ["m4", "m5"], scene: "wk_m4_m5_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m4", "m5"], scene: "wk_m4_m5_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m4", "m5"], scene: "wk_m4_m5", repeat: true }, { with: ["m4", "m5"], scene: "wk_m4_m5_sp", repeat: true, chance: 0.2 },
+        { with: ["m4", "m6"], scene: "wk_m4_m6_win", repeat: true, if: { day: [92, 181] } }, { with: ["m4", "m6"], scene: "wk_m4_m6_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m4", "m6"], scene: "wk_m4_m6_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m4", "m6"], scene: "wk_m4_m6", repeat: true }, { with: ["m4", "m6"], scene: "wk_m4_m6_sp", repeat: true, chance: 0.2 },
+        { with: ["m5", "m6"], scene: "wk_m5_m6_win", repeat: true, if: { day: [92, 181] } }, { with: ["m5", "m6"], scene: "wk_m5_m6_spr", repeat: true, if: { day: [182, 273] } }, { with: ["m5", "m6"], scene: "wk_m5_m6_sum", repeat: true, if: { day: [274, 365] } },
         { with: ["m5", "m6"], scene: "wk_m5_m6", repeat: true }, { with: ["m5", "m6"], scene: "wk_m5_m6_sp", repeat: true, chance: 0.2 }
       ],
       // 待在家：照季節（12～2 月、3～5 月、6～8 月），9～11 月是 wk_home
@@ -906,4 +921,4 @@ function RIIIZE_ADD(part) {
   if (part.tweets) D.x.tweets = D.x.tweets.concat(part.tweets);
 }
 // js/story/ 裡的檔案（index.html 照這個順序載入）
-var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","gift-by-month","side-extra","clues","awake","ending","common"];
+var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","gift-by-month","side-extra","weekend-pair","clues","awake","ending","common"];

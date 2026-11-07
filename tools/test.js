@@ -346,6 +346,21 @@ const TESTS = [
     if (!/影片之後/.test(t || '')) throw new Error('影片之後的台詞：' + t);
     return p;
   }],
+  ['玩家生日許願：選「和一個人更親近」→ 選元彬 → 好感 +6，台詞帶出名字', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' },
+      'riiiize-flags': { alarm_done: 1, intro_done: 1, plan_tutorial: 1, phone_unlocked: 1, freephone_14: 1, giftdone_14: 1, daychat_0907_helper: 1 } }));
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.remove(); SITE_DATA.storySpeed = 1; STORY.play('birthday_me'); });
+    await sleep(2600);
+    for (let i = 0; i < 120 && !(await p.$('.sch .sch-col button')); i++) { await p.evaluate(() => { const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(80); }
+    await p.click('.sch .sch-col button >> nth=0'); await sleep(400);
+    await p.click('.sch-cast button >> nth=3'); await p.click('[data-go]'); await sleep(800);
+    let t = '';
+    for (let i = 0; i < 20 && !/元彬/.test(t); i++) { t = await text(p, '#vn-text') || ''; await p.evaluate(() => { const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(150); }
+    if (!/元彬/.test(t)) throw new Error('許願後的台詞：' + t);
+    const aff = await p.evaluate(() => GAME.stat('aff', 'm4'));
+    if (aff !== 6) throw new Error('好感：' + aff);
+    return p;
+  }],
   ['App 內容：from 日期之前看不到', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' } }));
     const r = await p.evaluate(() => [GAME.unlocked({ from: '09-15' }), GAME.unlocked({ from: '09-05' }), GAME.unlocked({ if: { loop: '>=2' } })]);
