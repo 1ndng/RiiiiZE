@@ -788,17 +788,18 @@
     if (S().buzzRepeat) S().buzzRepeat([500, 300, 500], 1600);   // 鬧鐘：一直震到停止
   }
 
-  /* 開始自由使用手機：回到主畫面 → 星期日先馬上跳劇情框提醒（scenes.free_phone，一天一次，不等劇情間隔）→ 鎖定畫面
+  /* 開始自由使用手機：回到主畫面、鎖定畫面 → 星期日馬上在鎖定畫面上跳劇情框提醒（scenes.free_phone，一天一次，不等劇情間隔）→ 自己解鎖
    *   解鎖後就是主畫面；有每晚聊天的星期日也一樣（聊完才跳） */
   function freePhone() {
     if (location.hash !== '#/home') S().replaceHash('#/home');
-    var lockNow = function () { if (S() && S().lock) S().lock({ onUnlock: function () {} }); };
+    var lockNow = function () { if (S() && S().lock && !document.getElementById('lock')) S().lock({ onUnlock: function () {} }); };
     var fpKey = 'freephone_' + G().day;   // 一天只提醒一次（重新整理不會再跳）
+    // 先出現鎖定畫面，提醒蓋在鎖定畫面上（背景就是輸入密碼前的那一頁），看完再自己解鎖
+    lockNow();
     if (dateOf(G().day).getDay() === 0 && scene('free_phone') && window.STORY && !(S() && S().hasFlag(fpKey))) {
       if (S()) S().setFlag(fpKey);
-      window.STORY.play('free_phone', lockNow, null, 'phone-dim', { noGap: true });
+      window.STORY.play('free_phone', function () {}, null, 'phone-dim', { noGap: true, overLock: true });
     }
-    else lockNow();
   }
   // 晚上：不能用手機的日子 → 直接往後跳
   if (window.GAME) G().onNight(function () {

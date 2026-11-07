@@ -116,3 +116,5 @@
 .vn.show.vn-hold { opacity: 0; }
 .vn-text { white-space: pre-line; }
 .ob-block { position: absolute; inset: 0; z-index: 60; }
+/* 自由探索的提醒：蓋在鎖定畫面上 */
+.vn.over-lock { z-index: 85; }

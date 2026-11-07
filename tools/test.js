@@ -198,11 +198,14 @@ const TESTS = [
     if (!/\+\d/.test(gain)) throw new Error('卡片沒有顯示加了多少好感：' + gain);
     return p;
   }],
-  ['星期日：選人出門 → 22:00 鎖定畫面 → 解鎖', async (b, base) => {
+  ['星期日：選人出門 → 22:00 鎖定畫面＋自由探索提醒 → 解鎖', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'morning' } }));
     await clickStory(p, async () => !!(await p.$('.sch')));
     await p.click('.sch-cast button >> nth=1'); await p.click('[data-go]'); await sleep(800);
-    await clickStory(p, async () => !!(await p.$('#lock')), 80, true);
+    // 鎖定畫面先出現，「自由探索」提醒蓋在鎖定畫面上；點完提醒才解鎖
+    await clickStory(p, async () => !!(await p.$('#lock')) && /自由探索/.test((await text(p, '#vn-text')) || ''), 80, true);
+    if (!(await p.$('#lock'))) throw new Error('提醒出現時後面不是鎖定畫面');
+    await clickStory(p, async () => !(await p.$('.vn')), 20, true); await sleep(500);
     if (await text(p, '#lc-time') !== '22:00') throw new Error('鎖定畫面時間不是 22:00');
     await unlock(p, '1014');
     if (await p.$('#lock')) throw new Error('沒有解鎖');

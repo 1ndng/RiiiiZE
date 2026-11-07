@@ -959,8 +959,8 @@ window.SITE_DATA = {
     // replies 的 reply 可以寫 { from: "f3", text: "..." } 指定誰回
     groups: [
       { id: "g_club", name: "放槍的伏地挺身100下", activity: "club", unread: 0, messages: [], replies: [], defaultReply: [] },   // 社團活動
-      { id: "g_volunteer", name: "什麼水可以往上又往下：鼻水", activity: "volunteer", unread: 0, messages: [], replies: [], defaultReply: [] },   // 志工活動
-      { id: "g_council", name: "重生之篡位學生會長", activity: "council", unread: 0, messages: [], replies: [], defaultReply: [] },   // 學生會
+      { id: "g_volunteer", name: "小石頭社分部", activity: "volunteer", unread: 0, messages: [], replies: [], defaultReply: [] },   // 志工活動
+      { id: "g_council", name: "重生之我要篡位當會長", activity: "council", unread: 0, messages: [], replies: [], defaultReply: [] },   // 學生會
       { id: "g_karaoke", name: "KKKK歌！", activity: "karaoke", unread: 0, messages: [], replies: [], defaultReply: [] }   // KTV
     ],
     // 介面文字
