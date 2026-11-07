@@ -454,7 +454,13 @@
       setTimeout(function () { window.STORY.play(def.intro, function () { setTimeout(dayChatNext, 500); }, null, 'phone-dim'); lightUp(); }, wait);
     } else setTimeout(function () { lightUp(); dayChatNext(); }, def.dark ? wait : 800);
   }
-  function dayChatSave() { var st = state(); st.dayChat = st.dayChat || {}; st.dayChat[dcId(dc.def)] = dc.i; S().save(KEY, st); }
+  // 保險：訊息都傳完了、超過 3 秒還沒收尾（計時器沒有觸發）→ 直接收尾，避免停在聊天室不換天
+  setInterval(function () {
+    if (!dc || dc.ask || dc.i < (dc.def.steps || []).length) return;
+    if (Date.now() - (dc.last || 0) < 3000) return;
+    dayChatEnd();
+  }, 1000);
+  function dayChatSave() { if (dc) dc.last = Date.now(); var st = state(); st.dayChat = st.dayChat || {}; st.dayChat[dcId(dc.def)] = dc.i; S().save(KEY, st); }
   function dayChatPaint() { if (openChatId === dc.room) { paintChat(); paintChoices(); } }
   function dayChatNext() {
     if (!dc) return;
