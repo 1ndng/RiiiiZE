@@ -13,6 +13,7 @@
  *   { wait: 1000 }                           停頓（毫秒）：對話框先收起來，時間到自動接下一句
  *   { choices: [ { text, effects, flag, goto, if }, … ] }   選項；goto = 跳到哪個 label（不寫 = 接著往下）
  *   { text: "…", sfx: "message" }          這句出現時播音效（data.js 的 game.sounds）
+ *   { call: { room, from, forced, start, nodes } }   KakaoTalk 來電（格式同 kakao.incoming；forced = 一定要接），講完才往下
  *   { label: "名稱" }                         標記，給 goto 用
  *   { goto: "名稱" }                          跳過去（常和 if 一起用：條件成立才跳）
  *   { effects: { … } } / { flag: "旗標" }     套用效果、記錄旗標（不會顯示）
@@ -209,6 +210,16 @@
       if (s.hold && s.text == null) { hold(s.hold); return; }
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
       if (s.sfx && !resumed && window.SOSHO_BGM) window.SOSHO_BGM.sfx(s.sfx);   // 音效（data.js 的 game.sounds，例如 "message"）
+      // 電話：KakaoTalk 來電（js/apps/kakaocall.js），講完才接著往下
+      if (s.call && window.SOSHO_KAKAO_CALL && !cur.replay) {
+        var mc = cur; cur.waiting = true; cur.el.classList.add('vn-hold');
+        window.SOSHO_KAKAO_CALL.story(s.call, function () {
+          if (cur !== mc) return;
+          cur.waiting = false; cur.el.classList.remove('vn-hold');
+          step();
+        });
+        return;
+      }
       if (s.intro) { if (introVideo(s.intro)) return; continue; }
       // 玩家生日許願：選單蓋在劇情上，選完接著往下；{wish} = 許願的對象（例如「元彬」「將太郎和恩奭」）
       if (s.wish && window.PLAN && window.PLAN.wish) {

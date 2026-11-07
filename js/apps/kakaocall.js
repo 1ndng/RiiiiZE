@@ -129,13 +129,14 @@
     var f = KK().friend(c.room);
     if (!f) return;
     call = { f: f, out: false, cfg: c, ov: overlay(f, true), secs: 0, incoming: true };
+    call.ov.classList.add('ringing');   // 響鈴中（js/bgm.js 放來電鈴聲）
     status(TX().incoming);
     if (S().buzzRepeat) S().buzzRepeat([400, 200, 400], 1800);   // 來電：一直震到接起來或掛掉
     // 一直不接 → 當作沒接
     call.timer = setTimeout(decline, c.ringFor || 30000);
   }
   function decline() {
-    if (!call || !call.incoming) return;
+    if (!call || !call.incoming || call.forced) return;   // 劇情裡一定要接的電話：拒絕沒反應
     var c = call.cfg;
     S().setFlag(c.declineFlag);
     KK().addCall(call.f.id, { from: themId(), call: 'voice' });   // 未接來電
@@ -148,6 +149,7 @@
     var c = call.cfg, b = c.branch || {};
     var startNode = b.replied || b.notReplied ? (KK().replied(c.room) ? b.replied : b.notReplied) : (c.start || 'start');
     call.incoming = false;
+    call.ov.classList.remove('ringing');
     call.ov.querySelector('.kc-btns').outerHTML = controls();
     connect({ start: startNode, nodes: c.nodes });
   }
@@ -241,11 +243,25 @@
     if (!call) return;
     if (S().stopBuzz) S().stopBuzz();
     clearTimeout(call.timer); clearInterval(call.clock);
-    var ov = call.ov;
+    var ov = call.ov, done = call.done;
     call = null;
     ov.classList.remove('show');
     setTimeout(function () { ov.remove(); }, 250);
     S().setDarkStatus(false);
+    if (done) setTimeout(done, 300);   // 劇情裡的電話：講完回到劇情
+  }
+
+  /* ---- 劇情裡打來的電話（劇情步驟 { call: {…} }，js/story.js 呼叫）----
+   *   和 incoming 一樣寫 room、from、nodes、start；forced: true = 一定要接（拒絕沒反應、一直響到接起來、通話中不能掛斷）
+   *   講完（掛斷）之後 done() → 劇情接著往下 */
+  function storyCall(c, done) {
+    var f = KK().friend(c.room);
+    if (call || !f) { if (done) done(); return; }
+    call = { f: f, out: false, cfg: c, ov: overlay(f, true), secs: 0, incoming: true, forced: !!c.forced, done: done };
+    call.ov.classList.add('ringing', 'kc-story');
+    status(TX().incoming);
+    if (S().buzzRepeat) S().buzzRepeat([400, 200, 400], 1800);
+    if (!c.forced) call.timer = setTimeout(decline, c.ringFor || 30000);
   }
 
   // 換頁時狀態列會被重設：通話中保持白字
@@ -254,14 +270,14 @@
   document.addEventListener('click', function (e) {
     if (!call || !call.ov.contains(e.target)) return;
     var b;
-    if (e.target.closest('[data-kc-end]')) { if (call.connected) hangUp(); else finish(); return; }
+    if (e.target.closest('[data-kc-end]')) { if (call.forced) return; if (call.connected) hangUp(); else finish(); return; }
     if (e.target.closest('[data-kc-accept]')) { accept(); return; }
-    if (e.target.closest('[data-kc-decline]')) { clearTimeout(call.timer); decline(); return; }
+    if (e.target.closest('[data-kc-decline]')) { if (call.forced) return; clearTimeout(call.timer); decline(); return; }
     if ((b = e.target.closest('[data-kc-choice]'))) { choose(+b.dataset.kcChoice); return; }
     if ((b = e.target.closest('[data-kc-tog]'))) { b.classList.toggle('on'); return; }
     // 點字幕跳到下一句
     if (e.target.closest('.kc-cap') && call.node && !(call.node.choices && call.line >= (call.node.lines || []).length)) nextLine();
   });
 
-  window.SOSHO_KAKAO_CALL = { start: start, busy: function () { return !!call; } };
+  window.SOSHO_KAKAO_CALL = { start: start, story: storyCall, busy: function () { return !!call; } };
 })();

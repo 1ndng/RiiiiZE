@@ -153,6 +153,7 @@ button.kk-call { font: inherit; color: inherit; text-align: left; cursor: pointe
  * ========================================================= */
 .kc { position: absolute; inset: 0; z-index: 45; overflow: hidden; color: #fff; background: #1c1c1e; display: flex; flex-direction: column; align-items: center; padding: 58px 0 54px; opacity: 0; transform: translateY(24px); transition: opacity .25s, transform .25s; }
 .kc.show { opacity: 1; transform: none; }
+.kc.kc-story { z-index: 90; }   /* 劇情裡打來的電話：蓋在劇情畫面上面 */
 .kc-bg { position: absolute; inset: -40px; background: #333 center / cover no-repeat; filter: blur(30px) brightness(.45) saturate(1.2); }
 .kc > *:not(.kc-bg) { position: relative; }
 .kc-top { display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: .85; }

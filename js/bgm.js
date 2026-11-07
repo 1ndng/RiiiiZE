@@ -2,6 +2,7 @@
  * 背景音樂（檔案寫在 data.js 的 game.music；換曲時淡入淡出、每首都循環播放）
  *   title  標題音樂：標題畫面、第一次玩輸入名字／生日／照片
  *   alarm  鬧鐘聲：鬧鐘響的時候（按「稍後提醒」→ 停，再響時從頭）
+ *   ring   KakaoTalk 來電鈴聲：響鈴中（從 ringStart 秒開始放；接起來馬上停）
  *   intro  成員介紹影片的音樂：影片播放中（影片本身的聲音關掉；每次從頭放；開始時馬上出聲，結束時淡出、接下來的音樂淡入）
  *   main   主線音樂：開場（鬧鐘之後）、主線、日程劇情、每週回顧、每月安排、每晚聊天、生日、節日
  *   aff    好感度音樂：星期日白天（開頭、選人、出門）、14 日送禮、友誼線／愛情線／CP 線
@@ -56,13 +57,14 @@
     if (/^wk_/.test(id) || id === 'weekend_intro' || id === '__gift' || /^gift_/.test(id) || /^(fr|love|confess|cp)_/.test(id)) return 'aff';
     return 'main';
   }
-  var awakeUntil = 0, INSTANT = { alarm: 1, intro: 1 };
+  var awakeUntil = 0, INSTANT = { alarm: 1, intro: 1, ring: 1 }, STOPNOW = { alarm: 1, ring: 1 };
   // 現在該放哪一首（null = 安靜）
   function want() {
     if (!soundOn() || document.hidden) return null;
     if (document.querySelector('.title-scr, .vn-name')) return 'title';
     var al = document.querySelector('.alarm');
     if (al) return al.classList.contains('sleeping') ? null : 'alarm';
+    if (document.querySelector('#kc.ringing')) return 'ring';   // KakaoTalk 來電響鈴中
     if (document.querySelector('.vn-intro')) return 'intro';
     var G = window.GAME, P = window.PLAN, K = window.SOSHO_KAKAO, St = window.STORY, E = window.ENDING;
     if (E && E.running && E.running() || document.querySelector('.end-card')) return 'awake';
@@ -93,7 +95,7 @@
         var d = decks.filter(function (x) { return x.k === w; })[0] || (decks[0] === active ? decks[1] : decks[0]);
         load(d, w); active = d;
         if (INSTANT[w]) {   // 鬧鐘、介紹影片：每次從頭、馬上出聲；另一個播放器馬上停（不淡出）
-          seek(d, 0); setV(d, target(w));
+          seek(d, w === 'ring' ? (cfg().ringStart || 0) : 0); setV(d, target(w));
           decks.forEach(function (x) { if (x !== d) { setV(x, 0); x.el.pause(); } });
         }
         if (d.el.paused) tryPlay(d.el);
@@ -101,7 +103,7 @@
     }
     decks.forEach(function (d) {
       var goal = d === active && now ? target(now) : 0;
-      if (d.k === 'alarm' && goal === 0) { if (d.v) setV(d, 0); if (!d.el.paused) d.el.pause(); return; }   // 鬧鐘停：馬上停
+      if (STOPNOW[d.k] && goal === 0) { if (d.v) setV(d, 0); if (!d.el.paused) d.el.pause(); return; }   // 鬧鐘、來電鈴聲停：馬上停
       if (goal > 0 && d.el.paused) tryPlay(d.el);
       if (d.resume && goal > 0 && !d.el.paused) { setV(d, goal); d.resume = false; }   // 重新整理後接著放：不用再淡入
       if (d.v !== goal) setV(d, Math.max(0, Math.min(1, d.v + Math.max(-0.05, Math.min(0.05, goal - d.v)))));

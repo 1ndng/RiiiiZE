@@ -333,8 +333,29 @@ RIIIZE_ADD({
       { text: "你也跟他們玩了幾局，有贏也有輸。最後玩到盡興了才回家。" }
     ],
     d0907: [
-      { bg: "images/bg/karaoke.jpg" },
-      { text: "星期天，成燦把大家約到 KTV，說是「開學第一週慶功宴」。" },
+      { bg: "images/bg/home.jpg" },   // 背景：家裡
+      { text: "昨天跟將太郎、恩奭和炤熙折騰了一下午，你決定今天跟床來個長時間的深度交流，進行一場酣暢淋漓的補眠。" },
+      { text: "突然，通話響起。" },
+      // KTV 群組打來的群組通話：一定要接（拒絕沒反應，一直響到接起來）；鈴聲 = 標題音樂原曲 1:46 起（data.js 的 game.music.ring）
+      { call: { room: "g_karaoke", from: "f3", forced: true, start: "start", nodes: {
+        start: { lines: [
+          { who: "f3", text: "大家~還記得吧！" },
+          { who: "f5", text: "記得~" },
+          { who: "f6", text: "嗯！" }
+        ], choices: [ { label: "記⋯⋯記得什麼？", next: "what" } ] },
+        what: { lines: [
+          { who: "f5", text: "哇{name}居然這樣⋯⋯難過了" },
+          { who: "f6", text: "{name}你只是在逗我們對吧。不可能真的忘記吧⋯⋯" },
+          { who: "f3", text: "唉一古⋯⋯怎麼能忘記呢{name}" }
+        ], choices: [ { label: "對、對不起啦！所以到底是什麼呀", next: "ktv" } ] },
+        ktv: { lines: [
+          { who: "f3", text: "我們不是早就約好今天晚上要唱K嗎！" },
+          { who: "f3", text: "不囉嗦了反正你想起來了就好！18:00集合！" }
+        ] }
+      } } },
+      { who: "me", text: "（誒⋯⋯？）" },
+      { who: "me", text: "（我的寶貝床⋯⋯今天必然與你分離⋯⋯我會想你⋯⋯）" },
+      { bg: "images/bg/karaoke.jpg" },   // 背景：KTV（以下還是舊版，待改）
       { text: "來的人是成燦、炤熙、燦榮和你。" },
       { who: "m3", text: "其他人呢？" },
       { who: "m5", text: "會長在補眠，恩奭哥說他要陪會長補眠，元彬哥說他不想來。" },
