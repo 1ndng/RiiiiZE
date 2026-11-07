@@ -34,14 +34,14 @@
   function scene(id) { return (D().scenes || {})[id]; }
   function T() {
     var t = C().text || {}, d = {
-      planTitle: '{m}月的安排', planHint: '把日程拖到星期一～六（一天一個），沒放的日子會直接回家', confirm: '確認', weekend: '週日', home: '回家',
-      tutorialTitle: '每月安排', tutorialText: '從現在開始，每個月可以自由安排放學後要去哪裡。\n把日程方塊拖到月曆上，確認後就會照著過日子。',
+      planTitle: '{m}月的日程規劃', planHint: '一天可以安排一個日程，沒有安排的日子會回家', confirm: '確認', weekend: '週日', home: '回家',
+      tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以自由規劃當月日程。\n把日程方塊拖到月曆上，確認後即不可更改。',
       ok: '好', clear: '清除',
       weekendTitle: '今天要和誰見面？', weekendHint: '最多選兩位', go: '出門', stayHome: '待在家',
       single: '今天和{a}一起度過了。', pair: '今天和{a}、{b}一起度過了。', stayHomeText: '今天待在家裡，好好休息了一下。',
-      giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '要', giftAsk: '請別人送', giftNo: '不要',
-      giftPickOne: '要送給誰？', giftPickGiver: '請誰送禮物？', giftPickTo: '要送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
-      giftMeText: '你把禮物送給了{a}。', giftAskText: '你請{a}送禮物給{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
+      giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '要', giftAsk: '有人要', giftNo: '不要',
+      giftPickOne: '要送給誰？', giftPickGiver: '誰送？', giftPickTo: '送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
+      giftMeText: '你把禮物送給了{a}。', giftAskText: '{a}把禮物送給了{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
       dayLine: '{date}\n去了{act}，遇到了{who}。',
       weekTitle: '這週的安排', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekMet: '這幾天見到了{who}。', weekAff: '好感', weekPair: '關係', weekNoGain: '這幾天沒有遇到人。'
@@ -358,7 +358,7 @@
    *   done({ kind: 'aff' | 'pair', ids }）；noFx = 回想，不加數值 */
   function wish(opt, done, noFx) {
     var t = T(), aff = opt.aff != null ? opt.aff : 6, pair = opt.pair != null ? opt.pair : 15;
-    chooser({ title: t.wishTitle || '許一個願望', hint: t.wishHint || '蠟燭還亮著。', buttons: [
+    chooser({ title: t.wishTitle || '許一個願望', hint: t.wishHint != null ? t.wishHint : '這是一個增加好感度的好機會。', buttons: [
       { label: t.wishAff || '希望和一個人更親近', run: function () {
         chooser({ title: t.wishPickOne || '和誰？', max: 1, min: 1, goLabel: t.giftOk, altLabel: t.back,
           onAlt: function () { wish(opt, done, noFx); },
@@ -367,8 +367,8 @@
             done({ kind: 'aff', ids: ids });
           } });
       } },
-      { label: t.wishPair || '希望兩個人感情更好', run: function () {
-        chooser({ title: t.wishPickTwo || '哪兩個人？', hint: t.wishPickTwoHint || '選兩位', max: 2, min: 2, goLabel: t.giftOk, altLabel: t.back,
+      { label: t.wishPair || '希望有兩個人感情更好', run: function () {
+        chooser({ title: t.wishPickTwo || '哪兩個人？', hint: t.wishPickTwoHint || '', max: 2, min: 2, goLabel: t.giftOk, altLabel: t.back,
           onAlt: function () { wish(opt, done, noFx); },
           onGo: function (ids) {
             var key = ids.slice().sort().join('-');
