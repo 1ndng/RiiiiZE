@@ -91,7 +91,10 @@
    * 固定：第幾次去某個日程（plan.activities 的 milestones；回家 = plan.homeMilestones）→ scenes.act_日程_次數，那天停下來播
    * 隨機：plan.random（一天 chance 機率有一段：從遇到的人符合的名單裡抽一段，可重複）→ scenes.rand_日程_編號 */
   function bgOf(act) { return act === 'home' ? C().homeBg : actOf(act).bg; }
+  // 暫時沒有日程劇情的日子（data.js 的 plan.quietUntil 之前，例如 9/8～9/13）：不播固定、隨機劇情，也不算第幾次（好感照加）
+  function quiet(day) { var q = C().quietUntil; return !!q && (day == null ? G().day : day) < G().dayOf(q); }
   function milestoneOf(act, n) {
+    if (quiet()) return null;
     var list = act === 'home' ? (C().homeMilestones || []) : (actOf(act).milestones || []), id = 'act_' + act + '_' + n;
     return list.indexOf(n) >= 0 && scene(id) ? id : null;
   }
@@ -99,6 +102,7 @@
     return String(key).split('').map(function (d) { var c = cast().filter(function (x) { return String(x.no) === d; })[0]; return c ? c.id : null; });
   }
   function randomFor(act, met) {
+    if (quiet()) return [];
     var r = C().random || {}, chance = r.chance != null ? r.chance : 0.3;
     var list = (r[act] || []).filter(function (k) {
       return scene('rand_' + act + '_' + k) && (k === 'me' || idsOf(k).every(function (id) { return id && met.indexOf(id) >= 0; }));
@@ -181,7 +185,7 @@
     if (day >= G().totalDays()) return true;
     if (!isWeekend(day) && !forcedOn(day)) {   // 這次去剛好是第幾次的固定劇情
       var a = plannedOn(day) || (homeDay(day) ? 'home' : null);
-      if (a && milestoneOf(a, G().stat('visits', a) + 1)) return true;
+      if (a && !quiet(day) && milestoneOf(a, G().stat('visits', a) + 1)) return true;
     }
     return !isWeekend(day) && !!specialFor(day, plannedOn(day));
   }
@@ -210,7 +214,7 @@
   function doActivity(act) {
     if (!act) return [];
     var ids = membersOf(act);
-    G().addStat('visits', act, 1);
+    if (!quiet()) G().addStat('visits', act, 1);
     if (S()) S().setFlag('act_' + act);
     if (ids.length) G().apply(shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15));
     return ids;
@@ -417,7 +421,7 @@
           if (ms) playOn(ms, act); else if (!sp) steps.push(function (next) { narrate(dayLine(day, act, met), next, actOf(act).bg); });
           playAll(randomFor(act, met), act);
         } else if (homeDay(day)) {
-          G().addStat('visits', 'home', 1);
+          if (!quiet()) G().addStat('visits', 'home', 1);
           var hm = milestoneOf('home', G().stat('visits', 'home')); if (hm) playOn(hm, 'home');
           playAll(randomFor('home', []), 'home');
         }
@@ -562,7 +566,7 @@
           week.push({ day: day, act: act, met: met, rnd: randomFor(act, met) });   // rnd = 這天的隨機劇情（最多一段）
         } else if (homeDay(day)) {   // 沒安排 = 回家
           G().setDay(day);
-          G().addStat('visits', 'home', 1);
+          if (!quiet()) G().addStat('visits', 'home', 1);
           week.push({ day: day, act: 'home', met: [], rnd: randomFor('home', []) });
         }
         day++;
@@ -582,8 +586,7 @@
     birthdaysOn(day).forEach(function (b) { out.push({ title: b.me ? t.myBirthday : t.birthday.replace('{name}', b.name), color: '#ff9500', mark: true }); });
     // 送禮日（14 日）不標在行事曆上
     (C().specials || []).forEach(function (e) { if (e.date && e.title && G().dayOf(e.date) === day && ok(e.if)) out.push({ title: e.title, color: e.color || '#ff9500', mark: true }); });
-    var f = forcedOn(day), a = f ? f.activity : (!isWeekend(day) && plannedOn(day));
-    if (a) out.push({ title: actOf(a).label, color: '#5856d6' });
+    // 日程（開學週的強制日程、自己排的）不列在行事曆上：只列生日和節日
     return out;
   }
 

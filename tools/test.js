@@ -170,21 +170,30 @@ const TESTS = [
     const g = await game(p); if (g.day !== 13) throw new Error('應該停在 9/13（成燦生日），現在第 ' + g.day + ' 天');
     return p;
   }],
-  ['日程固定劇情：第 5 次去社團那天停下來播', async (b, base) => {
+  ['9/8～9/13 沒有日程劇情：第 3 次去社團也不停、不算次數', async (b, base) => {
     const days = { '09-08': 'club' };
-    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 4 } } }));
-    await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 2 } } }));
+    await p.evaluate(() => { SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    for (let i = 0; i < 40 && !(await p.$('.wk')); i++) { if (await p.evaluate(() => /^(act|rand)_/.test((window.STORY && STORY.scene && STORY.scene()) || ''))) throw new Error('9/8 不該有日程劇情'); await sleep(250); }
+    const v = await p.evaluate(() => GAME.stat('visits', 'club'));
+    if (v !== 2) throw new Error('9/8～9/13 不該算次數，現在社團 ' + v + ' 次');
+    return p;
+  }],
+  ['日程固定劇情：第 10 次去社團那天停下來播', async (b, base) => {
+    const days = { '09-08': 'club' };
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 9 } } }));
+    await p.evaluate(() => { SITE_DATA.plan.quietUntil = null; SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     let seen = '';
-    const first = await p.evaluate(() => SITE_DATA.scenes.act_club_5[0].text);
+    const first = await p.evaluate(() => SITE_DATA.scenes.act_club_10.filter(s => s.text)[0].text);
     for (let i = 0; i < 30 && seen.indexOf(first) < 0; i++) { seen = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(300); }
-    if (seen.indexOf(first) < 0) throw new Error('沒有播社團第 5 次的劇情');
+    if (seen.indexOf(first) < 0) throw new Error('沒有播社團第 10 次的劇情');
     const g = await game(p); if (g.day !== 8) throw new Error('應該停在 9/8，現在第 ' + g.day + ' 天');
     return p;
   }],
   ['隨機劇情：機率 100% 時先播完，最後才出現每週回顧（顯示加了多少好感）', async (b, base) => {
     const days = { '09-08': 'club', '09-09': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 10 } } }));
-    await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    await p.evaluate(() => { SITE_DATA.plan.quietUntil = null; SITE_DATA.storySpeed = 1; SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     await p.waitForSelector('.vn', { timeout: 8000 }); await sleep(400);
     if (await p.$('.wk')) throw new Error('隨機劇情還沒播，每週回顧就出現了');
     const sc = await p.evaluate(() => STORY.scene && STORY.scene());   // 正在播的劇情 id

@@ -43,7 +43,7 @@
     day: '第幾天', aff: '好感度', awake: '覺醒度（在手機裡找到線索才會增加，到 3 = 覺醒）', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
     buzz: '震動', sound: '音效', on: '開', off: '關',
     langToCn: '要切換成简体中文嗎？', langToTw: '要切換成繁體中文嗎？', langText: '切換後畫面會重新整理一次，遊戲進度不會不見。', langOk: '切換',
-    clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。每個人有 {n} 個，這裡只會告訴你找到了幾個。', cluesDone: '全部找到了',
+    clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。這裡會告訴你找到了幾個。', cluesDone: '全部找到了',
     replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
     gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談', mainEndings: '主線結局', dev: '開發者資訊', devName: '開發者', devVer: '版本', devPrev: '前作', devPrevTitle: '熙醬cp向撿手機解謎', devPrevGo: '前往遊玩',
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
@@ -251,7 +251,7 @@
         sub: '和' + ids.map(function (x) { return nameOf(byId[x]); }).join('、') + '出門' + (m[2] ? '（特別）' : ''), bg: wk.bg });
     });
     if (sc.wk_home) wkItems.push({ o: 99999, id: 'wk_home', label: '', sub: '待在家', bg: plan.homeBg });
-    groups.push({ title: '星期日', items: wkItems.sort(function (a, b) { return a.o - b.o; }) });
+    groups.push({ title: '出遊', items: wkItems.sort(function (a, b) { return a.o - b.o; }) });
     var actOrder = (plan.activities || []).map(function (a) { return a.id; }).concat(['home']);
     var fixed = [], rand = [];
     Object.keys(sc).forEach(function (k) {
@@ -261,11 +261,11 @@
         sub: r[2] === 'me' ? '跟自己對話' : r[2].split('').map(function (n) { var c = byNo[+n]; return c ? (c.emoji || nameOf(c)) : n; }).join(''), bg: acts[r[1]].bg });
     });
     var by = function (a, b) { return a.o - b.o; };
-    groups.push({ title: '日程（第幾次）', items: fixed.sort(by) });
+    groups.push({ title: '日程（固定）', items: fixed.sort(by) });
     groups.push({ title: '日程（隨機）', items: rand.sort(by) });
     var aw = [];
     Object.keys(sc).forEach(function (k) { var m = /^awake_(m\d)_(\d)$/.exec(k); if (m) aw.push({ o: (+m[1].slice(1)) * 10 + (+m[2]), id: k, label: nameOf(byId[m[1]]), sub: '線索 ' + m[2], bg: 'phone-dim' }); });
-    groups.push({ title: '覺醒線索', items: aw.sort(by) });
+    groups.push({ title: '？？？線索', items: aw.sort(by) });
     return groups;
   }
   function renderReplay() {

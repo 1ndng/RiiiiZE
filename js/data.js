@@ -301,22 +301,23 @@ window.SITE_DATA = {
    */
   plan: {
     planFrom: "09-08",
+    quietUntil: "09-14",   // 這天之前（9/8～9/13）不會遇到日程劇情（固定、隨機都不播，也不算第幾次；好感照加）。之後不需要就刪掉
     affTotal: 4,   // 日程每次的好感總量（平分給遇到的人，四捨五入成整數、最少 1）；星期日、送禮比較能指定對象，所以加得比較多
     pairTotal: 15,
     wanderMeet: 2,
     // label = 活動名稱（月曆的日程方塊、每週回顧、行事曆、劇情回想）；place = 地點（「去了舞室，遇到了……」、開場動畫的出現地點、玩法說明）
     // 回家：活動名稱「回家」（plan.text.home）、地點是家
     // cell = 月曆格子裡顯示的名字（"|" = 換行），沒寫就用 label
-    // milestones = 第幾次去的時候有固定劇情（scenes.act_日程_次數，例如 act_club_5；那天會停下來播）
+    // milestones = 第幾次去的時候有固定劇情（scenes.act_日程_次數，例如 act_club_10；那天會停下來播）
     // bg = 這個日程的背景（一句話、特殊劇情、主線強制日程的劇情都用它；劇情裡寫 { bg } 會換掉；沒寫就用 storyBg）
     activities: [
-      { id: "club",      label: "社團活動", place: "舞室", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
-      { id: "volunteer", label: "志工活動", place: "小學", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
-      { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
-      { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
-      { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
-      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
-      { id: "wander",    label: "閒晃",     place: "街道", bg: "images/bg/wander.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] }
+      { id: "club",      label: "社團活動", place: "舞室", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [3, 10, 20, 30, 40, 50] },
+      { id: "volunteer", label: "志工活動", place: "小學", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [3, 10, 20, 30, 40, 50] },
+      { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [3, 10, 20, 30, 40, 50] },
+      { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [3, 10, 20, 30, 40, 50] },
+      { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [3, 10, 20, 30, 40, 50] },
+      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [3, 10, 20, 30, 40, 50] },
+      { id: "wander",    label: "閒晃",     place: "街道", bg: "images/bg/wander.jpg", milestones: [3, 10, 20, 30, 40, 50] }
     ],
     specials: [
       // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },

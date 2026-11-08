@@ -656,11 +656,30 @@ RIIIZE_ADD({
 
   // X 貼文（data.js 的 x.tweets）
   tweets: [
-    { id: "x0902", by: "shotaroo0", from: "09-02", date: "下午 9:41 · 2025/9/2", time: "9月2日", text: "今天學會了一個新的韓文字：預算。\n謝謝炤熙🙏" },
-    { id: "x0903", by: "seokkkk", from: "09-03", date: "下午 10:12 · 2025/9/3", time: "9月3日", text: "今日，守護了小石頭們的作業時間。\nBLACK SHADOW，下班。" },
-    { id: "x0904", by: "antonnie", from: "09-04", date: "下午 11:03 · 2025/9/4", time: "9月4日", text: "0.3 seconds.\n燦榮一定做得到。（小聲）" },
-    { id: "x0905", by: "252525252_", from: "09-05", date: "下午 8:20 · 2025/9/5", time: "9月5日", text: "今天的「最後一次」，跳了十一次。\n（不是我說的最後一次）" },
-    { id: "x0906", by: "sungchan913", from: "09-06", date: "下午 7:55 · 2025/9/6", time: "9月6日", text: "明天 KTV！！！我已經想好要點哪十首了！！！" },
+    // likedBy = 按讚的成員（目前畫面只顯示數字 likes）；replies 的 replyTo = 回覆誰（沒寫 = 回覆發文的人）
+    { id: "x0901", by: "bin032", from: "09-01", date: "下午 10:30 · 2025/9/1", time: "9月1日", text: "這學期加油⭐️🙏🏻", likes: 5, likedBy: ["shotaroo0", "seokkkk", "sungchan913", "252525252_", "antonnie"] },
+    { id: "x0902", by: "shotaroo0", from: "09-02", date: "下午 9:41 · 2025/9/2", time: "9月2日", text: "韓文太難了 ㅎㅎ", likes: 2, likedBy: ["252525252_", "seokkkk"], replies: [
+      { by: "bin032", time: "9月2日", text: "哥在假裝謙虛嗎" },
+      { by: "shotaroo0", replyTo: "bin032", time: "9月2日", text: "嗯~要教你韓語嗎？" },
+      { by: "bin032", replyTo: "shotaroo0", time: "9月2日", text: "要教你日語嗎？" }
+    ] },
+    { id: "x0903", by: "seokkkk", from: "09-03", date: "下午 10:12 · 2025/9/3", time: "9月3日", text: "下班。", likes: 1, likedBy: ["antonnie"], replies: [
+      { by: "sungchan913", time: "9月3日", text: "你又沒領薪水" },
+      { by: "252525252_", time: "9月3日", text: "吃飯嗎" },
+      { by: "seokkkk", replyTo: "252525252_", time: "9月3日", text: "ok" }
+    ] },
+    { id: "x0904", by: "antonnie", from: "09-04", date: "下午 11:03 · 2025/9/4", time: "9月4日", text: "燦榮一定做得到！", likes: 1, likedBy: ["seokkkk"], replies: [
+      { by: "252525252_", time: "9月4日", text: "？" },
+      { by: "sungchan913", time: "9月4日", text: "不愧是我們Anton" }
+    ] },
+    { id: "x0905", by: "252525252_", from: "09-05", date: "下午 8:20 · 2025/9/5", time: "9月5日", text: "能跟taro哥和元彬哥社練完全程的我好厲害啊？", likes: 1, likedBy: ["sungchan913"], replies: [
+      { by: "shotaroo0", time: "9月5日", text: "ㅋㅋㅋ" },
+      { by: "bin032", time: "9月5日", text: "明天繼續~" },
+      { by: "antonnie", time: "9月5日", text: "I know ;)" }
+    ] },
+    { id: "x0906", by: "sungchan913", from: "09-06", date: "下午 7:55 · 2025/9/6", time: "9月6日", text: "明天KTV誰都別想跟我搶麥！", likes: 2, likedBy: ["252525252_", "antonnie"], replies: [
+      { by: "seokkkk", time: "9月6日", text: "如此霸道。" }
+    ] },
     { id: "x0908", by: "bin032", from: "09-08", date: "上午 6:10 · 2025/9/8", time: "9月8日", text: "晨跑。\n某人又沒吹頭髮就睡覺。" },
     { id: "x0913", by: "sungchan913", from: "09-13", date: "下午 11:48 · 2025/9/13", time: "9月13日", text: "今天是我人生最棒的生日😭😭😭\n謝謝你們！！！明年也要一起！！！" },
     { id: "x0920", by: "seokkkk", from: "09-20", date: "下午 4:30 · 2025/9/20", time: "9月20日", text: "如果今天一直重複，冷笑話也會重複嗎。" },
