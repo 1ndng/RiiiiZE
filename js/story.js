@@ -331,10 +331,22 @@
     cur.waiting = true; cur.el.classList.add('vn-away');
     ph.classList.add('phone-scene', 'only-kakao'); ph.classList.remove('story-full');
     if (S() && S().setDarkStatus) S().setDarkStatus(false);
-    if (o.time && window.GAME && window.GAME.setClock) window.GAME.setClock(o.time);
+    // 手機上的時間：寫的時間已經過了（例如開學週聊完天已經 22:00）→ 改成現在的兩分鐘後，訊息時間也跟著改
+    var before = (o.before || []).map(function (m) { var c = {}; Object.keys(m).forEach(function (k) { c[k] = m[k]; }); return c; });
+    if (o.time && window.GAME && window.GAME.setClock) {
+      var tm = /(\d+):(\d+)/.exec(o.time), want = tm ? +tm[1] * 60 + +tm[2] : 0, now = window.GAME.clock ? window.GAME.clock() : null;
+      var nowMin = now ? now.getHours() * 60 + now.getMinutes() : 0;
+      if (now && nowMin > want && window.GAME.phase === 'night') {
+        want = Math.min(nowMin + 2, 23 * 60 + 58);
+        var h = Math.floor(want / 60), mi = ('0' + want % 60).slice(-2);
+        before.forEach(function (m) { m.time = (h < 12 ? '上午 ' : '下午 ') + (h % 12 || 12) + ':' + mi; });
+      }
+      window.GAME.setClock(Math.floor(want / 60) + ':' + ('0' + want % 60).slice(-2));
+    }
     if (location.hash !== '#/home') location.hash = '#/home';
     setTimeout(function () {
-      K.inject(o.room, o.before || []);
+      K.inject(o.room, before);
+      if (S() && S().paintDots) S().paintDots();   // KakaoTalk 圖示的紅點馬上出現
       if (S() && S().buzzMessage) S().buzzMessage();   // 通知聲＋震動
     }, o.delay != null ? o.delay : 1200);
     function onHash() {

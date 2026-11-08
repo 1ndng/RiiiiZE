@@ -406,7 +406,11 @@
       if (forced && S()) S().setFlag('act_' + forced.activity);
       // 2. 節日、生日
       holidaysOn(day).forEach(function (h) { steps.push(function (next) { playIf(h.scene, next); }); });
-      birthdaysOn(day).forEach(function (b) { steps.push(function (next) { playIf(b.scene, next); }); });
+      birthdaysOn(day).forEach(function (b) {
+        // 玩家生日剛好在有每晚聊天（強制訊息）的日子（開學週）：等聊天結束後才播（onNight）
+        if (b.me && window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatFor(G().md(day))) { if (S()) S().setFlag('bday_after_chat_' + day); return; }
+        steps.push(function (next) { playIf(b.scene, next); });
+      });
       // 3. 日程：特殊劇情 → 第幾次的固定劇情（沒有特殊、也沒有固定 = 一句話）；4. 隨機劇情（符合的都播）
       //    背景 = 那個日程的 bg；特殊劇情那天不加好感
       if (!forced && !isWeekend(day)) {
@@ -850,7 +854,14 @@
         K.dayChat(c, function () {
           var next = K.dayChatFor(md);
           if (next) setTimeout(function () { run(next); }, 400);
-          else { chaining = false; if (!free) setTimeout(go, 300); else freePhone(); }   // 能用手機的日子：聊完 → 提醒 → 鎖定畫面
+          else {
+            chaining = false;
+            var after = function () { if (!free) setTimeout(go, 300); else freePhone(); };
+            // 玩家生日延到聊天之後：現在播
+            var bk = 'bday_after_chat_' + G().day;
+            if (S() && S().hasFlag(bk) && !S().hasFlag(bk + '_done')) { S().setFlag(bk + '_done'); setTimeout(function () { playIf('birthday_me', after); }, 600); }
+            else after();
+          }   // 能用手機的日子：聊完 → 提醒 → 鎖定畫面
         }, free || !last);
       })(chat);
       return;

@@ -43,19 +43,7 @@ RIIIZE_ADD({
       { wish: { aff: 10, pair: 15 } },
       { text: "你在心裡，把願望說得很清楚。", wishIs: "aff" },
       { who: "me", text: "（希望我和{wish}，可以再更靠近一點。）", wishIs: "aff" },
-      { who: "me", text: "（希望{wish}，可以一直好好的。一直、一直在一起。）", wishIs: "pair" },
-      { text: "你吹熄了蠟燭。", if: { flag: "bday_me_ok" } },
-      { text: "你對著手機，輕輕吹了一口氣。就當作是吹熄了蠟燭。", if: { flag: "bday_me_no" } },
-      { who: "m2", text: "許了什麼願？" },
-      { choices: [
-        { text: "「說出來就不靈了。」" },
-        { text: "「秘密^^」" }
-      ] },
-      { who: "m2", text: "……嗯。" },
-      { text: "恩奭笑了。是那種很淡、很淡的笑。", if: { flag: "bday_me_ok" } },
-      { text: "電話那頭，恩奭好像笑了。是那種很淡、很淡的笑。", if: { flag: "bday_me_no" } },
-      { text: "蛋糕雖然摔得看不出形狀，但那是你記得的，最好的一個生日。", if: { flag: "bday_me_ok" } },
-      { text: "雖然隔著螢幕，但那是你記得的，最好的一個生日。", if: { flag: "bday_me_no" } }
+      { who: "me", text: "（希望{wish}，可以一直好好的。一直、一直在一起。）", wishIs: "pair" }
     ],
   }
 });
