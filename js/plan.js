@@ -422,11 +422,12 @@
             G().addStat('visits', act, 1); met = membersOf(act);
           } else met = doActivity(act);
           var ms = milestoneOf(act, G().stat('visits', act));
-          if (ms) playOn(ms, act); else if (!sp) steps.push(function (next) { narrate(dayLine(day, act, met), next, actOf(act).bg); });
+          // 沒有日程劇情：不用一句話帶過，記下來放進下一次的「這週的安排」卡片（和跳過的日子一樣）
+          if (ms) playOn(ms, act); else if (!sp) pendWeek({ day: day, act: act, met: met });
           playAll(randomFor(act, met), act);
         } else if (homeDay(day)) {
           if (!quiet()) G().addStat('visits', 'home', 1);
-          var hm = milestoneOf('home', G().stat('visits', 'home')); if (hm) playOn(hm, 'home');
+          var hm = milestoneOf('home', G().stat('visits', 'home')); if (hm) playOn(hm, 'home'); else pendWeek({ day: day, act: 'home', met: [] });
           playAll(randomFor('home', []), 'home');
         }
       }
@@ -550,8 +551,12 @@
   // onLine(day, text, next)：有安排日程、沒有劇情的日子，用一句話告訴玩家今天和誰做了什麼
   // 跳過去的日子（有安排日程、沒有劇情）先收集起來，停下來之前用「這週的安排」一次顯示（onWeek）
   //   之後想在每週回顧裡加隨機事件、小劇情，就在 go() 的 onWeek 這裡加
+  // 停下來的日子（有生日、節日等劇情）排的日程：存起來，下一次的「這週的安排」卡片一起列出
+  var WKEY = 'riiiize-weekpend';
+  function pendWeek(w) { var l = load(WKEY, []) || []; if (!l.some(function (x) { return x.day === w.day; })) { w.rnd = []; l.push(w); store(WKEY, l); } }
   function sleep(cb, onWeek) {
-    var day = G().day + 1, from = day, week = [];
+    var day = G().day + 1, from = day, week = load(WKEY, []) || [];
+    try { localStorage.removeItem(WKEY); } catch (e) {}
     function flush(next) { if (!week.length || !onWeek) { next(); return; } var w = week; week = []; onWeek(w, next); }
     (function loop() {
       while (day <= G().totalDays()) {
