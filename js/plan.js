@@ -43,7 +43,7 @@
       giftPickOne: '要送給誰？', giftPickGiver: '誰送？', giftPickTo: '送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
       giftMeText: '你把禮物送給了{a}。', giftAskText: '{a}把禮物送給了{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
-      dayLine: '{date}\n去了{act}，遇到了{who}。',
+      dayLine: '{date}\n去了{place}，遇到了{who}。',   // {place} = 地點（舞室、小學…）、{act} = 活動名稱（社團活動、訓練…）
       weekTitle: '這週的安排', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekMet: '這幾天見到了{who}。', weekAff: '好感', weekPair: '關係', weekNoGain: '這幾天沒有遇到人。'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -215,7 +215,7 @@
     if (ids.length) G().apply(shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15));
     return ids;
   }
-  // 「9月8日（星期一）\n去了學生會，遇到了鄭成燦和李炤熙。」（plan.text.dayLine 可以改；活動可以寫自己的 line）
+  // 「9月8日（星期一）\n去了會辦，遇到了鄭成燦和李炤熙。」（plan.text.dayLine 可以改；活動可以寫自己的 line）
   function joinNames(ids) {
     var n = ids.map(nameOf);
     return n.length <= 1 ? (n[0] || '') : n.slice(0, -1).join('、') + '和' + n[n.length - 1];
@@ -224,7 +224,7 @@
     var t = T(), d = dateOf(day), a = actOf(act);
     return (a.line || t.dayLine)
       .replace('{date}', (d.getMonth() + 1) + '月' + d.getDate() + '日（' + G().weekday(d) + '）')
-      .replace('{act}', a.label).replace('{who}', joinNames(ids));
+      .replace('{act}', a.label).replace('{place}', a.place || a.label).replace('{who}', joinNames(ids));
   }
 
   /* ---- 一句話帶過（用對話框） ---- */

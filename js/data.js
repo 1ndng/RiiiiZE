@@ -20,7 +20,7 @@ window.SITE_DATA = {
    * id 用在數值、條件、效果裡（例如 aff: { m1: 2 }、pair: { "m1-m2": 1 }），之後不要改；name 可以隨時換
    * birthday = 生日（"11-25"）：那天會停下來播 scenes.birthday_成員id（行事曆也會顯示）
    * activities = 平日放學在哪些日程會遇到他（月曆安排加好感時，照這個決定誰在場）
-   *   club 社團活動、volunteer 志工活動、sports 體育館、council 學生會、games 網咖、karaoke KTV
+   *   club 社團活動（舞室）、volunteer 志工活動（小學）、sports 訓練（體育館）、council 學生會（會辦）、games 打遊戲（網咖）、karaoke 唱歌（KTV）
    * 隱藏數值（玩家看不到）：
    *   aff   好感度：玩家對每位成員
    *   pair  成員之間的關係：每兩位一組（"m1-m2"，順序不拘）
@@ -81,12 +81,12 @@ window.SITE_DATA = {
   //   播放中點畫面沒反應（快轉模式會直接跳過）；音效關掉時影片靜音
   introVideo: { captionAt: 3000, box: { left: 30, top: 65, width: 54.4, height: 13.8 } },
   introVideos: {
-    m1: { video: "videos/intro_m1.mp4", caption: "生日：11月25日\n出現地點：社團活動、\n學生會、網咖" },
-    m2: { video: "videos/intro_m2.mp4", caption: "生日：3月19日\n出現地點：志工活動、\n學生會、網咖" },
-    m3: { video: "videos/intro_m3.mp4", caption: "生日：9月13日\n出現地點：學生會、\n體育館、KTV" },
-    m4: { video: "videos/intro_m4.mp4", caption: "生日：3月2日\n出現地點：社團活動、\n學生會、體育館" },
-    m5: { video: "videos/intro_m5.mp4", caption: "生日：11月21日\n出現地點：社團活動、\n學生會、KTV、網咖" },
-    m6: { video: "videos/intro_m6.mp4", caption: "生日：3月21日\n出現地點：志工活動、\n學生會、體育館、KTV" }
+    m1: { video: "videos/intro_m1.mp4", caption: "生日：11月25日\n出現地點：舞室、\n會辦、網咖" },
+    m2: { video: "videos/intro_m2.mp4", caption: "生日：3月19日\n出現地點：小學、\n會辦、網咖" },
+    m3: { video: "videos/intro_m3.mp4", caption: "生日：9月13日\n出現地點：會辦、\n體育館、KTV" },
+    m4: { video: "videos/intro_m4.mp4", caption: "生日：3月2日\n出現地點：舞室、\n會辦、體育館" },
+    m5: { video: "videos/intro_m5.mp4", caption: "生日：11月21日\n出現地點：舞室、\n會辦、KTV、網咖" },
+    m6: { video: "videos/intro_m6.mp4", caption: "生日：3月21日\n出現地點：小學、\n會辦、體育館、KTV" }
   },
   storyGap: 2000,                // 兩段劇情之間至少隔幾毫秒（上一段結束到下一段開始）
   storySpeed: 22,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
@@ -304,17 +304,19 @@ window.SITE_DATA = {
     affTotal: 4,   // 日程每次的好感總量（平分給遇到的人，四捨五入成整數、最少 1）；星期日、送禮比較能指定對象，所以加得比較多
     pairTotal: 15,
     wanderMeet: 2,
+    // label = 活動名稱（月曆的日程方塊、每週回顧、行事曆、劇情回想）；place = 地點（「去了舞室，遇到了……」、開場動畫的出現地點、玩法說明）
+    // 回家：活動名稱「回家」（plan.text.home）、地點是家
     // cell = 月曆格子裡顯示的名字（"|" = 換行），沒寫就用 label
     // milestones = 第幾次去的時候有固定劇情（scenes.act_日程_次數，例如 act_club_5；那天會停下來播）
     // bg = 這個日程的背景（一句話、特殊劇情、主線強制日程的劇情都用它；劇情裡寫 { bg } 會換掉；沒寫就用 storyBg）
     activities: [
-      { id: "club",      label: "社團活動", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "volunteer", label: "志工活動", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "sports",    label: "體育館",   bg: "images/bg/sports.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "council",   label: "學生會",   bg: "images/bg/council.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "games",     label: "網咖",     bg: "images/bg/games.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "karaoke",   label: "KTV",      bg: "images/bg/karaoke.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "wander",    label: "閒晃",     bg: "images/bg/wander.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] }
+      { id: "club",      label: "社團活動", place: "舞室", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "volunteer", label: "志工活動", place: "小學", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
+      { id: "wander",    label: "閒晃",     place: "街道", bg: "images/bg/wander.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] }
     ],
     specials: [
       // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },
