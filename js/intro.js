@@ -117,14 +117,20 @@
     document.getElementById('phone').appendChild(w);
     return w;
   }
-  function askPhoto(done) {
+  function askPhoto(done, back) {
     var t = T(), chosen = player().avatar || '';
     var w = card('<b>' + esc(t.photoTitle) + '</b><p>' + esc(t.photoHint).replace(/\n/g, '<br>') + '</p>' +
       '<label class="ob-photo"><img id="ob-av" src="' + esc(chosen || DEFAULT_AVATAR) + '" alt=""><input type="file" accept="image/*" id="ob-file" hidden>' +
       '<span id="ob-pick">' + esc(chosen ? t.change : t.pick) + '</span></label>' +
       // 選了照片之後：「移除」回到預設頭貼
       '<button type="button" class="ob-remove" data-ob-remove' + (chosen ? '' : ' hidden') + '>' + esc(t.remove) + '</button>' +
-      '<button type="submit">' + esc(t.next) + '</button>');
+      (back ? '<div class="ob-btns"><button type="button" data-ob-back>' + esc(t.back) + '</button><button type="submit">' + esc(t.next) + '</button></div>'
+            : '<button type="submit">' + esc(t.next) + '</button>'));
+    if (back) w.querySelector('[data-ob-back]').addEventListener('click', function () {
+      // 上一步：選好的照片先記著，回來時還在
+      var pl = player(); if (chosen) pl.avatar = chosen; else delete pl.avatar; store(PKEY, pl);
+      w.remove(); back();
+    });
     w.querySelector('#ob-file').addEventListener('change', function (e) {
       var f = e.target.files && e.target.files[0];
       if (!f) return;
@@ -156,14 +162,16 @@
     w.querySelector('[data-ob-back]').addEventListener('click', function () { w.remove(); back(); });
     w.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); w.remove(); go(); });
   }
-  // 1. 名字 → 生日 → 照片 → 是否開始
+  // 1. 名字 → 生日 → 照片 → 是否開始；每一頁都可以按「上一步」，名字那頁的上一步回到標題畫面
   function setup(done) {
-    function photoThenStart() { askPhoto(function () { askStart(photoThenStart, done); }); }
-    var pl = player();
+    var t = T(), pl = player();
     // 時間循環的第二輪以後：名字、生日、頭貼都還在 → 直接響鬧鐘
     if (pl.name && pl.birthday && window.GAME && window.GAME.loop() > 1) { done(); return; }
-    if (pl.name && pl.birthday) photoThenStart();
-    else window.STORY.askName(photoThenStart);
+    function toTitle() { if (window.TITLE) window.TITLE.show(name); else name(); }
+    function name() { window.STORY.askName(bday, toTitle, t.back); }
+    function bday() { window.STORY.askBirthday(photo, name, t.back); }
+    function photo() { askPhoto(function () { askStart(photo, done); }, bday); }
+    name();
   }
 
   /* ---- 解鎖之後的開場 ---- */

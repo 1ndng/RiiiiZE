@@ -62,42 +62,51 @@
     var n = playerName() || T().defaultName, k = playerNick() || n;
     return String(s == null ? '' : s).replace(/\{name\}/g, isMember(who) ? k : n).replace(/\{nick\}/g, k).replace(/\{myname\}/g, n);
   }
-  function askName(done) {
-    var t = T(), w = document.createElement('div');
+  /* 第一次玩：輸入名字。back（可不給）= 「上一步」按鈕要做的事；backLabel = 按鈕文字
+   *   填過的名字會先帶入（從生日那頁按上一步回來時） */
+  function backBtns(back, backLabel, ok, disabled) {
+    return back
+      ? '<div class="ob-btns"><button type="button" data-ob-back>' + esc(backLabel || '上一步') + '</button><button type="submit"' + (disabled ? ' disabled' : '') + '>' + esc(ok) + '</button></div>'
+      : '<button type="submit"' + (disabled ? ' disabled' : '') + '>' + esc(ok) + '</button>';
+  }
+  function askName(done, back, backLabel) {
+    var t = T(), w = document.createElement('div'), old = (load(PKEY, {}) || {}).name || '';
     w.className = 'vn-name';
     w.innerHTML = '<form autocomplete="off"><b>' + esc(t.nameTitle) + '</b><p>' + esc(t.nameHint) + '</p>' +
-      '<input name="n" maxlength="12" placeholder="' + esc(t.namePlaceholder) + '" autocomplete="off">' +
-      '<button type="submit" disabled>' + esc(t.nameOk) + '</button></form>';
+      '<input name="n" maxlength="12" placeholder="' + esc(t.namePlaceholder) + '" autocomplete="off" value="' + esc(old) + '">' +
+      backBtns(back, backLabel, t.nameOk, !old) + '</form>';
     document.getElementById('phone').appendChild(w);
     var f = w.querySelector('form');
     f.n.focus();
-    f.n.addEventListener('input', function () { f.querySelector('button').disabled = !f.n.value.trim(); });
+    f.n.addEventListener('input', function () { f.querySelector('button[type=submit]').disabled = !f.n.value.trim(); });
+    if (back) w.querySelector('[data-ob-back]').addEventListener('click', function () { w.remove(); back(); });
     f.addEventListener('submit', function (e) {
       e.preventDefault();
       var v = f.n.value.trim();
       if (!v) return;
       var pl = load(PKEY, {}) || {}; pl.name = v; store(PKEY, pl);
       w.remove();
-      if (pl.birthday) { done && done(); return; }
-      askBirthday(done);   // 名字之後接著填生日
+      done && done();
     });
   }
 
   // 玩家生日（月、日）：生日那天會停下來播 scenes.birthday_me
-  function askBirthday(done) {
-    var t = T(), w = document.createElement('div'), opts = function (n) { var o = ''; for (var i = 1; i <= n; i++) o += '<option value="' + i + '">' + i + '</option>'; return o; };
+  function askBirthday(done, back, backLabel) {
+    var t = T(), old = /(\d+)-(\d+)/.exec((load(PKEY, {}) || {}).birthday || ''), w = document.createElement('div'), opts = function (n) { var o = ''; for (var i = 1; i <= n; i++) o += '<option value="' + i + '">' + i + '</option>'; return o; };
     w.className = 'vn-name';
     w.innerHTML = '<form autocomplete="off"><b>' + esc(t.bdayTitle) + '</b><p>' + esc(t.bdayHint).replace(/\n/g, '<br>') + '</p>' +
       '<div class="vn-bday"><select name="m">' + opts(12) + '</select><span>' + esc(t.month) + '</span>' +
       '<select name="d">' + opts(31) + '</select><span>' + esc(t.dayUnit) + '</span></div>' +
-      '<button type="submit">' + esc(t.nameOk) + '</button></form>';
+      backBtns(back, backLabel, t.nameOk) + '</form>';
     document.getElementById('phone').appendChild(w);
     var f = w.querySelector('form');
+    if (back) w.querySelector('[data-ob-back]').addEventListener('click', function () { w.remove(); back(); });
     // 每個月的天數（2 月算 29 天）
     f.m.addEventListener('change', function () {
       var max = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][f.m.value - 1], cur = +f.d.value;
       f.d.innerHTML = opts(max); f.d.value = Math.min(cur, max);
     });
+    if (old) { f.m.value = +old[1]; f.m.dispatchEvent(new Event('change')); f.d.value = +old[2]; }   // 從照片那頁回來：帶入填過的生日
     f.addEventListener('submit', function (e) {
       e.preventDefault();
       var pl = load(PKEY, {}) || {};
@@ -568,7 +577,7 @@
   if (window.GAME) {
     // 第一次開始：先輸入名字
     window.GAME.onPhase('morning', function (done) {
-      if (!playerName()) askName(done);
+      if (!playerName()) askName(function () { if ((load(PKEY, {}) || {}).birthday) done(); else askBirthday(done); });
       else if (!(load(PKEY, {}) || {}).birthday) askBirthday(done);
       else done();
     });
@@ -655,6 +664,7 @@
       return r;
     },
     askName: askName,
+    askBirthday: askBirthday,
     playerBirthday: function () { return (load(PKEY, {}) || {}).birthday || ''; },
     // 劇情、輸入名字、日程選單、結局畫面進行中（KakaoTalk 橫幅、來電會等這些結束）
     playing: function () { return !!cur || waitingPlay || !!document.querySelector('.vn-name, .sch, .end-card, .day-stage, .pl, .alarm, .wk, .title-scr'); },
