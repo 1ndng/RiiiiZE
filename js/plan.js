@@ -35,7 +35,7 @@
   function T() {
     var t = C().text || {}, d = {
       planTitle: '{m}月的日程規劃', planHint: '一天可以安排一個日程，沒有安排的日子會回家', confirm: '確認', weekend: '週日', home: '回家',
-      tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以自由規劃當月日程。\n把日程方塊拖到月曆上，確認後即不可更改。',
+      tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以自由規劃日程。\n把方塊拖到月曆上，確認後不可更改。',
       ok: '好', clear: '清除',
       weekendTitle: '今天要和誰見面？', weekendHint: '最多選兩位', go: '出門', stayHome: '待在家',
       single: '今天和{a}一起度過了。', pair: '今天和{a}、{b}一起度過了。', stayHomeText: '今天待在家裡，好好休息了一下。',
