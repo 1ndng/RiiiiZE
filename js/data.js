@@ -81,11 +81,11 @@ window.SITE_DATA = {
   //   播放中點畫面沒反應（快轉模式會直接跳過）；音效關掉時影片靜音
   introVideo: { captionAt: 3000, box: { left: 30, top: 65, width: 54.4, height: 13.8 } },
   introVideos: {
-    m1: { video: "videos/intro_m1.mp4", caption: "生日：11月25日\n出現地點：舞室、\n會辦、網咖" },
-    m2: { video: "videos/intro_m2.mp4", caption: "生日：3月19日\n出現地點：小學、\n會辦、網咖" },
-    m3: { video: "videos/intro_m3.mp4", caption: "生日：9月13日\n出現地點：會辦、\n體育館、KTV" },
-    m4: { video: "videos/intro_m4.mp4", caption: "生日：3月2日\n出現地點：舞室、\n會辦、體育館" },
-    m5: { video: "videos/intro_m5.mp4", caption: "生日：11月21日\n出現地點：舞室、\n會辦、KTV、網咖" },
+    m1: { video: "videos/intro_m1.mp4", caption: "生日：11月25日\n出現地點：\n舞室、會辦、網咖" },
+    m2: { video: "videos/intro_m2.mp4", caption: "生日：3月19日\n出現地點：\n小學、會辦、網咖" },
+    m3: { video: "videos/intro_m3.mp4", caption: "生日：9月13日\n出現地點：\n會辦、體育館、KTV" },
+    m4: { video: "videos/intro_m4.mp4", caption: "生日：3月2日\n出現地點：\n舞室、會辦、體育館" },
+    m5: { video: "videos/intro_m5.mp4", caption: "生日：11月21日\n出現地點：\n舞室、會辦、KTV、網咖" },
     m6: { video: "videos/intro_m6.mp4", caption: "生日：3月21日\n出現地點：小學、\n會辦、體育館、KTV" }
   },
   storyGap: 2000,                // 兩段劇情之間至少隔幾毫秒（上一段結束到下一段開始）
