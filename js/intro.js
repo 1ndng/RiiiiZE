@@ -167,7 +167,12 @@
     var t = T(), pl = player();
     // 時間循環的第二輪以後：名字、生日、頭貼都還在 → 直接響鬧鐘
     if (pl.name && pl.birthday && window.GAME && window.GAME.loop() > 1) { done(); return; }
-    function toTitle() { if (window.TITLE) window.TITLE.show(name); else name(); }
+    // 名字那頁按上一步：清掉填到一半的資料（名字、生日、照片），標題畫面就跟第一次打開一樣
+    function toTitle() {
+      try { localStorage.removeItem(PKEY); } catch (e) {}
+      applyAvatar();
+      if (window.TITLE) window.TITLE.show(name); else name();
+    }
     function name() { window.STORY.askName(bday, toTitle, t.back); }
     function bday() { window.STORY.askBirthday(photo, name, t.back); }
     function photo() { askPhoto(function () { askStart(photo, done); }, bday); }

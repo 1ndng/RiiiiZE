@@ -3,7 +3,7 @@
  *   對話框本體 85% 不透明（15% 透明），名字牌不透明
  * ========================================================= */
 /* 劇情用的字體：Kaisei Decol（fonts/）；它沒有的字（例如「你」「說」「奭」「炤」）依序用
- *   UoqMunThenKhung → JiangChengJieXingTi 補（兩個都只留 Kaisei 沒有的字），還是沒有才用 Noto Serif TC
+ *   UoqMunThenKhung → JiangChengJieXingTi 補（兩個都只留 Kaisei 沒有的字，筆畫調細到跟 Kaisei 差不多），還是沒有才用 Noto Serif TC
  * Kaisei Decol 是日文字體，，。、！？：；「」 這些全形標點會擠在左下角（日文的位置）
  * → unicode-range 不包含全形標點（U+3000–303F、U+FF00–FFEF），讓它們用 Noto Serif TC，照繁體中文置中 */
 @font-face {
@@ -16,11 +16,13 @@
 @font-face {
   font-family: "UoqMunThenKhung";
   src: url("../fonts/UoqMunThenKhung-sub.woff2") format("woff2");
+  font-weight: 400 700;   /* 跟 Kaisei Decol 一樣：粗體時不另外加粗 */
   font-display: swap;
 }
 @font-face {
   font-family: "JiangChengJieXingTi";
   src: url("../fonts/JiangChengJieXingTi-sub.woff2") format("woff2");
+  font-weight: 400 700;   /* 跟 Kaisei Decol 一樣：粗體時不另外加粗 */
   font-display: swap;
 }
 .vn, .vn-name, .sch, .pl, .pl-ghost, .end-card, .day-stage, .day-fade, .ios-alert-wrap.pl-tip {
