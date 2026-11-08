@@ -36,7 +36,7 @@
     var t = (D().storyText || {}), d = {
       log: '紀錄', auto: '自動', skip: '快轉', close: '關閉', save: '存檔', saveTitle: '存檔', back: '返回劇情', slot: '存檔 {n}', empty: '空的',
       dayLabel: '第 {n} 天', saved: '已存檔', overwrite: '要覆蓋這個存檔嗎？', overwriteOk: '覆蓋', cancel: '取消',
-      saveNote: '讀取這個存檔時，會從現在這句話繼續。', nameTitle: '你的名字是？', nameHint: '之後大家都會這樣叫你。', bdayTitle: '你的生日是？', bdayHint: '生日那天會有特別的事。', month: '月', dayUnit: '日', namePlaceholder: '輸入名字', nameOk: '確定',
+      saveNote: '讀取這個存檔時，會從現在這句話繼續。', nameTitle: '你的名字是？', nameHint: '之後可以更改。', bdayTitle: '你的生日是？', bdayHint: '你的手機密碼，之後不可更改。\n生日那天會發生特別的事。', month: '月', dayUnit: '日', namePlaceholder: '輸入名字', nameOk: '確定',
       defaultName: '轉學生', logEmpty: '還沒有對話'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -87,7 +87,7 @@
   function askBirthday(done) {
     var t = T(), w = document.createElement('div'), opts = function (n) { var o = ''; for (var i = 1; i <= n; i++) o += '<option value="' + i + '">' + i + '</option>'; return o; };
     w.className = 'vn-name';
-    w.innerHTML = '<form autocomplete="off"><b>' + esc(t.bdayTitle) + '</b><p>' + esc(t.bdayHint) + '</p>' +
+    w.innerHTML = '<form autocomplete="off"><b>' + esc(t.bdayTitle) + '</b><p>' + esc(t.bdayHint).replace(/\n/g, '<br>') + '</p>' +
       '<div class="vn-bday"><select name="m">' + opts(12) + '</select><span>' + esc(t.month) + '</span>' +
       '<select name="d">' + opts(31) + '</select><span>' + esc(t.dayUnit) + '</span></div>' +
       '<button type="submit">' + esc(t.nameOk) + '</button></form>';

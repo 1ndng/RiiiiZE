@@ -20,8 +20,8 @@
   function player() { return load(PKEY, {}) || {}; }
   function T() {
     var t = (D().intro || {}).text || {}, d = {
-      photoTitle: '上傳你的照片', photoHint: '用作 App 的頭貼；不選則為預設頭貼。', pick: '選擇照片', remove: '移除', next: '下一步', change: '換一張',
-      startTitle: '準備好了嗎？', startHint: '開始之後，就回不去了。', back: '上一步', start: '開始遊戲'
+      photoTitle: '上傳你的照片', photoHint: 'IG以及X的頭貼之後可以更改；kakao talk的頭貼無法更改。', pick: '選擇照片', remove: '移除', next: '下一步', change: '換一張',
+      startTitle: '準備好遊玩了嗎？', startHint: '確定好資料後，即可進入遊戲。', back: '上一步', start: '開始遊戲'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
     return d;

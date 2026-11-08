@@ -755,7 +755,7 @@ window.SITE_DATA = {
     photos: [                      // 例：{ image: PH, date: "2025年8月20日", time: "下午 6:40", place: "地點" }
       // 開學週的照片（9/7 晚上第一次自由用手機時看得到）；say = 第一次點開這張照片時，你的一句話（劇情對話框，只跳一次）
       { image: "images/photos/0901_wonbin.jpg", from: "09-02", date: "2025年9月1日", time: "下午 12:31", say: "開學第一天跟元彬吃飯！" },
-      { image: "images/photos/0902_club.jpg", from: "09-02", date: "2025年9月2日", time: "下午 5:18", say: "這兩個人萌萌地在幹嘛？話說系辦好亂⋯⋯" },
+      { image: "images/photos/0902_club.jpg", from: "09-02", date: "2025年9月2日", time: "下午 5:18", say: "這兩個人萌萌地在幹嘛？話說會辦好亂⋯⋯" },
       { image: "images/photos/0903_chanyoung.jpg", from: "09-03", date: "2025年9月3日", time: "下午 4:26", say: "完全抵擋不了的狗狗視線⋯⋯" },
       { image: "images/photos/0903_eunseok.jpg", from: "09-03", date: "2025年9月3日", time: "下午 7:42", say: "下班後逛了一下，收集少見的感性宋恩奭。" },
       { image: "images/photos/0904_sungchan.jpg", from: "09-04", date: "2025年9月4日", time: "下午 9:47", say: "好愛拿我手機自拍啊鄭成燦==" },
