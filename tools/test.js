@@ -187,9 +187,8 @@ const TESTS = [
     await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     await p.waitForSelector('.vn', { timeout: 8000 }); await sleep(400);
     if (await p.$('.wk')) throw new Error('隨機劇情還沒播，每週回顧就出現了');
-    const t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || '');
-    const firsts = await p.evaluate(() => Object.keys(SITE_DATA.scenes).filter(k => k.indexOf('rand_club_') === 0).map(k => SITE_DATA.scenes[k][0].text));
-    if (!firsts.some(f => t.indexOf(f.slice(0, 8)) >= 0)) throw new Error('先播的不是隨機劇情：' + t.slice(0, 40));
+    const sc = await p.evaluate(() => STORY.scene && STORY.scene());   // 正在播的劇情 id
+    if (!/^rand_club_/.test(sc || '')) throw new Error('先播的不是隨機劇情：' + sc);
     for (let i = 0; i < 1500 && !(await p.$('.wk')); i++) {
       await p.evaluate(() => { const c = document.querySelector('[data-vn-choice]'); if (c) c.click(); const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(60);
     }
