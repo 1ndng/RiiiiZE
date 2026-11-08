@@ -625,7 +625,7 @@
     stage(null);
     var lk = document.getElementById('lock'); if (lk) lk.remove();
     w.className = 'vn-name trial-end';   // 用和開場輸入名字一樣的粉紅卡片（js/bgm.js 會放標題音樂）
-    w.innerHTML = '<form autocomplete="off"><b>' + esc(t.title || '試玩版到這裡結束') + '</b>' +
+    w.innerHTML = '<form autocomplete="off"><b>' + esc(t.title || '前方施工中⋯') + '</b>' +
       '<p>' + esc(t.text || '後面的內容還在製作中。').replace(/\n/g, '<br>') + '</p>' +
       '<button type="button" data-trial-save>' + esc(t.save || '存檔') + '</button>' +
       '<button type="button" class="ob-remove" data-trial-title>' + esc(t.toTitle || '回到標題畫面') + '</button>' +
