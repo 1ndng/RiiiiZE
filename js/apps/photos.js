@@ -1,7 +1,7 @@
 /* 相簿（iPhone 內建「照片」風格）
  *   #/photos                 圖庫（年／月／所有照片）
  *   #/photos/albums          相簿列表
- *   #/photos/album/相簿id     某個相簿（fav = 個人收藏、videos = 影片、hidden = 已隱藏、deleted = 最近刪除、all = 最近項目）
+ *   #/photos/album/相簿id     某個相簿（fav = 喜好項目、videos = 影片、hidden = 已隱藏、deleted = 最近刪除、all = 最近項目）
  *   #/photos/view/相簿id/編號 看照片（左右滑動換張）
  * 玩家按的「收藏」「刪除」存在瀏覽器（riiiize-photos），重新開始會清掉 */
 (function () {
@@ -33,7 +33,7 @@
     libraryTitle: '圖庫', albumsTitle: '相簿',
     years: '年', months: '月', allPhotos: '所有照片', edit: '編輯',
     myAlbums: '我的相簿', mediaTypes: '媒體類型', utilities: '其他',
-    recents: '最近項目', favorites: '個人收藏', videos: '影片', hidden: '已隱藏', deleted: '最近刪除',
+    recents: '最近項目', favorites: '喜好項目', videos: '影片', hidden: '已隱藏', deleted: '最近刪除',
     photosUnit: '張照片', videosUnit: '部影片', empty: '沒有照片或影片',
     deleteConfirm: '刪除照片', deleteNote: '此照片將從所有裝置中刪除，並會保留在「最近刪除」中 30 天。',
     deleteForever: '永久刪除', recover: '復原', cancel: '取消',
@@ -243,7 +243,7 @@
     if (k === 'del') typed = typed.slice(0, -1); else if (typed.length < code.length) typed += k;
     dots.querySelectorAll('i').forEach(function (d, i) { d.classList.toggle('on', i < typed.length); });
     if (typed.length < code.length) return;
-    if (typed === code) {
+    if (typed === code && !P().hiddenAlwaysWrong) {   // hiddenAlwaysWrong：目前不管輸入什麼都算錯（之後再開放）
       hiddenOpen = true;
       S().setFlag('photos_hidden_unlocked');
       setTimeout(function () { renderAlbum('hidden'); }, 150);
@@ -253,6 +253,21 @@
         setTimeout(function () { typed = ''; dots.classList.remove('shake'); dots.querySelectorAll('i').forEach(function (d) { d.classList.remove('on'); }); }, 400);
       }, 120);
     }
+  }
+
+  /* ---- 存圖：手機（支援分享檔案）→ 跳出分享選單（可以「儲存影像」）；其他 → 直接下載 ---- */
+  function savePhoto() {
+    if (!view) return;
+    var p = list()[view.items[view.pos]];
+    if (!p || !p.image) return;
+    var name = p.image.split('/').pop().split('?')[0];
+    function download() { var a = document.createElement('a'); a.href = p.image; a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+    if (!window.fetch || !navigator.canShare || !window.File) { download(); return; }
+    fetch(p.image).then(function (r) { return r.blob(); }).then(function (b) {
+      var f = new File([b], name, { type: b.type || 'image/jpeg' });
+      if (navigator.canShare({ files: [f] })) navigator.share({ files: [f] }).catch(function () {});
+      else download();
+    }).catch(download);
   }
 
   /* ---- 看照片 ---- */
@@ -272,7 +287,7 @@
         '<div class="pt-vtop">' +
           '<a href="#/photos" data-pback>' + ICON.back + '</a>' +
           '<div class="pt-vtitle"><b id="pt-vdate"></b><small id="pt-vtime"></small></div>' +
-          '<button type="button" class="pt-vedit" data-na>' + esc(t.edit) + '</button>' +
+          '<span class="pt-vedit"></span>' +   // 編輯鍵拿掉（留空位讓日期置中）
         '</div>' +
         '<div class="pt-strip" id="pt-strip">' + a.items.map(function (i) {
           var p = list()[i];
@@ -283,7 +298,7 @@
         '<div class="pt-vbar">' + (del
           ? '<button type="button" class="pt-red" data-forever>' + esc(t.deleteForever) + '</button>' +
             '<button type="button" class="pt-blue" data-recover>' + esc(t.recover) + '</button>'
-          : '<button type="button" data-na>' + ICON.share + '</button>' +
+          : '<button type="button" data-save>' + ICON.share + '</button>' +   // 分享鍵 = 存圖
             '<button type="button" data-fav id="pt-favbtn"></button>' +
             '<button type="button" data-info>' + ICON.info + '</button>' +
             '<button type="button" data-delete>' + ICON.trash + '</button>') +
@@ -403,6 +418,7 @@
       }
     }
     if (e.target.closest('[data-na]')) S().toast();
+    if (e.target.closest('[data-save]')) savePhoto();
   });
 
   (window.SOSHO_APPS = window.SOSHO_APPS || {}).photos = route;

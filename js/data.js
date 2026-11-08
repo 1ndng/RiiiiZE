@@ -745,13 +745,14 @@ window.SITE_DATA = {
    * photos：所有照片，照時間「舊 → 新」排（圖庫最下面是最新的）；每張的編號 = 在這個清單的位置（從 0 開始）
    *   image = 圖片或影片路徑（.mp4 = 影片，再寫 duration: "0:15" 顯示長度）
    *   date = "2026年1月1日"（年／月分組用）、time = "下午 3:20"、place = 地點、device = 拍攝裝置、caption = 說明
-   *   favorite: true = 預設在「個人收藏」；hidden: true = 只在「已隱藏」相簿
+   *   favorite: true = 預設在「喜好項目」；hidden: true = 只在「已隱藏」相簿
    *   from: "09-15" = 那天起才出現；if: 條件 = 條件成立才出現（例如 { awakened: "m3" }）
    * albums：自己建的相簿（photos 寫照片編號）
    * hiddenPasscode：打開「已隱藏」相簿要輸入的密碼（留空 "" = 不鎖）；解開時記錄旗標 photos_hidden_unlocked
    */
   photos: {
     hiddenPasscode: "0000",
+    hiddenAlwaysWrong: true,       // 目前「已隱藏」不管輸入什麼密碼都算錯（之後要開放時改成 false）
     photos: [                      // 例：{ image: PH, date: "2025年8月20日", time: "下午 6:40", place: "地點" }
       // 開學週的照片（9/7 晚上第一次自由用手機時看得到）；say = 第一次點開這張照片時，你的一句話（劇情對話框，只跳一次）
       { image: "images/photos/0901_wonbin.jpg", from: "09-02", date: "2025年9月1日", time: "下午 12:31", say: "開學第一天跟元彬吃飯！" },
