@@ -204,7 +204,7 @@
       if ('music' in s) { cur.music = s.music; if (s.text == null && !s.choices && !s.bg && !s.wait) continue; }
       if (s.bg != null) {
         // 劇情中途換場景：先漸黑（對話框收起來）→ 換背景 → 再漸亮，接著出現下一句（約 1 秒）
-        if (cur.bgSet && s.bg !== cur.bg && cur.cutAt !== cur.i - 1) { cut(s.bg, cur.i - 1); return; }
+        if (cur.said && s.bg !== cur.bg && cur.cutAt !== cur.i - 1) { cut(s.bg, cur.i - 1); return; }   // 劇情開頭（還沒有台詞）的背景直接換，不轉場
         setBg(s.bg);
       }
       if (!resumed && !cur.replay && s.effects && window.GAME) window.GAME.apply(s.effects);
@@ -388,6 +388,7 @@
   setTimeout(function () { (D().cast || []).forEach(function (c) { if (c.portrait) { var im = new Image(); im.src = c.portrait; } }); }, 1500);
   function say(who, text, resumed) {
     var name = nameOf(who), full = fill(text, who).replace(/\{wish\}/g, cur.wishText || '');
+    cur.said = true;   // 這段劇情已經出現過台詞（之後換背景才用漸黑轉場）
     if (!resumed || !cur.log.length) cur.log.push({ who: name, text: full });   // 從存檔繼續：這句已經在紀錄裡
     var k = seenKey(full);
     cur.seen = !!seen[k]; markSeen(k);
