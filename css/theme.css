@@ -2,7 +2,8 @@
  * 劇情與選單的外觀：對話框直接用設計圖（images/ui/），其他選單照它的粉紅格紋風格
  *   對話框本體 85% 不透明（15% 透明），名字牌不透明
  * ========================================================= */
-/* 劇情用的字體：Kaisei Decol（fonts/）；它沒有的字（例如「你」「說」「奭」「炤」）用 Noto Serif TC 補上
+/* 劇情用的字體：Kaisei Decol（fonts/）；它沒有的字（例如「你」「說」「奭」「炤」）依序用
+ *   UoqMunThenKhung → JiangChengJieXingTi 補（兩個都只留 Kaisei 沒有的字），還是沒有才用 Noto Serif TC
  * Kaisei Decol 是日文字體，，。、！？：；「」 這些全形標點會擠在左下角（日文的位置）
  * → unicode-range 不包含全形標點（U+3000–303F、U+FF00–FFEF），讓它們用 Noto Serif TC，照繁體中文置中 */
 @font-face {
@@ -12,8 +13,18 @@
   font-display: swap;
   unicode-range: U+0000-2FFF, U+3040-FEFF, U+FFF0-10FFFF;
 }
+@font-face {
+  font-family: "UoqMunThenKhung";
+  src: url("../fonts/UoqMunThenKhung-sub.woff2") format("woff2");
+  font-display: swap;
+}
+@font-face {
+  font-family: "JiangChengJieXingTi";
+  src: url("../fonts/JiangChengJieXingTi-sub.woff2") format("woff2");
+  font-display: swap;
+}
 .vn, .vn-name, .sch, .pl, .pl-ghost, .end-card, .day-stage, .day-fade, .ios-alert-wrap.pl-tip {
-  font-family: "Kaisei Decol", "Noto Serif TC", "Songti TC", "PMingLiU", serif;
+  font-family: "Kaisei Decol", "UoqMunThenKhung", "JiangChengJieXingTi", "Noto Serif TC", "Songti TC", "PMingLiU", serif;
 }
 .vn button, .vn input, .vn select, .vn-name button, .vn-name input, .vn-name select, .sch button, .pl button { font-family: inherit; }
 
@@ -156,7 +167,7 @@
 .vn-tools button { padding: 6px 11px; }
 
 /* ---------- 這週的放學後（每週回顧） ---------- */
-.wk { position: absolute; inset: 0; z-index: 48; display: flex; align-items: center; justify-content: center; padding: 0 20px; background: rgba(120, 50, 95, .28); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .25s; font-family: "Kaisei Decol", "Noto Serif TC", serif; }
+.wk { position: absolute; inset: 0; z-index: 48; display: flex; align-items: center; justify-content: center; padding: 0 20px; background: rgba(120, 50, 95, .28); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity .25s; font-family: "Kaisei Decol", "UoqMunThenKhung", "JiangChengJieXingTi", "Noto Serif TC", serif; }
 .wk.show { opacity: 1; }
 .wk-in { width: 100%; padding: 22px 16px 18px; border-radius: 22px; background: var(--pk-gingham), rgba(226, 160, 202, .95); border: 2px solid rgba(255, 220, 240, .9); box-shadow: 0 10px 26px rgba(120, 50, 95, .3); color: var(--pk-text); text-align: center; }
 .wk-in small { display: block; font-size: 13px; opacity: .75; }
@@ -177,7 +188,7 @@
 .wk-in button { margin-top: 14px; width: 100%; padding: 12px; border-radius: 14px; font: inherit; font-size: 16px; background: var(--pk-plate) !important; color: #7a3d66 !important; border: 2px solid var(--pk-plate-line) !important; font-weight: 700; box-shadow: 0 4px 10px rgba(185, 114, 159, .3); }
 
 /* ---------- 標題畫面 ---------- */
-.title-scr { position: absolute; inset: 0; z-index: 99; overflow: hidden; background: #e9d6e3; opacity: 0; transition: opacity .45s; font-family: "Kaisei Decol", "Noto Serif TC", serif; container-type: size; }
+.title-scr { position: absolute; inset: 0; z-index: 99; overflow: hidden; background: #e9d6e3; opacity: 0; transition: opacity .45s; font-family: "Kaisei Decol", "UoqMunThenKhung", "JiangChengJieXingTi", "Noto Serif TC", serif; container-type: size; }
 /* 標題圖：9:16 完整顯示在中間；旁邊用同一張圖放大模糊填滿 */
 .title-blur { position: absolute; inset: -30px; background: center / cover no-repeat; filter: blur(18px) brightness(.95); }
 .title-art { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(100cqw, 100cqh * 9 / 16); aspect-ratio: 9 / 16; background: center / 100% 100% no-repeat; }
