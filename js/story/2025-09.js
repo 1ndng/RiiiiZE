@@ -657,6 +657,7 @@ RIIIZE_ADD({
   // X 貼文（data.js 的 x.tweets）
   tweets: [
     // likedBy = 按讚的成員（目前畫面只顯示數字 likes）；replies 的 replyTo = 回覆誰（沒寫 = 回覆發文的人）
+    // x0908、x0913：9/14 起才看得到（X 只有星期日晚上能看；試玩版 9/13 晚上看到的和 9/7 一樣）
     // x0901：元彬 9/1 晚上發的（if：第一天結束後才看得到；開場探索是 9/1 早上，看不到）
     { id: "x0901", by: "bin032", from: "09-01", if: { any: [{ day: ">=2" }, { phase: "night" }] }, date: "下午 10:30 · 2025/9/1", time: "9月1日", text: "這學期加油⭐️🙏🏻", likes: 5, likedBy: ["shotaroo0", "seokkkk", "sungchan913", "252525252_", "antonnie"] },
     { id: "x0902", by: "shotaroo0", from: "09-02", date: "下午 9:41 · 2025/9/2", time: "9月2日", text: "韓文太難了 ㅎㅎ", likes: 2, likedBy: ["252525252_", "seokkkk"], replies: [
@@ -681,8 +682,8 @@ RIIIZE_ADD({
     { id: "x0906", by: "sungchan913", from: "09-06", date: "下午 7:55 · 2025/9/6", time: "9月6日", text: "明天KTV誰都別想跟我搶麥！", likes: 2, likedBy: ["252525252_", "antonnie"], replies: [
       { by: "seokkkk", time: "9月6日", text: "如此霸道。" }
     ] },
-    { id: "x0908", by: "bin032", from: "09-08", date: "上午 6:10 · 2025/9/8", time: "9月8日", text: "晨跑。\n某人又沒吹頭髮就睡覺。" },
-    { id: "x0913", by: "sungchan913", from: "09-13", date: "下午 11:48 · 2025/9/13", time: "9月13日", text: "今天是我人生最棒的生日😭😭😭\n謝謝你們！！！明年也要一起！！！" },
+    { id: "x0908", if: { day: ">=14" }, by: "bin032", from: "09-08", date: "上午 6:10 · 2025/9/8", time: "9月8日", text: "晨跑。\n某人又沒吹頭髮就睡覺。" },
+    { id: "x0913", if: { day: ">=14" }, by: "sungchan913", from: "09-13", date: "下午 11:48 · 2025/9/13", time: "9月13日", text: "今天是我人生最棒的生日😭😭😭\n謝謝你們！！！明年也要一起！！！" },
     { id: "x0920", by: "seokkkk", from: "09-20", date: "下午 4:30 · 2025/9/20", time: "9月20日", text: "如果今天一直重複，冷笑話也會重複嗎。" },
     { id: "x0927", by: "antonnie", from: "09-27", date: "上午 1:14 · 2025/9/27", time: "9月27日", text: "wrote half a song today.\n只有一個人聽過。" }
   ]

@@ -59,7 +59,10 @@
   // 只有星期日是假日（星期六可以排日程）
   function isWeekend(day) { return dateOf(day).getDay() === 0; }
   // 這天能不能用手機：星期日、最後一天、看完結局之後
-  function phoneDay(day) { return dateOf(day).getDay() === 0 || day >= G().totalDays() || !!G().ended; }
+  function phoneDay(day) { return dateOf(day).getDay() === 0 || day >= G().totalDays() || !!G().ended || trialLast(day); }
+  // 試玩版的最後一天（game.trialEnd 的前一天，目前 9/13）：晚上也能自由用手機，按「睡覺」→ 前方施工中
+  function trialOn() { var e = (D().game || {}).trialEnd, off = false; try { off = localStorage.getItem('riiiizeNoTrial') === '1'; } catch (er) {} return !!e && !off; }
+  function trialLast(day) { return trialOn() && day === G().dayOf((D().game || {}).trialEnd) - 1; }
   function ym(day) { var d = dateOf(day); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }
   function plans() { return load(PKEY, null) || { months: {}, days: {} }; }
 
@@ -179,6 +182,7 @@
 
   // 有事的日子 = 要停下來（可以使用手機）
   function isStop(day) {
+    if (trialLast(day)) return true;   // 試玩版最後一天一定停下來（晚上自由用手機）
     if (storyOn(day).length || holidaysOn(day).length || birthdaysOn(day).length || isGiftDay(day)) return true;
     if (bondFor(day)) return true;   // 友誼線、愛情線的劇情
     if (dateOf(day).getDay() === 0) return true;   // 星期日：夜間自由使用手機
@@ -627,24 +631,23 @@
   }
   /* ---- 試玩版：到 game.trialEnd 那天開始前停下來（後面還在製作中），可以存檔、回到標題畫面 ---- */
   // 開發測試時想繼續玩下去：瀏覽器的 localStorage 設 riiiizeNoTrial = 1（自動測試也用這個）
-  function trialBlocked() {
-    var e = (D().game || {}).trialEnd, off = false;
-    try { off = localStorage.getItem('riiiizeNoTrial') === '1'; } catch (er) {}
-    return !!e && !off && G().day >= G().dayOf(e) && !G().ended;
-  }
-  function trialBlock() {
+  function trialBlocked() { return trialOn() && G().day >= G().dayOf((D().game || {}).trialEnd) && !G().ended; }
+  // canBack = 從最後一天晚上按睡覺來的：可以「回到手機畫面」繼續探索
+  function trialBlock(canBack) {
+    if (document.querySelector('.trial-end')) return;
     var t = (D().game || {}).trialText || {}, w = document.createElement('div');
-    stage(null);
-    var lk = document.getElementById('lock'); if (lk) lk.remove();
+    if (!canBack) { stage(null); var lk = document.getElementById('lock'); if (lk) lk.remove(); }
     w.className = 'vn-name trial-end';   // 用和開場輸入名字一樣的粉紅卡片（js/bgm.js 會放標題音樂）
     w.innerHTML = '<form autocomplete="off"><b>' + esc(t.title || '前方施工中⋯') + '</b>' +
       '<p>' + esc(t.text || '後面的內容還在製作中。').replace(/\n/g, '<br>') + '</p>' +
       '<button type="button" data-trial-save>' + esc(t.save || '存檔') + '</button>' +
+      (canBack ? '<button type="button" class="ob-remove" data-trial-back>' + esc(t.toPhone || '回到手機畫面') + '</button>' : '') +
       '<button type="button" class="ob-remove" data-trial-title>' + esc(t.toTitle || '回到標題畫面') + '</button>' +
       '<p class="trial-msg" hidden></p></form>';
     document.getElementById('phone').appendChild(w);
     w.addEventListener('click', function (e) {
       if (e.target.closest('[data-trial-title]')) { location.reload(); return; }
+      if (e.target.closest('[data-trial-back]')) { w.remove(); return; }
       if (!e.target.closest('[data-trial-save]')) return;
       // 存到第一個空的存檔欄位（自動存檔也會保留）
       var s = G().saves(), n = G().slots(), id = null;
@@ -674,6 +677,7 @@
   var chaining = false;
   function go() {
     if (going) return;
+    if (trialLast(G().day) && !(window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting())) { trialBlock(true); return; }   // 試玩版：最後一天按睡覺 → 前方施工中
     // 每日聊天還沒聊完（包括兩段之間的空檔）：不能睡覺
     if (chaining || (window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting())) return;
     // 8/31 晚上睡覺 = 一年結束 → 時間循環，回到 9/1（例如讀了「循環前的存檔」之後）
@@ -836,7 +840,7 @@
     var fpKey = 'freephone_' + G().day;   // 一天只提醒一次（重新整理不會再跳）
     // 先出現鎖定畫面，提醒蓋在鎖定畫面上（背景就是輸入密碼前的那一頁），看完再自己解鎖
     lockNow();
-    if (dateOf(G().day).getDay() === 0 && scene('free_phone') && window.STORY && !(S() && S().hasFlag(fpKey))) {
+    if ((dateOf(G().day).getDay() === 0 || trialLast(G().day)) && scene('free_phone') && window.STORY && !(S() && S().hasFlag(fpKey))) {
       if (S()) S().setFlag(fpKey);
       window.STORY.play('free_phone', function () {}, null, 'phone-dim', { noGap: true, overLock: true });
     }
@@ -877,7 +881,7 @@
   });
 
   window.PLAN = {
-    sleep: sleep, go: go, wish: wish, bondFor: bondFor, eventsOn: eventsOn, phoneDay: function (d) { return phoneDay(d || G().day); },
+    sleep: sleep, go: go, wish: wish, trialLast: function (d) { return trialLast(d == null ? G().day : d); }, bondFor: bondFor, eventsOn: eventsOn, phoneDay: function (d) { return phoneDay(d || G().day); },
     // 打開網頁時：新遊戲 → 先響鬧鐘；能用手機的日子 → 鎖定畫面；不能 → 直接開始這一天
     boot: boot,
     // 開場結束 → 畫面變黑、顯示今天的日期 → 開始這一天（js/intro.js）

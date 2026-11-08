@@ -165,6 +165,7 @@
     if (!G || !G.dayOf || (t.mine && !t.from)) return true;
     if (!t.from) return false;
     var d = G.dayOf(t.from), today = G.day, wd = G.date(today).getDay(), monday = today - ((wd + 6) % 7);
+    if (window.PLAN && window.PLAN.trialLast && window.PLAN.trialLast(today)) monday -= 7;   // 試玩版最後一晚（9/13）：首頁和 9/7 一樣（顯示上一週的貼文）
     return d >= monday && d <= today;
   }
 

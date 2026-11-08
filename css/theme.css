@@ -270,4 +270,5 @@
 @keyframes vnTapBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1cqw); } }
 /* 試玩版結束的卡片（js/plan.js 的 trialBlock） */
 .vn-name .trial-msg { margin: 10px 0 0; font-size: 13px; }
+.vn-name.trial-end p:not(.trial-msg) { margin-bottom: 8px; }   /* 存檔鍵往上靠一點 */
 .vn-name .trial-msg[hidden] { display: none; }
