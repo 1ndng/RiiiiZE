@@ -550,7 +550,8 @@ window.SITE_DATA = {
     // title.mp3 從原曲 0:07 開始剪、awake.mp3 從 0:01 開始剪（循環時也從這裡重來）
     music: { title: "audio/title.mp3?v=2", main: "audio/main.mp3", aff: "audio/aff.mp3", home: "audio/home.mp3", awake: "audio/awake.mp3?v=2",
              alarm: "audio/alarm.mp3", intro: "audio/intro.mp3",
-             ring: "audio/title.mp3?v=2", ringStart: 99,   // 來電鈴聲 = 標題音樂原曲的 1:46（title.mp3 從 0:07 開始剪，所以是第 99 秒）
+             ring: "audio/title.mp3?v=2", ringStart: 99,
+             // anotherlife: "audio/anotherlife.mp3",   // 9/7 KTV 點的〈Another Life〉（劇情裡寫 { music: "anotherlife" }）；放好檔案後把這行前面的 // 拿掉   // 來電鈴聲 = 標題音樂原曲的 1:46（title.mp3 從 0:07 開始剪，所以是第 99 秒）
              volume: { title: 0.6, main: 0.45, aff: 0.45, home: 0.45, awake: 0.5, alarm: 0.7, intro: 0.55, ring: 0.6 } },
     // 音效：message = KakaoTalk 收到訊息
     sounds: { message: "audio/message.mp3", volume: { message: 0.6 } },

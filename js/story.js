@@ -13,6 +13,7 @@
  *   { wait: 1000 }                           停頓（毫秒）：對話框先收起來，時間到自動接下一句
  *   { choices: [ { text, effects, flag, goto, if }, … ] }   選項；goto = 跳到哪個 label（不寫 = 接著往下）
  *   { text: "…", sfx: "message" }          這句出現時播音效（data.js 的 game.sounds）
+ *   { music: "anotherlife" } / { music: null }   劇情中換音樂（data.js 的 game.music）／換回原本的
  *   { call: { room, from, forced, start, nodes } }   KakaoTalk 來電（格式同 kakao.incoming；forced = 一定要接），講完才往下
  *   { label: "名稱" }                         標記，給 goto 用
  *   { goto: "名稱" }                          跳過去（常和 if 一起用：條件成立才跳）
@@ -198,6 +199,8 @@
       if (s.end) break;
       if (s.ending) { if (!cur.replay) cur.ending = s.ending; break; }   // 進入結局（js/ending.js）；回想時只停下來
       if (s.label != null && s.text == null) continue;
+      // 劇情中換音樂：{ music: "anotherlife" }（data.js 的 game.music 裡的名字）；{ music: null } = 換回原本的背景音樂（劇情結束也會自動換回）
+      if ('music' in s) { cur.music = s.music; if (s.text == null && !s.choices && !s.bg && !s.wait) continue; }
       if (s.bg != null) {
         // 劇情中途換場景：先漸黑（對話框收起來）→ 換背景 → 再漸亮，接著出現下一句（約 1 秒）
         if (cur.bgSet && s.bg !== cur.bg && cur.cutAt !== cur.i - 1) { cut(s.bg, cur.i - 1); return; }
@@ -593,6 +596,7 @@
     play: play, fill: fill, playerName: playerName, playerNick: playerNick,
     // 現在正在播的劇情 id（沒有 = null；背景音樂用）；clueBusy = 找到線索後的強制聊天／留言進行中
     scene: function () { return cur ? cur.id : null; },
+    music: function () { return cur ? cur.music || null : null; },
     clueBusy: function () { return Object.keys(clueRunning).some(function (k) { return clueRunning[k]; }); },
     // 設定：改名字、改稱呼（稱呼寫空的 = 跟名字一樣）
     setNick: function (v) { var pl = load(PKEY, {}) || {}; v = String(v || '').trim(); if (v && v !== pl.name) pl.nick = v; else delete pl.nick; store(PKEY, pl); },

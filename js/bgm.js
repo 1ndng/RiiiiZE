@@ -67,6 +67,8 @@
     if (document.querySelector('#kc.ringing')) return 'ring';   // KakaoTalk 來電響鈴中
     if (document.querySelector('.vn-intro')) return 'intro';
     var G = window.GAME, P = window.PLAN, K = window.SOSHO_KAKAO, St = window.STORY, E = window.ENDING;
+    var mo = St && St.music && St.music();
+    if (mo && cfg()[mo]) return mo;   // 劇情指定的音樂（例如 9/7 KTV 的〈Another Life〉；還沒放檔案就照原本的）
     if (E && E.running && E.running() || document.querySelector('.end-card')) return 'awake';
     // 線索：強制聊天／留言 → 反應劇情之間的空檔也維持覺醒音樂（3 秒）
     if (St && St.clueBusy && St.clueBusy()) { awakeUntil = Date.now() + 3000; return 'awake'; }
@@ -79,7 +81,8 @@
     if (P && P.phoneDay && G.phase === 'night' && P.phoneDay()) return 'home';   // 自由探索手機
     if (G.ended) return 'home';
     var sunday = G.date(G.day).getDay() === 0, gift = /-14$/.test(G.md(G.day));
-    if (sunday && G.phase !== 'night') return 'aff';
+    var planFrom = G.dayOf ? G.dayOf((((window.SITE_DATA || {}).plan || {}).planFrom) || '09-08') : 0;
+    if (sunday && G.phase !== 'night' && G.day >= planFrom) return 'aff';   // 開學週的星期日（9/7）有主線：照主線音樂
     if (gift && document.querySelector('.sch')) return 'aff';
     return 'main';
   }
