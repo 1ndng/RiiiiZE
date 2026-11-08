@@ -387,7 +387,15 @@ const TESTS = [
       'riiiize-flags': { alarm_done: 1, intro_done: 1, plan_tutorial: 1, phone_unlocked: 1, freephone_14: 1, giftdone_14: 1, daychat_0907_helper: 1 } }));
     await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.remove(); SITE_DATA.storySpeed = 1; STORY.play('birthday_me'); });
     await sleep(2600);
-    for (let i = 0; i < 120 && !(await p.$('.sch .sch-col button')); i++) { await p.evaluate(() => { const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(80); }
+    // 中間會切到手機主畫面：點 KakaoTalk → 元彬的訊息選「方便」→ 回到劇情
+    for (let i = 0; i < 200 && !(await p.$('.sch .sch-col button')); i++) {
+      await p.evaluate(() => {
+        if (document.getElementById('phone').classList.contains('only-kakao')) { const k = document.querySelector('a.app-icon[href="#/kakao"]'); if (k) k.click(); return; }
+        const chip = document.querySelector('#kk-choices .kk-chip'); if (chip) { chip.click(); const x = document.querySelector('.kk-send'); if (x) x.click(); return; }
+        const v = document.querySelector('.vn:not(.vn-away) #vn-box'); if (v) v.click();
+      });
+      await sleep(120);
+    }
     await p.click('.sch .sch-col button >> nth=0'); await sleep(400);
     await p.click('.sch-cast button >> nth=3'); await p.click('[data-go]'); await sleep(800);
     let t = '';
