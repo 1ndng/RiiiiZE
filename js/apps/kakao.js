@@ -605,6 +605,17 @@
   // 給通話（kakaocall.js）用
   window.SOSHO_KAKAO = {
     friend: function (id) { return friend(id); },
+    // 劇情裡收到訊息（js/story.js 的 { phone }）：直接放進聊天室、算未讀（KakaoTalk 圖示會出現紅點）
+    inject: function (room, msgs) {
+      var st = state(), f = friend(room);
+      if (!f) return;
+      st.msgs[room] = st.msgs[room] || [];
+      (msgs || []).forEach(function (m) {
+        st.msgs[room].push({ from: f.group ? (m.from || (f.members[0] || {}).id) : 'them', text: m.text, image: m.image, time: m.time || nowTime(), day: gameDay() });
+      });
+      st.unread[room] = unreadOf(f) + (msgs || []).length;
+      S().save(KEY, st);
+    },
     // 每日聊天（js/plan.js）：今天有沒有、開始跑
     dayChatFor: function (md) {
       return (K().dayChats || []).filter(function (c) { return c.date === md && ok(c.if) && !S().hasFlag(dayChatKey(c)); })[0] || null;

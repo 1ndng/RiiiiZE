@@ -14,6 +14,7 @@
  *   { choices: [ { text, effects, flag, goto, if }, … ] }   選項；goto = 跳到哪個 label（不寫 = 接著往下）
  *   { text: "…", sfx: "message" }          這句出現時播音效（data.js 的 game.sounds）
  *   { music: "anotherlife" } / { music: null }   劇情中換音樂（data.js 的 game.music）／換回原本的
+ *   { phone: { id, room, time, before, steps } }   回到手機主畫面收到訊息（只能點 KakaoTalk），聊完才往下
  *   { call: { room, from, forced, start, nodes } }   KakaoTalk 來電（格式同 kakao.incoming；forced = 一定要接），講完才往下
  *   { label: "名稱" }                         標記，給 goto 用
  *   { goto: "名稱" }                          跳過去（常和 if 一起用：條件成立才跳）
@@ -213,6 +214,8 @@
       if (s.hold && s.text == null) { hold(s.hold); return; }
       cur.at = cur.i - 1;   // 現在畫面上這一步（存檔用）
       if (s.sfx && !resumed && window.SOSHO_BGM) window.SOSHO_BGM.sfx(s.sfx);   // 音效（data.js 的 game.sounds，例如 "message"）
+      // 手機：回到主畫面、收到 KakaoTalk 訊息（只能點 KakaoTalk）→ 點進去聊完才接著往下
+      if (s.phone && window.SOSHO_KAKAO && !cur.replay) { phoneScene(s.phone); return; }
       // 電話：KakaoTalk 來電（js/apps/kakaocall.js），講完才接著往下
       if (s.call && window.SOSHO_KAKAO_CALL && !cur.replay) {
         var mc = cur; cur.waiting = true; cur.el.classList.add('vn-hold');
@@ -320,6 +323,37 @@
     }, ms);
   }
   // 背景：寫圖片路徑；"phone" = 不放背景，直接看到後面的手機畫面；"phone-dim" = 手機畫面變暗
+  /* ---- 劇情裡的手機畫面：{ phone: { id, room, time, before: [訊息], steps: [每日聊天的格式] } } ----
+   *   劇情先收起來 → 主畫面（時間 = time）、收到 before 的訊息（通知聲＋紅點）；只能點 KakaoTalk
+   *   點了 → 打開 room 的聊天室，照 steps 聊（選項可以寫 flag，之後的劇情用 if 分支）→ 聊完回到劇情 */
+  function phoneScene(o) {
+    var mine = cur, ph = document.getElementById('phone'), K = window.SOSHO_KAKAO;
+    cur.waiting = true; cur.el.classList.add('vn-away');
+    ph.classList.add('phone-scene', 'only-kakao'); ph.classList.remove('story-full');
+    if (S() && S().setDarkStatus) S().setDarkStatus(false);
+    if (o.time && window.GAME && window.GAME.setClock) window.GAME.setClock(o.time);
+    if (location.hash !== '#/home') location.hash = '#/home';
+    setTimeout(function () {
+      K.inject(o.room, o.before || []);
+      if (S() && S().buzzMessage) S().buzzMessage();   // 通知聲＋震動
+    }, o.delay != null ? o.delay : 1200);
+    function onHash() {
+      if (location.hash.indexOf('#/kakao') !== 0) return;
+      window.removeEventListener('hashchange', onHash);
+      ph.classList.remove('only-kakao');
+      K.dayChat({ id: o.id || ('phone_' + mine.id), room: o.room, steps: o.steps || [] }, function () {
+        setTimeout(function () {
+          ph.classList.remove('phone-scene');
+          if (location.hash !== '#/home') location.hash = '#/home';
+          if (cur !== mine) return;
+          cur.el.classList.remove('vn-away'); cur.waiting = false;
+          setBg(cur.bg);   // 回到劇情原本的背景（狀態列、全螢幕）
+          step();
+        }, o.endWait != null ? o.endWait : 1500);
+      }, true);
+    }
+    window.addEventListener('hashchange', onHash);
+  }
   function cut(src, at) {
     var mine = cur;
     cur.waiting = true; cur.el.classList.add('vn-cut', 'vn-nobox');

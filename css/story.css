@@ -122,3 +122,9 @@
 .ob-block { position: absolute; inset: 0; z-index: 60; }
 /* 自由探索的提醒：蓋在鎖定畫面上 */
 .vn.over-lock { z-index: 85; }
+
+/* 劇情裡的手機畫面（js/story.js 的 phoneScene）：劇情先收起來、看得到主畫面；只能點 KakaoTalk */
+.vn.vn-away { opacity: 0 !important; pointer-events: none; }
+#phone.phone-scene .day-stage { display: none; }
+#phone.only-kakao #home * { pointer-events: none; }
+#phone.only-kakao #home a.app-icon[href="#/kakao"], #phone.only-kakao #home a.app-icon[href="#/kakao"] * { pointer-events: auto; }
