@@ -310,13 +310,13 @@ window.SITE_DATA = {
     // milestones = 第幾次去的時候有固定劇情（scenes.act_日程_次數，例如 act_club_5；那天會停下來播）
     // bg = 這個日程的背景（一句話、特殊劇情、主線強制日程的劇情都用它；劇情裡寫 { bg } 會換掉；沒寫就用 storyBg）
     activities: [
-      { id: "club",      label: "社團活動", place: "舞室", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "volunteer", label: "志工活動", place: "小學", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] },
-      { id: "wander",    label: "閒晃",     place: "街道", bg: "images/bg/wander.jpg", milestones: [1, 5, 10, 20, 30, 40, 50] }
+      { id: "club",      label: "社團活動", place: "舞室", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
+      { id: "volunteer", label: "志工活動", place: "小學", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
+      { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
+      { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
+      { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
+      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] },
+      { id: "wander",    label: "閒晃",     place: "街道", bg: "images/bg/wander.jpg", milestones: [3, 5, 10, 20, 30, 40, 50] }
     ],
     specials: [
       // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },
@@ -349,7 +349,7 @@ window.SITE_DATA = {
     bond: { friend: 60, love1: 150, love2: 250, confess: 350, from: "09-08", until: "08-23",
       cp: { stage1: 100, stage2: 250, stage3: 400, together: 600 } },   // 關係加得比好感快（星期日兩人、請別人送禮都是 +15），所以門檻比愛情線高
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
-    homeMilestones: [1, 10, 30, 50],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
+    homeMilestones: [3, 10, 30, 50],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
     /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（目前 20%）（一天最多一段：中了就從遇到的人符合的名單裡抽一段；可以重複觸發）
      *   寫編號：單人 "1"、配對 "14"（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮）；回家寫 "me"（跟自己對話）
      *   劇情寫在 scenes.rand_日程_編號（例如 rand_club_14、rand_home_me）；沒寫劇情的不會觸發
@@ -547,6 +547,9 @@ window.SITE_DATA = {
    */
   game: {
     version: "0.1.0",            // 版本號（設定 → 開發者資訊 會顯示；更新遊戲時改這裡）
+    // 試玩版：到這一天開始前停下來，顯示「後面還在製作中」，可以存檔（之後更新就把 trialEnd 刪掉或改日期）
+    trialEnd: "09-14",
+    trialText: { title: "試玩版到這裡結束", text: "感謝你玩到這裡！\n9 月 14 日之後的內容還在製作中。\n先存個檔吧，更新之後就能從這裡接著玩。", save: "存檔", saved: "已存到「存檔 {n}」", full: "存檔欄位都滿了，請到 設定 → 存檔與讀檔 整理", toTitle: "回到標題畫面" },
     // 音樂（什麼時候放哪一首寫在 js/bgm.js 最上面）；volume 0～1
     //   title 標題、main 主線、aff 好感度、home 待在家／自由探索手機、awake 覺醒（線索反應、結局）、alarm 鬧鐘、intro 成員介紹影片
     // title.mp3 從原曲 0:07 開始剪、awake.mp3 從 0:01 開始剪（循環時也從這裡重來）
@@ -557,7 +560,7 @@ window.SITE_DATA = {
              volume: { title: 0.6, main: 0.45, aff: 0.45, home: 0.45, awake: 0.5, alarm: 0.7, intro: 0.55, ring: 0.6, anotherlife: 0.6 } },
     // 音效：message = KakaoTalk 收到訊息
     sounds: { message: "audio/message.mp3", volume: { message: 0.6 } },
-    debug: true,                 // true = 設定裡出現「數值（開發用）」；正式公開前改成 false
+    debug: false,                // true = 設定裡出現「數值（開發用）」（開發時再改回 true）
     startDate: "2025-09-01",
     endDate: "2026-08-31",
     saveSlots: 10,
@@ -829,9 +832,10 @@ window.SITE_DATA = {
       { id: "wonbin_0222_a", when: "phone_unlocked", if: { date: "02-22", phase: "night" }, room: "f4", recalled: true },
       { id: "wonbin_0222_b", when: "phone_unlocked", if: { date: "02-22", phase: "night" }, room: "f4", text: "……沒事", clue: "m4_2" },
       // 客服小精靈：9/14 第一次自由使用手機的星期日，介紹新功能（Claude 草稿）
-      { id: "helper_0914_1", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "今天是第一個可以自由用手機的星期日～" },
-      { id: "helper_0914_2", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "小提示：App 圖示右上角出現紅點，就是那裡有新東西喔。" },
-      { id: "helper_0914_3", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "設定裡有「線索收集」和「劇情回想」，想看的時候可以去逛逛。不想要震動的話，也可以在設定裡關掉。" },
+      { id: "helper_0914_1", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "今天是第一個可以約朋友出門的星期日～玩得開心嗎？" },
+      { id: "helper_0914_2", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "對了，每個月 14 號都可以送禮物給一個人，也可以讓朋友送禮給另一個人。今天你也試過了吧？" },
+      { id: "helper_0914_3", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "小提示：App 圖示右上角出現紅點，就是那裡有新東西喔。" },
+      { id: "helper_0914_4", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "設定裡有「劇情回想」和「線索收集」，想看的時候可以去逛逛。不想要震動的話，也可以在設定裡關掉。" },
       // 客服小精靈：每個月第一個星期日晚上（解鎖手機後）傳兩句：這個月的提醒＋模糊的提示（Claude 草稿）
       { id: "helper_1005_1", when: "phone_unlocked", if: { date: "10-05", phase: "night" }, room: "helper", text: "十月了！這個月學生會要開始忙校慶囉。" },
       { id: "helper_1005_2", when: "phone_unlocked", if: { date: "10-05", phase: "night" }, room: "helper", delay: 1500, text: "對了，置頂的東西、刪掉的東西，有時候比你想的還重要喔。" },

@@ -613,8 +613,39 @@
     el.innerHTML = dateHTML(day);
     if (S()) S().setDarkStatus(true);
   }
+  /* ---- 試玩版：到 game.trialEnd 那天開始前停下來（後面還在製作中），可以存檔、回到標題畫面 ---- */
+  // 開發測試時想繼續玩下去：瀏覽器的 localStorage 設 riiiizeNoTrial = 1（自動測試也用這個）
+  function trialBlocked() {
+    var e = (D().game || {}).trialEnd, off = false;
+    try { off = localStorage.getItem('riiiizeNoTrial') === '1'; } catch (er) {}
+    return !!e && !off && G().day >= G().dayOf(e) && !G().ended;
+  }
+  function trialBlock() {
+    var t = (D().game || {}).trialText || {}, w = document.createElement('div');
+    stage(null);
+    var lk = document.getElementById('lock'); if (lk) lk.remove();
+    w.className = 'vn-name trial-end';   // 用和開場輸入名字一樣的粉紅卡片（js/bgm.js 會放標題音樂）
+    w.innerHTML = '<form autocomplete="off"><b>' + esc(t.title || '試玩版到這裡結束') + '</b>' +
+      '<p>' + esc(t.text || '後面的內容還在製作中。').replace(/\n/g, '<br>') + '</p>' +
+      '<button type="button" data-trial-save>' + esc(t.save || '存檔') + '</button>' +
+      '<button type="button" class="ob-remove" data-trial-title>' + esc(t.toTitle || '回到標題畫面') + '</button>' +
+      '<p class="trial-msg" hidden></p></form>';
+    document.getElementById('phone').appendChild(w);
+    w.addEventListener('click', function (e) {
+      if (e.target.closest('[data-trial-title]')) { location.reload(); return; }
+      if (!e.target.closest('[data-trial-save]')) return;
+      // 存到第一個空的存檔欄位（自動存檔也會保留）
+      var s = G().saves(), n = G().slots(), id = null;
+      for (var i = 1; i <= n; i++) if (!s.slots[i]) { id = i; break; }
+      var msg = w.querySelector('.trial-msg');
+      if (id == null) { msg.textContent = t.full || '存檔欄位都滿了'; msg.hidden = false; return; }
+      G().save(id);
+      msg.textContent = (t.saved || '已存到「存檔 {n}」').replace('{n}', id); msg.hidden = false;
+    });
+  }
   function startDay() {
     var day = G().day;
+    if (trialBlocked()) { trialBlock(); return; }
     if (location.hash !== '#/home') location.hash = '#/home';
     // 手機上的時間：9/1（第 1 天）開場後從 data.js 的 intro.dayTime 開始走；其他日子用現實時間
     if (G().phase !== 'night') G().setClock(day === 1 ? ((D().intro || {}).dayTime || null) : null);

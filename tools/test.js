@@ -48,6 +48,7 @@ async function open(browser, base, seed, opt) {
     localStorage.clear();
     Object.keys(seed || {}).forEach(k => localStorage.setItem(k, typeof seed[k] === 'string' ? seed[k] : JSON.stringify(seed[k])));
     if (!showTitle) sessionStorage.setItem('riiiizeSkipTitle', '1');
+    if (!seed || !seed.riiiizeNoTrial) localStorage.setItem('riiiizeNoTrial', '1');   // 試玩版的阻擋（game.trialEnd）：測試時關掉，試玩版的測試另外開
   }, [seed, !!opt.title]);
   await page.goto(base + '/#/home');
   await sleep(1200);
@@ -196,6 +197,17 @@ const TESTS = [
     if (await p.$('.wk-ev')) throw new Error('卡片不應該再標「有事發生」');
     const gain = await p.$eval('.wk-gain', e => e.textContent).catch(() => '');
     if (!/\+\d/.test(gain)) throw new Error('卡片沒有顯示加了多少好感：' + gain);
+    return p;
+  }],
+  ['試玩版：9/13 睡覺 → 9/14 開始前停下來，可以存檔', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 13, phase: 'night' }, riiiizeNoTrial: '0' }));
+    await p.evaluate(() => { localStorage.removeItem('riiiizeNoTrial'); const l = document.getElementById('lock'); if (l) l.remove(); PLAN.go(); });
+    await p.waitForSelector('.trial-end', { timeout: 15000 });
+    if (await p.evaluate(() => !!document.querySelector('.vn'))) throw new Error('擋住之後還在播劇情');
+    await p.click('[data-trial-save]'); await sleep(300);
+    const msg = await text(p, '.trial-msg');
+    const has = await p.evaluate(() => !!GAME.saves().slots[1]);
+    if (!has || !/存檔 1/.test(msg || '')) throw new Error('存檔沒有成功：' + msg);
     return p;
   }],
   ['星期日：選人出門 → 22:00 鎖定畫面＋自由探索提醒 → 解鎖', async (b, base) => {
