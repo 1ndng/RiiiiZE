@@ -753,6 +753,14 @@ window.SITE_DATA = {
   photos: {
     hiddenPasscode: "0000",
     photos: [                      // 例：{ image: PH, date: "2025年8月20日", time: "下午 6:40", place: "地點" }
+      // 開學週的照片（9/7 晚上第一次自由用手機時看得到）；say = 第一次點開這張照片時，你的一句話（劇情對話框，只跳一次）
+      { image: "images/photos/0901_wonbin.jpg", from: "09-02", date: "2025年9月1日", time: "下午 12:31", say: "開學第一天跟元彬吃飯！" },
+      { image: "images/photos/0902_club.jpg", from: "09-02", date: "2025年9月2日", time: "下午 5:18", say: "這兩個人萌萌地在幹嘛？話說系辦好亂⋯⋯" },
+      { image: "images/photos/0903_chanyoung.jpg", from: "09-03", date: "2025年9月3日", time: "下午 4:26", say: "完全抵擋不了的狗狗視線⋯⋯" },
+      { image: "images/photos/0903_eunseok.jpg", from: "09-03", date: "2025年9月3日", time: "下午 7:42", say: "下班後逛了一下，收集少見的感性宋恩奭。" },
+      { image: "images/photos/0904_sungchan.jpg", from: "09-04", date: "2025年9月4日", time: "下午 9:47", say: "好愛拿我手機自拍啊鄭成燦==" },
+      { image: "images/photos/0905_dance1.jpg", from: "09-05", date: "2025年9月5日", time: "下午 8:03", say: "練完舞後總是很亢奮呢ㅋㅋㅋ" },
+      { image: "images/photos/0905_dance2.jpg", from: "09-05", date: "2025年9月5日", time: "下午 8:11", say: "ㅋㅋㅋ捕捉到了" },
       // 覺醒線索 m5_1（炤熙）：10 月起出現在「最近刪除」。炤熙站在高高的牆上張開雙手，背後是空著的觀眾席和一串燈泡（從下往上拍）
       { image: "images/photos/sohee_deleted.jpg", from: "10-01", deleted: true, deletedDays: 3, clue: "m5_1", date: "2025年10月4日", time: "下午 9:12" },
       // 覺醒線索 m1_2（將太郎②）：1/12 起，「已隱藏」裡一張白色房間（復健室）的照片（圖片待換）

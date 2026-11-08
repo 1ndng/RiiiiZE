@@ -310,6 +310,12 @@
     if (!view) return;
     var p = list()[view.items[view.pos]];
     if (p.clue) if (window.STORY && window.STORY.clue) window.STORY.clue(p.clue);   // 覺醒線索（clue）
+    // say：第一次點開這張照片 → 你的一句話（劇情對話框、看得到手機畫面；和開場點行事曆上的生日一樣）
+    if (p.say && window.STORY && S() && !S().hasFlag('photo_say_' + p.image) && !window.STORY.playing()) {
+      S().setFlag('photo_say_' + p.image);
+      window.SITE_DATA.scenes.__photo_say = [{ bg: 'phone-dim' }, { who: 'me', text: p.say }];
+      window.STORY.play('__photo_say', null, null, 'phone-dim', { noGap: true });
+    }
     S().$('#pt-vdate').textContent = dateText(p);
     S().$('#pt-vtime').textContent = p.time || '';
     var fb = S().$('#pt-favbtn');
