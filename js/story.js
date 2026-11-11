@@ -260,7 +260,7 @@
   function introVideo(id) {
     var v = (D().introVideos || {})[id], cfg = D().introVideo || {}, b = cfg.box || {};
     if (!v || !v.video || mode === 'skip') return false;   // 沒有影片、快轉中：跳過
-    markCG('intro_' + id);   // CG 收集：看過這段出場動畫
+    markCG('intro_' + id);   // CG 圖鑑：看過這段出場動畫
     var mine = cur, box = cur.el.querySelector('#vn-box'), done = false;
     cur.waiting = true; box.classList.add('hide');
     var w = document.createElement('div');
@@ -295,7 +295,7 @@
     setTimeout(function () { if (!done && vid.currentTime === 0) end(); }, 15000);   // 影片載不出來：不要卡住
     return true;
   }
-  /* CG 收集（設定 → CG 收集）：看過的 CG 記在 riiiizeCG，「重新開始」、時間循環都不會清掉 */
+  /* CG 圖鑑（設定 → CG 圖鑑）：看過的 CG 記在 riiiizeCG，「重新開始」、時間循環都不會清掉 */
   var CG_KEY = 'riiiizeCG';
   function markCG(k) { var c = load(CG_KEY, {}) || {}; if (!c[k]) { c[k] = 1; store(CG_KEY, c); } }
   // 畫面晃動
@@ -669,7 +669,7 @@
     },
     askName: askName,
     askBirthday: askBirthday,
-    // CG 收集：看過的 CG { intro_m1: 1 }；以前看過有出場動畫的劇情也算（這個功能做之前就玩過的人）
+    // CG 圖鑑：看過的 CG { intro_m1: 1 }；以前看過有出場動畫的劇情也算（這個功能做之前就玩過的人）
     cgSeen: function () {
       var c = load(CG_KEY, {}) || {}, seenS = this.seenScenes(), sc = D().scenes || {};
       Object.keys(seenS).forEach(function (id) { (sc[id] || []).forEach(function (st) { if (st && st.intro) c['intro_' + st.intro] = 1; }); });

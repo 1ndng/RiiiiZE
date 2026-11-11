@@ -408,12 +408,12 @@ const TESTS = [
     if (aff !== 10) throw new Error('好感：' + aff);
     return p;
   }],
-  ['設定：CG 收集（看過的出場動畫才打開、點了可以重看）；線索收集 10/1 之前不顯示', async (b, base) => {
+  ['設定：CG 圖鑑（看過的出場動畫才打開、點了可以重看）；線索收集 10/1 之前不顯示', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' }, riiiizeCG: { intro_m4: 1 } }));
     await p.evaluate(() => { location.hash = '#/settings'; });
     await sleep(600);
     const rows = await p.evaluate(() => [...document.querySelectorAll('#settings-scroll .st-label')].map(x => x.textContent).join(','));
-    if (!/CG 收集/.test(rows)) throw new Error('沒有 CG 收集：' + rows);
+    if (!/CG 圖鑑/.test(rows)) throw new Error('沒有 CG 圖鑑：' + rows);
     if (/線索收集/.test(rows)) throw new Error('9/10 不該有線索收集：' + rows);
     await p.evaluate(() => { location.hash = '#/settings/cg'; });
     await sleep(500);

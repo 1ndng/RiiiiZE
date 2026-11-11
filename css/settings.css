@@ -94,10 +94,10 @@
 .st-dev span { color: #8a8a8e; font-size: 15px; }
 .st-dev-link span { color: var(--pk-deep, #b9729f); font-weight: 600; }
 
-/* CG 收集：兩欄的縮圖（9:16），沒看過的顯示？？？ */
+/* CG 圖鑑：兩欄的縮圖（9:16），沒看過的顯示？？？ */
 .st-cg-count { margin-left: 8px; font-size: 15px; font-weight: 500; color: #8e8e93; }
 .st-cg-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 24px; }
-.st-cg { position: relative; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: #e5e5ea; aspect-ratio: 9 / 16; cursor: pointer; font: inherit; }
+.st-cg { container-type: inline-size; position: relative; padding: 0; border: 0; border-radius: 12px; overflow: hidden; background: #e5e5ea; aspect-ratio: 9 / 16; cursor: pointer; font: inherit; }
 .st-cg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .st-cg span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #aeaeb2; font-size: 20px; font-weight: 700; }
 .st-cg b { position: absolute; left: 0; right: 0; bottom: 0; padding: 18px 8px 8px; font-size: 13px; font-weight: 600; color: #fff; text-align: left; background: linear-gradient(transparent, rgba(0, 0, 0, .55)); }
@@ -106,6 +106,9 @@
 /* 重看 CG：蓋住整個手機（比設定 App 高），點一下關掉 */
 .cg-view { z-index: 120; cursor: pointer; }
 .cg-view .vn-intro-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-/* CG 收集頁的「對話框 開／關」；重看時關掉 = 畫面上什麼都不蓋 */
+/* CG 圖鑑頁的「對話框 開／關」；重看時關掉 = 畫面上什麼都不蓋 */
 .st-cg-opt { margin-bottom: 14px; }
 .cg-view.cg-nobox .vn-intro-cap, .cg-view.cg-nobox .vn-intro-tap { display: none; }
+/* 縮圖、重看畫面的介紹台詞：用劇情的字體（不是手機的系統字體），縮圖上一開始就顯示 */
+.st-cg .vn-intro-cap, .cg-view .vn-intro-cap { font-family: "Kaisei Decol", "UoqMunThenKhung", "JiangChengJieXingTi", "Noto Serif TC", serif; }
+.st-cg .vn-intro-cap { pointer-events: none; text-align: left; }
