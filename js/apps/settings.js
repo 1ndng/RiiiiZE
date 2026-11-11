@@ -46,7 +46,7 @@
     langToCn: '要切換成简体中文嗎？', langToTw: '要切換成繁體中文嗎？', langText: '切換後畫面會重新整理一次，遊戲進度不會不見。', langOk: '切換',
     clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。這裡會告訴你找到了幾個。', cluesDone: '全部找到了',
     replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
-    cg: 'CG 收集', cgNote: '看過的 CG 會收在這裡，點一下可以重看。「重新開始」和時間循環都不會清掉。', cgIntro: '{name}登場',
+    cg: 'CG 收集', cgNote: '看過的 CG 會收在這裡，點一下可以重看。「重新開始」和時間循環都不會清掉。', cgIntro: '{name}登場', cgBox: '對話框', cgBoxOn: '開', cgBoxOff: '關',
     gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談', mainEndings: '主線結局', dev: '開發者資訊', devName: '開發者', devVer: '版本', devPrev: '前作', devPrevTitle: '熙醬cp向撿手機解謎', devPrevGo: '前往遊玩',
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
@@ -304,7 +304,7 @@
     Object.keys(iv).forEach(function (k) { if (order.indexOf(k) < 0) order.push(k); });
     return order.map(function (k) {
       var c = byId[k] || {};
-      return { id: 'intro_' + k, title: t.cgIntro.replace('{name}', c.short || c.name || k), video: iv[k].video, caption: iv[k].caption, thumb: 'images/cg/intro_' + k + '.jpg' };
+      return { id: 'intro_' + k, title: t.cgIntro.replace('{name}', c.short || c.name || k), video: iv[k].video, clean: iv[k].clean, caption: iv[k].caption, thumb: 'images/cg/intro_' + k + '.jpg' };
     });
   }
   function cgCount() {
@@ -327,22 +327,46 @@
       '<div class="st-cg-grid">' + tiles + '</div>';
   }
   // 重看一張 CG：蓋住整個手機畫面（影片跟劇情裡一樣播，介紹台詞照時間淡入；點一下關掉）
+  //   右上角「對話框 開／關」：關掉 = 不顯示介紹台詞，有 clean（沒有粉紅框的版本）就改播它；記在 riiiizeCGBox
+  function cgBoxOn() { try { return localStorage.getItem('riiiizeCGBox') !== '0'; } catch (e) { return true; } }
   function viewCG(c) {
-    var cfg = D().introVideo || {}, b = cfg.box || {}, w = document.createElement('div');
+    var t = T(), cfg = D().introVideo || {}, b = cfg.box || {}, w = document.createElement('div'), on = cgBoxOn();
     w.className = 'vn-intro cg-view';
     var cap = c.caption ? '<div class="vn-intro-cap" style="left:' + (b.left || 0) + '%;top:' + (b.top || 0) + '%;width:' + (b.width || 100) + '%;height:' + (b.height || 20) + '%">' +
       esc(window.STORY.fill(c.caption)).replace(/\n/g, '<br>') + '</div>' : '';
     w.innerHTML = '<div class="vn-intro-frame">' + (c.video ? '<video playsinline webkit-playsinline preload="auto" muted></video>' : '<img src="' + esc(c.image || c.thumb || '') + '" alt="">') +
-      cap + '<i class="vn-intro-tap"></i></div>';
+      cap + '<i class="vn-intro-tap"></i></div>' +
+      (c.caption || c.clean ? '<button type="button" class="cg-box-btn" data-cg-box></button>' : '');
     document.getElementById('phone').appendChild(w);
-    var vid = w.querySelector('video'), capEl = w.querySelector('.vn-intro-cap'), at = cfg.captionAt != null ? cfg.captionAt : 3000, born = Date.now();
+    var vid = w.querySelector('video'), capEl = w.querySelector('.vn-intro-cap'), btn = w.querySelector('[data-cg-box]'), at = cfg.captionAt != null ? cfg.captionAt : 3000, born = Date.now();
+    function src() { return !on && c.clean ? c.clean : c.video; }
+    function paint() {
+      w.classList.toggle('cg-nobox', !on);
+      if (btn) btn.textContent = t.cgBox + '：' + (on ? t.cgBoxOn : t.cgBoxOff);
+    }
+    paint();
     if (vid) {
-      vid.src = c.video; vid.muted = true;
+      vid.src = src(); vid.muted = true;
       vid.addEventListener('timeupdate', function () { if (capEl && vid.currentTime * 1000 >= at) capEl.classList.add('on'); });
-      vid.addEventListener('ended', function () { if (capEl) capEl.classList.add('on'); w.classList.add('over'); });
+      vid.addEventListener('ended', function () { if (capEl) capEl.classList.add('on'); w.classList.add('over'); });   // 播完停在最後一格
       var pr = vid.play(); if (pr && pr.catch) pr.catch(function () { w.classList.add('over'); });
     } else { if (capEl) capEl.classList.add('on'); w.classList.add('over'); }
     void w.offsetWidth; w.classList.add('show');
+    if (btn) btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      on = !on;
+      try { localStorage.setItem('riiiizeCGBox', on ? '1' : '0'); } catch (er) {}
+      paint();
+      if (vid && c.clean) {   // 換成另一個版本，從同一個時間接著播（播完了就停在最後一格）
+        var tm = vid.currentTime, ended = vid.ended;
+        vid.src = src();
+        vid.addEventListener('loadedmetadata', function once() {
+          vid.removeEventListener('loadedmetadata', once);
+          vid.currentTime = ended ? Math.max(0, vid.duration - 0.05) : tm;
+          if (!ended) { var p2 = vid.play(); if (p2 && p2.catch) p2.catch(function () {}); }
+        });
+      }
+    });
     w.addEventListener('click', function () {
       if (Date.now() - born < 600) return;   // 剛打開時不小心多點一下：不要馬上關掉
       w.classList.remove('show');
