@@ -842,11 +842,11 @@ window.SITE_DATA = {
       // 覺醒線索 m4_2（元彬②）：2/22 星期日晚上，傳了一則又收回，再傳「……沒事」
       { id: "wonbin_0222_a", when: "phone_unlocked", if: { date: "02-22", phase: "night" }, room: "f4", recalled: true },
       { id: "wonbin_0222_b", when: "phone_unlocked", if: { date: "02-22", phase: "night" }, room: "f4", text: "……沒事", clue: "m4_2" },
-      // 客服小精靈：9/14 第一次自由使用手機的星期日，介紹新功能（Claude 草稿）
-      { id: "helper_0914_1", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "今天是第一個可以約朋友出門的星期日～玩得開心嗎？" },
-      { id: "helper_0914_2", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "對了，每個月 14 號都可以送禮物給一個人，也可以讓朋友送禮給另一個人。今天你也試過了吧？" },
-      { id: "helper_0914_3", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "小提示：App 圖示右上角出現紅點，就是那裡有新東西喔。" },
-      { id: "helper_0914_4", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "設定裡有「劇情回想」和「線索收集」，想看的時候可以去逛逛。不想要震動的話，也可以在設定裡關掉。" },
+      // 客服小精靈：9/14 第一次自由使用手機的星期日，介紹每月 14 日送禮
+      { id: "helper_0914_1", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "今天約朋友出門玩得開心嗎~" },
+      { id: "helper_0914_2", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "對了對了，你知道每個月 14 號都是情人節嗎？" },
+      { id: "helper_0914_3", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "所以呢！每個月的這一天，你都可以自己送禮物給一個人，或是讓朋友送禮物給另一個人。" },
+      { id: "helper_0914_4", when: "phone_unlocked", if: { date: "09-14", phase: "night" }, room: "helper", text: "說不定⋯⋯也可能收到回禮，或是目睹有趣的場面喔😳" },
       // 客服小精靈：每個月第一個星期日晚上（解鎖手機後）傳兩句：這個月的提醒＋模糊的提示（Claude 草稿）
       { id: "helper_1005_1", when: "phone_unlocked", if: { date: "10-05", phase: "night" }, room: "helper", text: "十月了！這個月學生會要開始忙校慶囉。" },
       { id: "helper_1005_2", when: "phone_unlocked", if: { date: "10-05", phase: "night" }, room: "helper", delay: 1500, text: "對了，置頂的東西、刪掉的東西，有時候比你想的還重要喔。" },

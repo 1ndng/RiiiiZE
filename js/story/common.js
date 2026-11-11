@@ -42,8 +42,8 @@ RIIIZE_ADD({
       { text: "你希望——" },
       { wish: { aff: 10, pair: 15 } },
       { text: "你在心裡，把願望說得很清楚。", wishIs: "aff" },
-      { who: "me", text: "（希望我和{wish}，可以再更靠近一點。）", wishIs: "aff" },
-      { who: "me", text: "（希望{wish}，可以一直好好的。一直、一直在一起。）", wishIs: "pair" }
+      { who: "me", text: "（希望我和{wish}，可以一直、一直在一起。）", wishIs: "aff" },
+      { who: "me", text: "（希望{wish}，可以一直、一直在一起。）", wishIs: "pair" }
     ],
   }
 });
