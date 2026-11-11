@@ -3,6 +3,7 @@
  *   #/settings/saves   存檔與讀檔：每天早上的自動存檔＋好幾格手動存檔（格數 = data.js 的 game.saveSlots）
  *   #/settings/clues   線索收集：每位成員找到幾個（●●○，不寫內容）
  *   #/settings/replay  劇情回想：看過的劇情分類列出，點一下重看（不改好感、旗標）
+ *   #/settings/cg      CG 收集：看過的 CG（目前是六位成員的出場動畫），點一下重看
  *   #/settings/wallpaper  背景圖片：鎖定畫面、主畫面各自換一張自己的照片，或恢復預設
  *   #/settings/stats   數值（開發用）：看、調整隱藏數值、跳天數；data.js 的 game.debug 設成 false 就不會出現
  * 存檔放在 riiiizeSaves，「重新開始」不會清掉 */
@@ -45,6 +46,7 @@
     langToCn: '要切換成简体中文嗎？', langToTw: '要切換成繁體中文嗎？', langText: '切換後畫面會重新整理一次，遊戲進度不會不見。', langOk: '切換',
     clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。這裡會告訴你找到了幾個。', cluesDone: '全部找到了',
     replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
+    cg: 'CG 收集', cgNote: '看過的 CG 會收在這裡，點一下可以重看。「重新開始」和時間循環都不會清掉。', cgIntro: '{name}登場',
     gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談', mainEndings: '主線結局', dev: '開發者資訊', devName: '開發者', devVer: '版本', devPrev: '前作', devPrevTitle: '熙醬cp向撿手機解謎', devPrevGo: '前往遊玩',
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
@@ -83,7 +85,8 @@
         row(ICON.image, '#30b0c7', esc(t.wallpaper), '', 'data-st-go="#/settings/wallpaper"', true) +
         (window.ENDING ? row(ICON.star, '#ff9500', esc(t.gallery), '', 'data-st-go="#/settings/gallery"', true) : '') +
         row(ICON.book, '#af52de', esc(t.replay), '', 'data-st-go="#/settings/replay"', true) +
-        row(ICON.star, '#ff2d55', esc(t.clues), esc(clueTotal()), 'data-st-go="#/settings/clues"', true) +
+        row(ICON.image, '#ff6fae', esc(t.cg), esc(cgCount()), 'data-st-go="#/settings/cg"', true) +
+        (cluesOpen() ? row(ICON.star, '#ff2d55', esc(t.clues), esc(clueTotal()), 'data-st-go="#/settings/clues"', true) : '') +
       '</div>' +
       ((D().game || {}).debug ? '<div class="st-group">' + row(ICON.wrench, '#34c759', esc(t.statsTitle), '', 'data-st-go="#/settings/stats"', true) + '</div>' : '') +
       // 名字：我的名字（旁白、你說的話、App 的個人資料）／成員怎麼叫我（成員說的話、傳的訊息）
@@ -287,6 +290,72 @@
       '<div class="st-note st-note-top">' + esc(t.replayNote) + '</div>' + body;
   }
 
+  /* ---- CG 收集：data.js 的 cg（沒寫就用 introVideos 的出場動畫，照第一次出場的順序）----
+   *   每一項 { id, title, video 或 image, thumb, caption }；看過才打開（STORY.cgSeen） */
+  function cgList() {
+    var d = D(), t = T(), byId = {};
+    (d.cast || []).forEach(function (c) { byId[c.id] = c; });
+    if (d.cg && d.cg.length) return d.cg;
+    var iv = d.introVideos || {}, order = [], sc = d.scenes || {};
+    var ord = function (x) { var m = +String(x).slice(0, 2); return (m >= 9 ? m - 9 : m + 3) * 100 + (+String(x).slice(3, 5)); };
+    (d.story || []).slice().sort(function (a, b) { return ord(a.date) - ord(b.date); }).forEach(function (e) {
+      (sc[e.scene] || []).forEach(function (st) { if (st && st.intro && iv[st.intro] && order.indexOf(st.intro) < 0) order.push(st.intro); });
+    });
+    Object.keys(iv).forEach(function (k) { if (order.indexOf(k) < 0) order.push(k); });
+    return order.map(function (k) {
+      var c = byId[k] || {};
+      return { id: 'intro_' + k, title: t.cgIntro.replace('{name}', c.short || c.name || k), video: iv[k].video, caption: iv[k].caption, thumb: 'images/cg/intro_' + k + '.jpg' };
+    });
+  }
+  function cgCount() {
+    var seen = window.STORY && window.STORY.cgSeen ? window.STORY.cgSeen() : {}, all = cgList();
+    return all.filter(function (c) { return seen[c.id]; }).length + ' / ' + all.length;
+  }
+  function renderCG() {
+    var t = T(), seen = window.STORY.cgSeen();
+    var tiles = cgList().map(function (c, i) {
+      var open = !!seen[c.id];
+      return '<button type="button" class="st-cg"' + (open ? ' data-cg="' + i + '"' : ' disabled') + '>' +
+        (open ? '<img src="' + esc(c.thumb || c.image || '') + '" alt="" loading="lazy">' : '<span>' + esc(t.locked) + '</span>') +
+        '<b>' + esc(open ? c.title || '' : t.locked) + '</b></button>';
+    }).join('');
+    S().$('#settings-overlay').innerHTML = '';
+    S().$('#settings-scroll').innerHTML =
+      '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
+      '<h1 class="st-h1 st-h1-s">' + esc(t.cg) + '<span class="st-cg-count">' + esc(cgCount()) + '</span></h1>' +
+      '<div class="st-note st-note-top">' + esc(t.cgNote) + '</div>' +
+      '<div class="st-cg-grid">' + tiles + '</div>';
+  }
+  // 重看一張 CG：蓋住整個手機畫面（影片跟劇情裡一樣播，介紹台詞照時間淡入；點一下關掉）
+  function viewCG(c) {
+    var cfg = D().introVideo || {}, b = cfg.box || {}, w = document.createElement('div');
+    w.className = 'vn-intro cg-view';
+    var cap = c.caption ? '<div class="vn-intro-cap" style="left:' + (b.left || 0) + '%;top:' + (b.top || 0) + '%;width:' + (b.width || 100) + '%;height:' + (b.height || 20) + '%">' +
+      esc(window.STORY.fill(c.caption)).replace(/\n/g, '<br>') + '</div>' : '';
+    w.innerHTML = '<div class="vn-intro-frame">' + (c.video ? '<video playsinline webkit-playsinline preload="auto" muted></video>' : '<img src="' + esc(c.image || c.thumb || '') + '" alt="">') +
+      cap + '<i class="vn-intro-tap"></i></div>';
+    document.getElementById('phone').appendChild(w);
+    var vid = w.querySelector('video'), capEl = w.querySelector('.vn-intro-cap'), at = cfg.captionAt != null ? cfg.captionAt : 3000, born = Date.now();
+    if (vid) {
+      vid.src = c.video; vid.muted = true;
+      vid.addEventListener('timeupdate', function () { if (capEl && vid.currentTime * 1000 >= at) capEl.classList.add('on'); });
+      vid.addEventListener('ended', function () { if (capEl) capEl.classList.add('on'); w.classList.add('over'); });
+      var pr = vid.play(); if (pr && pr.catch) pr.catch(function () { w.classList.add('over'); });
+    } else { if (capEl) capEl.classList.add('on'); w.classList.add('over'); }
+    void w.offsetWidth; w.classList.add('show');
+    w.addEventListener('click', function () {
+      if (Date.now() - born < 600) return;   // 剛打開時不小心多點一下：不要馬上關掉
+      w.classList.remove('show');
+      setTimeout(function () { w.remove(); }, 400);
+    });
+  }
+
+  /* 線索收集：10/1 第一個線索出現之前不顯示（data.js 的 game.cluesFrom，預設 "10-01"） */
+  function cluesOpen() {
+    var g = G(), from = (D().game || {}).cluesFrom || '10-01';
+    return !g || !g.dayOf || g.ended || g.day >= g.dayOf(from);
+  }
+
   /* ---- 線索收集：每位成員找到幾個（只顯示數量，不寫內容）---- */
   function clueNeed() { return ((D().romance || {}).awake || {}).value || 3; }
   function clueTotal() {
@@ -393,7 +462,8 @@
     S().$('#settings-scroll').scrollTop = 0;
     if (parts[0] === 'gallery' && window.ENDING) { renderGallery(); return; }
     if (parts[0] === 'replay' && window.STORY) { renderReplay(); return; }
-    if (parts[0] === 'clues') { renderClues(); return; }
+    if (parts[0] === 'clues') { if (cluesOpen()) renderClues(); else renderMain(); return; }
+    if (parts[0] === 'cg' && window.STORY) { renderCG(); return; }
     if (parts[0] === 'dev') { renderDev(); return; }
     if (parts[0] === 'stats' && (D().game || {}).debug) renderStats();
     else if (parts[0] === 'saves') renderSaves();
@@ -438,6 +508,7 @@
       renderStats(); return;
     }
     if (e.target.closest('[data-st-plan]')) { window.PLAN.openPlanner(renderStats); return; }
+    if ((el = e.target.closest('[data-cg]'))) { viewCG(cgList()[+el.dataset.cg]); return; }   // CG 收集：重看
     if ((el = e.target.closest('[data-replay]'))) { window.STORY.replay(el.dataset.replay); return; }   // 結局圖鑑：回想模式
     if ((el = e.target.closest('[data-rp]'))) { window.STORY.replay(el.dataset.rp, null, el.dataset.rpbg || ''); return; }   // 劇情回想
     if ((el = e.target.closest('[data-st-scene]'))) { window.STORY.play(el.dataset.stScene, renderStats); return; }

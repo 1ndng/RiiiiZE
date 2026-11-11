@@ -408,6 +408,30 @@ const TESTS = [
     if (aff !== 10) throw new Error('好感：' + aff);
     return p;
   }],
+  ['設定：CG 收集（看過的出場動畫才打開、點了可以重看）；線索收集 10/1 之前不顯示', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' }, riiiizeCG: { intro_m4: 1 } }));
+    await p.evaluate(() => { location.hash = '#/settings'; });
+    await sleep(600);
+    const rows = await p.evaluate(() => [...document.querySelectorAll('#settings-scroll .st-label')].map(x => x.textContent).join(','));
+    if (!/CG 收集/.test(rows)) throw new Error('沒有 CG 收集：' + rows);
+    if (/線索收集/.test(rows)) throw new Error('9/10 不該有線索收集：' + rows);
+    await p.evaluate(() => { location.hash = '#/settings/cg'; });
+    await sleep(500);
+    const r = await p.evaluate(() => ({ open: document.querySelectorAll('.st-cg[data-cg]').length, all: document.querySelectorAll('.st-cg').length, first: (document.querySelector('.st-cg[data-cg] b') || {}).textContent }));
+    if (r.open !== 1 || r.all !== 6 || !/元彬/.test(r.first)) throw new Error(JSON.stringify(r));
+    await p.evaluate(() => document.querySelector('.st-cg[data-cg]').click());   // 這天晚上會蓋著「這週的安排」，直接點
+    await sleep(800);
+    if (!(await p.$('.cg-view video'))) throw new Error('點了沒有播放');
+    await p.evaluate(() => document.querySelector('.cg-view').click()); await sleep(600);
+    if (await p.$('.cg-view')) throw new Error('點了沒有關掉');
+    await p.evaluate(() => { GAME.setDay(GAME.dayOf('10-01')); location.hash = '#/home'; });
+    await sleep(300);
+    await p.evaluate(() => { location.hash = '#/settings'; });
+    await sleep(600);
+    const rows2 = await p.evaluate(() => [...document.querySelectorAll('#settings-scroll .st-label')].map(x => x.textContent).join(','));
+    if (!/線索收集/.test(rows2)) throw new Error('10/1 應該有線索收集：' + rows2);
+    return p;
+  }],
   ['友誼線、愛情線：好感 60 友誼 → 150 心動 → 250 曖昧 → 350 告白（可選多位）→ 戀人後其他人只剩友誼線', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
     const r = await p.evaluate(() => {
