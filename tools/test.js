@@ -422,15 +422,18 @@ const TESTS = [
     await p.evaluate(() => document.querySelector('.st-cg[data-cg]').click());   // 這天晚上會蓋著「這週的安排」，直接點
     await sleep(800);
     if (!(await p.$('.cg-view video'))) throw new Error('點了沒有播放');
-    // 對話框關掉 → 改播沒有框的版本、台詞不顯示；再打開 → 換回來
+    // 總覽頁的對話框開關：關掉 → 重看時播沒有框的版本、沒有台詞和提示；再打開 → 換回來
     const box = await p.evaluate(async () => {
-      const v = () => document.querySelector('.cg-view video').getAttribute('src'), btn = document.querySelector('[data-cg-box]');
-      const a = v(); btn.click(); await new Promise(r => setTimeout(r, 300));
-      const b = v(), hid = getComputedStyle(document.querySelector('.cg-view .vn-intro-cap')).display === 'none';
-      btn.click(); await new Promise(r => setTimeout(r, 300));
-      return [a, b, hid, v(), !!document.querySelector('.cg-view')].join('|');
+      const w = ms => new Promise(r => setTimeout(r, ms)), shot = () => { const v = document.querySelector('.cg-view video'); return v.getAttribute('src') + ',' + !!document.querySelector('.cg-view .vn-intro-cap, .cg-view .vn-intro-tap, .cg-view button'); };
+      const a = shot(); document.querySelector('.cg-view').remove();
+      document.querySelector('[data-cg-boxtoggle]').click(); await w(200);
+      const lab = document.querySelector('[data-cg-boxtoggle] .st-val').textContent;
+      document.querySelector('.st-cg[data-cg]').click(); await w(800); const b = shot(); document.querySelector('.cg-view').remove();
+      document.querySelector('[data-cg-boxtoggle]').click(); await w(200);
+      document.querySelector('.st-cg[data-cg]').click(); await w(800);
+      return [a, lab, b, shot()].join('|');
     });
-    if (box !== 'videos/intro_m4.mp4|videos/intro_m4_clean.mp4|true|videos/intro_m4.mp4|true') throw new Error('對話框開關：' + box);
+    if (box !== 'videos/intro_m4.mp4,true|關|videos/intro_m4_clean.mp4,false|videos/intro_m4.mp4,true') throw new Error('對話框開關：' + box);
     await p.evaluate(() => document.querySelector('.cg-view').click()); await sleep(600);
     if (await p.$('.cg-view')) throw new Error('點了沒有關掉');
     await p.evaluate(() => { GAME.setDay(GAME.dayOf('10-01')); location.hash = '#/home'; });

@@ -304,7 +304,7 @@
     Object.keys(iv).forEach(function (k) { if (order.indexOf(k) < 0) order.push(k); });
     return order.map(function (k) {
       var c = byId[k] || {};
-      return { id: 'intro_' + k, title: t.cgIntro.replace('{name}', c.short || c.name || k), video: iv[k].video, clean: iv[k].clean, caption: iv[k].caption, thumb: 'images/cg/intro_' + k + '.jpg' };
+      return { id: 'intro_' + k, title: t.cgIntro.replace('{name}', c.short || c.name || k), video: iv[k].video, clean: iv[k].clean, caption: iv[k].caption, thumb: 'images/cg/intro_' + k + '.jpg', cleanThumb: iv[k].clean ? 'images/cg/intro_' + k + '_clean.jpg' : '' };
     });
   }
   function cgCount() {
@@ -316,7 +316,7 @@
     var tiles = cgList().map(function (c, i) {
       var open = !!seen[c.id];
       return '<button type="button" class="st-cg"' + (open ? ' data-cg="' + i + '"' : ' disabled') + '>' +
-        (open ? '<img src="' + esc(c.thumb || c.image || '') + '" alt="" loading="lazy">' : '<span>' + esc(t.locked) + '</span>') +
+        (open ? '<img src="' + esc((!cgBoxOn() && c.cleanThumb) || c.thumb || c.image || '') + '" alt="" loading="lazy">' : '<span>' + esc(t.locked) + '</span>') +
         '<b>' + esc(open ? c.title || '' : t.locked) + '</b></button>';
     }).join('');
     S().$('#settings-overlay').innerHTML = '';
@@ -324,49 +324,29 @@
       '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
       '<h1 class="st-h1 st-h1-s">' + esc(t.cg) + '<span class="st-cg-count">' + esc(cgCount()) + '</span></h1>' +
       '<div class="st-note st-note-top">' + esc(t.cgNote) + '</div>' +
+      // 重看時要不要顯示對話框（關掉 = 播沒有粉紅框的版本，畫面上什麼都不蓋）
+      '<div class="st-group st-cg-opt">' + row('', '', esc(t.cgBox), esc(cgBoxOn() ? t.cgBoxOn : t.cgBoxOff), 'data-cg-boxtoggle', false) + '</div>' +
       '<div class="st-cg-grid">' + tiles + '</div>';
   }
   // 重看一張 CG：蓋住整個手機畫面（影片跟劇情裡一樣播，介紹台詞照時間淡入；點一下關掉）
-  //   右上角「對話框 開／關」：關掉 = 不顯示介紹台詞，有 clean（沒有粉紅框的版本）就改播它；記在 riiiizeCGBox
+  //   對話框（CG 收集頁上的開關，記在 riiiizeCGBox）關掉：播 clean（沒有粉紅框的版本），台詞、點擊提示都不顯示，畫面上什麼都不蓋
   function cgBoxOn() { try { return localStorage.getItem('riiiizeCGBox') !== '0'; } catch (e) { return true; } }
   function viewCG(c) {
-    var t = T(), cfg = D().introVideo || {}, b = cfg.box || {}, w = document.createElement('div'), on = cgBoxOn();
-    w.className = 'vn-intro cg-view';
-    var cap = c.caption ? '<div class="vn-intro-cap" style="left:' + (b.left || 0) + '%;top:' + (b.top || 0) + '%;width:' + (b.width || 100) + '%;height:' + (b.height || 20) + '%">' +
+    var cfg = D().introVideo || {}, b = cfg.box || {}, w = document.createElement('div'), on = cgBoxOn();
+    w.className = 'vn-intro cg-view' + (on ? '' : ' cg-nobox');
+    var cap = on && c.caption ? '<div class="vn-intro-cap" style="left:' + (b.left || 0) + '%;top:' + (b.top || 0) + '%;width:' + (b.width || 100) + '%;height:' + (b.height || 20) + '%">' +
       esc(window.STORY.fill(c.caption)).replace(/\n/g, '<br>') + '</div>' : '';
     w.innerHTML = '<div class="vn-intro-frame">' + (c.video ? '<video playsinline webkit-playsinline preload="auto" muted></video>' : '<img src="' + esc(c.image || c.thumb || '') + '" alt="">') +
-      cap + '<i class="vn-intro-tap"></i></div>' +
-      (c.caption || c.clean ? '<button type="button" class="cg-box-btn" data-cg-box></button>' : '');
+      cap + (on ? '<i class="vn-intro-tap"></i>' : '') + '</div>';
     document.getElementById('phone').appendChild(w);
-    var vid = w.querySelector('video'), capEl = w.querySelector('.vn-intro-cap'), btn = w.querySelector('[data-cg-box]'), at = cfg.captionAt != null ? cfg.captionAt : 3000, born = Date.now();
-    function src() { return !on && c.clean ? c.clean : c.video; }
-    function paint() {
-      w.classList.toggle('cg-nobox', !on);
-      if (btn) btn.textContent = t.cgBox + '：' + (on ? t.cgBoxOn : t.cgBoxOff);
-    }
-    paint();
+    var vid = w.querySelector('video'), capEl = w.querySelector('.vn-intro-cap'), at = cfg.captionAt != null ? cfg.captionAt : 3000, born = Date.now();
     if (vid) {
-      vid.src = src(); vid.muted = true;
+      vid.src = !on && c.clean ? c.clean : c.video; vid.muted = true;
       vid.addEventListener('timeupdate', function () { if (capEl && vid.currentTime * 1000 >= at) capEl.classList.add('on'); });
       vid.addEventListener('ended', function () { if (capEl) capEl.classList.add('on'); w.classList.add('over'); });   // 播完停在最後一格
       var pr = vid.play(); if (pr && pr.catch) pr.catch(function () { w.classList.add('over'); });
     } else { if (capEl) capEl.classList.add('on'); w.classList.add('over'); }
     void w.offsetWidth; w.classList.add('show');
-    if (btn) btn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      on = !on;
-      try { localStorage.setItem('riiiizeCGBox', on ? '1' : '0'); } catch (er) {}
-      paint();
-      if (vid && c.clean) {   // 換成另一個版本，從同一個時間接著播（播完了就停在最後一格）
-        var tm = vid.currentTime, ended = vid.ended;
-        vid.src = src();
-        vid.addEventListener('loadedmetadata', function once() {
-          vid.removeEventListener('loadedmetadata', once);
-          vid.currentTime = ended ? Math.max(0, vid.duration - 0.05) : tm;
-          if (!ended) { var p2 = vid.play(); if (p2 && p2.catch) p2.catch(function () {}); }
-        });
-      }
-    });
     w.addEventListener('click', function () {
       if (Date.now() - born < 600) return;   // 剛打開時不小心多點一下：不要馬上關掉
       w.classList.remove('show');
@@ -532,6 +512,10 @@
       renderStats(); return;
     }
     if (e.target.closest('[data-st-plan]')) { window.PLAN.openPlanner(renderStats); return; }
+    if (e.target.closest('[data-cg-boxtoggle]')) {   // CG 收集：對話框開關
+      try { localStorage.setItem('riiiizeCGBox', cgBoxOn() ? '0' : '1'); } catch (er) {}
+      renderCG(); return;
+    }
     if ((el = e.target.closest('[data-cg]'))) { viewCG(cgList()[+el.dataset.cg]); return; }   // CG 收集：重看
     if ((el = e.target.closest('[data-replay]'))) { window.STORY.replay(el.dataset.replay); return; }   // 結局圖鑑：回想模式
     if ((el = e.target.closest('[data-rp]'))) { window.STORY.replay(el.dataset.rp, null, el.dataset.rpbg || ''); return; }   // 劇情回想
