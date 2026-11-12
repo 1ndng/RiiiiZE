@@ -142,8 +142,7 @@
     if (!b || !S()) return null;
     if (day < G().dayOf(b.from || '09-08') || day > G().dayOf(b.until || '08-23')) return null;
     var byAff = cast().map(function (c) { return c.id; }).sort(function (x, y) { return aff(y) - aff(x); });
-    var lover = hasLover(), L = G().loveScale ? G().loveScale() : 1;   // 難度：開放的成員越少，門檻越低
-    var love1 = Math.round(b.love1 * L), love2 = Math.round(b.love2 * L), conf = Math.round(b.confess * L);
+    var lover = hasLover(), love1 = b.love1, love2 = b.love2, conf = b.confess;   // 門檻不管愛情線選擇怎麼選都一樣
     if (!lover) {
       var loveIds = byAff.filter(function (id) { return !inCouple(id) && !G().blockedMe(id); });   // 已經跟別的成員在一起的人、玩家選了「不想配對」的人，不會進玩家的愛情線
       var can = loveIds.filter(function (id) { return aff(id) >= conf && seen('love_' + id + '_2'); });
@@ -166,8 +165,7 @@
   function cpFor() {
     var c = (B() || {}).cp;
     if (!c) return null;
-    var k = G().cpScale ? G().cpScale() : 1;   // 難度：開放的組合越少，門檻越低
-    var steps = [c.stage1, c.stage2, c.stage3, c.together].map(function (v) { return Math.round(v * k); });
+    var steps = [c.stage1, c.stage2, c.stage3, c.together];
     var list = pairs().map(function (p) { return { p: p, key: p[0] + '-' + p[1], v: G().stat('pair', p[0] + '-' + p[1]) }; })
       .sort(function (x, y) { return y.v - x.v; });
     for (var i = 0; i < list.length; i++) {

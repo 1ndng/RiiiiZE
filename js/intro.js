@@ -21,7 +21,7 @@
   function T() {
     var t = (D().intro || {}).text || {}, d = {
       photoTitle: '上傳你的照片', photoHint: 'IG以及X的頭貼之後可以更改；\nkakao talk的頭貼無法更改。', pick: '選擇照片', remove: '移除', next: '下一步', change: '換一張',
-      blockTitle: '愛情線選擇', blockHint: '可以不選，也可以多選；\n選擇到的組合，無論好感度如何，都不會觸發任何親密互動的劇情。\n之後可以更改。',
+      blockTitle: '愛情線選擇', blockHint: '可以不選，也可以多選；選擇到的組合，無論好感度如何，都不會觸發任何親密互動的劇情。\n之後可以更改。',
       blockMe: '不想配對的人', blockPair: '不想配對的組合',
       startTitle: '準備好遊玩了嗎？', startHint: '確定好資料後，即可進入遊戲。', back: '上一步', start: '開始遊戲'
     };
