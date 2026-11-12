@@ -312,13 +312,14 @@ const TESTS = [
     await p.click('.sch-cast button >> nth=2'); await p.click('[data-go]'); await sleep(1200);
     const pair = await p.evaluate(() => GAME.stat('pair', 'm1-m4'));
     if (pair !== 15) throw new Error('關係值不對：' + pair);
-    // 請將太郎送給元彬 → 播 gift_by_m1（{b} 換成元彬）
+    // 請將太郎送給元彬 → 播 gift_by_m1_m4
     await sleep(2000);
     const t = await text(p, '#vn-text');
-    if (!/元彬/.test(t || '')) throw new Error('送禮劇情：' + t);
+    const exp = await p.evaluate(() => SITE_DATA.scenes.gift_by_m1_m4.filter(s => s.text)[0].text.slice(0, 6));
+    if (!(t || '').includes(exp)) throw new Error('送禮劇情：' + t);
     return p;
   }],
-  ['14 日送禮：9/14 送元彬 → 9 月特別版；下個月再送、沒有特別版 → gift_m4_again', async (b, base) => {
+  ['14 日送禮：第一次送元彬 → gift_m4；下個月再送 → gift_m4_again', async (b, base) => {
     let p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' } }));
     const give = async () => {
       await p.waitForSelector('.sch-col button', { timeout: 8000 });
@@ -327,13 +328,12 @@ const TESTS = [
       return text(p, '#vn-text');
     };
     const t1 = await give();
-    const exp1 = await p.evaluate(() => SITE_DATA.scenes.gift_m4_9.filter(s => s.text)[0].text.slice(0, 6));   // 不寫死台詞：改了劇情也不會壞
-    if (!(t1 || '').includes(exp1)) throw new Error('9 月特別版：' + t1);
+    const exp1 = await p.evaluate(() => SITE_DATA.scenes.gift_m4.filter(s => s.text)[0].text.slice(0, 6));   // 不寫死台詞：改了劇情也不會壞
+    if (!(t1 || '').includes(exp1)) throw new Error('第一次送：' + t1);
     if (await p.evaluate(() => GAME.stat('aff', 'm4')) !== 8) throw new Error('好感沒有 +8');
     await p.close();
     // 上個月送過元彬（旗標 gift_09-14_m4）→ 這次播 gift_m4_again
     p = await open(b, base, played({ 'riiiize-game': { day: 44, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'gift_09-14_m4': 1 } }));
-    await p.evaluate(() => { delete SITE_DATA.scenes.gift_m4_10; });   // 拿掉 10 月特別版，確認會播「再送一次」
     const t2 = await give();
     if (!/這次他直接接了過去/.test(t2 || '')) throw new Error('第二次：' + t2);
     return p;

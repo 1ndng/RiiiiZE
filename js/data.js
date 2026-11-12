@@ -330,11 +330,10 @@ window.SITE_DATA = {
     dayLabels: { "09-01": "開學日", "09-02": "學生會聚" },
     holidays: [
       { date: "05-05", title: "兒童節",  scene: "h0505" },
-      { date: "05-08", title: "어버이날",  scene: "h0508" },
       { date: "10-31", title: "萬聖節",  scene: "h1031" },
-      { date: "02-17", title: "설날",  scene: "h0217" },
+      { date: "02-17", title: "農曆新年",  scene: "h0217" },
       { date: "12-31", title: "跨年夜",  scene: "d1231" },
-      { date: "11-11", title: "빼빼로데이",  scene: "h1111" },
+      { date: "11-11", title: "PEPERO DAY",  scene: "h1111" },
       { date: "10-06", title: "中秋節",     scene: "h1006" },
       { date: "01-01", title: "元旦",       scene: "h0101" },
       { date: "12-24", title: "平安夜",     scene: "h1224" },
@@ -1018,4 +1017,4 @@ function RIIIZE_ADD(part) {
   if (part.specials) D.plan.specials = (D.plan.specials || []).concat(part.specials);   // 日程特殊劇情（js/story/special.js）
 }
 // js/story/ 裡的檔案（index.html 照這個順序載入）
-var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","special","weekend","gift","gift-month","gift-by-month","side-extra","weekend-pair","bond","cp","cp-ending","clues","awake","ending","common"];
+var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","special","weekend","gift","side-extra","weekend-pair","bond","cp","cp-ending","clues","awake","ending","common"];
