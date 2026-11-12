@@ -319,23 +319,15 @@ const TESTS = [
     if (!(t || '').includes(exp)) throw new Error('送禮劇情：' + t);
     return p;
   }],
-  ['14 日送禮：第一次送元彬 → gift_m4；下個月再送 → gift_m4_again', async (b, base) => {
-    let p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' } }));
-    const give = async () => {
-      await p.waitForSelector('.sch-col button', { timeout: 8000 });
-      await p.click('.sch-col button >> nth=0'); await sleep(400);
-      await p.click('.sch-cast button >> nth=3'); await p.click('[data-go]'); await sleep(2600);
-      return text(p, '#vn-text');
-    };
-    const t1 = await give();
+  ['14 日送禮：送元彬 → gift_m4，好感 +8', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' } }));
+    await p.waitForSelector('.sch-col button', { timeout: 8000 });
+    await p.click('.sch-col button >> nth=0'); await sleep(400);
+    await p.click('.sch-cast button >> nth=3'); await p.click('[data-go]'); await sleep(2600);
+    const t1 = await text(p, '#vn-text');
     const exp1 = await p.evaluate(() => SITE_DATA.scenes.gift_m4.filter(s => s.text)[0].text.slice(0, 6));   // 不寫死台詞：改了劇情也不會壞
-    if (!(t1 || '').includes(exp1)) throw new Error('第一次送：' + t1);
+    if (!(t1 || '').includes(exp1)) throw new Error('送禮劇情：' + t1);
     if (await p.evaluate(() => GAME.stat('aff', 'm4')) !== 8) throw new Error('好感沒有 +8');
-    await p.close();
-    // 上個月送過元彬（旗標 gift_09-14_m4）→ 這次播 gift_m4_again
-    p = await open(b, base, played({ 'riiiize-game': { day: 44, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'gift_09-14_m4': 1 } }));
-    const t2 = await give();
-    if (!/這次他直接接了過去/.test(t2 || '')) throw new Error('第二次：' + t2);
     return p;
   }],
   ['結局：六人都覺醒 → 喚醒 = TRUE END，點一下回到鎖定畫面', async (b, base) => {

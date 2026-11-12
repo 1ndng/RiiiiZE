@@ -366,9 +366,8 @@
           onAlt: function () { gift(done); },
           onGo: function (ids) {
             var fx = { aff: {} }; fx.aff[ids[0]] = g.aff != null ? g.aff : 6; G().apply(fx);
-            var again = S() && Object.keys((function () { try { return JSON.parse(localStorage.getItem('riiiize-flags')) || {}; } catch (e) { return {}; } })()).some(function (k) { return /^gift_\d\d-\d\d_/.test(k) && k.slice(-ids[0].length - 1) === '_' + ids[0]; });
             if (S()) S().setFlag('gift_' + G().md(G().day) + '_' + ids[0]);
-            giftScene([again && 'gift_' + ids[0] + '_again', 'gift_' + ids[0]], null, ids[0],
+            giftScene(['gift_' + ids[0]], null, ids[0],
               function () { narrate(t.giftMeText.replace('{a}', nameOf(ids[0])), done); }, done);
           } });
       } },
