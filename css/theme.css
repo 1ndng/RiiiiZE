@@ -286,7 +286,7 @@
 .vn-name.trial-end p:not(.trial-msg) { margin-bottom: 8px; }   /* 存檔鍵往上靠一點 */
 .vn-name .trial-msg[hidden] { display: none; }
 
-/* 不想配對的組合（第一次玩、設定 → 不想配對）：點一下選（變灰＋✕）、再點一下取消 */
+/* 愛情線選擇（第一次玩、設定 → 愛情線選擇）：點一下選（變灰＋✕）、再點一下取消 */
 .blk { text-align: left; }
 .blk-sec { margin: 12px 0 6px; font-size: 13px; font-weight: 700; opacity: .85; }
 .blk-me { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
@@ -299,3 +299,4 @@
 .blk-chip.on::after { content: "✕"; position: absolute; top: 1px; right: 4px; font-size: 11px; color: #fff; }
 .vn-name-wide form { max-height: 92%; overflow-y: auto; }
 .blk-me .blk-chip span { white-space: nowrap; font-size: 11px; letter-spacing: -.02em; }
+.blk-pair { font-size: 17px !important; letter-spacing: .08em; }

@@ -177,11 +177,11 @@
   function R() { return D.romance || {}; }
   function isLover(id) {
     var r = R().lover || {};
-    return cmp(statGet('aff', id), r.aff != null ? r.aff : 20) && hasFlag(String(r.flag || 'confess_{id}').replace('{id}', id));
+    return cmp(statGet('aff', id), Math.round((r.aff != null ? r.aff : 20) * window.GAME.loveScale())) && hasFlag(String(r.flag || 'confess_{id}').replace('{id}', id));
   }
   function isCouple(k) {
     var r = R().couple || {}, key = pairKey(k);
-    return cmp(statGet('pair', key), r.pair != null ? r.pair : 10) && hasFlag(String(r.flag || 'couple_{pair}').replace('{pair}', key));
+    return cmp(statGet('pair', key), Math.round((r.pair != null ? r.pair : 10) * window.GAME.cpScale())) && hasFlag(String(r.flag || 'couple_{pair}').replace('{pair}', key));
   }
   function isAwake(id) {
     var a = R().awake, need = a != null && typeof a === 'object' ? a.value : a, flag = a && typeof a === 'object' ? a.flag : null;
@@ -238,11 +238,25 @@
   /* 不想配對的組合（第一次玩時選、設定裡可以改）：存在 riiiize-player 的 block = { me: ["m4"], pairs: ["m4-m6"] }
    *   me = 不想和玩家配對的成員（愛情線不觸發）；pairs = 不想配對的兩位成員（CP 線、兩人的隨機／特殊／星期日劇情不出現） */
   function blockOf() { var b = (load('riiiize-player', {}) || {}).block || {}; return { me: b.me || [], pairs: b.pairs || [] }; }
+  function scaleOf(open, total) { if (total <= 1) return 1; open = Math.max(1, Math.min(total, open)); return 0.6 + 0.4 * (open - 1) / (total - 1); }
   function blockKey(a, b) { return [a, b].sort().join("-"); }
   window.GAME = {
     cast: cast,
     block: blockOf,
-    setBlock: function (b) { var p = load('riiiize-player', {}) || {}; p.block = { me: (b.me || []).slice(), pairs: (b.pairs || []).slice() }; store('riiiize-player', p); },
+    // 重新打開（取消排除）的組合：記 catchup，下一個有事的日子把累積的好感度劇情一次播完（js/plan.js）
+    setBlock: function (b) {
+      var p = load('riiiize-player', {}) || {}, old = blockOf();
+      var reopened = old.me.some(function (x) { return (b.me || []).indexOf(x) < 0; }) || old.pairs.some(function (x) { return (b.pairs || []).indexOf(x) < 0; });
+      p.block = { me: (b.me || []).slice(), pairs: (b.pairs || []).slice() };
+      if (reopened) p.bondCatchup = true;
+      store('riiiize-player', p);
+    },
+    bondCatchup: function () { return !!(load('riiiize-player', {}) || {}).bondCatchup; },
+    clearBondCatchup: function () { var p = load('riiiize-player', {}) || {}; delete p.bondCatchup; store('riiiize-player', p); },
+    /* 難度：開放的對象越少，門檻越低（全部開放 ×1、只剩一個 ×0.6）
+     *   loveScale = 玩家的愛情線（開放的成員數 6 → 1）；cpScale = 成員之間的 CP 線（開放的組合數 15 → 1） */
+    loveScale: function () { var n = cast().length; return scaleOf(n - blockOf().me.length, n); },
+    cpScale: function () { var n = cast().length, all = n * (n - 1) / 2; return scaleOf(all - blockOf().pairs.length, all); },
     blockedMe: function (id) { return blockOf().me.indexOf(id) >= 0; },
     blockedPair: function (a, b) { return blockOf().pairs.indexOf(blockKey(a, b)) >= 0; },
     // 一串成員裡有沒有任何一對被排除（隨機、特殊劇情用）

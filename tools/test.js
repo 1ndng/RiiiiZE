@@ -207,7 +207,7 @@ const TESTS = [
     const g = await game(p); if (g.day !== 15) throw new Error('應該停在 9/15：' + g.day);
     return p;
   }],
-  ['不想配對：被排除的人不進愛情線（友誼線照常）、被排除的兩人沒有 CP 線', async (b, base) => {
+  ['愛情線選擇：被排除的人不進愛情線（友誼線照常）、被排除的兩人沒有 CP 線；開放越少門檻越低；重新打開會補播', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
     const r = await p.evaluate(() => {
       const A = (id, v) => GAME.addStat('aff', id, v - GAME.stat('aff', id)), P = (k, v) => GAME.addStat('pair', k, v - GAME.stat('pair', k));
@@ -221,6 +221,15 @@ const TESTS = [
       return out.join(',');
     });
     if (r !== 'fr_m4,-,-,true,false') throw new Error(r);
+    // 難度：開放越少門檻越低（全部開放 ×1、只剩一個 ×0.6）；重新打開 → 記 catchup（下一個有事的日子補播）
+    const r2 = await p.evaluate(() => {
+      const o = [];
+      GAME.setBlock({ me: [], pairs: [] }); o.push(GAME.loveScale(), GAME.cpScale(), GAME.bondCatchup());
+      GAME.clearBondCatchup();
+      GAME.setBlock({ me: ['m1', 'm2', 'm3', 'm5', 'm6'], pairs: [] }); o.push(GAME.loveScale(), GAME.bondCatchup());
+      return o.join(',');
+    });
+    if (r2 !== '1,1,true,0.6,false') throw new Error('難度／補播：' + r2);
     return p;
   }],
   ['開學週的強制日程也算次數（9/2 學生會 +1，重新整理不會重複算）', async (b, base) => {

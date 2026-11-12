@@ -21,8 +21,8 @@
   function T() {
     var t = (D().intro || {}).text || {}, d = {
       photoTitle: '上傳你的照片', photoHint: 'IG以及X的頭貼之後可以更改；\nkakao talk的頭貼無法更改。', pick: '選擇照片', remove: '移除', next: '下一步', change: '換一張',
-      blockTitle: '不想配對的組合', blockHint: '不一定要選。選了的組合，不管好感度怎麼加都不會發生相關劇情。\n之後可以在設定中修改。',
-      blockMe: '不想和我配對', blockPair: '成員之間不想配對',
+      blockTitle: '愛情線選擇', blockHint: '可以不選，也可以多選；\n選擇到的組合，無論好感度如何，都不會觸發任何親密互動的劇情。\n之後可以更改。',
+      blockMe: '不想配對的人', blockPair: '不想配對的組合',
       startTitle: '準備好遊玩了嗎？', startHint: '確定好資料後，即可進入遊戲。', back: '上一步', start: '開始遊戲'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -170,7 +170,7 @@
         '<div class="blk-sec">' + esc(t.blockPair) + '</div><div class="blk-pairs">' +
         pairs.map(function (p) {
           var k = [p[0].id, p[1].id].sort().join('-'), on = b.pairs.indexOf(k) >= 0;
-          return '<button type="button" class="blk-chip blk-pair' + (on ? ' on' : '') + '" data-blk-pair="' + k + '">' + esc(nm(p[0])) + '×' + esc(nm(p[1])) + '</button>';
+          return '<button type="button" class="blk-chip blk-pair' + (on ? ' on' : '') + '" data-blk-pair="' + k + '" title="' + esc(nm(p[0]) + '×' + nm(p[1])) + '">' + esc(p[0].emoji || nm(p[0])) + esc(p[1].emoji || nm(p[1])) + '</button>';   // 按鈕上是兩人的表情符號
         }).join('') + '</div>';
     }
     el.addEventListener('click', function (e) {

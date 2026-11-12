@@ -142,14 +142,15 @@
     if (!b || !S()) return null;
     if (day < G().dayOf(b.from || '09-08') || day > G().dayOf(b.until || '08-23')) return null;
     var byAff = cast().map(function (c) { return c.id; }).sort(function (x, y) { return aff(y) - aff(x); });
-    var lover = hasLover();
+    var lover = hasLover(), L = G().loveScale ? G().loveScale() : 1;   // 難度：開放的成員越少，門檻越低
+    var love1 = Math.round(b.love1 * L), love2 = Math.round(b.love2 * L), conf = Math.round(b.confess * L);
     if (!lover) {
       var loveIds = byAff.filter(function (id) { return !inCouple(id) && !G().blockedMe(id); });   // 已經跟別的成員在一起的人、玩家選了「不想配對」的人，不會進玩家的愛情線
-      var can = loveIds.filter(function (id) { return aff(id) >= b.confess && seen('love_' + id + '_2'); });
+      var can = loveIds.filter(function (id) { return aff(id) >= conf && seen('love_' + id + '_2'); });
       if (can.length && !S().hasFlag('confess_wait_' + ym(day))) return { kind: 'confess', ids: can };
-      var l2 = loveIds.filter(function (id) { return aff(id) >= b.love2 && seen('love_' + id + '_1') && !seen('love_' + id + '_2') && scene('love_' + id + '_2'); })[0];
+      var l2 = loveIds.filter(function (id) { return aff(id) >= love2 && seen('love_' + id + '_1') && !seen('love_' + id + '_2') && scene('love_' + id + '_2'); })[0];
       if (l2) return { kind: 'scene', id: 'love_' + l2 + '_2' };
-      var l1 = loveIds.filter(function (id) { return aff(id) >= b.love1 && !seen('love_' + id + '_1') && scene('love_' + id + '_1'); })[0];
+      var l1 = loveIds.filter(function (id) { return aff(id) >= love1 && !seen('love_' + id + '_1') && scene('love_' + id + '_1'); })[0];
       if (l1) return { kind: 'scene', id: 'love_' + l1 + '_1' };
     }
     // 成員之間的 CP 線（plan.bond.cp）：關係到 60 親近 → 150 心動 → 250 曖昧 → 350 在一起（記旗標 couple_a-b）
@@ -165,7 +166,8 @@
   function cpFor() {
     var c = (B() || {}).cp;
     if (!c) return null;
-    var steps = [c.stage1, c.stage2, c.stage3, c.together];
+    var k = G().cpScale ? G().cpScale() : 1;   // 難度：開放的組合越少，門檻越低
+    var steps = [c.stage1, c.stage2, c.stage3, c.together].map(function (v) { return Math.round(v * k); });
     var list = pairs().map(function (p) { return { p: p, key: p[0] + '-' + p[1], v: G().stat('pair', p[0] + '-' + p[1]) }; })
       .sort(function (x, y) { return y.v - x.v; });
     for (var i = 0; i < list.length; i++) {
@@ -454,11 +456,15 @@
       // 星期日：出去玩（送禮已經在早上最先做了）
       if (sunday && !forced && !(C().weekend || {}).off) steps.push(weekend);
       // 友誼線、愛情線：一天最多一段，在當天其他劇情之後（判斷放到那時候，才會算進今天加的好感）
-      steps.push(function (next) {
-        var bd = bondFor(G().day);
-        if (!bd) { next(); return; }
-        if (bd.kind === 'confess') confess(bd.ids, next);
-        else { if (bd.couple && S()) S().setFlag('couple_' + bd.couple); playIf(bd.id, next); }
+      //   重新打開「愛情線選擇」裡排除的組合之後（GAME.bondCatchup）：這一天把累積到的好感度劇情一段接一段播完
+      var bondRuns = 0;
+      steps.push(function bondStep(next) {
+        var bd = bondFor(G().day), more = G().bondCatchup && G().bondCatchup() && bondRuns < 30;
+        if (!bd) { if (G().clearBondCatchup) G().clearBondCatchup(); next(); return; }
+        bondRuns++;
+        var after = function () { if (more) bondStep(next); else next(); };
+        if (bd.kind === 'confess') confess(bd.ids, after);
+        else { if (bd.couple && S()) S().setFlag('couple_' + bd.couple); playIf(bd.id, after); }
       });
       setTimeout(function () { series(steps, done); }, steps.length ? 300 : 0);
     });

@@ -3,7 +3,7 @@
  *   #/settings/saves   存檔與讀檔：每天早上的自動存檔＋好幾格手動存檔（格數 = data.js 的 game.saveSlots）
  *   #/settings/clues   線索收集：每位成員找到幾個（●●○，不寫內容）
  *   #/settings/replay  劇情回想：看過的劇情分類列出，點一下重看（不改好感、旗標）
- *   #/settings/block   不想配對的組合（和第一次玩時選的一樣，點一下就存）
+ *   #/settings/block   愛情線選擇：不想配對的人／組合（和第一次玩時選的一樣，點一下就存）
  *   #/settings/cg      CG 圖鑑：看過的 CG（目前是六位成員的出場動畫），點一下重看
  *   #/settings/wallpaper  背景圖片：鎖定畫面、主畫面各自換一張自己的照片，或恢復預設
  *   #/settings/stats   數值（開發用）：看、調整隱藏數值、跳天數；data.js 的 game.debug 設成 false 就不會出現
@@ -52,7 +52,7 @@
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
-    myName: '名字', nickName: '稱呼', block: '不想配對', blockNote: '選了的組合，不管好感度怎麼加都不會發生相關劇情：\n和我 = 愛情線不觸發；成員之間 = CP 線、兩人的隨機劇情、特殊劇情、星期日兩人出遊劇情都不出現。', blockNone: '沒有', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
+    myName: '名字', nickName: '稱呼', block: '愛情線選擇', blockNote: '可以不選，也可以多選；\n選擇到的組合，無論好感度如何，都不會觸發任何親密互動的劇情。\n重新打開的組合，會在下一個有事的日子補上該有的劇情。', blockNone: '沒有', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
     loopSave: '循環前的存檔', loopSaveName: '第 {n} 輪結束時', loopNote: 'DREAM END 之後回到 9/1 之前自動存的檔，只能讀取。讀取後在 8/31 晚上睡覺，就會再次回到 9/1。', loopNo: '第 {n} 輪',
     wallpaper: '背景圖片', wpLock: '鎖定畫面', wpHome: '主畫面', wpChange: '更換', wpDefault: '恢復預設',
     wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。存在這個瀏覽器裡，「重新開始」也不會清掉。', wpTooBig: '照片太大了，換一張試試看。',
