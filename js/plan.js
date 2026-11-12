@@ -126,7 +126,7 @@
     if (!list.length || Math.random() >= chance) return [];
     return ['rand_' + act + '_' + list[Math.floor(Math.random() * list.length)]];
   }
-  /* 機率觸發的劇情（日程隨機劇情、星期日 20% 特殊劇情）播的時候加分（data.js 的 plan.random.bonus，預設 5）：
+  /* 日程隨機劇情播的時候加分（data.js 的 plan.random.bonus，預設 5）：
    *   單人 = 那位成員的好感 +5；兩人 = 那兩人的關係 +5；跟自己對話（rand_home_me）不加 */
   function chanceFx(ids) {
     var n = C().random && C().random.bonus != null ? C().random.bonus : 5, fx = { aff: {}, pair: {} };
@@ -336,7 +336,6 @@
           var sc = cands.filter(function (e) { return e.chance != null && Math.random() < e.chance; })[0] ||
             cands.filter(function (e) { return e.chance == null; })[0];
           // 出去玩：背景 = weekend.bg
-          if (sc && sc.chance != null) chanceFx([].concat(sc.with || []));   // 20% 特殊劇情：單人加好感、兩人加關係
           if (sc) window.STORY.play(sc.scene, done, null, w.bg);
           else narrate((ids.length === 1 ? t.single : t.pair).replace('{a}', nameOf(ids[0])).replace('{b}', nameOf(ids[1] || '')), done, w.bg);
         }
