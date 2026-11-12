@@ -261,6 +261,10 @@ const TESTS = [
     if (await p.$('.wk')) throw new Error('隨機劇情還沒播，每週回顧就出現了');
     const sc = await p.evaluate(() => STORY.scene && STORY.scene());   // 正在播的劇情 id
     if (!/^rand_club_/.test(sc || '')) throw new Error('先播的不是隨機劇情：' + sc);
+    // 機率觸發的劇情：單人 = 那位好感 +5、兩人 = 那兩人關係 +5（播的時候加）
+    const fx = await p.evaluate((sc) => { const code = sc.split('_').pop(), ids = code.split('').map(n => GAME.cast().filter(c => String(c.no) === n)[0].id);
+      return ids.length === 1 ? GAME.stat('aff', ids[0]) : GAME.stat('pair', ids.slice().sort().join('-')); }, sc);
+    if (fx < 5) throw new Error('隨機劇情沒有加 5：' + sc + ' = ' + fx);
     for (let i = 0; i < 1500 && !(await p.$('.wk')); i++) {
       await p.evaluate(() => { const c = document.querySelector('[data-vn-choice]'); if (c) c.click(); const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(60);
     }
@@ -545,6 +549,7 @@ const TESTS = [
     for (let i = 0; i < 80 && !(await p.$('.sch-cast [data-meet="m4"]')); i++) {
       await p.evaluate(() => { const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(150);
     }
+    await p.evaluate(() => SITE_DATA.plan.weekend.scenes.forEach(e => { if (e.chance != null) e.chance = 0; }));   // 20% 特殊劇情（會再 +5）關掉
     await p.click('.sch-cast [data-meet="m4"]');
     await p.evaluate(() => { const g = document.querySelector('[data-go]'); g.click(); g.click(); });
     await sleep(1500);

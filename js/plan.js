@@ -126,6 +126,21 @@
     if (!list.length || Math.random() >= chance) return [];
     return ['rand_' + act + '_' + list[Math.floor(Math.random() * list.length)]];
   }
+  /* 機率觸發的劇情（日程隨機劇情、星期日 20% 特殊劇情）播的時候加分（data.js 的 plan.random.bonus，預設 5）：
+   *   單人 = 那位成員的好感 +5；兩人 = 那兩人的關係 +5；跟自己對話（rand_home_me）不加 */
+  function chanceFx(ids) {
+    var n = C().random && C().random.bonus != null ? C().random.bonus : 5, fx = { aff: {}, pair: {} };
+    ids = (ids || []).filter(Boolean);
+    if (ids.length === 1) fx.aff[ids[0]] = n;
+    else if (ids.length === 2) fx.pair[ids.slice().sort().join('-')] = n;
+    else return;
+    G().apply(fx);
+  }
+  function playRandom(id, next, bg) {
+    var code = String(id).split('_').pop();
+    if (code !== 'me') chanceFx(idsOf(code));
+    window.STORY.play(id, next, null, bg);
+  }
   // 回家（平日沒安排）：開學週（planFrom 之前）不算
   function homeDay(day) { return !isWeekend(day) && !forcedOn(day) && !plannedOn(day) && day >= G().dayOf(C().planFrom || '09-08'); }
 
@@ -321,6 +336,7 @@
           var sc = cands.filter(function (e) { return e.chance != null && Math.random() < e.chance; })[0] ||
             cands.filter(function (e) { return e.chance == null; })[0];
           // 出去玩：背景 = weekend.bg
+          if (sc && sc.chance != null) chanceFx([].concat(sc.with || []));   // 20% 特殊劇情：單人加好感、兩人加關係
           if (sc) window.STORY.play(sc.scene, done, null, w.bg);
           else narrate((ids.length === 1 ? t.single : t.pair).replace('{a}', nameOf(ids[0])).replace('{b}', nameOf(ids[1] || '')), done, w.bg);
         }
@@ -418,7 +434,7 @@
       if (location.hash !== '#/home') location.hash = '#/home';
       var forced = forcedOn(day);
       var playOn = function (id, act) { steps.push(function (next) { window.STORY.play(id, next, null, bgOf(act)); }); };
-      var playAll = function (ids, act) { ids.forEach(function (id) { playOn(id, act); }); };
+      var playAll = function (ids, act) { ids.forEach(function (id) { steps.push(function (next) { playRandom(id, next, bgOf(act)); }); }); };   // 隨機劇情：播的時候加分
       // 1. 開學週的強制日程：不加好感，但算次數（同一天只算一次，重新整理也不會重複算）
       if (forced && S()) {
         S().setFlag('act_' + forced.activity);
@@ -724,7 +740,7 @@
   function weekCard(week, next) {
     // 這幾天觸發的隨機劇情先依序播完，最後才出現「這週的安排」卡片
     var evs = [];
-    week.forEach(function (w) { w.rnd.forEach(function (id) { evs.push(function (n) { window.STORY.play(id, n, null, bgOf(w.act)); }); }); });
+    week.forEach(function (w) { w.rnd.forEach(function (id) { evs.push(function (n) { playRandom(id, n, bgOf(w.act)); }); }); });
     series(evs, function () { showWeekCard(week, next); });
   }
   function showWeekCard(week, next) {
