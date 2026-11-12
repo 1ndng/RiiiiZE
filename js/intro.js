@@ -21,6 +21,8 @@
   function T() {
     var t = (D().intro || {}).text || {}, d = {
       photoTitle: '上傳你的照片', photoHint: 'IG以及X的頭貼之後可以更改；\nkakao talk的頭貼無法更改。', pick: '選擇照片', remove: '移除', next: '下一步', change: '換一張',
+      blockTitle: '不想配對的組合', blockHint: '不一定要選。選了的組合，不管好感度怎麼加都不會發生相關劇情。\n之後可以在設定中修改。',
+      blockMe: '不想和我配對', blockPair: '成員之間不想配對',
       startTitle: '準備好遊玩了嗎？', startHint: '確定好資料後，即可進入遊戲。', back: '上一步', start: '開始遊戲'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -152,6 +154,45 @@
     }
     w.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); finish(true); });
   }
+  /* 不想配對的組合：點一下選、再點一下取消（選了馬上存；設定 → 不想配對 也用這個）
+   *   和我：六位成員；成員之間：十五組兩人 */
+  function blockUI(el) {
+    var t = T(), cs = (D().cast || []), G = window.GAME;
+    function nm(c) { return c.short || c.name; }
+    function render() {
+      var b = G.block(), pairs = [];
+      cs.forEach(function (a, i) { cs.slice(i + 1).forEach(function (c) { pairs.push([a, c]); }); });
+      el.innerHTML = '<div class="blk-sec">' + esc(t.blockMe) + '</div><div class="blk-me">' +
+        cs.map(function (c) {
+          var on = b.me.indexOf(c.id) >= 0;
+          return '<button type="button" class="blk-chip' + (on ? ' on' : '') + '" data-blk-me="' + esc(c.id) + '"><img src="' + esc(c.avatar || DEFAULT_AVATAR) + '" alt=""><span>' + esc(nm(c)) + '</span></button>';
+        }).join('') + '</div>' +
+        '<div class="blk-sec">' + esc(t.blockPair) + '</div><div class="blk-pairs">' +
+        pairs.map(function (p) {
+          var k = [p[0].id, p[1].id].sort().join('-'), on = b.pairs.indexOf(k) >= 0;
+          return '<button type="button" class="blk-chip blk-pair' + (on ? ' on' : '') + '" data-blk-pair="' + k + '">' + esc(nm(p[0])) + '×' + esc(nm(p[1])) + '</button>';
+        }).join('') + '</div>';
+    }
+    el.addEventListener('click', function (e) {
+      var x = e.target.closest('[data-blk-me], [data-blk-pair]');
+      if (!x) return;
+      e.preventDefault();
+      var b = G.block(), list = x.dataset.blkMe ? b.me : b.pairs, v = x.dataset.blkMe || x.dataset.blkPair, k = list.indexOf(v);
+      if (k >= 0) list.splice(k, 1); else list.push(v);
+      G.setBlock(b); render();
+    });
+    render();
+  }
+  function askBlock(done, back) {
+    var t = T();
+    var w = card('<b>' + esc(t.blockTitle) + '</b><p>' + esc(t.blockHint).replace(/\n/g, '<br>') + '</p>' +
+      '<div class="blk" id="ob-blk"></div>' +
+      '<div class="ob-btns"><button type="button" data-ob-back>' + esc(t.back) + '</button><button type="submit">' + esc(t.next) + '</button></div>');
+    w.classList.add('vn-name-wide');
+    blockUI(w.querySelector('#ob-blk'));
+    w.querySelector('[data-ob-back]').addEventListener('click', function () { w.remove(); back(); });
+    w.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); w.remove(); done(); });
+  }
   function askStart(back, go) {
     var t = T(), pl = player(), b = /(\d+)-(\d+)/.exec(pl.birthday || '');
     var w = card('<b>' + esc(t.startTitle) + '</b>' +
@@ -162,7 +203,7 @@
     w.querySelector('[data-ob-back]').addEventListener('click', function () { w.remove(); back(); });
     w.querySelector('form').addEventListener('submit', function (e) { e.preventDefault(); w.remove(); go(); });
   }
-  // 1. 名字 → 生日 → 照片 → 是否開始；每一頁都可以按「上一步」，名字那頁的上一步回到標題畫面
+  // 1. 名字 → 生日 → 照片 → 不想配對 → 是否開始；每一頁都可以按「上一步」，名字那頁的上一步回到標題畫面
   function setup(done) {
     var t = T(), pl = player();
     // 時間循環的第二輪以後：名字、生日、頭貼都還在 → 直接響鬧鐘
@@ -175,7 +216,8 @@
     }
     function name() { window.STORY.askName(bday, toTitle, t.back); }
     function bday() { window.STORY.askBirthday(photo, name, t.back); }
-    function photo() { askPhoto(function () { askStart(photo, done); }, bday); }
+    function photo() { askPhoto(block, bday); }
+    function block() { askBlock(function () { askStart(block, done); }, photo); }   // 照片 → 不想配對的組合 → 準備好遊玩了嗎？
     name();
   }
 
@@ -250,7 +292,7 @@
   }
 
   window.INTRO = {
-    setup: setup, afterUnlock: afterUnlock, onCalendar: onCalendar, applyAvatar: applyAvatar,
+    setup: setup, afterUnlock: afterUnlock, blockUI: blockUI, onCalendar: onCalendar, applyAvatar: applyAvatar,
     toAvatar: toAvatar, setId: setId, myId: myId, setAppAvatar: setAppAvatar,
     exploring: function () { return exploring; },
     // 鎖定畫面密碼：玩家生日（月月日日）

@@ -123,11 +123,16 @@ const TESTS = [
     if (!(await p.$('.vn-name'))) throw new Error('按了開始沒有出現輸入名字');
     return p;
   }],
-  ['第一次遊玩：名字 → 生日 → 照片 → 開始 → 鬧鐘 → 鎖定畫面 → 開場', async (b, base) => {
+  ['第一次遊玩：名字 → 生日 → 照片 → 不想配對 → 開始 → 鬧鐘 → 鎖定畫面 → 開場', async (b, base) => {
     const p = await open(b, base, {});
     await p.fill('.vn-name input', '小明'); await p.click('.vn-name button[type=submit]'); await sleep(500);
     await p.click('.vn-name button[type=submit]'); await sleep(500);   // 生日（預設值）
     await p.click('.vn-name button[type=submit]'); await sleep(500);   // 照片：下一步
+    // 不想配對：選元彬（和我）、元彬×燦榮（成員之間），再點一次元彬取消
+    await p.click('[data-blk-me=m4]'); await p.click('[data-blk-pair="m4-m6"]'); await p.click('[data-blk-me=m4]');
+    const blk = await p.evaluate(() => JSON.stringify(GAME.block()));
+    if (blk !== '{"me":[],"pairs":["m4-m6"]}') throw new Error('不想配對沒有存好：' + blk);
+    await p.click('.vn-name button[type=submit]'); await sleep(500);   // 不想配對：下一步
     await p.click('.vn-name button[type=submit]'); await sleep(900);   // 開始遊戲
     const knob = await p.$('#alarm-knob'); if (!knob) throw new Error('沒有鬧鐘');
     const bb = await knob.boundingBox();
@@ -200,6 +205,22 @@ const TESTS = [
     for (let i = 0; i < 40 && sc !== 'sp_club_m4'; i++) { sc = await p.evaluate(() => (window.STORY && STORY.scene && STORY.scene()) || ''); await sleep(250); }
     if (sc !== 'sp_club_m4') throw new Error('沒有播特殊劇情：' + sc);
     const g = await game(p); if (g.day !== 15) throw new Error('應該停在 9/15：' + g.day);
+    return p;
+  }],
+  ['不想配對：被排除的人不進愛情線（友誼線照常）、被排除的兩人沒有 CP 線', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
+    const r = await p.evaluate(() => {
+      const A = (id, v) => GAME.addStat('aff', id, v - GAME.stat('aff', id)), P = (k, v) => GAME.addStat('pair', k, v - GAME.stat('pair', k));
+      const q = () => { const x = PLAN.bondFor(GAME.day); return x ? (x.id || x.kind) : '-'; };
+      GAME.setBlock({ me: ['m4'], pairs: ['m4-m6'] });
+      const out = [];
+      A('m4', 160); out.push(q());                        // 元彬好感夠心動，但被排除 → 沒有愛情線（友誼線照常）
+      SOSHO.setFlag('scene_fr_m4'); out.push(q());
+      A('m4', 0); P('m4-m6', 300); out.push(q());          // 元彬×燦榮關係夠了，但被排除 → 沒有 CP 線
+      out.push(GAME.blockedAny(['m6', 'm4']), GAME.blockedAny(['m4', 'm5']));
+      return out.join(',');
+    });
+    if (r !== 'fr_m4,-,-,true,false') throw new Error(r);
     return p;
   }],
   ['開學週的強制日程也算次數（9/2 學生會 +1，重新整理不會重複算）', async (b, base) => {

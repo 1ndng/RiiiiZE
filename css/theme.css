@@ -285,3 +285,17 @@
 .vn-name .trial-msg { margin: 10px 0 0; font-size: 13px; }
 .vn-name.trial-end p:not(.trial-msg) { margin-bottom: 8px; }   /* 存檔鍵往上靠一點 */
 .vn-name .trial-msg[hidden] { display: none; }
+
+/* 不想配對的組合（第一次玩、設定 → 不想配對）：點一下選（變灰＋✕）、再點一下取消 */
+.blk { text-align: left; }
+.blk-sec { margin: 12px 0 6px; font-size: 13px; font-weight: 700; opacity: .85; }
+.blk-me { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.blk-pairs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.blk-chip { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; margin: 0 !important; padding: 5px 2px !important; border-radius: 10px; border: 1.5px solid var(--pk-plate-line, #e3a6c8); background: rgba(255, 245, 251, .85) !important; color: var(--pk-text, #6b3358); font: inherit; font-size: 12px !important; font-weight: 600; cursor: pointer; line-height: 1.2; }
+.blk-chip img { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; }
+.blk-pair { padding: 7px 2px !important; }
+.blk-chip.on { background: rgba(120, 110, 118, .55) !important; color: #fff; border-color: rgba(120, 110, 118, .8); }
+.blk-chip.on img { filter: grayscale(1) opacity(.6); }
+.blk-chip.on::after { content: "✕"; position: absolute; top: 1px; right: 4px; font-size: 11px; color: #fff; }
+.vn-name-wide form { max-height: 92%; overflow-y: auto; }
+.blk-me .blk-chip span { white-space: nowrap; font-size: 11px; letter-spacing: -.02em; }

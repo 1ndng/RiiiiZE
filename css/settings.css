@@ -112,3 +112,7 @@
 /* 縮圖、重看畫面的介紹台詞：用劇情的字體（不是手機的系統字體），縮圖上一開始就顯示 */
 .st-cg .vn-intro-cap, .cg-view .vn-intro-cap { font-family: "Kaisei Decol", "UoqMunThenKhung", "JiangChengJieXingTi", "Noto Serif TC", serif; }
 .st-cg .vn-intro-cap { pointer-events: none; text-align: left; }
+/* 設定 → 不想配對：白底版本 */
+.blk-st { padding: 6px 14px 14px; }
+.blk-st .blk-chip { background: #f2f2f7 !important; border-color: #e5e5ea; color: #1c1c1e; }
+.blk-st .blk-chip.on { background: #8e8e93 !important; color: #fff; border-color: #8e8e93; }

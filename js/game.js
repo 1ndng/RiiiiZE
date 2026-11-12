@@ -235,8 +235,18 @@
     return true;
   }
 
+  /* 不想配對的組合（第一次玩時選、設定裡可以改）：存在 riiiize-player 的 block = { me: ["m4"], pairs: ["m4-m6"] }
+   *   me = 不想和玩家配對的成員（愛情線不觸發）；pairs = 不想配對的兩位成員（CP 線、兩人的隨機／特殊／星期日劇情不出現） */
+  function blockOf() { var b = (load('riiiize-player', {}) || {}).block || {}; return { me: b.me || [], pairs: b.pairs || [] }; }
+  function blockKey(a, b) { return [a, b].sort().join("-"); }
   window.GAME = {
     cast: cast,
+    block: blockOf,
+    setBlock: function (b) { var p = load('riiiize-player', {}) || {}; p.block = { me: (b.me || []).slice(), pairs: (b.pairs || []).slice() }; store('riiiize-player', p); },
+    blockedMe: function (id) { return blockOf().me.indexOf(id) >= 0; },
+    blockedPair: function (a, b) { return blockOf().pairs.indexOf(blockKey(a, b)) >= 0; },
+    // 一串成員裡有沒有任何一對被排除（隨機、特殊劇情用）
+    blockedAny: function (ids) { for (var i = 0; i < ids.length; i++) for (var j = i + 1; j < ids.length; j++) if (window.GAME.blockedPair(ids[i], ids[j])) return true; return false; },
     pairs: function () {   // 所有兩兩一組：["m1-m2", "m1-m3", …]
       var ids = cast().map(function (c) { return c.id; }), out = [];
       for (var i = 0; i < ids.length; i++) for (var j = i + 1; j < ids.length; j++) out.push(ids[i] + '-' + ids[j]);

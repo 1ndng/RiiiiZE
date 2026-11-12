@@ -87,7 +87,8 @@
   function specialFor(day, act) {
     if (!act || quiet(day)) return null;   // 安靜期間（9/8～9/13）也沒有特殊劇情
     return (C().specials || []).filter(function (e) {
-      return e.activity === act && (!e.date || G().dayOf(e.date) === day) && ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene);
+      return e.activity === act && (!e.date || G().dayOf(e.date) === day) && ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene) &&
+        !G().blockedAny(e.scene.match(/m\d/g) || []);   // 不想配對的兩人的特殊劇情不觸發
     })[0] || null;
   }
   /* ---- 日程劇情 ----
@@ -119,7 +120,7 @@
     if (quiet()) return [];
     var r = C().random || {}, chance = r.chance != null ? r.chance : 0.3;
     var list = (r[act] || []).filter(function (k) {
-      return scene('rand_' + act + '_' + k) && (k === 'me' || idsOf(k).every(function (id) { return id && met.indexOf(id) >= 0; }));
+      return scene('rand_' + act + '_' + k) && (k === 'me' || (idsOf(k).every(function (id) { return id && met.indexOf(id) >= 0; }) && !G().blockedAny(idsOf(k))));   // 不想配對的兩人不會一起出現
     });
     // 一天最多一段：先用 chance 決定今天有沒有隨機劇情，有的話從符合條件的裡面抽一段（名單長短不影響觸發機率）
     if (!list.length || Math.random() >= chance) return [];
@@ -143,7 +144,7 @@
     var byAff = cast().map(function (c) { return c.id; }).sort(function (x, y) { return aff(y) - aff(x); });
     var lover = hasLover();
     if (!lover) {
-      var loveIds = byAff.filter(function (id) { return !inCouple(id); });   // 已經跟別的成員在一起的人，不會進玩家的愛情線
+      var loveIds = byAff.filter(function (id) { return !inCouple(id) && !G().blockedMe(id); });   // 已經跟別的成員在一起的人、玩家選了「不想配對」的人，不會進玩家的愛情線
       var can = loveIds.filter(function (id) { return aff(id) >= b.confess && seen('love_' + id + '_2'); });
       if (can.length && !S().hasFlag('confess_wait_' + ym(day))) return { kind: 'confess', ids: can };
       var l2 = loveIds.filter(function (id) { return aff(id) >= b.love2 && seen('love_' + id + '_1') && !seen('love_' + id + '_2') && scene('love_' + id + '_2'); })[0];
@@ -169,7 +170,7 @@
       .sort(function (x, y) { return y.v - x.v; });
     for (var i = 0; i < list.length; i++) {
       var it = list[i], base = 'cp_' + it.p[0] + '_' + it.p[1] + '_';
-      if (S().hasFlag('couple_' + it.key)) continue;
+      if (S().hasFlag('couple_' + it.key) || G().blockedPair(it.p[0], it.p[1])) continue;   // 玩家選了「不想配對」的兩人：CP 線不觸發
       // 第幾段還沒看過
       var n = 1; while (n <= 4 && seen(base + n)) n++;
       if (n > 4 || it.v < steps[n - 1] || !scene(base + n)) continue;
@@ -316,6 +317,7 @@
             var a = [].concat(e.with || []).slice().sort().join(), b = ids.slice().sort().join();
             return a === b && ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene);
           });
+          if (ids.length === 2 && G().blockedPair(ids[0], ids[1])) cands = [];   // 不想配對的兩人一起出門：只用一句話帶過
           var sc = cands.filter(function (e) { return e.chance != null && Math.random() < e.chance; })[0] ||
             cands.filter(function (e) { return e.chance == null; })[0];
           // 出去玩：背景 = weekend.bg
