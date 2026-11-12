@@ -214,7 +214,7 @@ const TESTS = [
       const q = () => { const x = PLAN.bondFor(GAME.day); return x ? (x.id || x.kind) : '-'; };
       GAME.setBlock({ me: ['m4'], pairs: ['m4-m6'] });
       const out = [];
-      A('m4', 160); out.push(q());                        // 元彬好感夠心動，但被排除 → 沒有愛情線（友誼線照常）
+      A('m4', 310); out.push(q());                        // 元彬好感夠曖昧，但被排除 → 沒有愛情線（友誼線照常）
       SOSHO.setFlag('scene_fr_m4'); out.push(q());
       A('m4', 0); P('m4-m6', 300); out.push(q());          // 元彬×燦榮關係夠了，但被排除 → 沒有 CP 線
       out.push(GAME.blockedAny(['m6', 'm4']), GAME.blockedAny(['m4', 'm5']));
@@ -507,30 +507,30 @@ const TESTS = [
     if (!/線索收集/.test(rows2)) throw new Error('10/1 應該有線索收集：' + rows2);
     return p;
   }],
-  ['友誼線、愛情線：好感 60 友誼 → 150 心動 → 250 曖昧 → 350 告白（可選多位）→ 戀人後其他人只剩友誼線', async (b, base) => {
+  ['友誼線、愛情線：好感 150 心動 → 300 曖昧／友誼 → 450 告白（可選多位）→ 戀人後其他人只剩友誼線', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
     const r = await p.evaluate(() => {
       const A = (id, v) => GAME.addStat('aff', id, v - GAME.stat('aff', id)), F = f => SOSHO.setFlag(f), q = () => { const x = PLAN.bondFor(GAME.day); return x ? (x.id || x.kind + ':' + x.ids.join('+')) : '-'; };
       const out = [];
-      A('m4', 65); out.push(q()); F('scene_fr_m4');
       A('m4', 160); out.push(q()); F('scene_love_m4_1');
-      A('m4', 260); out.push(q()); F('scene_love_m4_2');
-      A('m4', 360); A('m1', 360); F('scene_love_m1_1'); F('scene_love_m1_2'); F('scene_fr_m1'); out.push(q());
-      F('confess_m4'); A('m2', 70); out.push(q()); out.push(GAME.check({ lover: 'm4' }) && !GAME.check({ lover: 'm1' }));
+      A('m4', 310); out.push(q()); F('scene_love_m4_2');
+      out.push(q()); F('scene_fr_m4');   // 好感 300：曖昧之後才是友誼線
+      A('m4', 460); A('m1', 460); F('scene_love_m1_1'); F('scene_love_m1_2'); F('scene_fr_m1'); out.push(q());
+      F('confess_m4'); A('m2', 310); out.push(q()); out.push(GAME.check({ lover: 'm4' }) && !GAME.check({ lover: 'm1' }));
       return out.join(',');
     });
-    if (r !== 'fr_m4,love_m4_1,love_m4_2,confess:m1+m4,fr_m2,true') throw new Error(r);
+    if (r !== 'love_m4_1,love_m4_2,fr_m4,confess:m1+m4,fr_m2,true') throw new Error(r);
     return p;
   }],
-  ['CP 線：關係 100 → 250 → 400 → 600 在一起；已經在一對、或是玩家戀人的人只剩第一段', async (b, base) => {
+  ['CP 線：關係 100 → 300 → 500 → 700 在一起；已經在一對、或是玩家戀人的人只剩第一段', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
     const r = await p.evaluate(() => {
       const P = (k, v) => GAME.addStat('pair', k, v - GAME.stat('pair', k)), F = f => SOSHO.setFlag(f), q = () => { const x = PLAN.bondFor(GAME.day); return x ? x.id + (x.couple ? '!' : '') : '-'; };
       const out = [];
       P('m4-m6', 105); out.push(q()); F('scene_cp_m4_m6_1');
-      P('m4-m6', 260); out.push(q()); F('scene_cp_m4_m6_2');
-      P('m4-m6', 410); out.push(q()); F('scene_cp_m4_m6_3');
-      P('m4-m6', 610); out.push(q()); F('couple_m4-m6'); F('scene_cp_m4_m6_4');
+      P('m4-m6', 310); out.push(q()); F('scene_cp_m4_m6_2');
+      P('m4-m6', 510); out.push(q()); F('scene_cp_m4_m6_3');
+      P('m4-m6', 710); out.push(q()); F('couple_m4-m6'); F('scene_cp_m4_m6_4');
       out.push(GAME.check({ couple: 'm4-m6' }));
       P('m1-m4', 300); out.push(q()); F('scene_cp_m1_m4_1'); out.push(q());
       P('m1-m2', 300); F('scene_cp_m1_m2_1'); F('confess_m2'); out.push(q());

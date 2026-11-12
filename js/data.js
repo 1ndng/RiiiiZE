@@ -312,13 +312,13 @@ window.SITE_DATA = {
     // milestones = 第幾次去的時候有固定劇情（scenes.act_日程_次數，例如 act_club_10；那天會停下來播）
     // bg = 這個日程的背景（一句話、特殊劇情、主線強制日程的劇情都用它；劇情裡寫 { bg } 會換掉；沒寫就用 storyBg）
     activities: [
-      { id: "club",      label: "社團活動", place: "舞室", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [3, 10, 20, 30, 40, 50] },
-      { id: "volunteer", label: "志工活動", place: "小學", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [3, 10, 20, 30, 40, 50] },
-      { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [3, 10, 20, 30, 40, 50] },
-      { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [3, 10, 20, 30, 40, 50] },
-      { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [3, 10, 20, 30, 40, 50] },
-      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [3, 10, 20, 30, 40, 50] },
-      { id: "wander",    label: "閒晃",     place: "街道", bg: "images/bg/wander.jpg", milestones: [3, 10, 20, 30, 40, 50] }
+      { id: "club",      label: "社團活動", place: "舞室", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [3, 10, 30, 50] },
+      { id: "volunteer", label: "志工活動", place: "小學", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [3, 10, 30, 50] },
+      { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [3, 10, 30, 50] },
+      { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [3, 10, 30, 50] },
+      { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [3, 10, 30, 50] },
+      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [3, 10, 30, 50] },
+      { id: "wander",    label: "閒晃",     place: "街道", bg: "images/bg/wander.jpg", milestones: [3, 10, 30, 50] }
     ],
     specials: [
       // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },
@@ -348,8 +348,8 @@ window.SITE_DATA = {
      *   from～until 之間才會觸發；一天最多一段 */
     //   cp = 成員之間的 CP 線：關係到 stage1（100）親近 → stage2 心動 → stage3 曖昧 → together 在一起（記旗標 couple_m1-m2）
     //   每位成員最多一對；玩家的戀人、已經在一對裡的人不會進第 2 階段以後；CP 成立的人也不會進玩家的愛情線
-    bond: { friend: 60, love1: 150, love2: 250, confess: 350, from: "09-08", until: "08-23",
-      cp: { stage1: 100, stage2: 250, stage3: 400, together: 600 } },   // 關係加得比好感快（星期日兩人、請別人送禮都是 +15），所以門檻比愛情線高
+    bond: { friend: 300, love1: 150, love2: 300, confess: 450, from: "09-08", until: "08-23",
+      cp: { stage1: 100, stage2: 300, stage3: 500, together: 700 } },   // 關係加得比好感快（星期日兩人、請別人送禮都是 +15），所以門檻比愛情線高
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
     homeMilestones: [3, 10, 30, 50],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
     /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（目前 20%）（一天最多一段：中了就從遇到的人符合的名單裡抽一段；可以重複觸發）
@@ -425,8 +425,8 @@ window.SITE_DATA = {
    * （一年下來的好感度很高，下面的數字是暫定，之後照試玩結果調）
    */
   romance: {
-    lover: { aff: 350, flag: "confess_{id}" },   // 告白過（plan.bond.confess）＝戀人
-    couple: { pair: 600, flag: "couple_{pair}" },   // CP 線走到「在一起」（plan.bond.cp.together）＝一對
+    lover: { aff: 450, flag: "confess_{id}" },   // 告白過（plan.bond.confess）＝戀人
+    couple: { pair: 700, flag: "couple_{pair}" },   // CP 線走到「在一起」（plan.bond.cp.together）＝一對
     // 個人覺醒 = 覺醒度到 value（每人一樣、不會下降）
     //   覺醒度只能靠「在手機裡找到線索」增加：IG 貼文／限動、X 貼文、照片、備忘錄、KakaoTalk 訊息寫 clue: "m3_1"，
     //   玩家看到 1 秒就算找到（覺醒度 +1、記錄旗標 clue_m3_1）；劇情、日程只會有跡象，不會加覺醒度

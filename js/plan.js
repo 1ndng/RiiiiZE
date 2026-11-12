@@ -152,7 +152,7 @@
       var l1 = loveIds.filter(function (id) { return aff(id) >= love1 && !seen('love_' + id + '_1') && scene('love_' + id + '_1'); })[0];
       if (l1) return { kind: 'scene', id: 'love_' + l1 + '_1' };
     }
-    // 成員之間的 CP 線（plan.bond.cp）：關係到 60 親近 → 150 心動 → 250 曖昧 → 350 在一起（記旗標 couple_a-b）
+    // 成員之間的 CP 線（plan.bond.cp）：關係到 100 親近 → 300 心動 → 500 曖昧 → 700 在一起（記旗標 couple_a-b）
     //   每位成員最多一對；玩家的戀人不會進 CP 的第 2 階段以後；已經在一對裡的人也不會
     var cp = cpFor();
     if (cp) return cp;
