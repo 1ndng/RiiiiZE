@@ -152,6 +152,7 @@
    *     visits: { council: ">=3" }（去過某個日程幾次）,
    *     flag: "旗標" 或 ["旗標", …]（全部要有）, notFlag: "旗標" 或 [...]（全部不能有）,
    *     aff: { m1: ">=10" }, pair: { "m1-m2": ">=5" }, awake: { m3: ">=3" },
+   *     pairTop: ["m1-m4", "m1-m5", "m4-m5"]（第一組關係比後面每一組都高）,
    *     lover: "m1"（是戀人）, notLover: "m1", couple: "m1-m2"（兩位是一對）, notCouple: "m1-m2",
    *     loop: ">=2"（第幾輪，時間循環）,
    *     allAwake: true（六位都覺醒）／false, awakened: "m1"（這位已覺醒）, notAwakened: "m1", awakeCount: ">=3",
@@ -220,6 +221,11 @@
       return Object.keys(c[kind] || {}).every(function (id) { return cmp(statGet(kind, id), c[kind][id]); });
     });
     if (!ok) return false;
+    // pairTop: ["m1-m4", "m1-m5", "m4-m5"] = 第一組的關係比後面每一組都高（一樣高不算）
+    if (c.pairTop) {
+      var pt = [].concat(c.pairTop), top = statGet('pair', pairKey(pt[0]));
+      if (!pt.slice(1).every(function (k) { return top > statGet('pair', pairKey(k)); })) return false;
+    }
     // 戀愛、覺醒（門檻寫在 data.js 的 romance）
     if (c.lover && ![].concat(c.lover).every(isLover)) return false;
     if (c.notLover && [].concat(c.notLover).some(isLover)) return false;

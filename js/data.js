@@ -31,6 +31,7 @@ window.SITE_DATA = {
    *   { date: "12-24" 或 ["10-01", "10-31"], weekday: 0（星期日）～6, month: 9 或 [9, 10],
    *     day: ">=5"（學年第幾天）, phase: "night", flag: "旗標", notFlag: "旗標",
    *     aff: { m1: ">=10" }, pair: { "m1-m2": ">=5" }, awake: { m3: ">=3" }, visits: { council: ">=3" },
+   *     pairTop: ["m1-m4", "m1-m5", "m4-m5"]（第一組關係比後面每一組都高；一樣高不算）,
    *     lover: "m1", notLover: "m1", couple: "m1-m2", notCouple: "m1-m2", allAwake: true / false,
    *     any: [條件, 條件]（其中一個成立）, not: 條件（不成立才算） }
    *   比較可寫 ">=10"、">3"、"<=2"、"<5"、"=4"，只寫數字 = 至少這個數字
