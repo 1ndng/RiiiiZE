@@ -85,7 +85,7 @@
   function plannedOn(day) { return plans().days[G().md(day)] || null; }
   // 今天這個日程會觸發的特殊劇情（specials：{ activity, if, scene, date }；看過就不再觸發，repeat: true 可以重複）
   function specialFor(day, act) {
-    if (!act) return null;
+    if (!act || quiet(day)) return null;   // 安靜期間（9/8～9/13）也沒有特殊劇情
     return (C().specials || []).filter(function (e) {
       return e.activity === act && (!e.date || G().dayOf(e.date) === day) && ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene);
     })[0] || null;
@@ -94,12 +94,23 @@
    * 固定：第幾次去某個日程（plan.activities 的 milestones；回家 = plan.homeMilestones）→ scenes.act_日程_次數，那天停下來播
    * 隨機：plan.random（一天 chance 機率有一段：從遇到的人符合的名單裡抽一段，可重複）→ scenes.rand_日程_編號 */
   function bgOf(act) { return act === 'home' ? C().homeBg : actOf(act).bg; }
-  // 暫時沒有日程劇情的日子（data.js 的 plan.quietUntil 之前，例如 9/8～9/13）：不播固定、隨機劇情，也不算第幾次（好感照加）
+  // 暫時沒有日程劇情的日子（data.js 的 plan.quietUntil 之前，例如 9/8～9/13）：不播固定、隨機、特殊劇情（次數照算、好感照加）
+  //   這段期間剛好到第幾次的固定劇情 → 記成「還沒播」（旗標 ms_pending_日程_次數），之後第一次再去那裡時補播
   function quiet(day) { var q = C().quietUntil; return !!q && (day == null ? G().day : day) < G().dayOf(q); }
+  function msList(act) { return act === 'home' ? (C().homeMilestones || []) : (actOf(act).milestones || []); }
   function milestoneOf(act, n) {
     if (quiet()) return null;
-    var list = act === 'home' ? (C().homeMilestones || []) : (actOf(act).milestones || []), id = 'act_' + act + '_' + n;
-    return list.indexOf(n) >= 0 && scene(id) ? id : null;
+    var id = 'act_' + act + '_' + n;
+    if (msList(act).indexOf(n) >= 0 && scene(id)) return id;
+    // 安靜期間錯過的固定劇情：補播（一次一段，看過就不再補）
+    var miss = msList(act).filter(function (m) { var k = 'act_' + act + '_' + m; return S() && S().hasFlag('ms_pending_' + act + '_' + m) && !seen(k) && scene(k); })[0];
+    return miss ? 'act_' + act + '_' + miss : null;
+  }
+  // 次數 +1（開學週的強制日程、安靜期間也算）；安靜期間剛好到固定劇情的次數 → 記下來之後補播
+  function countVisit(act) {
+    G().addStat('visits', act, 1);
+    var n = G().stat('visits', act);
+    if (quiet() && msList(act).indexOf(n) >= 0 && scene('act_' + act + '_' + n) && S()) S().setFlag('ms_pending_' + act + '_' + n);
   }
   function idsOf(key) {   // "14" → ["m1", "m4"]（cast 的 no）
     return String(key).split('').map(function (d) { var c = cast().filter(function (x) { return String(x.no) === d; })[0]; return c ? c.id : null; });
@@ -218,7 +229,7 @@
   function doActivity(act) {
     if (!act) return [];
     var ids = membersOf(act);
-    if (!quiet()) G().addStat('visits', act, 1);
+    countVisit(act);
     if (S()) S().setFlag('act_' + act);
     if (ids.length) G().apply(shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15));
     return ids;
@@ -406,8 +417,11 @@
       var forced = forcedOn(day);
       var playOn = function (id, act) { steps.push(function (next) { window.STORY.play(id, next, null, bgOf(act)); }); };
       var playAll = function (ids, act) { ids.forEach(function (id) { playOn(id, act); }); };
-      // 1. 開學週的強制日程：不加好感、不算次數
-      if (forced && S()) S().setFlag('act_' + forced.activity);
+      // 1. 開學週的強制日程：不加好感，但算次數（同一天只算一次，重新整理也不會重複算）
+      if (forced && S()) {
+        S().setFlag('act_' + forced.activity);
+        if (!S().hasFlag('visit_forced_' + day)) { S().setFlag('visit_forced_' + day); countVisit(forced.activity); }
+      }
       // 2. 節日、生日
       holidaysOn(day).forEach(function (h) { steps.push(function (next) { playIf(h.scene, next); }); });
       birthdaysOn(day).forEach(function (b) {
@@ -423,14 +437,14 @@
           var met;
           if (sp) {
             steps.push(function (next) { window.STORY.play(sp.scene, next, null, sp.bg || actOf(act).bg); });
-            G().addStat('visits', act, 1); met = membersOf(act);
+            countVisit(act); met = membersOf(act);
           } else met = doActivity(act);
           var ms = milestoneOf(act, G().stat('visits', act));
           // 沒有日程劇情：不用一句話帶過，記下來放進下一次的「這週的安排」卡片（和跳過的日子一樣）
           if (ms) playOn(ms, act); else if (!sp) pendWeek({ day: day, act: act, met: met });
           playAll(randomFor(act, met), act);
         } else if (homeDay(day)) {
-          if (!quiet()) G().addStat('visits', 'home', 1);
+          countVisit('home');
           var hm = milestoneOf('home', G().stat('visits', 'home')); if (hm) playOn(hm, 'home'); else pendWeek({ day: day, act: 'home', met: [] });
           playAll(randomFor('home', []), 'home');
         }
@@ -579,7 +593,7 @@
           week.push({ day: day, act: act, met: met, rnd: randomFor(act, met) });   // rnd = 這天的隨機劇情（最多一段）
         } else if (homeDay(day)) {   // 沒安排 = 回家
           G().setDay(day);
-          if (!quiet()) G().addStat('visits', 'home', 1);
+          countVisit('home');
           week.push({ day: day, act: 'home', met: [], rnd: randomFor('home', []) });
         }
         day++;

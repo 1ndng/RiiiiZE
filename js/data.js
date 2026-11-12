@@ -302,7 +302,7 @@ window.SITE_DATA = {
    */
   plan: {
     planFrom: "09-08",
-    quietUntil: "09-14",   // 這天之前（9/8～9/13）不會遇到日程劇情（固定、隨機都不播，也不算第幾次；好感照加）。之後不需要就刪掉
+    quietUntil: "09-14",   // 這天之前（9/8～9/13）不會遇到日程劇情（固定、隨機、特殊都不播；次數照算、好感照加，剛好到的固定劇情之後第一次去時補播）。之後不需要就刪掉
     affTotal: 4,   // 日程每次的好感總量（平分給遇到的人，四捨五入成整數、最少 1）；星期日、送禮比較能指定對象，所以加得比較多
     pairTotal: 15,
     wanderMeet: 2,
@@ -1006,13 +1006,14 @@ window.SITE_DATA = {
 };
 
 /* ---- js/story/*.js 用這個把內容併進 SITE_DATA ----
- * RIIIZE_ADD({ story: [...], scenes: {...}, dayChats: [...], tweets: [...] }) */
+ * RIIIZE_ADD({ story: [...], scenes: {...}, dayChats: [...], tweets: [...], specials: [...] }) */
 function RIIIZE_ADD(part) {
   var D = window.SITE_DATA;
   if (part.scenes) Object.keys(part.scenes).forEach(function (k) { D.scenes[k] = part.scenes[k]; });
   if (part.story) D.story = D.story.concat(part.story);
   if (part.dayChats) D.kakao.dayChats = D.kakao.dayChats.concat(part.dayChats);
   if (part.tweets) D.x.tweets = D.x.tweets.concat(part.tweets);
+  if (part.specials) D.plan.specials = (D.plan.specials || []).concat(part.specials);   // 日程特殊劇情（js/story/special.js）
 }
 // js/story/ 裡的檔案（index.html 照這個順序載入）
-var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","gift-month","gift-by-month","side-extra","weekend-pair","bond","cp","cp-ending","clues","awake","ending","common"];
+var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","special","weekend","gift","gift-month","gift-by-month","side-extra","weekend-pair","bond","cp","cp-ending","clues","awake","ending","common"];

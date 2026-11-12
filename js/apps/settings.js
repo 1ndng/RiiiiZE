@@ -266,6 +266,12 @@
     var by = function (a, b) { return a.o - b.o; };
     groups.push({ title: '日程（固定）', items: fixed.sort(by) });
     groups.push({ title: '日程（隨機）', items: rand.sort(by) });
+    // 日程特殊劇情（plan.specials）：地點＋相關的人
+    var sp = (plan.specials || []).filter(function (e) { return sc[e.scene] && acts[e.activity]; }).map(function (e) {
+      var who = (e.scene.match(/m\d/g) || []).map(function (id) { return nameOf(byId[id]); }).join('、');
+      return { o: actOrder.indexOf(e.activity) * 1000 + who.length, id: e.scene, label: acts[e.activity].label, sub: e.title || who, bg: acts[e.activity].bg };
+    });
+    groups.push({ title: '日程（特殊）', items: sp.sort(by) });
     var aw = [];
     Object.keys(sc).forEach(function (k) { var m = /^awake_(m\d)_(\d)$/.exec(k); if (m) aw.push({ o: (+m[1].slice(1)) * 10 + (+m[2]), id: k, label: nameOf(byId[m[1]]), sub: '線索 ' + m[2], bg: 'phone-dim' }); });
     groups.push({ title: '？？？線索', items: aw.sort(by) });

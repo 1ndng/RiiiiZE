@@ -170,13 +170,46 @@ const TESTS = [
     const g = await game(p); if (g.day !== 13) throw new Error('應該停在 9/13（成燦生日），現在第 ' + g.day + ' 天');
     return p;
   }],
-  ['9/8～9/13 沒有日程劇情：第 3 次去社團也不停、不算次數', async (b, base) => {
+  ['9/8～9/13 沒有日程劇情：第 3 次去社團也不停，但次數照算，固定劇情記下來之後補播', async (b, base) => {
     const days = { '09-08': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 2 } } }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
-    for (let i = 0; i < 40 && !(await p.$('.wk')); i++) { if (await p.evaluate(() => /^(act|rand)_/.test((window.STORY && STORY.scene && STORY.scene()) || ''))) throw new Error('9/8 不該有日程劇情'); await sleep(250); }
-    const v = await p.evaluate(() => GAME.stat('visits', 'club'));
-    if (v !== 2) throw new Error('9/8～9/13 不該算次數，現在社團 ' + v + ' 次');
+    for (let i = 0; i < 40 && !(await p.$('.wk')); i++) { if (await p.evaluate(() => /^(act|rand|sp)_/.test((window.STORY && STORY.scene && STORY.scene()) || ''))) throw new Error('9/8 不該有日程劇情'); await sleep(250); }
+    const v = await p.evaluate(() => [GAME.stat('visits', 'club'), SOSHO.hasFlag('ms_pending_club_3')].join(','));
+    if (v !== '3,true') throw new Error('9/8～9/13 要算次數、記下第 3 次：' + v);
+    return p;
+  }],
+  ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {
+    const days = { '09-15': 'club' };
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 14, phase: 'night' },
+      'riiiize-flags': Object.assign({ ms_pending_club_3: 1, 'daychat_09-14': 1 }, NIGHT7_FLAGS), 'riiiize-stats': { visits: { club: 4 } } }));
+    await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    let sc = '';
+    for (let i = 0; i < 40 && sc !== 'act_club_3'; i++) { sc = await p.evaluate(() => (window.STORY && STORY.scene && STORY.scene()) || ''); await sleep(250); }
+    if (sc !== 'act_club_3') throw new Error('沒有補播社團第 3 次：' + sc);
+    return p;
+  }],
+  ['特殊劇情：去舞室、元彬好感夠了 → 停下來播 sp_club_m4（共 14 段）', async (b, base) => {
+    const days = { '09-15': 'club' };
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 14, phase: 'night' },
+      'riiiize-flags': Object.assign({ 'daychat_09-14': 1 }, NIGHT7_FLAGS), 'riiiize-stats': { visits: { club: 5 }, aff: { m4: 30 } } }));
+    const n = await p.evaluate(() => SITE_DATA.plan.specials.filter(e => SITE_DATA.scenes[e.scene]).length);
+    if (n !== 14) throw new Error('特殊劇情應該 14 段：' + n);
+    await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    let sc = '';
+    for (let i = 0; i < 40 && sc !== 'sp_club_m4'; i++) { sc = await p.evaluate(() => (window.STORY && STORY.scene && STORY.scene()) || ''); await sleep(250); }
+    if (sc !== 'sp_club_m4') throw new Error('沒有播特殊劇情：' + sc);
+    const g = await game(p); if (g.day !== 15) throw new Error('應該停在 9/15：' + g.day);
+    return p;
+  }],
+  ['開學週的強制日程也算次數（9/2 學生會 +1，重新整理不會重複算）', async (b, base) => {
+    // 9/2 的主線已經看過（直接進放學的日程處理）
+    const p = await open(b, base, played({ 'riiiize-game': { day: 2, phase: 'afterschool' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, scene_d0902: 1 } }));
+    let v = 0;
+    for (let i = 0; i < 40 && !v; i++) { v = await p.evaluate(() => GAME.stat('visits', 'council')); await sleep(250); }
+    await p.reload(); await sleep(1500);
+    v = await p.evaluate(() => GAME.stat('visits', 'council'));
+    if (v !== 1) throw new Error('9/2 學生會應該算 1 次：' + v);
     return p;
   }],
   ['日程固定劇情：第 10 次去社團那天停下來播', async (b, base) => {
