@@ -36,7 +36,7 @@
     var t = C().text || {}, d = {
       planTitle: '{m}月的日程規劃', planHint: '一天可以安排一個日程，沒有安排的日子會回家', confirm: '確認', weekend: '週日', home: '回家',
       tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以自由規劃日程。\n把方塊拖到月曆上，確認後不可更改。',
-      ok: '好', clear: '清除',
+      ok: '好', clear: '清除', repeatWeek: '每週重複',
       weekendTitle: '今天要和誰見面？', weekendHint: '最多選兩位', go: '出門', stayHome: '待在家',
       single: '今天和{a}一起度過了。', pair: '今天和{a}、{b}一起度過了。', stayHomeText: '今天待在家裡，好好休息了一下。',
       giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '要', giftAsk: '有人要', giftNo: '不要',
@@ -515,6 +515,7 @@
           return '<button type="button" class="pl-blk' + (sel === a.id ? ' on' : '') + '" data-blk="' + esc(a.id) + '">' + esc(a.label) + '</button>';
         }).join('') + '</div>' +
         '<div class="pl-actions"><button type="button" class="pl-clear" data-clear>' + esc(t.clear) + '</button>' +
+          '<button type="button" class="pl-clear pl-repeat" data-repeat>' + esc(t.repeatWeek) + '</button>' +
         '<button type="button" class="pl-ok" data-confirm>' + esc(t.confirm) + '</button></div></div>';
     }
     render();
@@ -564,6 +565,27 @@
         var key = b.dataset.pday;
         if (sel) setDay(key, sel); else if (p.days[key]) setDay(key, null);   // 選了方塊 → 放上去；沒選 → 點有方塊的日子拿掉
         return;
+      }
+      // 每週重複：照這個月已經排好的（星期一～六各取最早排的那天）填滿其他還沒排的同一個星期幾；
+      //   這個月還沒排任何東西 → 照上個月最後一次的同一個星期幾；已經排好的日子不動
+      if (e.target.closest('[data-repeat]')) {
+        var pat = {}, n2, wd;
+        for (n2 = 1; n2 <= days; n2++) { wd = new Date(y, m, n2).getDay(); if (p.days[md(n2)] && !pat[wd]) pat[wd] = p.days[md(n2)]; }
+        if (!Object.keys(pat).length) {
+          var pd = new Date(y, m, 0).getDate();
+          for (n2 = pd; n2 >= 1; n2--) {
+            wd = new Date(y, m - 1, n2).getDay();
+            var k2 = ('0' + m).slice(-2) + '-' + ('0' + n2).slice(-2);
+            if (m === 0) k2 = '12-' + ('0' + n2).slice(-2);
+            if (p.days[k2] && !pat[wd]) pat[wd] = p.days[k2];
+          }
+        }
+        for (n2 = 1; n2 <= days; n2++) {
+          var di2 = dayIdx(n2), wd2 = new Date(y, m, n2).getDay();
+          if (wd2 === 0 || di2 < day || forcedOn(di2) || p.days[md(n2)] || !pat[wd2]) continue;
+          p.days[md(n2)] = pat[wd2];
+        }
+        render(); return;
       }
       if (e.target.closest('[data-clear]')) {
         for (var n = 1; n <= days; n++) if (dayIdx(n) >= day) delete p.days[md(n)];

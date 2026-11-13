@@ -46,7 +46,7 @@
 .pl-blocks { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
 .pl-blk { padding: 9px 14px; border-radius: 14px; background: #c9b8ff; color: #2b2340; font: inherit; font-size: 14px; font-weight: 700; touch-action: none; cursor: grab; }
 .pl-blk.on { outline: 3px solid #fff; }
-.pl-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 16px; }
+.pl-actions { display: grid; grid-template-columns: 1fr 1.3fr 2fr; gap: 10px; margin-top: 16px; }
 .pl-actions button { height: 48px; border-radius: 14px; font: inherit; font-size: 16px; font-weight: 700; }
 .pl-clear { background: rgba(255,255,255,.12); color: #fff; }
 .pl-ok { background: #fff; color: #2b2340; }

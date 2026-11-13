@@ -24,6 +24,18 @@
   function F(t, from) { return window.STORY ? window.STORY.fill(t, from) : t; }
   function ok(c) { return !window.GAME || window.GAME.check(c); }   // 條件（if）：js/game.js 的 GAME.check
   function fx(e) { if (window.GAME) window.GAME.apply(e); }           // 效果（effects）：好感度、關係、覺醒度、旗標
+  // 好感的模糊提示：愛心從下往上慢慢變滿（不顯示數字）。滿 = plan.bond.confess（可以告白的好感）
+  var HEART = '<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.1 0 3.6 1.1 5.3 3.1 1.7-2 3.2-3.1 5.3-3.1 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z"/></svg>';
+  function affPct(f) {
+    if (!f || !f.cast || !window.GAME || !window.GAME.stat) return -1;
+    var b = ((window.SITE_DATA || {}).plan || {}).bond || {}, max = b.confess || 450;
+    return Math.max(0, Math.min(100, Math.round(window.GAME.stat('aff', f.cast) / max * 100)));
+  }
+  function heartHTML(f, cls) {
+    var p = affPct(f);
+    if (p < 0) return '';
+    return '<i class="kk-heart ' + (cls || '') + '" style="--h:' + p + '%" aria-hidden="true">' + HEART + HEART + '</i>';
+  }
 
   function K() { var k = S().data.kakao || { friends: [], text: {} }; syncNicks(k); return k; }
   // 好友的備註（玩家在個人檔案改的名字，只有玩家看得到）：存在 riiiize-kakao 的 nick；清空 = 回到 data.js 的 name
@@ -148,7 +160,7 @@
         var msgs = messagesOf(f).filter(function (m) { return m.text || m.image || m.video || m.expired || m.call || m.link || m.recalled; }), last = msgs[msgs.length - 1] || {}, n = unreadOf(f);
         return '<a class="kk-chatrow" href="#/kakao/chat/' + encodeURIComponent(f.id) + '">' +
           roomAvatar(f, 'kk-chatrow-av') +
-          '<span class="kk-chatrow-mid"><b>' + esc(f.name) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b><small>' + esc(F(last.text, last.from) || (last.recalled ? TX().recalledText || '已收回訊息' : '') || (last.link ? linkInfo(last).title : '') || ((last.video || last.expired === 'video') ? TX().videoLabel || '影片' : (last.image || last.expired) ? TX().photoLabel || '照片' : last.call ? TX().voiceCall || '語音通話' : '')) + '</small></span>' +
+          '<span class="kk-chatrow-mid"><b>' + esc(f.name) + heartHTML(f) + (f.group ? '<em class="kk-count">' + (f.members.length + 1) + '</em>' : '') + (f.self ? '<i class="kk-me-tag">' + esc(TX().meTag || '我') + '</i>' : '') + '</b><small>' + esc(F(last.text, last.from) || (last.recalled ? TX().recalledText || '已收回訊息' : '') || (last.link ? linkInfo(last).title : '') || ((last.video || last.expired === 'video') ? TX().videoLabel || '影片' : (last.image || last.expired) ? TX().photoLabel || '照片' : last.call ? TX().voiceCall || '語音通話' : '')) + '</small></span>' +
           '<span class="kk-chatrow-r"><small>' + esc(listTime(f, last)) + '</small>' + (n ? '<i class="kk-badge">' + n + '</i>' : '') + '</span>' +
         '</a>';
       }).join('');
@@ -742,6 +754,7 @@
                 '<button type="submit">' + esc(t.nickDone || '完成') + '</button></form>' +
               '<small>' + esc(t.nickHint || '設定的名稱只有你看得到；清空 = 恢復原本的名字') + '</small>'
             : '<b>' + esc(f.name) + (f.noNick ? '' : '<button type="button" class="kk-prof-pen" data-kpedit aria-label="edit">' + ICON.pen + '</button>') + '</b>' +
+              heartHTML(f, 'big') +
               (f.status ? '<small>' + esc(F(f.status)) + '</small>' : '')) +
         '</div>' +
         '<div class="kk-prof-acts">' +

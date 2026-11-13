@@ -193,6 +193,27 @@ const TESTS = [
     if (sc !== 'act_club_3') throw new Error('9/8 第 3 次去舞室沒有播 act_club_3：' + sc);
     return p;
   }],
+  ['日程規劃：每週重複 → 照已排好的星期幾填滿這個月，已排的不動', async (b, base) => {
+    const days = { '10-06': 'club', '10-07': 'council', '10-15': 'games' };
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.filter(m => m !== '2025-10').reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 31, phase: 'morning' }, 'riiiize-flags': NIGHT7_FLAGS }));
+    await p.evaluate(() => { PLAN.openPlanner(); });
+    await p.waitForSelector('[data-repeat]', { timeout: 8000 });
+    await p.click('[data-repeat]'); await sleep(300);
+    const got = await p.$$eval('[data-pday]', a => a.reduce((o, x) => { const k = x.querySelector('.blk'); o[x.dataset.pday] = k ? k.dataset.act : ''; return o; }, {}));
+    const want = { '10-13': 'club', '10-20': 'club', '10-27': 'club', '10-14': 'council', '10-28': 'council', '10-08': 'games', '10-22': 'games', '10-15': 'games', '10-09': '', '10-10': '', '10-11': '' };
+    for (const k in want) if (got[k] !== want[k]) throw new Error(k + ' 應該是「' + want[k] + '」，現在是「' + got[k] + '」');
+    return p;
+  }],
+  ['KakaoTalk：好感的愛心照好感填滿（元彬 225 / 告白 450 = 50%）', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { aff: { m4: 225 } } }));
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); location.hash = '#/kakao/chat/f4'; });
+    await p.waitForSelector('.kk-chat-head [data-kprof]', { timeout: 8000 });
+    await p.click('.kk-chat-head [data-kprof]');
+    await p.waitForSelector('.kk-prof .kk-heart', { timeout: 4000 });
+    const h = await p.$eval('.kk-prof .kk-heart', e => e.style.getPropertyValue('--h'));
+    if (h !== '50%') throw new Error('愛心應該填 50%：' + h);
+    return p;
+  }],
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {
     const days = { '09-15': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 14, phase: 'night' },
