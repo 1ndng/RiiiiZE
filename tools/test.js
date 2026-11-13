@@ -175,13 +175,22 @@ const TESTS = [
     const g = await game(p); if (g.day !== 13) throw new Error('應該停在 9/13（成燦生日），現在第 ' + g.day + ' 天');
     return p;
   }],
-  ['9/8～9/13 沒有日程劇情：第 3 次去社團也不停，但次數照算，固定劇情記下來之後補播', async (b, base) => {
-    const days = { '09-08': 'club' };
-    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 2 } } }));
+  ['9/8～9/13 沒有日程劇情：第 3 次去體育館也不停，但次數照算，固定劇情記下來之後補播', async (b, base) => {
+    const days = { '09-08': 'sports' };
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { sports: 2 } } }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     for (let i = 0; i < 40 && !(await p.$('.wk')); i++) { if (await p.evaluate(() => /^(act|rand|sp)_/.test((window.STORY && STORY.scene && STORY.scene()) || ''))) throw new Error('9/8 不該有日程劇情'); await sleep(250); }
-    const v = await p.evaluate(() => [GAME.stat('visits', 'club'), SOSHO.hasFlag('ms_pending_club_3')].join(','));
+    const v = await p.evaluate(() => [GAME.stat('visits', 'sports'), SOSHO.hasFlag('ms_pending_sports_3')].join(','));
     if (v !== '3,true') throw new Error('9/8～9/13 要算次數、記下第 3 次：' + v);
+    return p;
+  }],
+  ['9/8～9/13 舞室照常有劇情（plan.quietOpen）：第 3 次去社團 → 播 act_club_3', async (b, base) => {
+    const days = { '09-08': 'club' };
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 2 } } }));
+    await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    let sc = '';
+    for (let i = 0; i < 40 && sc !== 'act_club_3'; i++) { sc = await p.evaluate(() => (window.STORY && STORY.scene && STORY.scene()) || ''); await sleep(250); }
+    if (sc !== 'act_club_3') throw new Error('9/8 第 3 次去舞室沒有播 act_club_3：' + sc);
     return p;
   }],
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {

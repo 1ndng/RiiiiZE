@@ -97,10 +97,11 @@
   function bgOf(act) { return act === 'home' ? C().homeBg : actOf(act).bg; }
   // 暫時沒有日程劇情的日子（data.js 的 plan.quietUntil 之前，例如 9/8～9/13）：不播固定、隨機、特殊劇情（次數照算、好感照加）
   //   這段期間剛好到第幾次的固定劇情 → 記成「還沒播」（旗標 ms_pending_日程_次數），之後第一次再去那裡時補播
-  function quiet(day) { var q = C().quietUntil; return !!q && (day == null ? G().day : day) < G().dayOf(q); }
+  //   plan.quietOpen 裡的日程（例如已經改好文本的 club）不受影響，照常播固定和隨機劇情（特殊劇情一樣不播）
+  function quiet(day, act) { var q = C().quietUntil; return !!q && (day == null ? G().day : day) < G().dayOf(q) && !(act && (C().quietOpen || []).indexOf(act) >= 0); }
   function msList(act) { return act === 'home' ? (C().homeMilestones || []) : (actOf(act).milestones || []); }
   function milestoneOf(act, n) {
-    if (quiet()) return null;
+    if (quiet(null, act)) return null;
     var id = 'act_' + act + '_' + n;
     if (msList(act).indexOf(n) >= 0 && scene(id)) return id;
     // 安靜期間錯過的固定劇情：補播（一次一段，看過就不再補）
@@ -111,13 +112,14 @@
   function countVisit(act) {
     G().addStat('visits', act, 1);
     var n = G().stat('visits', act);
-    if (quiet() && msList(act).indexOf(n) >= 0 && scene('act_' + act + '_' + n) && S()) S().setFlag('ms_pending_' + act + '_' + n);
+    var early = quiet(null, act) || (C().planFrom && G().day < G().dayOf(C().planFrom));   // 開學週的強制日程也不播，之後補
+    if (early && msList(act).indexOf(n) >= 0 && scene('act_' + act + '_' + n) && S()) S().setFlag('ms_pending_' + act + '_' + n);
   }
   function idsOf(key) {   // "14" → ["m1", "m4"]（cast 的 no）
     return String(key).split('').map(function (d) { var c = cast().filter(function (x) { return String(x.no) === d; })[0]; return c ? c.id : null; });
   }
   function randomFor(act, met) {
-    if (quiet()) return [];
+    if (quiet(null, act)) return [];
     var r = C().random || {}, chance = r.chance != null ? r.chance : 0.3;
     var list = (r[act] || []).filter(function (k) {
       return scene('rand_' + act + '_' + k) && (k === 'me' || (idsOf(k).every(function (id) { return id && met.indexOf(id) >= 0; }) && !G().blockedAny(idsOf(k))));   // 不想配對的兩人不會一起出現
@@ -216,7 +218,7 @@
     if (day >= G().totalDays()) return true;
     if (!isWeekend(day) && !forcedOn(day)) {   // 這次去剛好是第幾次的固定劇情
       var a = plannedOn(day) || (homeDay(day) ? 'home' : null);
-      if (a && !quiet(day) && milestoneOf(a, G().stat('visits', a) + 1)) return true;
+      if (a && !quiet(day, a) && milestoneOf(a, G().stat('visits', a) + 1)) return true;
     }
     return !isWeekend(day) && !!specialFor(day, plannedOn(day));
   }
