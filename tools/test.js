@@ -214,6 +214,25 @@ const TESTS = [
     if (h !== '50%') throw new Error('愛心應該填 50%：' + h);
     return p;
   }],
+  ['劇情回想：送禮、友誼線、愛情線、CP 線看過的才打開；設定首頁有總收集率', async (b, base) => {
+    const flags = Object.assign({ scene_gift_m4: 1, scene_love_m4_1: 1, scene_cp_m4_m6_1: 1, scene_fr_m2: 1 }, NIGHT7_FLAGS);
+    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': flags }));
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); location.hash = '#/settings'; });
+    await p.waitForSelector('[data-collect]', { timeout: 8000 });
+    const pc = await p.$eval('[data-collect]', e => e.textContent);
+    if (!/^\d+%$/.test(pc)) throw new Error('總收集率：' + pc);
+    await p.evaluate(() => { location.hash = '#/settings/replay'; });
+    await p.waitForSelector('.st-rp-item', { timeout: 8000 });
+    const r = await p.evaluate(() => {
+      const sec = [...document.querySelectorAll('.st-sec')].map(x => x.firstChild.textContent);
+      const open = [...document.querySelectorAll('[data-rp]')].map(x => x.dataset.rp);
+      return { sec, open };
+    });
+    for (const t of ['送禮', '友誼線', '愛情線', 'CP 線']) if (r.sec.indexOf(t) < 0) throw new Error('回想少了「' + t + '」：' + r.sec.join('、'));
+    for (const id of ['gift_m4', 'love_m4_1', 'cp_m4_m6_1', 'fr_m2']) if (r.open.indexOf(id) < 0) throw new Error(id + ' 應該打開');
+    if (r.open.indexOf('love_m4_2') >= 0) throw new Error('沒看過的 love_m4_2 不該打開');
+    return p;
+  }],
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {
     const days = { '09-15': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 14, phase: 'night' },

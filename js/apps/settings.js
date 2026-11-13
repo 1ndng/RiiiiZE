@@ -46,6 +46,7 @@
     buzz: '震動', sound: '音效', on: '開', off: '關',
     langToCn: '要切換成简体中文嗎？', langToTw: '要切換成繁體中文嗎？', langText: '切換後畫面會重新整理一次，遊戲進度不會不見。', langOk: '切換',
     clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。這裡會告訴你找到了幾個。', cluesDone: '全部找到了',
+    collect: '總收集率',
     replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
     cg: 'CG 圖鑑', cgNote: '看過的 CG 會收在這裡，點一下可以重看。「重新開始」和時間循環都不會清掉。', cgIntro: '{name}登場', cgBox: '對話框', cgBoxOn: '開', cgBoxOff: '關',
     gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談', mainEndings: '主線結局', dev: '開發者資訊', devName: '開發者', devVer: '版本', devPrev: '前作', devPrevTitle: '熙醬cp向撿手機解謎', devPrevGo: '前往遊玩',
@@ -84,8 +85,12 @@
         row(ICON.calendar, '#ff3b30', esc(t.progress), esc(g.dateText(null, true)), 'data-st-na disabled', false) +
         row(ICON.save, '#007aff', esc(t.savesTitle), '', 'data-st-go="#/settings/saves"', true) +
         row(ICON.image, '#30b0c7', esc(t.wallpaper), '', 'data-st-go="#/settings/wallpaper"', true) +
-        (window.ENDING ? row(ICON.star, '#ff9500', esc(t.gallery), '', 'data-st-go="#/settings/gallery"', true) : '') +
-        row(ICON.book, '#af52de', esc(t.replay), '', 'data-st-go="#/settings/replay"', true) +
+      '</div>' +
+      // 收集：總收集率（劇情回想＋CG＋結局＋線索），下面各項顯示收集了幾個
+      '<div class="st-group">' +
+        row(ICON.star, '#ffcc00', esc(t.collect), '<b class="st-collect" data-collect>' + esc(pct(totalStat())) + '</b>', 'data-st-na disabled', false) +
+        (window.ENDING ? row(ICON.star, '#ff9500', esc(t.gallery), esc(frac(galleryStat())), 'data-st-go="#/settings/gallery"', true) : '') +
+        row(ICON.book, '#af52de', esc(t.replay), esc(frac(replayStat())), 'data-st-go="#/settings/replay"', true) +
         row(ICON.image, '#ff6fae', esc(t.cg), esc(cgCount()), 'data-st-go="#/settings/cg"', true) +
         (cluesOpen() ? row(ICON.star, '#ff2d55', esc(t.clues), esc(clueTotal()), 'data-st-go="#/settings/clues"', true) : '') +
       '</div>' +
@@ -256,6 +261,14 @@
         sub: '和' + ids.map(function (x) { return nameOf(byId[x]); }).join('、') + '出門' + (m[2] ? '（特別）' : ''), bg: wk.bg });
     });
     if (sc.wk_home) wkItems.push({ o: 99999, id: 'wk_home', label: '', sub: '待在家', bg: plan.homeBg });
+    // 送禮：自己送（gift_成員）、請成員送（gift_by_送的人_收的人）
+    var gf = [];
+    Object.keys(sc).forEach(function (k) {
+      var m = /^gift_(m\d)$/.exec(k), n = /^gift_by_(m\d)_(m\d)$/.exec(k);
+      if (m) gf.push({ o: +m[1].slice(1), id: k, label: '', sub: '送給' + nameOf(byId[m[1]]) });
+      if (n) gf.push({ o: 100 + (+n[1].slice(1)) * 10 + (+n[2].slice(1)), id: k, label: '', sub: '請' + nameOf(byId[n[1]]) + '送給' + nameOf(byId[n[2]]) });
+    });
+    groups.push({ title: '送禮', items: gf.sort(function (a, b) { return a.o - b.o; }) });
     groups.push({ title: '出遊', items: wkItems.sort(function (a, b) { return a.o - b.o; }) });
     var actOrder = (plan.activities || []).map(function (a) { return a.id; }).concat(['home']);
     var fixed = [], rand = [];
@@ -274,10 +287,54 @@
       return { o: actOrder.indexOf(e.activity) * 1000 + who.length, id: e.scene, label: acts[e.activity].label, sub: e.title || who, bg: acts[e.activity].bg };
     });
     groups.push({ title: '日程（特殊）', items: sp.sort(by) });
+    // 友誼線、愛情線（心動、曖昧、告白）、CP 線
+    var fr = [], lv = [], cp = [], LV = { 1: '心動', 2: '曖昧' };
+    Object.keys(sc).forEach(function (k) {
+      var f1 = /^fr_(m\d)$/.exec(k), l = /^love_(m\d)_(\d)$/.exec(k), c = /^confess_(m\d)$/.exec(k), p = /^cp_(m\d)_(m\d)_(\d)$/.exec(k);
+      if (f1) fr.push({ o: +f1[1].slice(1), id: k, label: nameOf(byId[f1[1]]), sub: '友誼' });
+      if (l) lv.push({ o: (+l[1].slice(1)) * 10 + (+l[2]), id: k, label: nameOf(byId[l[1]]), sub: LV[l[2]] || ('第 ' + l[2] + ' 段') });
+      if (c) lv.push({ o: (+c[1].slice(1)) * 10 + 9, id: k, label: nameOf(byId[c[1]]), sub: '告白' });
+      if (p) cp.push({ o: (+p[1].slice(1)) * 100 + (+p[2].slice(1)) * 10 + (+p[3]), id: k, label: nameOf(byId[p[1]]) + '×' + nameOf(byId[p[2]]), sub: '第 ' + p[3] + ' 段' });
+    });
+    groups.push({ title: '友誼線', items: fr.sort(by) });
+    groups.push({ title: '愛情線', items: lv.sort(by) });
+    groups.push({ title: 'CP 線', items: cp.sort(by) });
     var aw = [];
     Object.keys(sc).forEach(function (k) { var m = /^awake_(m\d)_(\d)$/.exec(k); if (m) aw.push({ o: (+m[1].slice(1)) * 10 + (+m[2]), id: k, label: nameOf(byId[m[1]]), sub: '線索 ' + m[2], bg: 'phone-dim' }); });
     groups.push({ title: '？？？線索', items: aw.sort(by) });
     return groups;
+  }
+  // 收集率：劇情回想、CG、結局（含後日談）、線索各自的 { got, all }；總收集率 = 全部加起來
+  function replayStat() {
+    var seen = window.STORY && window.STORY.seenScenes ? window.STORY.seenScenes() : {}, got = 0, all = 0;
+    replayGroups().forEach(function (g) { g.items.forEach(function (it) { all++; if (seen[it.id]) got++; }); });
+    return { got: got, all: all };
+  }
+  function cgStat() {
+    var seen = window.STORY && window.STORY.cgSeen ? window.STORY.cgSeen() : {}, list = cgList();
+    return { got: list.filter(function (c) { return seen[c.id]; }).length, all: list.length };
+  }
+  function galleryStat() {
+    if (!window.ENDING) return { got: 0, all: 0 };
+    var all = window.ENDING.list(), g = window.ENDING.gallery(), got = 0, total = 0;
+    Object.keys(all).forEach(function (id) {
+      total++; if ((g.endings || {})[id]) got++;
+      (all[id].epilogues || []).forEach(function (e) { total++; if ((g.epilogues || {})[id + '/' + e.id]) got++; });
+    });
+    return { got: got, all: total };
+  }
+  function clueStat() {
+    if (!cluesOpen()) return { got: 0, all: 0 };
+    var need = clueNeed(), got = 0;
+    G().cast().forEach(function (c) { got += Math.min(need, G().stat('awake', c.id)); });
+    return { got: got, all: need * G().cast().length };
+  }
+  function pct(st) { return st.all ? Math.floor(st.got / st.all * 100) + '%' : '0%'; }
+  function frac(st) { return st.got + ' / ' + st.all; }
+  function totalStat() {
+    var o = { got: 0, all: 0 };
+    [replayStat(), cgStat(), galleryStat(), clueStat()].forEach(function (x) { o.got += x.got; o.all += x.all; });
+    return o;
   }
   function renderReplay() {
     var t = T(), seen = window.STORY.seenScenes(), body = '';
@@ -294,7 +351,7 @@
     S().$('#settings-overlay').innerHTML = '';
     S().$('#settings-scroll').innerHTML =
       '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
-      '<h1 class="st-h1 st-h1-s">' + esc(t.replay) + '</h1>' +
+      '<h1 class="st-h1 st-h1-s">' + esc(t.replay) + '<span class="st-cg-count">' + esc(frac(replayStat()) + '（' + pct(replayStat()) + '）') + '</span></h1>' +
       '<div class="st-note st-note-top">' + esc(t.replayNote) + '</div>' + body;
   }
 
@@ -430,8 +487,8 @@
     S().$('#settings-overlay').innerHTML = '';
     S().$('#settings-scroll').innerHTML =
       '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
-      '<h1 class="st-h1 st-h1-s">' + esc(t.gallery) + '</h1>' +
-      '<div class="st-note st-note-top">' + esc(t.galleryCount.replace('{n}', got).replace('{all}', total)) + '　' + esc(t.galleryNote) + '</div>' + body;
+      '<h1 class="st-h1 st-h1-s">' + esc(t.gallery) + '<span class="st-cg-count">' + esc(got + ' / ' + total + '（' + pct({ got: got, all: total }) + '）') + '</span></h1>' +
+      '<div class="st-note st-note-top">' + esc(t.galleryNote) + '</div>' + body;
   }
 
   /* ---- 開發者資訊 ---- */

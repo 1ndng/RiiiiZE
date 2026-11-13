@@ -116,3 +116,6 @@
 .blk-st { padding: 6px 14px 14px; }
 .blk-st .blk-chip { background: #f2f2f7 !important; border-color: #e5e5ea; color: #1c1c1e; }
 .blk-st .blk-chip.on { background: #8e8e93 !important; color: #fff; border-color: #8e8e93; }
+
+/* 總收集率 */
+.st-collect { font-weight: 700; color: #d6457f; }
