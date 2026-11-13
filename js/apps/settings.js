@@ -263,7 +263,7 @@
       var ids = m[1].split('_').filter(Boolean);
       wkItems.push({ o: ids.length * 1000 + ids.map(function (x) { return +x.slice(1); }).join('') * 2 + (m[2] ? 1 : 0), id: k, label: '',
         sub: '和' + ids.map(function (x) { return nameOf(byId[x]); }).join('、') + '出門' + (m[2] ? '（特別）' : ''), bg: wk.bg,
-        who: ids.map(function (x) { return nameOf(byId[x]); }).join('、') });
+        who: ids.map(function (x) { return nameOf(byId[x]); }).join('×') });
     });
     if (sc.wk_home) wkItems.push({ o: 99999, id: 'wk_home', label: '', sub: '待在家', bg: plan.homeBg, who: '待在家' });
     // 送禮：自己送（gift_成員）、請成員送（gift_by_送的人_收的人）
@@ -282,7 +282,7 @@
       if (m && acts[m[1]]) fixed.push({ o: actOrder.indexOf(m[1]) * 1000 + (+m[2]), id: k, label: acts[m[1]].label, sub: '第 ' + m[2] + ' 次', bg: acts[m[1]].bg, who: acts[m[1]].label + '　第 ' + m[2] + ' 次' });
       if (r && acts[r[1]]) rand.push({ o: actOrder.indexOf(r[1]) * 1000 + (r[2] === 'me' ? 999 : r[2].length * 100 + (+r[2])), id: k, label: acts[r[1]].label,
         sub: r[2] === 'me' ? '跟自己對話' : r[2].split('').map(function (n) { var c = byNo[+n]; return c ? (c.emoji || nameOf(c)) : n; }).join(''), bg: acts[r[1]].bg,
-        who: acts[r[1]].label + '　' + (r[2] === 'me' ? '我' : r[2].split('').map(function (n) { return nameOf(byNo[+n]); }).join('、')) });
+        who: acts[r[1]].label + '　' + (r[2] === 'me' ? '我' : r[2].split('').map(function (n) { return nameOf(byNo[+n]); }).join('×')) });
     });
     var by = function (a, b) { return a.o - b.o; };
     groups.push({ title: '日程（固定）', items: fixed.sort(by) });
@@ -290,7 +290,7 @@
     // 日程特殊劇情（plan.specials）：地點＋相關的人
     var sp = (plan.specials || []).filter(function (e) { return sc[e.scene] && acts[e.activity]; }).map(function (e) {
       var who = (e.scene.match(/m\d/g) || []).map(function (id) { return nameOf(byId[id]); }).join('、');
-      return { o: actOrder.indexOf(e.activity) * 1000 + who.length, id: e.scene, label: acts[e.activity].label, sub: e.title || who, bg: acts[e.activity].bg, who: acts[e.activity].label + '　' + who };
+      return { o: actOrder.indexOf(e.activity) * 1000 + who.length, id: e.scene, label: acts[e.activity].label, sub: e.title || who, bg: acts[e.activity].bg, who: acts[e.activity].label + '　' + who.split('、').join('×') };
     });
     groups.push({ title: '日程（特殊）', items: sp.sort(by) });
     // 友誼線、愛情線（心動、曖昧、告白）、CP 線
