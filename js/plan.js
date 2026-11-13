@@ -146,10 +146,9 @@
   // 回家（平日沒安排）：開學週（planFrom 之前）不算
   function homeDay(day) { return !isWeekend(day) && !forcedOn(day) && !plannedOn(day) && day >= G().dayOf(C().planFrom || '09-08'); }
 
-  /* ---- 友誼線、愛情線（data.js 的 plan.bond；劇情在 js/story/bond.js）----
-   *   好感到 friend → fr_成員（友誼線，可以好幾條）
+  /* ---- 愛情線（data.js 的 plan.bond；劇情在 js/story/bond.js）；友誼只在後日談出現 ----
    *   好感到 love1 → love_成員_1（心動）；到 love2 → love_成員_2（曖昧）；到 confess → 告白（讓玩家從到門檻的人裡選一位）
-   *   一輪只能有一位戀人：告白之後，其他人的愛情線就停在原地；友誼線照常
+   *   一輪只能有一位戀人：告白之後，其他人的愛情線就停在原地
    *   一天最多一段；from～until 之間才會觸發（開學週、最後一週不會） */
   function B() { return C().bond || null; }
   function aff(id) { return G().stat('aff', id); }
@@ -173,8 +172,6 @@
     //   每位成員最多一對；玩家的戀人不會進 CP 的第 2 階段以後；已經在一對裡的人也不會
     var cp = cpFor();
     if (cp) return cp;
-    var fr = byAff.filter(function (id) { return aff(id) >= b.friend && !seen('fr_' + id) && scene('fr_' + id); })[0];
-    if (fr) return { kind: 'scene', id: 'fr_' + fr };
     return null;
   }
   function pairs() { var ids = cast().map(function (c) { return c.id; }), out = []; ids.forEach(function (a, i) { ids.slice(i + 1).forEach(function (b) { out.push([a, b]); }); }); return out; }
@@ -213,7 +210,7 @@
   function isStop(day) {
     if (trialLast(day)) return true;   // 試玩版最後一天一定停下來（晚上自由用手機）
     if (storyOn(day).length || holidaysOn(day).length || birthdaysOn(day).length || isGiftDay(day)) return true;
-    if (bondFor(day)) return true;   // 友誼線、愛情線的劇情
+    if (bondFor(day)) return true;   // 愛情線、CP 線的劇情
     if (dateOf(day).getDay() === 0) return true;   // 星期日：夜間自由使用手機
     if (day >= G().totalDays()) return true;
     if (!isWeekend(day) && !forcedOn(day)) {   // 這次去剛好是第幾次的固定劇情
@@ -469,7 +466,7 @@
       }
       // 星期日：出去玩（送禮已經在早上最先做了）
       if (sunday && !forced && !(C().weekend || {}).off) steps.push(weekend);
-      // 友誼線、愛情線：一天最多一段，在當天其他劇情之後（判斷放到那時候，才會算進今天加的好感）
+      // 愛情線、CP 線：一天最多一段，在當天其他劇情之後（判斷放到那時候，才會算進今天加的好感）
       //   重新打開「愛情線選擇」裡排除的組合之後（GAME.bondCatchup）：這一天把累積到的好感度劇情一段接一段播完
       var bondRuns = 0;
       steps.push(function bondStep(next) {

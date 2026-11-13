@@ -201,6 +201,23 @@
     if (item.from != null && st.day < dayOfMD(item.from)) return false;
     return !item.if || check(item.if);
   }
+  /* ---- 後日談要播哪些（結局用）----
+   *   玩家（最多一段）：有戀人 → 戀人（好感最高的那位）；沒有 → 好感最高、而且沒跟別的成員在一起的成員 → 友誼版
+   *   成員之間（不能有玩家那段的成員）：有在一起的 → 每一對都播；一對都沒有 → 關係最高的一對 → 友誼版（不想配對的兩人不算）
+   *   回傳 { lover: "m1" 或 null, friend: "m1" 或 null, couples: ["m2-m3", …], pairFriend: "m4-m6" 或 null } */
+  function epilogues() {
+    var ids = cast().map(function (c) { return c.id; }), byAff = function (x, y) { return statGet('aff', y) - statGet('aff', x); };
+    var keys = []; ids.forEach(function (a, i) { ids.slice(i + 1).forEach(function (b) { keys.push(a + '-' + b); }); });
+    var inCouple = function (id) { return keys.some(function (k) { return k.split('-').indexOf(id) >= 0 && isCouple(k); }); };
+    var lover = ids.filter(isLover).sort(byAff)[0] || null;
+    var friend = lover ? null : (ids.filter(function (id) { return !inCouple(id); }).sort(byAff)[0] || null);
+    var me = lover || friend;
+    var free = keys.filter(function (k) { return k.split('-').indexOf(me) < 0; });
+    var couples = free.filter(isCouple);
+    var pf = couples.length ? null : (free.filter(function (k) { var p = k.split('-'); return blockOf().pairs.indexOf(blockKey(p[0], p[1])) < 0; })
+      .sort(function (x, y) { return statGet('pair', y) - statGet('pair', x); })[0] || null);
+    return { lover: lover, friend: friend, couples: couples, pairFriend: pf };
+  }
   function check(c) {
     if (c == null || c === true) return true;
     if (typeof c === 'string') return hasFlag(c);
@@ -231,6 +248,14 @@
     if (c.notLover && [].concat(c.notLover).some(isLover)) return false;
     if (c.couple && ![].concat(c.couple).every(isCouple)) return false;
     if (c.notCouple && [].concat(c.notCouple).some(isCouple)) return false;
+    // 後日談：epLover / epFriend: "m1"、epCouple / epPairFriend: "m1-m2"（照上面 epilogues() 挑出來的才算）
+    if (c.epLover || c.epFriend || c.epCouple || c.epPairFriend) {
+      var ep = epilogues();
+      if (c.epLover && ep.lover !== c.epLover) return false;
+      if (c.epFriend && ep.friend !== c.epFriend) return false;
+      if (c.epCouple && ep.couples.indexOf(pairKey(c.epCouple)) < 0) return false;
+      if (c.epPairFriend && ep.pairFriend !== pairKey(c.epPairFriend)) return false;
+    }
     if (c.allAwake != null && !!c.allAwake !== allAwake()) return false;
     if (c.awakened && ![].concat(c.awakened).every(isAwake)) return false;      // awakened: "m1" = 這位已經覺醒
     if (c.notAwakened && [].concat(c.notAwakened).some(isAwake)) return false;
@@ -259,6 +284,7 @@
     bondCatchup: function () { return !!(load('riiiize-player', {}) || {}).bondCatchup; },
     clearBondCatchup: function () { var p = load('riiiize-player', {}) || {}; delete p.bondCatchup; store('riiiize-player', p); },
     blockedMe: function (id) { return blockOf().me.indexOf(id) >= 0; },
+    epilogues: epilogues,
     blockedPair: function (a, b) { return blockOf().pairs.indexOf(blockKey(a, b)) >= 0; },
     // 一串成員裡有沒有任何一對被排除（隨機、特殊劇情用）
     blockedAny: function (ids) { for (var i = 0; i < ids.length; i++) for (var j = i + 1; j < ids.length; j++) if (window.GAME.blockedPair(ids[i], ids[j])) return true; return false; },

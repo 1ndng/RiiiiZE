@@ -214,8 +214,8 @@ const TESTS = [
     if (h !== '50%') throw new Error('愛心應該填 50%：' + h);
     return p;
   }],
-  ['劇情回想：送禮、友誼線、愛情線、CP 線看過的才打開；設定首頁有總收集率', async (b, base) => {
-    const flags = Object.assign({ scene_gift_m4: 1, scene_love_m4_1: 1, scene_cp_m4_m6_1: 1, scene_fr_m2: 1 }, NIGHT7_FLAGS);
+  ['劇情回想：送禮、愛情線、CP 線看過的才打開；設定首頁有總收集率', async (b, base) => {
+    const flags = Object.assign({ scene_gift_m4: 1, scene_love_m4_1: 1, scene_cp_m4_m6_1: 1 }, NIGHT7_FLAGS);
     const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': flags }));
     await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); location.hash = '#/settings'; });
     await p.waitForSelector('[data-collect]', { timeout: 8000 });
@@ -225,7 +225,8 @@ const TESTS = [
     await p.waitForSelector('[data-st-go^="#/settings/replay/"]', { timeout: 8000 });
     const cats = await p.$$eval('[data-st-go^="#/settings/replay/"]', a => a.map(x => [x.querySelector('.st-label').textContent, x.dataset.stGo]));
     const openIds = [];
-    for (const t of ['送禮', '友誼線', '愛情線', 'CP 線']) {
+    if (cats.some(x => x[0] === '友誼線')) throw new Error('友誼線已經刪掉了');
+    for (const t of ['送禮', '愛情線', 'CP 線']) {
       const c = cats.find(x => x[0] === t); if (!c) throw new Error('回想少了「' + t + '」：' + cats.map(x => x[0]).join('、'));
       await p.evaluate(h => { location.hash = h; }, c[1]); await sleep(400);
       openIds.push(...await p.$$eval('[data-rp]', a => a.map(x => x.dataset.rp)));
@@ -234,7 +235,7 @@ const TESTS = [
         if (!lock.some(x => /^元彬　？？？$/.test(x))) throw new Error('鎖住的愛情線要顯示是誰：' + lock.slice(0, 3).join('｜'));
       }
     }
-    for (const id of ['gift_m4', 'love_m4_1', 'cp_m4_m6_1', 'fr_m2']) if (openIds.indexOf(id) < 0) throw new Error(id + ' 應該打開');
+    for (const id of ['gift_m4', 'love_m4_1', 'cp_m4_m6_1']) if (openIds.indexOf(id) < 0) throw new Error(id + ' 應該打開');
     if (openIds.indexOf('love_m4_2') >= 0) throw new Error('沒看過的 love_m4_2 不該打開');
     return p;
   }],
@@ -261,20 +262,19 @@ const TESTS = [
     const g = await game(p); if (g.day !== 15) throw new Error('應該停在 9/15：' + g.day);
     return p;
   }],
-  ['愛情線選擇：被排除的人不進愛情線（友誼線照常）、被排除的兩人沒有 CP 線；重新打開會補播', async (b, base) => {
+  ['愛情線選擇：被排除的人不進愛情線、被排除的兩人沒有 CP 線；重新打開會補播', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
     const r = await p.evaluate(() => {
       const A = (id, v) => GAME.addStat('aff', id, v - GAME.stat('aff', id)), P = (k, v) => GAME.addStat('pair', k, v - GAME.stat('pair', k));
       const q = () => { const x = PLAN.bondFor(GAME.day); return x ? (x.id || x.kind) : '-'; };
       GAME.setBlock({ me: ['m4'], pairs: ['m4-m6'] });
       const out = [];
-      A('m4', 310); out.push(q());                        // 元彬好感夠曖昧，但被排除 → 沒有愛情線（友誼線照常）
-      SOSHO.setFlag('scene_fr_m4'); out.push(q());
+      A('m4', 310); out.push(q());                        // 元彬好感夠曖昧，但被排除 → 沒有愛情線
       A('m4', 0); P('m4-m6', 300); out.push(q());          // 元彬×燦榮關係夠了，但被排除 → 沒有 CP 線
       out.push(GAME.blockedAny(['m6', 'm4']), GAME.blockedAny(['m4', 'm5']));
       return out.join(',');
     });
-    if (r !== 'fr_m4,-,-,true,false') throw new Error(r);
+    if (r !== '-,-,true,false') throw new Error(r);
     // 重新打開 → 記 catchup（下一個有事的日子補播）
     const r2 = await p.evaluate(() => {
       const o = [];
@@ -557,19 +557,35 @@ const TESTS = [
     if (!/線索收集/.test(rows2)) throw new Error('10/1 應該有線索收集：' + rows2);
     return p;
   }],
-  ['友誼線、愛情線：好感 150 心動 → 300 曖昧／友誼 → 450 告白（可選多位）→ 戀人後其他人只剩友誼線', async (b, base) => {
+  ['愛情線：好感 150 心動 → 300 曖昧 → 450 告白（可選多位）→ 有戀人之後其他人沒有愛情線（友誼線已刪除）', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
     const r = await p.evaluate(() => {
       const A = (id, v) => GAME.addStat('aff', id, v - GAME.stat('aff', id)), F = f => SOSHO.setFlag(f), q = () => { const x = PLAN.bondFor(GAME.day); return x ? (x.id || x.kind + ':' + x.ids.join('+')) : '-'; };
       const out = [];
       A('m4', 160); out.push(q()); F('scene_love_m4_1');
       A('m4', 310); out.push(q()); F('scene_love_m4_2');
-      out.push(q()); F('scene_fr_m4');   // 好感 300：曖昧之後才是友誼線
-      A('m4', 460); A('m1', 460); F('scene_love_m1_1'); F('scene_love_m1_2'); F('scene_fr_m1'); out.push(q());
+      out.push(q());   // 好感 300、看過曖昧：沒有別的劇情了（友誼線已刪除）
+      A('m4', 460); A('m1', 460); F('scene_love_m1_1'); F('scene_love_m1_2'); out.push(q());
       F('confess_m4'); A('m2', 310); out.push(q()); out.push(GAME.check({ lover: 'm4' }) && !GAME.check({ lover: 'm1' }));
       return out.join(',');
     });
-    if (r !== 'love_m4_1,love_m4_2,fr_m4,confess:m1+m4,fr_m2,true') throw new Error(r);
+    if (r !== 'love_m4_1,love_m4_2,-,confess:m1+m4,-,true') throw new Error(r);
+    return p;
+  }],
+  ['後日談：玩家最多一段（戀人優先，沒有就好感最高的友誼版）＋成員之間（在一起的每一對；沒有就關係最高一對的友誼版）', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
+    const r = await p.evaluate(() => {
+      const A = (id, v) => GAME.addStat('aff', id, v - GAME.stat('aff', id)), P = (k, v) => GAME.addStat('pair', k, v - GAME.stat('pair', k)), F = f => SOSHO.setFlag(f);
+      const E = () => { const e = GAME.epilogues(); return [e.lover || '', e.friend || '', e.couples.join('+'), e.pairFriend || ''].join('/'); };
+      const out = [];
+      A('m4', 200); A('m2', 120); P('m4-m6', 400); P('m1-m3', 300);
+      out.push(E());                                   // 沒有戀人 → 元彬友誼；沒有在一起的 → 關係最高、又不含元彬的一對（將太郎×成燦）
+      A('m2', 460); F('confess_m2'); out.push(E());    // 恩奭是戀人（好感比元彬低也優先）→ 元彬×燦榮變成友誼版
+      P('m1-m3', 700); F('couple_m1-m3'); P('m5-m6', 700); F('couple_m5-m6'); out.push(E());   // 兩對在一起 → 兩對都播、沒有友誼版
+      out.push(GAME.check({ epCouple: 'm3-m1' }), GAME.check({ epLover: 'm2' }), GAME.check({ epFriend: 'm4' }));
+      return out.join(',');
+    });
+    if (r !== '/m4//m1-m3,m2///m4-m6,m2//m1-m3+m5-m6/,true,true,false') throw new Error(r);
     return p;
   }],
   ['CP 線：關係 100 → 300 → 500 → 700 在一起；已經在一對、或是玩家戀人的人只剩第一段', async (b, base) => {
