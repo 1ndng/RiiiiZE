@@ -117,5 +117,6 @@
 .blk-st .blk-chip { background: #f2f2f7 !important; border-color: #e5e5ea; color: #1c1c1e; }
 .blk-st .blk-chip.on { background: #8e8e93 !important; color: #fff; border-color: #8e8e93; }
 
-/* 總收集率 */
-.st-collect { font-weight: 700; color: #d6457f; }
+/* 設定首頁每一區的小標（淺色、在那一區的左上方）；收集那一區的小標後面寫總收集率 */
+.st-sec-main { padding-top: 4px; }
+.st-sec-main .st-collect { float: none; margin-left: 4px; color: #6d6d72; }

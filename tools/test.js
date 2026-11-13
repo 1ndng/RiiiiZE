@@ -222,15 +222,20 @@ const TESTS = [
     const pc = await p.$eval('[data-collect]', e => e.textContent);
     if (!/^\d+%$/.test(pc)) throw new Error('總收集率：' + pc);
     await p.evaluate(() => { location.hash = '#/settings/replay'; });
-    await p.waitForSelector('.st-rp-item', { timeout: 8000 });
-    const r = await p.evaluate(() => {
-      const sec = [...document.querySelectorAll('.st-sec')].map(x => x.firstChild.textContent);
-      const open = [...document.querySelectorAll('[data-rp]')].map(x => x.dataset.rp);
-      return { sec, open };
-    });
-    for (const t of ['送禮', '友誼線', '愛情線', 'CP 線']) if (r.sec.indexOf(t) < 0) throw new Error('回想少了「' + t + '」：' + r.sec.join('、'));
-    for (const id of ['gift_m4', 'love_m4_1', 'cp_m4_m6_1', 'fr_m2']) if (r.open.indexOf(id) < 0) throw new Error(id + ' 應該打開');
-    if (r.open.indexOf('love_m4_2') >= 0) throw new Error('沒看過的 love_m4_2 不該打開');
+    await p.waitForSelector('[data-st-go^="#/settings/replay/"]', { timeout: 8000 });
+    const cats = await p.$$eval('[data-st-go^="#/settings/replay/"]', a => a.map(x => [x.querySelector('.st-label').textContent, x.dataset.stGo]));
+    const openIds = [];
+    for (const t of ['送禮', '友誼線', '愛情線', 'CP 線']) {
+      const c = cats.find(x => x[0] === t); if (!c) throw new Error('回想少了「' + t + '」：' + cats.map(x => x[0]).join('、'));
+      await p.evaluate(h => { location.hash = h; }, c[1]); await sleep(400);
+      openIds.push(...await p.$$eval('[data-rp]', a => a.map(x => x.dataset.rp)));
+      if (t === '愛情線') {
+        const lock = await p.$$eval('.st-rp-item[disabled] b', a => a.map(x => x.textContent));
+        if (!lock.some(x => /^元彬　？？？$/.test(x))) throw new Error('鎖住的愛情線要顯示是誰：' + lock.slice(0, 3).join('｜'));
+      }
+    }
+    for (const id of ['gift_m4', 'love_m4_1', 'cp_m4_m6_1', 'fr_m2']) if (openIds.indexOf(id) < 0) throw new Error(id + ' 應該打開');
+    if (openIds.indexOf('love_m4_2') >= 0) throw new Error('沒看過的 love_m4_2 不該打開');
     return p;
   }],
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {
