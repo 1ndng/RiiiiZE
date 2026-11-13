@@ -421,7 +421,7 @@ window.SITE_DATA = {
    *   播 scene（結局劇情）→ 依序播 epilogues 裡條件成立的後日談 → 結局畫面（END＋title；點一下畫面回到手機，重新開始只能在設定裡選）
    *   after："explore" = 回到手機後只能探索 App、不再換天；"continue" = 照常過日子；
    *         "loop" = 時間循環：自動存一個「循環前的存檔」，回到 2025/9/1 重新過這一年（第二輪起，條件可以寫 loop: ">=2"）
-   *   epilogues：[{ id, title（結局畫面、圖鑑顯示的名稱）, scene, if }]
+   *   epilogues：[{ id, title（結局畫面、圖鑑顯示的名稱）, scene, if }]；只有 TRUE END 有（DREAM END 會回到 9/1、彼此不記得）
    * 看過的結局、後日談記在「設定 → 結局圖鑑」，重新開始也不會清掉；結局會記錄旗標 ending_結局id
    */
   endings: {
@@ -477,105 +477,11 @@ window.SITE_DATA = {
     },
     // 六人都覺醒、選擇留下：七人繼續留在學院的一年
     dream1: {
-      title: "DREAM END 1", text: "七人選擇留在這段美好的時光。", scene: "ending_dream1", after: "loop",
-      epilogues: [
-        { id: "again", title: "又是九月了", scene: "ep_dream1" },
-        // 玩家（最多一段）：戀人；沒有戀人 → 好感最高的成員的友誼版（怎麼挑見 js/game.js 的 epilogues()）
-        { id: "lover_m1", title: "將太郎（戀人）", scene: "ep_dream1_lover_m1", if: { epLover: "m1" } },
-        { id: "lover_m2", title: "恩奭（戀人）", scene: "ep_dream1_lover_m2", if: { epLover: "m2" } },
-        { id: "lover_m3", title: "成燦（戀人）", scene: "ep_dream1_lover_m3", if: { epLover: "m3" } },
-        { id: "lover_m4", title: "元彬（戀人）", scene: "ep_dream1_lover_m4", if: { epLover: "m4" } },
-        { id: "lover_m5", title: "炤熙（戀人）", scene: "ep_dream1_lover_m5", if: { epLover: "m5" } },
-        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_dream1_lover_m6", if: { epLover: "m6" } },
-        { id: "friend_m1", title: "將太郎（友誼）", scene: "ep_dream1_friend_m1", if: { epFriend: "m1" } },
-        { id: "friend_m2", title: "恩奭（友誼）", scene: "ep_dream1_friend_m2", if: { epFriend: "m2" } },
-        { id: "friend_m3", title: "成燦（友誼）", scene: "ep_dream1_friend_m3", if: { epFriend: "m3" } },
-        { id: "friend_m4", title: "元彬（友誼）", scene: "ep_dream1_friend_m4", if: { epFriend: "m4" } },
-        { id: "friend_m5", title: "炤熙（友誼）", scene: "ep_dream1_friend_m5", if: { epFriend: "m5" } },
-        { id: "friend_m6", title: "燦榮（友誼）", scene: "ep_dream1_friend_m6", if: { epFriend: "m6" } },
-        // 成員之間（不含玩家那段的成員）：在一起的每一對；一對都沒有 → 關係最高的一對的友誼版
-        { id: "cp_m1_m2", title: "將太郎 × 恩奭", scene: "ep_dream1_cp_m1_m2", if: { epCouple: "m1-m2" } },
-        { id: "cp_m1_m3", title: "將太郎 × 成燦", scene: "ep_dream1_cp_m1_m3", if: { epCouple: "m1-m3" } },
-        { id: "cp_m1_m4", title: "將太郎 × 元彬", scene: "ep_dream1_cp_m1_m4", if: { epCouple: "m1-m4" } },
-        { id: "cp_m1_m5", title: "將太郎 × 炤熙", scene: "ep_dream1_cp_m1_m5", if: { epCouple: "m1-m5" } },
-        { id: "cp_m1_m6", title: "將太郎 × 燦榮", scene: "ep_dream1_cp_m1_m6", if: { epCouple: "m1-m6" } },
-        { id: "cp_m2_m3", title: "恩奭 × 成燦", scene: "ep_dream1_cp_m2_m3", if: { epCouple: "m2-m3" } },
-        { id: "cp_m2_m4", title: "恩奭 × 元彬", scene: "ep_dream1_cp_m2_m4", if: { epCouple: "m2-m4" } },
-        { id: "cp_m2_m5", title: "恩奭 × 炤熙", scene: "ep_dream1_cp_m2_m5", if: { epCouple: "m2-m5" } },
-        { id: "cp_m2_m6", title: "恩奭 × 燦榮", scene: "ep_dream1_cp_m2_m6", if: { epCouple: "m2-m6" } },
-        { id: "cp_m3_m4", title: "成燦 × 元彬", scene: "ep_dream1_cp_m3_m4", if: { epCouple: "m3-m4" } },
-        { id: "cp_m3_m5", title: "成燦 × 炤熙", scene: "ep_dream1_cp_m3_m5", if: { epCouple: "m3-m5" } },
-        { id: "cp_m3_m6", title: "成燦 × 燦榮", scene: "ep_dream1_cp_m3_m6", if: { epCouple: "m3-m6" } },
-        { id: "cp_m4_m5", title: "元彬 × 炤熙", scene: "ep_dream1_cp_m4_m5", if: { epCouple: "m4-m5" } },
-        { id: "cp_m4_m6", title: "元彬 × 燦榮", scene: "ep_dream1_cp_m4_m6", if: { epCouple: "m4-m6" } },
-        { id: "cp_m5_m6", title: "炤熙 × 燦榮", scene: "ep_dream1_cp_m5_m6", if: { epCouple: "m5-m6" } },
-        { id: "pf_m1_m2", title: "將太郎 × 恩奭（友誼）", scene: "ep_dream1_pf_m1_m2", if: { epPairFriend: "m1-m2" } },
-        { id: "pf_m1_m3", title: "將太郎 × 成燦（友誼）", scene: "ep_dream1_pf_m1_m3", if: { epPairFriend: "m1-m3" } },
-        { id: "pf_m1_m4", title: "將太郎 × 元彬（友誼）", scene: "ep_dream1_pf_m1_m4", if: { epPairFriend: "m1-m4" } },
-        { id: "pf_m1_m5", title: "將太郎 × 炤熙（友誼）", scene: "ep_dream1_pf_m1_m5", if: { epPairFriend: "m1-m5" } },
-        { id: "pf_m1_m6", title: "將太郎 × 燦榮（友誼）", scene: "ep_dream1_pf_m1_m6", if: { epPairFriend: "m1-m6" } },
-        { id: "pf_m2_m3", title: "恩奭 × 成燦（友誼）", scene: "ep_dream1_pf_m2_m3", if: { epPairFriend: "m2-m3" } },
-        { id: "pf_m2_m4", title: "恩奭 × 元彬（友誼）", scene: "ep_dream1_pf_m2_m4", if: { epPairFriend: "m2-m4" } },
-        { id: "pf_m2_m5", title: "恩奭 × 炤熙（友誼）", scene: "ep_dream1_pf_m2_m5", if: { epPairFriend: "m2-m5" } },
-        { id: "pf_m2_m6", title: "恩奭 × 燦榮（友誼）", scene: "ep_dream1_pf_m2_m6", if: { epPairFriend: "m2-m6" } },
-        { id: "pf_m3_m4", title: "成燦 × 元彬（友誼）", scene: "ep_dream1_pf_m3_m4", if: { epPairFriend: "m3-m4" } },
-        { id: "pf_m3_m5", title: "成燦 × 炤熙（友誼）", scene: "ep_dream1_pf_m3_m5", if: { epPairFriend: "m3-m5" } },
-        { id: "pf_m3_m6", title: "成燦 × 燦榮（友誼）", scene: "ep_dream1_pf_m3_m6", if: { epPairFriend: "m3-m6" } },
-        { id: "pf_m4_m5", title: "元彬 × 炤熙（友誼）", scene: "ep_dream1_pf_m4_m5", if: { epPairFriend: "m4-m5" } },
-        { id: "pf_m4_m6", title: "元彬 × 燦榮（友誼）", scene: "ep_dream1_pf_m4_m6", if: { epPairFriend: "m4-m6" } },
-        { id: "pf_m5_m6", title: "炤熙 × 燦榮（友誼）", scene: "ep_dream1_pf_m5_m6", if: { epPairFriend: "m5-m6" } }
-      ]
+      title: "DREAM END 1", text: "七人選擇留在這段美好的時光。", scene: "ending_dream1", after: "loop"
     },
     // 8/31 時有人還沒覺醒：沒有選擇，直接進入這個結局
     dream2: {
-      title: "DREAM END 2", text: "還有人沒有醒來。", scene: "ending_dream2", after: "loop",
-      epilogues: [
-        { id: "some", title: "一點點", scene: "ep_dream2_some", if: { awakeCount: ">=1" } },
-        // 玩家（最多一段）：戀人；沒有戀人 → 好感最高的成員的友誼版（怎麼挑見 js/game.js 的 epilogues()）
-        { id: "lover_m1", title: "將太郎（戀人）", scene: "ep_dream2_lover_m1", if: { epLover: "m1" } },
-        { id: "lover_m2", title: "恩奭（戀人）", scene: "ep_dream2_lover_m2", if: { epLover: "m2" } },
-        { id: "lover_m3", title: "成燦（戀人）", scene: "ep_dream2_lover_m3", if: { epLover: "m3" } },
-        { id: "lover_m4", title: "元彬（戀人）", scene: "ep_dream2_lover_m4", if: { epLover: "m4" } },
-        { id: "lover_m5", title: "炤熙（戀人）", scene: "ep_dream2_lover_m5", if: { epLover: "m5" } },
-        { id: "lover_m6", title: "燦榮（戀人）", scene: "ep_dream2_lover_m6", if: { epLover: "m6" } },
-        { id: "friend_m1", title: "將太郎（友誼）", scene: "ep_dream2_friend_m1", if: { epFriend: "m1" } },
-        { id: "friend_m2", title: "恩奭（友誼）", scene: "ep_dream2_friend_m2", if: { epFriend: "m2" } },
-        { id: "friend_m3", title: "成燦（友誼）", scene: "ep_dream2_friend_m3", if: { epFriend: "m3" } },
-        { id: "friend_m4", title: "元彬（友誼）", scene: "ep_dream2_friend_m4", if: { epFriend: "m4" } },
-        { id: "friend_m5", title: "炤熙（友誼）", scene: "ep_dream2_friend_m5", if: { epFriend: "m5" } },
-        { id: "friend_m6", title: "燦榮（友誼）", scene: "ep_dream2_friend_m6", if: { epFriend: "m6" } },
-        // 成員之間（不含玩家那段的成員）：在一起的每一對；一對都沒有 → 關係最高的一對的友誼版
-        { id: "cp_m1_m2", title: "將太郎 × 恩奭", scene: "ep_dream2_cp_m1_m2", if: { epCouple: "m1-m2" } },
-        { id: "cp_m1_m3", title: "將太郎 × 成燦", scene: "ep_dream2_cp_m1_m3", if: { epCouple: "m1-m3" } },
-        { id: "cp_m1_m4", title: "將太郎 × 元彬", scene: "ep_dream2_cp_m1_m4", if: { epCouple: "m1-m4" } },
-        { id: "cp_m1_m5", title: "將太郎 × 炤熙", scene: "ep_dream2_cp_m1_m5", if: { epCouple: "m1-m5" } },
-        { id: "cp_m1_m6", title: "將太郎 × 燦榮", scene: "ep_dream2_cp_m1_m6", if: { epCouple: "m1-m6" } },
-        { id: "cp_m2_m3", title: "恩奭 × 成燦", scene: "ep_dream2_cp_m2_m3", if: { epCouple: "m2-m3" } },
-        { id: "cp_m2_m4", title: "恩奭 × 元彬", scene: "ep_dream2_cp_m2_m4", if: { epCouple: "m2-m4" } },
-        { id: "cp_m2_m5", title: "恩奭 × 炤熙", scene: "ep_dream2_cp_m2_m5", if: { epCouple: "m2-m5" } },
-        { id: "cp_m2_m6", title: "恩奭 × 燦榮", scene: "ep_dream2_cp_m2_m6", if: { epCouple: "m2-m6" } },
-        { id: "cp_m3_m4", title: "成燦 × 元彬", scene: "ep_dream2_cp_m3_m4", if: { epCouple: "m3-m4" } },
-        { id: "cp_m3_m5", title: "成燦 × 炤熙", scene: "ep_dream2_cp_m3_m5", if: { epCouple: "m3-m5" } },
-        { id: "cp_m3_m6", title: "成燦 × 燦榮", scene: "ep_dream2_cp_m3_m6", if: { epCouple: "m3-m6" } },
-        { id: "cp_m4_m5", title: "元彬 × 炤熙", scene: "ep_dream2_cp_m4_m5", if: { epCouple: "m4-m5" } },
-        { id: "cp_m4_m6", title: "元彬 × 燦榮", scene: "ep_dream2_cp_m4_m6", if: { epCouple: "m4-m6" } },
-        { id: "cp_m5_m6", title: "炤熙 × 燦榮", scene: "ep_dream2_cp_m5_m6", if: { epCouple: "m5-m6" } },
-        { id: "pf_m1_m2", title: "將太郎 × 恩奭（友誼）", scene: "ep_dream2_pf_m1_m2", if: { epPairFriend: "m1-m2" } },
-        { id: "pf_m1_m3", title: "將太郎 × 成燦（友誼）", scene: "ep_dream2_pf_m1_m3", if: { epPairFriend: "m1-m3" } },
-        { id: "pf_m1_m4", title: "將太郎 × 元彬（友誼）", scene: "ep_dream2_pf_m1_m4", if: { epPairFriend: "m1-m4" } },
-        { id: "pf_m1_m5", title: "將太郎 × 炤熙（友誼）", scene: "ep_dream2_pf_m1_m5", if: { epPairFriend: "m1-m5" } },
-        { id: "pf_m1_m6", title: "將太郎 × 燦榮（友誼）", scene: "ep_dream2_pf_m1_m6", if: { epPairFriend: "m1-m6" } },
-        { id: "pf_m2_m3", title: "恩奭 × 成燦（友誼）", scene: "ep_dream2_pf_m2_m3", if: { epPairFriend: "m2-m3" } },
-        { id: "pf_m2_m4", title: "恩奭 × 元彬（友誼）", scene: "ep_dream2_pf_m2_m4", if: { epPairFriend: "m2-m4" } },
-        { id: "pf_m2_m5", title: "恩奭 × 炤熙（友誼）", scene: "ep_dream2_pf_m2_m5", if: { epPairFriend: "m2-m5" } },
-        { id: "pf_m2_m6", title: "恩奭 × 燦榮（友誼）", scene: "ep_dream2_pf_m2_m6", if: { epPairFriend: "m2-m6" } },
-        { id: "pf_m3_m4", title: "成燦 × 元彬（友誼）", scene: "ep_dream2_pf_m3_m4", if: { epPairFriend: "m3-m4" } },
-        { id: "pf_m3_m5", title: "成燦 × 炤熙（友誼）", scene: "ep_dream2_pf_m3_m5", if: { epPairFriend: "m3-m5" } },
-        { id: "pf_m3_m6", title: "成燦 × 燦榮（友誼）", scene: "ep_dream2_pf_m3_m6", if: { epPairFriend: "m3-m6" } },
-        { id: "pf_m4_m5", title: "元彬 × 炤熙（友誼）", scene: "ep_dream2_pf_m4_m5", if: { epPairFriend: "m4-m5" } },
-        { id: "pf_m4_m6", title: "元彬 × 燦榮（友誼）", scene: "ep_dream2_pf_m4_m6", if: { epPairFriend: "m4-m6" } },
-        { id: "pf_m5_m6", title: "炤熙 × 燦榮（友誼）", scene: "ep_dream2_pf_m5_m6", if: { epPairFriend: "m5-m6" } }
-      ]
+      title: "DREAM END 2", text: "還有人沒有醒來。", scene: "ending_dream2", after: "loop"
     }
   },
   // 結局畫面最上面的小字（結局名稱已經有 END，所以留空）

@@ -92,22 +92,6 @@ RIIIZE_ADD({
       { text: "夕陽照進辦公室。七張椅子，整整齊齊地排在一起。" },
       { ending: "dream2" }
     ],
-    // ↓ 後日談（endings 的 epilogues）：TRUE END 六人醒來之後、DREAM END 1、DREAM END 2（Claude 草稿）
-    ep_dream1: [
-      { text: "——第幾次的九月？" },
-      { text: "學生會辦公室的白板角落，又出現了一行字：「又是九月了。」" },
-      { text: "沒有人記得是誰寫的。" },
-      { text: "七個人擠在辦公室裡，吵著預算、吵著冷氣、吵著誰先坐到那張最軟的椅子。" },
-      { text: "很吵。很幸福。" },
-      { text: "一次，又一次。" }
-    ],
-    ep_dream2_some: [
-      { text: "——9 月 1 日。" },
-      { text: "學生會辦公室的白板角落，有一行字。" },
-      { text: "「又是九月了。這次，一定要找到。」" },
-      { text: "有人記得一點點。" },
-      { text: "那一點點，就夠了。" }
-    ],
     // 三個結局的劇情（endings 的 scene）
     ending_true: [
       { bg: "images/bg/council.jpg" },
