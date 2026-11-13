@@ -285,14 +285,14 @@
         who: acts[r[1]].label + '　' + (r[2] === 'me' ? '我' : r[2].split('').map(function (n) { return nameOf(byNo[+n]); }).join('×')) });
     });
     var by = function (a, b) { return a.o - b.o; };
-    groups.push({ title: '日程（固定）', items: fixed.sort(by) });
-    groups.push({ title: '日程（隨機）', items: rand.sort(by) });
     // 日程特殊劇情（plan.specials）：地點＋相關的人
     var sp = (plan.specials || []).filter(function (e) { return sc[e.scene] && acts[e.activity]; }).map(function (e) {
       var who = (e.scene.match(/m\d/g) || []).map(function (id) { return nameOf(byId[id]); }).join('、');
-      return { o: actOrder.indexOf(e.activity) * 1000 + who.length, id: e.scene, label: acts[e.activity].label, sub: e.title || who, bg: acts[e.activity].bg, who: acts[e.activity].label + '　' + who.split('、').join('×') };
+      return { o: actOrder.indexOf(e.activity) * 1000 + 500 + who.length, id: e.scene, label: acts[e.activity].label, sub: e.title || who, bg: acts[e.activity].bg, who: acts[e.activity].label + '　' + who.split('、').join('×') };
     });
-    groups.push({ title: '日程（特殊）', items: sp.sort(by) });
+    // 日程（固定）：第幾次的固定劇情＋特殊劇情（排在同一個地點的固定劇情後面）
+    groups.push({ title: '日程（固定）', items: fixed.concat(sp).sort(by) });
+    groups.push({ title: '日程（隨機）', items: rand.sort(by) });
     // 友誼線、愛情線（心動、曖昧、告白）、CP 線
     var fr = [], lv = [], cp = [], LV = { 1: '心動', 2: '曖昧' };
     Object.keys(sc).forEach(function (k) {
@@ -307,7 +307,7 @@
     groups.push({ title: 'CP 線', items: cp.sort(by) });
     var aw = [];
     Object.keys(sc).forEach(function (k) { var m = /^awake_(m\d)_(\d)$/.exec(k); if (m) aw.push({ o: (+m[1].slice(1)) * 10 + (+m[2]), id: k, label: nameOf(byId[m[1]]), sub: '線索 ' + m[2], bg: 'phone-dim' }); });
-    groups.push({ title: '？？？線索', items: aw.sort(by) });
+    groups.push({ title: '？？？', items: aw.sort(by) });
     return groups;
   }
   // 收集率：劇情回想、CG、結局（含後日談）、線索各自的 { got, all }；總收集率 = 全部加起來
