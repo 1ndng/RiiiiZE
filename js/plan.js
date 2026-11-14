@@ -804,8 +804,16 @@
           return;
         }
         var show = function () { f.innerHTML = dateHTML(G().day); f.classList.add('text'); startDayAfter(f); };
-        if (!f || !f.parentNode) { f = fadeEl(); setTimeout(function () { dropHeld(true); show(); }, 600); }   // 變暗之後才收起留著的對話框
-        else show();
+        if (keep) {   // 前一天只有一句話：漸黑 → 收起對話框 → 全黑一下就開始（跟換背景的轉場一樣，不出日期畫面）
+          var k = fadeEl();
+          setTimeout(function () {
+            dropHeld(true); going = false; startDay(true);
+            setTimeout(function () { k.classList.remove('show'); setTimeout(function () { k.remove(); }, 700); }, 500);
+          }, 600);
+          return;
+        }
+        if (!f || !f.parentNode) f = fadeEl();
+        show();
       }, function (week, next) {
         // 這週的安排：黑底日期畫面上一次列出這幾天去了哪裡、遇到誰
         dropHeld();

@@ -186,6 +186,23 @@ const TESTS = [
     if (log !== 'club,volunteer') throw new Error('這週的紀錄不對：' + log);
     return p;
   }],
+  ['一句話接到有其他劇情的日子：漸黑 → 全黑轉場，不出日期畫面', async (b, base) => {
+    const days = { '09-08': 'club', '09-09': 'club' };
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits: { club: 1 } } }));
+    await p.evaluate(() => {
+      SITE_DATA.storySpeed = 1; SITE_DATA.plan.random.chance = 0;
+      SITE_DATA.scenes.__hol = [{ text: '測試節日' }];
+      SITE_DATA.plan.holidays = (SITE_DATA.plan.holidays || []).concat([{ date: '09-09', title: '測試', scene: '__hol' }]);
+      const w = window.__watch = { date: 0 }; setInterval(() => { if (document.querySelector('.day-fade.text')) w.date++; }, 30);
+      const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    let t = '';
+    for (let i = 0; i < 40 && !/9\/8（一）/.test(t); i++) { t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
+    for (let i = 0; i < 60 && !/測試節日/.test(t); i++) { await curScene(p); t = await p.evaluate(() => (document.querySelector('.vn.show') || {}).textContent || ''); await sleep(250); }
+    if (!/測試節日/.test(t)) throw new Error('9/9 沒有播節日：' + t);
+    const w = await p.evaluate(() => window.__watch);
+    if (w.date) throw new Error('一句話之後不該出日期畫面：' + w.date);
+    return p;
+  }],
   ['每週卡片：星期日晚上按睡覺 → 列出週一～週日（含星期日出遊）＋這週加了多少好感，之後到星期一', async (b, base) => {
     const wk = [
       { day: 8, act: 'club', met: ['m1', 'm4'], fx: { aff: { m1: 2, m4: 2 }, pair: { 'm1-m4': 15 } }, rnd: [] },
