@@ -715,6 +715,7 @@
   // 不能用手機的日子：蓋在主畫面上的黑底日期畫面（劇情在它上面播）
   function stage(day) {
     var el = document.getElementById('day-stage');
+    document.getElementById('phone').classList.remove('story-full');   // 劇情之間藏起來的狀態列：換天、回到手機時放回來
     if (day == null) { if (el) el.remove(); if (S()) S().setDarkStatus(false); return; }
     if (!el) { el = document.createElement('div'); el.id = 'day-stage'; el.className = 'day-stage'; document.getElementById('phone').appendChild(el); }
     el.innerHTML = dateHTML(day); el.classList.remove('blank');
