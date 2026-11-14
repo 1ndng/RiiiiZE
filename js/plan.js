@@ -44,7 +44,7 @@
       giftMeText: '你把禮物送給了{a}。', giftAskText: '{a}把禮物送給了{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
       dayLine: '{date}\n去了{place}，遇到了{who}。',   // {place} = 地點（舞室、小學…）、{act} = 活動名稱（社團活動、訓練…）
-      dayShort: '{date}　{what}{gain}', goPlace: '去{place}', stayHomeLine: '回家', sunOutCard: '出遊', sunHome: '待在家',
+      dayShort: '{date}　{what}{gain}', goPlace: '去{place}', stayHomeLine: '回家', sunOut: '和{who}出遊', sunOutCard: '出遊', sunHome: '待在家',
       weekTitle: '這週的安排', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekMet: '這幾天見到了{who}。', weekAff: '好感', weekPair: '關係', weekNoGain: '這幾天沒有遇到人。'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -333,9 +333,11 @@
         onAlt: function () {
           if (S()) S().setFlag('weekend_home');
           pendWeek({ day: G().day, act: 'sunday', met: [], fx: null });
-          var hs = (w.home || []).filter(function (e) { return ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene); })[0];
-          // 待在家：背景 = plan.homeBg
-          if (hs) window.STORY.play(hs.scene, done, null, C().homeBg); else narrate(t.stayHomeText, done, C().homeBg);
+          // 待在家：平常只有一句話「9/14（日）　待在家」；寫了 chance 的劇情照機率接著播（背景 = plan.homeBg）
+          var hs = (w.home || []).filter(function (e) { return ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene) && (e.chance == null || Math.random() < e.chance); })[0];
+          narrate(t.dayShort.replace('{date}', shortDate(G().day)).replace('{what}', t.sunHome).replace('{gain}', ''), function () {
+            if (hs) window.STORY.play(hs.scene, done, null, C().homeBg); else done();
+          }, C().homeBg);
         },
         onGo: function (ids) {
           // 見一位：好感 +single；見兩位：各自好感 +pairAff、兩人關係 +pairBond
@@ -352,9 +354,12 @@
           if (ids.length === 2 && G().blockedPair(ids[0], ids[1])) cands = [];   // 不想配對的兩人一起出門：只用一句話帶過
           var sc = cands.filter(function (e) { return e.chance != null && Math.random() < e.chance; })[0] ||
             cands.filter(function (e) { return e.chance == null; })[0];
-          // 出去玩：背景 = weekend.bg
-          if (sc) window.STORY.play(sc.scene, done, null, w.bg);
-          else narrate((ids.length === 1 ? t.single : t.pair).replace('{a}', nameOf(ids[0])).replace('{b}', nameOf(ids[1] || '')), done, w.bg);
+          // 出去玩：平常只有一句話「9/14（日）　和元彬出遊　元彬 +10」；照機率（chance）接著播劇情（背景 = weekend.bg）
+          var sh = function (id) { var c = cast().filter(function (x) { return x.id === id; })[0] || {}; return c.short || c.name || id; };
+          var what = t.sunOut.replace('{who}', ids.map(sh).join('、'));
+          narrate(t.dayShort.replace('{date}', shortDate(G().day)).replace('{what}', what).replace('{gain}', gainText(fx)), function () {
+            if (sc) window.STORY.play(sc.scene, done, null, w.bg); else done();
+          }, w.bg);
         }
       });
     }, C().homeBg);

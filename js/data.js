@@ -371,31 +371,31 @@ window.SITE_DATA = {
     },
     weekend: { bg: "images/bg/outing.jpg", intro: "weekend_intro", single: 10, pairAff: 5, pairBond: 15,
       scenes: [
-        // 同一個人／同一組：沒寫 chance = 固定劇情（每次都一樣）；chance: 0.2 = 特殊劇情（20% 機率，可以重複）
-        { with: ["m1"], scene: "wk_m1", repeat: true }, { with: ["m1"], scene: "wk_m1_sp", repeat: true, chance: 0.2 },
-        { with: ["m2"], scene: "wk_m2", repeat: true }, { with: ["m2"], scene: "wk_m2_sp", repeat: true, chance: 0.2 },
-        { with: ["m3"], scene: "wk_m3", repeat: true }, { with: ["m3"], scene: "wk_m3_sp", repeat: true, chance: 0.2 },
-        { with: ["m4"], scene: "wk_m4", repeat: true }, { with: ["m4"], scene: "wk_m4_sp", repeat: true, chance: 0.2 },
-        { with: ["m5"], scene: "wk_m5", repeat: true }, { with: ["m5"], scene: "wk_m5_sp", repeat: true, chance: 0.2 },
-        { with: ["m6"], scene: "wk_m6", repeat: true }, { with: ["m6"], scene: "wk_m6_sp", repeat: true, chance: 0.2 },
-        { with: ["m1", "m2"], scene: "wk_m1_m2", repeat: true }, { with: ["m1", "m2"], scene: "wk_m1_m2_sp", repeat: true, chance: 0.2 },
-        { with: ["m1", "m3"], scene: "wk_m1_m3", repeat: true }, { with: ["m1", "m3"], scene: "wk_m1_m3_sp", repeat: true, chance: 0.2 },
-        { with: ["m1", "m4"], scene: "wk_m1_m4", repeat: true }, { with: ["m1", "m4"], scene: "wk_m1_m4_sp", repeat: true, chance: 0.2 },
-        { with: ["m1", "m5"], scene: "wk_m1_m5", repeat: true }, { with: ["m1", "m5"], scene: "wk_m1_m5_sp", repeat: true, chance: 0.2 },
-        { with: ["m1", "m6"], scene: "wk_m1_m6", repeat: true }, { with: ["m1", "m6"], scene: "wk_m1_m6_sp", repeat: true, chance: 0.2 },
-        { with: ["m2", "m3"], scene: "wk_m2_m3", repeat: true }, { with: ["m2", "m3"], scene: "wk_m2_m3_sp", repeat: true, chance: 0.2 },
-        { with: ["m2", "m4"], scene: "wk_m2_m4", repeat: true }, { with: ["m2", "m4"], scene: "wk_m2_m4_sp", repeat: true, chance: 0.2 },
-        { with: ["m2", "m5"], scene: "wk_m2_m5", repeat: true }, { with: ["m2", "m5"], scene: "wk_m2_m5_sp", repeat: true, chance: 0.2 },
-        { with: ["m2", "m6"], scene: "wk_m2_m6", repeat: true }, { with: ["m2", "m6"], scene: "wk_m2_m6_sp", repeat: true, chance: 0.2 },
-        { with: ["m3", "m4"], scene: "wk_m3_m4", repeat: true }, { with: ["m3", "m4"], scene: "wk_m3_m4_sp", repeat: true, chance: 0.2 },
-        { with: ["m3", "m5"], scene: "wk_m3_m5", repeat: true }, { with: ["m3", "m5"], scene: "wk_m3_m5_sp", repeat: true, chance: 0.2 },
-        { with: ["m3", "m6"], scene: "wk_m3_m6", repeat: true }, { with: ["m3", "m6"], scene: "wk_m3_m6_sp", repeat: true, chance: 0.2 },
-        { with: ["m4", "m5"], scene: "wk_m4_m5", repeat: true }, { with: ["m4", "m5"], scene: "wk_m4_m5_sp", repeat: true, chance: 0.2 },
-        { with: ["m4", "m6"], scene: "wk_m4_m6", repeat: true }, { with: ["m4", "m6"], scene: "wk_m4_m6_sp", repeat: true, chance: 0.2 },
-        { with: ["m5", "m6"], scene: "wk_m5_m6", repeat: true }, { with: ["m5", "m6"], scene: "wk_m5_m6_sp", repeat: true, chance: 0.2 }
+        // 平常只有一句話（「9/14（日）　和元彬出遊　元彬 +10」）；chance: 0.2 = 20% 機率接著播這段劇情
+        { with: ["m1"], scene: "wk_m1", repeat: true, chance: 0.2 },
+        { with: ["m2"], scene: "wk_m2", repeat: true, chance: 0.2 },
+        { with: ["m3"], scene: "wk_m3", repeat: true, chance: 0.2 },
+        { with: ["m4"], scene: "wk_m4", repeat: true, chance: 0.2 },
+        { with: ["m5"], scene: "wk_m5", repeat: true, chance: 0.2 },
+        { with: ["m6"], scene: "wk_m6", repeat: true, chance: 0.2 },
+        { with: ["m1", "m2"], scene: "wk_m1_m2", repeat: true, chance: 0.2 },
+        { with: ["m1", "m3"], scene: "wk_m1_m3", repeat: true, chance: 0.2 },
+        { with: ["m1", "m4"], scene: "wk_m1_m4", repeat: true, chance: 0.2 },
+        { with: ["m1", "m5"], scene: "wk_m1_m5", repeat: true, chance: 0.2 },
+        { with: ["m1", "m6"], scene: "wk_m1_m6", repeat: true, chance: 0.2 },
+        { with: ["m2", "m3"], scene: "wk_m2_m3", repeat: true, chance: 0.2 },
+        { with: ["m2", "m4"], scene: "wk_m2_m4", repeat: true, chance: 0.2 },
+        { with: ["m2", "m5"], scene: "wk_m2_m5", repeat: true, chance: 0.2 },
+        { with: ["m2", "m6"], scene: "wk_m2_m6", repeat: true, chance: 0.2 },
+        { with: ["m3", "m4"], scene: "wk_m3_m4", repeat: true, chance: 0.2 },
+        { with: ["m3", "m5"], scene: "wk_m3_m5", repeat: true, chance: 0.2 },
+        { with: ["m3", "m6"], scene: "wk_m3_m6", repeat: true, chance: 0.2 },
+        { with: ["m4", "m5"], scene: "wk_m4_m5", repeat: true, chance: 0.2 },
+        { with: ["m4", "m6"], scene: "wk_m4_m6", repeat: true, chance: 0.2 },
+        { with: ["m5", "m6"], scene: "wk_m5_m6", repeat: true, chance: 0.2 }
       ],
-      // 待在家
-      home: [ { scene: "wk_home", repeat: true } ] }
+      // 待在家：平常只有一句話，20% 播這段
+      home: [ { scene: "wk_home", repeat: true, chance: 0.2 } ] }
   },
 
   /* ---------- 戀愛與覺醒的門檻 ----------
@@ -959,7 +959,7 @@ function RIIIZE_ADD(part) {
   if (part.story) D.story = D.story.concat(part.story);
   if (part.dayChats) D.kakao.dayChats = D.kakao.dayChats.concat(part.dayChats);
   if (part.tweets) D.x.tweets = D.x.tweets.concat(part.tweets);
-  if (part.specials) D.plan.specials = (D.plan.specials || []).concat(part.specials);   // 日程特殊劇情（js/story/special.js）
+  if (part.specials) D.plan.specials = (D.plan.specials || []).concat(part.specials);   // 日程特殊劇情（目前沒有）
 }
 // js/story/ 裡的檔案（index.html 照這個順序載入）
-var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","special","weekend","gift","side-extra","friend-ending","bond","cp","cp-ending","clues","awake","ending","common"];
+var RIIIZE_STORY_FILES = ["2025-09","2025-10","2025-11","2025-12","2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08","schedule","weekend","gift","side-extra","friend-ending","bond","cp","cp-ending","clues","awake","ending","common"];
