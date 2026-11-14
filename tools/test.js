@@ -161,17 +161,17 @@ const TESTS = [
     const g = await game(p); if (g.day !== 2) throw new Error('沒有進入 9/2，現在第 ' + g.day + ' 天');
     return p;
   }],
-  ['每天一句話：9/8 先出「9/8（一）　去舞室　…+數字」，再播當天的劇情；平日不出卡片', async (b, base) => {
+  ['每天一句話：9/8 先出「9/8（一），你去了舞室。（好感度：…）」，再播當天的劇情；平日不出卡片', async (b, base) => {
     const days = { '09-08': 'club', '09-09': 'volunteer' };
     const visits = { club: 1, volunteer: 1, home: 1 };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits } }));
     await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     let t = '';
     for (let i = 0; i < 40 && !/9\/8（一）/.test(t); i++) { t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
-    if (!/9\/8（一）　去舞室　(將太郎|元彬|炤熙) \+\d/.test(t)) throw new Error('9/8 的一句話不對：' + t);
+    if (!/9\/8（一），你去了舞室。（好感度：(將太郎|元彬|炤熙) \+\d/.test(t)) throw new Error('9/8 的一句話不對：' + t);
     // 點掉 → 自動往下一天（9/9 小學）
     for (let i = 0; i < 60 && !/9\/9（二）/.test(t); i++) { await curScene(p); t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
-    if (!/9\/9（二）　去小學/.test(t)) throw new Error('9/9 的一句話不對：' + t);
+    if (!/9\/9（二），你去了小學。/.test(t)) throw new Error('9/9 的一句話不對：' + t);
     if (await p.$('.wk')) throw new Error('平日不該出現每週卡片');
     const log = await p.evaluate(() => JSON.parse(localStorage.getItem('riiiize-weekpend') || '[]').map(x => x.act).join(','));
     if (log !== 'club,volunteer') throw new Error('這週的紀錄不對：' + log);
@@ -341,17 +341,30 @@ const TESTS = [
     if (!back) throw new Error('回到手機畫面失敗');
     return p;
   }],
-  ['星期日出遊：平常只有一句話「9/21（日）　和恩奭出遊　恩奭 +10」；20% 劇情關掉就不播', async (b, base) => {
+  ['星期日出遊：平常只有一句話「9/21（日），你和恩奭出去玩了。（好感度：恩奭 +10）」；20% 劇情關掉就不播', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'daychat_09-21': 1 } }));
     await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.plan.weekend.scenes.forEach(e => { e.chance = 0; }); });
     await clickStory(p, async () => !!(await p.$('.sch')));
     await p.click('.sch-cast button >> nth=1'); await p.click('[data-go]');
     let t = '';
     for (let i = 0; i < 40 && !/9\/21/.test(t || ''); i++) { await sleep(250); t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); }
-    if (!/9\/21（日）　和恩奭出遊　恩奭 \+10/.test(t || '')) throw new Error('星期日的一句話不對：' + t);
+    if (!/9\/21（日），你和恩奭出去玩了。（好感度：恩奭 \+10）/.test(t || '')) throw new Error('星期日的一句話不對：' + t);
     if (await p.evaluate(() => /^wk_/.test((STORY.scene && STORY.scene()) || ''))) throw new Error('機率關掉了不該播劇情');
     const n = await p.evaluate(() => Object.keys(SITE_DATA.scenes).filter(k => /^wk_m/.test(k)).length + '/' + Object.keys(SITE_DATA.scenes).filter(k => /^(sp_|wk_.*_sp$)/.test(k)).length);
     if (n !== '21/0') throw new Error('星期日劇情應該剩 21 段、沒有特殊劇情：' + n);
+    return p;
+  }],
+  ['試玩版 9/14：先出每週卡片（連點繼續只算一次）→ 前方施工中 → 回到手機畫面，畫面沒有卡住', async (b, base) => {
+    const wk = [{ day: 8, act: 'club', met: ['m4'], fx: { aff: { m4: 4 }, pair: {} }, rnd: [] }, { day: 14, act: 'sunday', met: ['m4'], fx: { aff: { m4: 10 }, pair: {} }, rnd: [] }];
+    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, freephone_14: 1, 'daychat_09-14': 1 }, 'riiiize-weekpend': wk, riiiizeNoTrial: '0' }));
+    await p.evaluate(() => { localStorage.removeItem('riiiizeNoTrial'); const l = document.getElementById('lock'); if (l) l.remove(); PLAN.go(); });
+    await p.waitForSelector('.wk', { timeout: 8000 });
+    await p.evaluate(() => { const g = document.querySelector('[data-wk-go]'); g.click(); g.click(); g.click(); });
+    await p.waitForSelector('.trial-end', { timeout: 8000 }); await sleep(800);
+    await p.click('[data-trial-back]'); await sleep(1200);
+    const r = await p.evaluate(() => ({ tr: document.querySelectorAll('.trial-end').length, stage: !!document.querySelector('#day-stage.show, #day-stage:not([hidden])') && getComputedStyle(document.getElementById('day-stage') || document.body).display !== 'none' && !!document.getElementById('day-stage') }));
+    if (r.tr) throw new Error('回到手機畫面之後施工中又跑出來了');
+    if (r.stage) throw new Error('回到手機畫面之後還蓋著黑底');
     return p;
   }],
   ['星期日：選人出門 → 22:00 鎖定畫面＋自由探索提醒 → 解鎖', async (b, base) => {

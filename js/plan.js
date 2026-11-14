@@ -44,7 +44,7 @@
       giftMeText: '你把禮物送給了{a}。', giftAskText: '{a}把禮物送給了{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
       dayLine: '{date}\n去了{place}，遇到了{who}。',   // {place} = 地點（舞室、小學…）、{act} = 活動名稱（社團活動、訓練…）
-      dayShort: '{date}　{what}{gain}', goPlace: '去{place}', stayHomeLine: '回家', sunOut: '和{who}出遊', sunOutCard: '出遊', sunHome: '待在家',
+      dayShort: '{date}，{what}。{gain}', gainLabel: '好感度', goPlace: '你去了{place}', stayHomeLine: '你回家了', sunOut: '你和{who}出去玩了', sunHomeLine: '你待在家', sunOutCard: '出遊', sunHome: '待在家',
       weekTitle: '這週的安排', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekMet: '這幾天見到了{who}。', weekAff: '好感', weekPair: '關係', weekNoGain: '這幾天沒有遇到人。'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -265,10 +265,13 @@
 
   // 每天的一句話：「9/16（二）　去舞室　將太郎 +2、元彬 +2」（回家：「9/16（二）　回家」）
   function gainText(fx) {
+    // 「（好感度：將太郎 +2、元彬 +2、將太郎×元彬 +15）」：先每個人的好感，再兩人的關係
     if (!fx || !fx.aff) return '';
-    var ids = cast().map(function (c) { return c.id; }).filter(function (id) { return fx.aff[id]; });
+    var order = cast().map(function (c) { return c.id; });
     var sh = function (id) { var c = cast().filter(function (x) { return x.id === id; })[0] || {}; return c.short || c.name || id; };
-    return ids.length ? '　' + ids.map(function (id) { return sh(id) + ' +' + fx.aff[id]; }).join('、') : '';
+    var parts = order.filter(function (id) { return fx.aff[id]; }).map(function (id) { return sh(id) + ' +' + fx.aff[id]; })
+      .concat(Object.keys(fx.pair || {}).filter(function (k) { return fx.pair[k]; }).map(function (k) { var p = k.split('-'); return sh(p[0]) + '×' + sh(p[1]) + ' +' + fx.pair[k]; }));
+    return parts.length ? '（' + T().gainLabel + '：' + parts.join('、') + '）' : '';
   }
   function shortDate(day) { var d = dateOf(day); return (d.getMonth() + 1) + '/' + d.getDate() + '（' + G().weekday(d).replace('星期', '') + '）'; }
   function shortLine(day, act, fx) {
@@ -335,7 +338,7 @@
           pendWeek({ day: G().day, act: 'sunday', met: [], fx: null });
           // 待在家：平常只有一句話「9/14（日）　待在家」；寫了 chance 的劇情照機率接著播（背景 = plan.homeBg）
           var hs = (w.home || []).filter(function (e) { return ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene) && (e.chance == null || Math.random() < e.chance); })[0];
-          narrate(t.dayShort.replace('{date}', shortDate(G().day)).replace('{what}', t.sunHome).replace('{gain}', ''), function () {
+          narrate(t.dayShort.replace('{date}', shortDate(G().day)).replace('{what}', t.sunHomeLine).replace('{gain}', ''), function () {
             if (hs) window.STORY.play(hs.scene, done, null, C().homeBg); else done();
           }, C().homeBg);
         },
@@ -767,7 +770,7 @@
     if (going) return;
     if (trialLast(G().day) && !(window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting())) {   // 試玩版：最後一天按睡覺 → （星期日：先出這週的卡片）→ 前方施工中
       var wl = dateOf(G().day).getDay() === 0 ? weekLog() : [];
-      if (wl.length && !going) { going = true; try { localStorage.removeItem(WKEY); } catch (e) {} stage(wl[wl.length - 1].day); showWeekCard(wl, function () { going = false; trialBlock(true); }); }
+      if (wl.length && !going) { going = true; try { localStorage.removeItem(WKEY); } catch (e) {} stage(wl[wl.length - 1].day); showWeekCard(wl, function () { going = false; stage(null); trialBlock(true); }); }   // 卡片的黑底拿掉，「回到手機畫面」才看得到手機
       else trialBlock(true);
       return;
     }
@@ -822,7 +825,10 @@
     document.getElementById('phone').appendChild(el);
     document.getElementById('phone').classList.add('story-full');   // 不顯示上面的狀態列
     void el.offsetWidth; el.classList.add('show');
+    var clicked = false;
     el.querySelector('[data-wk-go]').addEventListener('click', function () {
+      if (clicked) return;   // 連點兩下只算一次（不然後面的流程會跑兩次）
+      clicked = true;
       document.getElementById('phone').classList.remove('story-full');
       el.classList.remove('show');
       setTimeout(function () { el.remove(); next(); }, 250);
