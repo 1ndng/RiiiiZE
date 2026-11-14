@@ -166,6 +166,12 @@ const TESTS = [
     const visits = { club: 1, volunteer: 1, home: 1 };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { visits } }));
     await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    // 監看：黑底日期畫面出現幾次；9/8 的一句話出現之後，對話框有沒有消失過
+    await p.evaluate(() => { const w = window.__watch = { date: 0, gap: 0, on: false }; setInterval(() => {
+      if (document.querySelector('.day-fade.text')) w.date++;
+      const v = document.querySelector('.vn.show'); if (v && /9\/8（一）/.test(v.textContent)) w.on = true;
+      if (w.on && !v && !document.querySelector('.vn')) w.gap++;
+      if (v && /9\/9（二）/.test(v.textContent)) w.on = false; }, 30); });
     let t = '';
     for (let i = 0; i < 40 && !/9\/8（一）/.test(t); i++) { t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
     if (!/9\/8（一），你去了舞室。（好感度：(將太郎|元彬|炤熙) \+\d/.test(t)) throw new Error('9/8 的一句話不對：' + t);
@@ -173,6 +179,9 @@ const TESTS = [
     for (let i = 0; i < 60 && !/9\/9（二）/.test(t); i++) { await curScene(p); t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
     if (!/9\/9（二），你去了小學。/.test(t)) throw new Error('9/9 的一句話不對：' + t);
     if (await p.$('.wk')) throw new Error('平日不該出現每週卡片');
+    const w = await p.evaluate(() => window.__watch);
+    if (w.date) throw new Error('只有日程的日子不該出現黑底日期畫面：' + w.date + ' 次');
+    if (w.gap) throw new Error('兩句話之間對話框不該消失（應該直接換字）');
     const log = await p.evaluate(() => JSON.parse(localStorage.getItem('riiiize-weekpend') || '[]').map(x => x.act).join(','));
     if (log !== 'club,volunteer') throw new Error('這週的紀錄不對：' + log);
     return p;
@@ -501,7 +510,9 @@ const TESTS = [
     return p;
   }],
   ['出場動畫：開口第一句之後播影片，3 秒出現介紹台詞，播完停格，點一下才一起消失、接下一句', async (b, base) => {
-    const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' } }));
+    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS }));   // 星期日晚上：不會自己往下一天跑
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); });
+    await sleep(500);
     await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.scenes.__intro = [{ who: 'm1', text: '嗨' }, { intro: 'm1' }, { text: '影片之後' }]; STORY.play('__intro'); });
     await sleep(2600); await p.evaluate(() => document.getElementById('vn-box').click()); await sleep(800);
     if (!(await p.$('.vn-intro video'))) throw new Error('沒有出現影片');

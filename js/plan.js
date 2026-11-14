@@ -282,11 +282,21 @@
 
   /* ---- 一句話帶過（用對話框） ---- */
   // bg = 這句話的背景（日程、回家…）；沒給就用 plan.narrateBg → storyBg
-  function narrate(text, done, bg) {
+  function narrate(text, done, bg, opts) {
     D().scenes = D().scenes || {};
     D().scenes.__narrate = [{ bg: bg || C().narrateBg || D().storyBg || (D().home || {}).wallpaper || '' }, { text: text }];
-    window.STORY.play('__narrate', done);
+    window.STORY.play('__narrate', done, null, null, opts);
   }
+  // 只有日程的日子（沒有主線、節日、生日、送禮、愛情線、聊天，也不是星期日）：不出黑底日期畫面，一句話之間直接換字
+  function plainDay(day) {
+    if (isWeekend(day) || forcedOn(day) || phoneDay(day) || day >= G().totalDays()) return false;
+    if (storyOn(day).length || holidaysOn(day).length || birthdaysOn(day).length || isGiftDay(day) || bondFor(day)) return false;
+    if (window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatFor(G().md(day))) return false;
+    if (specialFor(day, plannedOn(day))) return false;
+    return !!(plannedOn(day) || homeDay(day));
+  }
+  function held() { return !!(window.STORY && window.STORY.held && window.STORY.held()); }
+  function dropHeld(fast) { if (window.STORY && window.STORY.dropHeld) window.STORY.dropHeld(fast); }
   function playIf(id, done, bg) { if (id && scene(id)) window.STORY.play(id, done, null, bg); else done(); }
   function series(fns, done) { var i = 0; (function next() { if (i >= fns.length) { done(); return; } fns[i++](next); })(); }
 
@@ -477,7 +487,7 @@
         // 每個平日最先一句話：「9/16（二）　去舞室　將太郎 +2」，然後才是當天的劇情；記進這週的紀錄（星期日結束後的卡片用）
         var lineAt = 0, addLine = function (a, fx, met) {
           var txt = shortLine(day, a, fx);
-          steps.splice(lineAt, 0, function (next) { narrate(txt, next, bgOf(a)); });
+          steps.splice(lineAt, 0, function (next) { narrate(txt, next, bgOf(a), { hold: true, reuse: true }); });   // 對話框留著：明天也只有一句話 → 直接換字
           pendWeek({ day: day, act: a, met: met || [], fx: fx });
         };
         if (act) {
@@ -656,6 +666,7 @@
     (function loop() {
       while (day <= G().totalDays()) {
         if (needPlan(day)) {
+          dropHeld();
           var first = !S().hasFlag('plan_tutorial');
           var open = function () { planner(day, loop); };
           flush(function () { if (first) { S().setFlag('plan_tutorial'); tutorial(open); } else open(); });
@@ -713,12 +724,13 @@
     return '<div><b>' + (d.getMonth() + 1) + '月' + d.getDate() + '日</b><span>' + esc(G().weekday(d)) + '</span>' + (label ? '<em class="day-label">' + esc(label) + '</em>' : '') + '</div>';
   }
   // 不能用手機的日子：蓋在主畫面上的黑底日期畫面（劇情在它上面播）
-  function stage(day) {
+  // plain = 只有日程的日子：一片黑、不顯示日期（對話框直接換字）
+  function stage(day, plain) {
     var el = document.getElementById('day-stage');
-    document.getElementById('phone').classList.remove('story-full');   // 劇情之間藏起來的狀態列：換天、回到手機時放回來
+    if (!plain) document.getElementById('phone').classList.remove('story-full');   // 劇情之間藏起來的狀態列：換天、回到手機時放回來
     if (day == null) { if (el) el.remove(); if (S()) S().setDarkStatus(false); return; }
     if (!el) { el = document.createElement('div'); el.id = 'day-stage'; el.className = 'day-stage'; document.getElementById('phone').appendChild(el); }
-    el.innerHTML = dateHTML(day); el.classList.remove('blank');
+    el.innerHTML = dateHTML(day); el.classList.toggle('blank', !!plain);
     if (S()) S().setDarkStatus(true);
   }
   /* ---- 試玩版：到 game.trialEnd 那天開始前停下來（後面還在製作中），可以存檔、回到標題畫面 ---- */
@@ -750,7 +762,7 @@
       msg.textContent = (t.saved || '已存到「存檔 {n}」').replace('{n}', id); msg.hidden = false;
     });
   }
-  function startDay() {
+  function startDay(plain) {
     var day = G().day;
     if (trialBlocked()) { trialBlock(); return; }
     if (location.hash !== '#/home') location.hash = '#/home';
@@ -763,7 +775,7 @@
       var lk = document.getElementById('lock');   // 頁面上原本放鎖定畫面的空位：不用鎖的日子拿掉
       if (lk) lk.remove();
       document.getElementById('phone').classList.remove('locked');
-      stage(day); G().start();
+      stage(day, plain); G().start();
     }
   }
   var chaining = false;
@@ -771,6 +783,7 @@
     if (going) return;
     if (trialLast(G().day) && !(window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting())) {   // 試玩版：最後一天按睡覺 → （星期日：先出這週的卡片）→ 前方施工中
       var wl = dateOf(G().day).getDay() === 0 ? weekLog() : [];
+      dropHeld();
       if (wl.length && !going) { going = true; try { localStorage.removeItem(WKEY); } catch (e) {} stage(wl[wl.length - 1].day); showWeekCard(wl, function () { going = false; stage(null); trialBlock(true); }); }   // 卡片的黑底拿掉，「回到手機畫面」才看得到手機
       else trialBlock(true);
       return;
@@ -778,24 +791,31 @@
     // 每日聊天還沒聊完（包括兩段之間的空檔）：不能睡覺
     if (chaining || (window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting())) return;
     // 8/31 晚上睡覺 = 一年結束 → 時間循環，回到 9/1（例如讀了「循環前的存檔」之後）
-    if (G().day >= G().totalDays() && !G().ended) { going = true; G().newLoop(); return; }
+    if (G().day >= G().totalDays() && !G().ended) { dropHeld(); going = true; G().newLoop(); return; }
     going = true;
-    var f = fadeEl();
+    // 前一天只有一句話（對話框還留著）：先不變暗，看下一天是不是也只有一句話
+    var keep = held(), f = keep ? null : fadeEl();
     setTimeout(function () {
       sleep(function () {
-        if (!f.parentNode) f = fadeEl();   // 中間播過一句話：重新變暗
-        f.innerHTML = dateHTML(G().day);
-        f.classList.add('text');
-        startDayAfter(f);
+        if (plainDay(G().day)) {   // 只有日程：不出日期畫面，直接開始（對話框留著 → 直接換字）
+          going = false;
+          startDay(true);
+          if (f) { var of = f; of.classList.remove('show'); setTimeout(function () { of.remove(); }, 700); }
+          return;
+        }
+        var show = function () { f.innerHTML = dateHTML(G().day); f.classList.add('text'); startDayAfter(f); };
+        if (!f || !f.parentNode) { f = fadeEl(); setTimeout(function () { dropHeld(true); show(); }, 600); }   // 變暗之後才收起留著的對話框
+        else show();
       }, function (week, next) {
         // 這週的安排：黑底日期畫面上一次列出這幾天去了哪裡、遇到誰
-        if (f.parentNode) { f.classList.remove('show'); var old = f; setTimeout(function () { old.remove(); }, 600); }
+        dropHeld();
+        if (f && f.parentNode) { f.classList.remove('show'); var old = f; setTimeout(function () { old.remove(); }, 600); }
         var lk = document.getElementById('lock'); if (lk) lk.remove();
         document.getElementById('phone').classList.remove('locked');
         stage(week[week.length - 1].day);
         weekCard(week, next);
       });
-    }, 600);
+    }, keep ? 0 : 600);
   }
   // 「這週的安排」卡片：每天一行（日期、日程、遇到誰的大頭照），點「繼續」往下；這幾天的隨機劇情會先播完，卡片最後才出現
   function weekCard(week, next) {
@@ -960,6 +980,7 @@
   if (window.GAME) G().onNight(function () {
     // 今天有每日聊天（data.js 的 kakao.dayChats）：主線劇情結束 → 打開手機、自動進入聊天室
     var K = window.SOSHO_KAKAO, chat = K && K.dayChatFor(G().md(G().day));
+    if (chat || phoneDay(G().day)) dropHeld();
     if (chat) {
       var free = phoneDay(G().day);
       G().setClock((D().game || {}).nightTime || '22:00');

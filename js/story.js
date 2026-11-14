@@ -135,14 +135,25 @@
   function remember(id) { var r = remembered(); if (r[id]) return; r[id] = 1; try { localStorage.setItem(RKEY, JSON.stringify(r)); } catch (e) {} }
   // 兩段劇情之間至少隔 storyGap 毫秒（data.js，預設 2000）：上一段結束到下一段開始
   var lastEnd = 0, waitingPlay = false;
+  // opts.hold = 結束後對話框先留在畫面上（只有一句話的日子）；下一段用 opts.reuse 播 → 直接換字，不轉場
+  var held = null;
+  function dropHeld(fast) {
+    var h = held; held = null;
+    if (!h) return;
+    if (fast) { h.remove(); return; }
+    h.classList.remove('show'); setTimeout(function () { h.remove(); }, 400);
+    if (S()) S().setDarkStatus(false);
+  }
   // opts.replay = 回想：不套用效果、不記旗標、不能存檔、遇到結局就停（設定 → 劇情回想、結局圖鑑）
   function play(id, done, resume, bg, opts) {
     var steps = (resume && resume.steps) || (D().scenes || {})[id];
     var replay = !!(opts && opts.replay);
     if (!steps || !steps.length || cur) { done && done(); return; }
+    var reuse = !!(held && opts && opts.reuse);
+    if (held && !reuse) dropHeld();
     var gap = (D().storyGap != null ? D().storyGap : 2000) - (Date.now() - lastEnd);
     // opts.noGap = 不等兩段劇情之間的間隔（例如自由探索的提醒要馬上跳出來）
-    if (gap > 0 && !resume && !replay && !(opts && opts.noGap)) { waitingPlay = true; setTimeout(function () { waitingPlay = false; play(id, done, resume, bg, opts); }, gap); return; }
+    if (gap > 0 && !resume && !replay && !reuse && !(opts && opts.noGap)) { waitingPlay = true; setTimeout(function () { waitingPlay = false; play(id, done, resume, bg, opts); }, gap); return; }
     var t = T(), el = document.createElement('div');
     el.className = 'vn' + (opts && opts.overLock ? ' over-lock' : '');   // overLock = 蓋在鎖定畫面上（自由探索的提醒）
     el.innerHTML =
@@ -155,10 +166,12 @@
         ((window.ENDING && window.ENDING.running()) || replay ? '' : '<button type="button" data-vn-save>' + esc(t.save) + '</button>') + '</div>' +
       '<div class="vn-choices" id="vn-choices"></div>' +
       '<div class="vn-box" id="vn-box"><img class="vn-face" id="vn-face" alt="" hidden><div class="vn-who" id="vn-who"></div><div class="vn-text" id="vn-text"></div><i class="vn-next"></i></div>';
+    if (reuse) el.classList.add('instant', 'show');   // 接在留著的對話框上：一下子換過去（看起來只是換字）
     document.getElementById('phone').appendChild(el);
-    void el.offsetWidth; el.classList.add('show');
+    if (reuse) { dropHeld(true); setTimeout(function () { el.classList.remove('instant'); }, 50); }
+    else { void el.offsetWidth; el.classList.add('show'); }
     if (S()) S().setDarkStatus(true);
-    cur = { id: id, steps: steps, i: 0, el: el, log: [], done: done, replay: replay };
+    cur = { id: id, steps: steps, i: 0, el: el, log: [], done: done, replay: replay, hold: !!(opts && opts.hold) };
     setBg(bg || D().storyBg || '');   // 預設背景：日程的背景 → data.js 的 storyBg；劇情裡寫 { bg } 會換掉
     if (resume) {
       cur.i = resume.at || 0; cur.log = resume.log || []; cur.resuming = true;
@@ -478,6 +491,7 @@
     // 黑幕中間：狀態列也藏起來（下一段劇情、或換天時 plan.js 的 stage() 再決定要不要顯示）
     if (!ds) document.getElementById('phone').classList.remove('story-full');
     if (S() && !c.replay) { S().setFlag('scene_' + c.id); remember(c.id); }
+    if (c.hold && !c.ending) { held = c.el; c.done && c.done(); return; }   // 對話框留著，等下一句（或被收起來）
     c.el.classList.remove('show');
     setTimeout(function () { c.el.remove(); }, 400);
     if (S()) S().setDarkStatus(false);
@@ -656,6 +670,7 @@
       if (!ms) { clue(c); return; }
       setTimeout(function () { if (location.hash === h) clue(c); }, ms);
     },
+    held: function () { return !!held; }, dropHeld: dropHeld,
     play: play, fill: fill, playerName: playerName, playerNick: playerNick,
     // 現在正在播的劇情 id（沒有 = null；背景音樂用）；clueBusy = 找到線索後的強制聊天／留言進行中
     scene: function () { return cur ? cur.id : null; },

@@ -3,6 +3,7 @@
  * ========================================================= */
 .vn { position: absolute; inset: 0; z-index: 48; background: #111; color: #fff; opacity: 0; transition: opacity .4s; cursor: pointer; user-select: none; -webkit-user-select: none; overflow: hidden; }
 .vn.show { opacity: 1; }
+.vn.instant, .vn.instant .vn-bg { transition: none; }   /* 只有一句話的日子：直接換字 */
 .vn-bg { position: absolute; inset: 0; background: #222 center / cover no-repeat; opacity: 0; transition: opacity .6s; }
 .vn-bg.in { opacity: 1; }
 /* 劇情中途換場景：漸黑 → 換背景 → 漸亮（js/story.js 的 cut）；黑屏時對話框、頭像不出現 */
