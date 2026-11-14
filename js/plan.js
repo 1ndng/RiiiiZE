@@ -309,7 +309,7 @@
     function render() {
       el.innerHTML = '<div class="sch-in"><small>' + esc(G().dateText(null, true)) + '</small><b>' + esc(opt.title) + '</b>' +
         (opt.hint ? '<p>' + esc(opt.hint) + '</p>' : '') +
-        (opt.buttons ? '<div class="sch-col">' + opt.buttons.map(function (b, i) { return '<button type="button" data-btn="' + i + '">' + esc(b.label) + '</button>'; }).join('') + '</div>'
+        (opt.buttons ? '<div class="sch-col' + (opt.same ? ' same' : '') + '">' + opt.buttons.map(function (b, i) { return '<button type="button" data-btn="' + i + '">' + esc(b.label) + '</button>'; }).join('') + '</div>'
           : '<div class="sch-cast">' + cast().filter(function (c) { return (opt.exclude || []).indexOf(c.id) < 0; }).map(function (c) {
               var k = picked.indexOf(c.id);
               return '<button type="button" data-meet="' + esc(c.id) + '"' + (k >= 0 ? ' class="on"' : '') + '><img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""><span>' + esc(c.name) + '</span>' +
@@ -431,7 +431,7 @@
    *   done({ kind: 'aff' | 'pair', ids }）；noFx = 回想，不加數值 */
   function wish(opt, done, noFx) {
     var t = T(), aff = opt.aff != null ? opt.aff : 6, pair = opt.pair != null ? opt.pair : 15;
-    chooser({ title: t.wishTitle || '許一個願望', hint: t.wishHint != null ? t.wishHint : '這是一個增加好感度的好機會。', buttons: [
+    chooser({ title: t.wishTitle || '許一個願望', hint: t.wishHint != null ? t.wishHint : '這是一個增加好感度的好機會。', same: true, buttons: [
       { label: t.wishAff || '希望和一個人更親近', run: function () {
         chooser({ title: t.wishPickOne || '和誰？', max: 1, min: 1, goLabel: t.giftOk, altLabel: t.back,
           onAlt: function () { wish(opt, done, noFx); },

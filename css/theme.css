@@ -121,6 +121,7 @@
 .sch-cast button.on { background: #fff !important; border-color: #a3487f !important; }
 .sch-cast button i { color: #a3487f; }
 .sch-col button:last-child, .sch-home { background: rgba(255, 240, 248, .75) !important; }
+.sch-col.same button:last-child { background: var(--pk-plate) !important; }   /* 許願：兩個按鈕一樣的顏色 */
 .sch-go:disabled { opacity: .45; }
 
 /* ---------- 每月安排 ---------- */
@@ -297,6 +298,7 @@
 .blk-chip.on { background: rgba(120, 110, 118, .55) !important; color: #fff; border-color: rgba(120, 110, 118, .8); }
 .blk-chip.on img { filter: grayscale(1) opacity(.6); }
 .blk-chip.on::after { content: "✕"; position: absolute; top: 1px; right: 4px; font-size: 11px; color: #fff; }
-.vn-name-wide form { max-height: 92%; overflow-y: auto; }
+.vn-name-wide form { max-height: 92%; overflow-y: auto; padding-bottom: 34px; }
+.vn-name-wide .ob-btns { margin-bottom: 8px; }   /* 配對禁止：按鈕離下邊框遠一點 */
 .blk-me .blk-chip span { white-space: nowrap; font-size: 11px; letter-spacing: -.02em; }
 .blk-pair { font-size: 17px !important; letter-spacing: .08em; }

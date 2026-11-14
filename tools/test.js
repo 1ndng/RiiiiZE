@@ -173,7 +173,7 @@ const TESTS = [
       if (w.on && !v && !document.querySelector('.vn')) w.gap++;
       if (v && /9\/9（二）/.test(v.textContent)) w.on = false; }, 30); });
     let t = '';
-    for (let i = 0; i < 40 && !/9\/8（一）/.test(t); i++) { t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
+    for (let i = 0; i < 40 && !/9\/8（一）.*）$/.test(t); i++) { t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
     if (!/9\/8（一），你去了舞室。（好感度：(將太郎|元彬|炤熙) \+\d/.test(t)) throw new Error('9/8 的一句話不對：' + t);
     // 點掉 → 自動往下一天（9/9 小學）
     for (let i = 0; i < 60 && !/9\/9（二）/.test(t); i++) { await curScene(p); t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
@@ -196,7 +196,7 @@ const TESTS = [
       const w = window.__watch = { date: 0 }; setInterval(() => { if (document.querySelector('.day-fade.text')) w.date++; }, 30);
       const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     let t = '';
-    for (let i = 0; i < 40 && !/9\/8（一）/.test(t); i++) { t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
+    for (let i = 0; i < 40 && !/9\/8（一）.*）$/.test(t); i++) { t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(250); }
     for (let i = 0; i < 60 && !/測試節日/.test(t); i++) { await curScene(p); t = await p.evaluate(() => (document.querySelector('.vn.show') || {}).textContent || ''); await sleep(250); }
     if (!/測試節日/.test(t)) throw new Error('9/9 沒有播節日：' + t);
     const w = await p.evaluate(() => window.__watch);
@@ -264,7 +264,7 @@ const TESTS = [
     return p;
   }],
   ['劇情回想：送禮、愛情線、CP 線看過的才打開；設定首頁有總收集率', async (b, base) => {
-    const flags = Object.assign({ scene_gift_m4: 1, scene_love_m4_1: 1, scene_cp_m4_m6_1: 1 }, NIGHT7_FLAGS);
+    const flags = Object.assign({ scene_gift_m4: 1, scene_d0901: 1, scene_love_m4_1: 1, scene_cp_m4_m6_1: 1 }, NIGHT7_FLAGS);
     const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': flags }));
     await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); location.hash = '#/settings'; });
     await p.waitForSelector('[data-collect]', { timeout: 8000 });
@@ -283,6 +283,15 @@ const TESTS = [
         const lock = await p.$$eval('.st-rp-item[disabled] b', a => a.map(x => x.textContent));
         if (!lock.some(x => /^元彬　？？？$/.test(x))) throw new Error('鎖住的愛情線要顯示是誰：' + lock.slice(0, 3).join('｜'));
       }
+    }
+    // 主線、節日與生日：鎖住只有 ？？？；主線看過只顯示日期。日程（固定）鎖住只顯示地點
+    const want = { '主線': /^？？？$/, '節日與生日': /^？？？$/, '日程（固定）': /^[^第？　]+　？？？$/ };
+    for (const t in want) {
+      const c = cats.find(x => x[0] === t); if (!c) throw new Error('回想少了「' + t + '」');
+      await p.evaluate(h => { location.hash = h; }, c[1]); await sleep(400);
+      const lock = await p.$$eval('.st-rp-item[disabled] b', a => a.map(x => x.textContent));
+      const bad = lock.filter(x => !want[t].test(x)); if (bad.length) throw new Error(t + ' 鎖住的樣子不對：' + bad.slice(0, 3).join('｜'));
+      if (t === '主線') { const op = await p.$$eval('[data-rp] b', a => a.map(x => x.textContent)); if (!op.length || op.some(x => !/^\d+\/\d+$/.test(x))) throw new Error('看過的主線只顯示日期：' + op.slice(0, 3).join('｜')); }
     }
     for (const id of ['gift_m4', 'love_m4_1', 'cp_m4_m6_1']) if (openIds.indexOf(id) < 0) throw new Error(id + ' 應該打開');
     if (openIds.indexOf('love_m4_2') >= 0) throw new Error('沒看過的 love_m4_2 不該打開');

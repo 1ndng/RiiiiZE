@@ -247,13 +247,13 @@
     var groups = [];
     var main = (d.story || []).filter(function (e) { return sc[e.scene] && e.scene !== 'final_choice'; }).slice()
       .sort(function (a, b) { return ord(a.date) - ord(b.date) || (a.phase === 'morning' ? -1 : 1); })
-      .map(function (e) { return { id: e.scene, label: md(e.date), sub: first(e.scene), bg: e.activity && acts[e.activity] ? acts[e.activity].bg : '' }; });
-    if (sc.final_choice) main.push({ id: 'final_choice', label: '8/31', sub: '最後的選擇' });
+      .map(function (e) { return { id: e.scene, label: md(e.date), sub: '', anon: true, bg: e.activity && acts[e.activity] ? acts[e.activity].bg : '' }; });   // 主線：看過只顯示日期；沒看過只有 ？？？
+    if (sc.final_choice) main.push({ id: 'final_choice', label: '8/31', sub: '', anon: true });
     groups.push({ title: '主線', items: main });
-    var hb = (plan.holidays || []).filter(function (h) { return sc[h.scene]; }).map(function (h) { return { o: ord(h.date), id: h.scene, label: md(h.date), sub: h.title }; })
-      .concat(cast.filter(function (c) { return sc['birthday_' + c.id]; }).map(function (c) { return { o: ord(c.birthday), id: 'birthday_' + c.id, label: md(c.birthday), sub: nameOf(c) + '生日', who: nameOf(c) }; }))
+    var hb = (plan.holidays || []).filter(function (h) { return sc[h.scene]; }).map(function (h) { return { o: ord(h.date), id: h.scene, label: md(h.date), sub: h.title, anon: true }; })
+      .concat(cast.filter(function (c) { return sc['birthday_' + c.id]; }).map(function (c) { return { o: ord(c.birthday), id: 'birthday_' + c.id, label: md(c.birthday), sub: nameOf(c) + '生日', anon: true }; }))
       .sort(function (a, b) { return a.o - b.o; });
-    if (sc.birthday_me) hb.push({ id: 'birthday_me', label: '', sub: '我的生日', who: '我' });
+    if (sc.birthday_me) hb.push({ id: 'birthday_me', label: '', sub: '我的生日', anon: true });
     groups.push({ title: '節日與生日', items: hb });
     var wk = (plan.weekend || {});
     // 星期日：單人、兩人（固定＋特別）、待在家
@@ -279,7 +279,7 @@
     var fixed = [], rand = [];
     Object.keys(sc).forEach(function (k) {
       var m = /^act_(\w+?)_(\d+)$/.exec(k), r = /^rand_(\w+?)_(\w+)$/.exec(k);
-      if (m && acts[m[1]]) fixed.push({ o: actOrder.indexOf(m[1]) * 1000 + (+m[2]), id: k, label: acts[m[1]].label, sub: '第 ' + m[2] + ' 次', bg: acts[m[1]].bg, who: acts[m[1]].label + '　第 ' + m[2] + ' 次' });
+      if (m && acts[m[1]]) fixed.push({ o: actOrder.indexOf(m[1]) * 1000 + (+m[2]), id: k, label: acts[m[1]].label, sub: '第 ' + m[2] + ' 次', bg: acts[m[1]].bg, who: acts[m[1]].label });   // 鎖住：只顯示地點（不顯示第幾次）
       if (r && acts[r[1]]) rand.push({ o: actOrder.indexOf(r[1]) * 1000 + (r[2] === 'me' ? 999 : r[2].length * 100 + (+r[2])), id: k, label: acts[r[1]].label,
         sub: r[2] === 'me' ? '跟自己對話' : r[2].split('').map(function (n) { var c = byNo[+n]; return c ? (c.emoji || nameOf(c)) : n; }).join(''), bg: acts[r[1]].bg,
         who: acts[r[1]].label + '　' + (r[2] === 'me' ? '我' : r[2].split('').map(function (n) { return nameOf(byNo[+n]); }).join('×')) });
@@ -341,7 +341,7 @@
     return o;
   }
   // 劇情回想：先選類型（主線、節日、出遊……），再列出那一類的劇情
-  //   鎖住（沒看過）的：顯示是誰的劇情（who；沒有 who 就顯示 label，例如主線的日期），內容是「？？？」
+  //   鎖住（沒看過）的：顯示是誰的劇情（who；沒有 who 就顯示 label），內容是「？？？」；主線、節日與生日（anon）只有「？？？」
   function renderReplay(cat) {
     var t = T(), seen = window.STORY.seenScenes(), groups = replayGroups().filter(function (g) { return g.items.length; }), body = '', head = t.replay, back = '#/settings';
     var g = cat != null ? groups[+cat] : null;
@@ -349,7 +349,7 @@
       head = g.title; back = '#/settings/replay';
       var got = g.items.filter(function (it) { return seen[it.id]; }).length;
       body = '<div class="st-group st-rp">' + g.items.map(function (it) {
-        var open = !!seen[it.id], who = it.who || it.label;
+        var open = !!seen[it.id], who = it.anon ? '' : it.who || it.label;   // anon = 鎖住時連日期、是誰都不顯示，只有 ？？？
         return '<button type="button" class="st-slot st-rp-item"' + (open ? ' data-rp="' + esc(it.id) + '" data-rpbg="' + esc(it.bg || '') + '"' : ' disabled') + '>' +
           '<b>' + (open ? esc(it.label) + (it.label && it.sub ? '　' : '') + esc(it.sub)
             : (who ? esc(who) + '　' : '') + '<span class="st-dim">' + esc(t.locked) + '</span>') + '</b></button>';
