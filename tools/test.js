@@ -247,6 +247,10 @@ const TESTS = [
     const got = await p.$$eval('[data-pday]', a => a.reduce((o, x) => { const k = x.querySelector('.blk'); o[x.dataset.pday] = k ? k.dataset.act : ''; return o; }, {}));
     const want = { '10-13': 'club', '10-20': 'club', '10-27': 'club', '10-14': 'council', '10-28': 'council', '10-08': 'games', '10-22': 'games', '10-15': 'games', '10-09': '', '10-10': '', '10-11': '' };
     for (const k in want) if (got[k] !== want[k]) throw new Error(k + ' 應該是「' + want[k] + '」，現在是「' + got[k] + '」');
+    // 有主線的日子（10/24）不能安排日程：格子上寫「主線」
+    if ('10-24' in got) throw new Error('10/24 有主線，不該能安排日程');
+    const c24 = await p.evaluate(() => [...document.querySelectorAll('.pl-day')].filter(d => (d.querySelector('b') || {}).textContent === '24')[0].textContent);
+    if (!/主線/.test(c24)) throw new Error('10/24 的格子應該寫「主線」：' + c24);
     return p;
   }],
   ['KakaoTalk：好感的愛心照好感填滿（元彬 225 / 告白 450 = 50%）', async (b, base) => {

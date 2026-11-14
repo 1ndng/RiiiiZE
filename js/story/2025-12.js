@@ -8,7 +8,6 @@ RIIIZE_ADD({
     { date: "12-05", phase: "afterschool", scene: "d1205" },   // 12 月：第一場雪（恩奭的冷笑話變少，成燦幫他代言）
     { date: "12-10", phase: "afterschool", scene: "d1210" },   // 12 月：學生會自習（將太郎夢見白色的房間）
     { date: "12-19", phase: "afterschool", scene: "d1219" },   // 12 月：期末考結束、聖誕派對計畫（抽交換禮物）
-    { date: "12-26", phase: "afterschool", scene: "d1226" }   // 12 月：結業式、寒假計畫
   ],
 
   // 劇情（data.js 的 scenes）
@@ -248,30 +247,6 @@ RIIIZE_ADD({
       { text: "你把紙條摺好，放進口袋。" },
       { text: "窗外，天已經黑了。學校的聖誕樹亮了起來。" }
     ],
-    d1226: [
-      { bg: "images/bg/council.jpg" },
-      { text: "結業式結束，寒假開始了。" },
-      { text: "學生會辦公室裡，大家圍著白板，上面寫著四個大字：" },
-      { text: "「寒假計畫」" },
-      { who: "m3", text: "我們要瘋狂玩樂！！！" },
-      { who: "m1", text: "瘋狂玩樂~♪" },
-      { who: "m4", text: "……先、先寫作業。" },
-      { who: "m3", text: "元彬你好掃興！" },
-      { text: "最後白板上的計畫是：跨年一起倒數、元旦看日出、去滑雪、KTV 通宵、網咖通宵、還有元彬堅持加上的「寫作業」。" },
-      { who: "m5", text: "{name}，你想去哪裡？" },
-      { choices: [
-        { text: "「滑雪！」", effects: { aff: { m3: 1, m5: 1 } } },
-        { text: "「哪裡都好，大家一起就好。」", effects: { aff: { m1: 1, m2: 1, m6: 1 } } }
-      ] },
-      { who: "m6", text: "寒假好長……可以一直跟大家在一起。" },
-      { who: "m2", text: "寒假會結束的。" },
-      { who: "m6", text: "恩奭哥！" },
-      { who: "m2", text: "……所以，要好好玩。" },
-      { text: "恩奭說完，把白板上的「寫作業」擦掉了。" },
-      { who: "m4", text: "宋恩奭。" },
-      { who: "m2", text: "手滑。" },
-      { who: "me", text: "（那個「手滑」有整整三個字那麼長。）" }
-    ],
     d1231: [
       { bg: "images/bg/wander.jpg" },
       { text: "12 月 31 日。晚上十一點。" },
@@ -342,17 +317,6 @@ RIIIZE_ADD({
         { text: "我已經想好要送什麼了", reply: [{ from: "f1", text: "好期待~~♪" }, { from: "f5", text: "{name}不要送奇怪的東西" }], effects: { aff: { m1: 1, m5: 1 } } }
       ] }
     ] },
-    { date: "12-26", room: "g_council", steps: [
-      { from: "f3", text: "寒假開始！！！瘋狂玩樂！！！" },
-      { from: "f1", text: "瘋狂玩樂~~~♪" },
-      { from: "f4", text: "作業" },
-      { from: "f2", text: "（宋恩奭已將「作業」移出群組）" },
-      { from: "f6", text: "ㅋㅋㅋㅋㅋㅋ" },
-      { choices: [
-        { text: "跨年要去哪裡看煙火？", reply: [{ from: "f3", text: "漢江！！！" }, { from: "f5", text: "會很冷" }, { from: "f3", text: "我帶暖暖包！一人三個！" }], effects: { aff: { m3: 2 } } },
-        { text: "元彬說得對，先寫作業", reply: [{ from: "f4", text: "終於有人懂我" }, { from: "f3", text: "{name}背叛了！！！" }], effects: { aff: { m4: 2 } } }
-      ] }
-    ] }
   ],
 
   // X 貼文（data.js 的 x.tweets）

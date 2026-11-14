@@ -6,7 +6,6 @@ RIIIZE_ADD({
   // 主線排程（data.js 的 story）
   story: [
     { date: "07-01", phase: "afterschool", scene: "s0701" },   // 7 月：暑假開始
-    { date: "07-10", phase: "afterschool", scene: "s0710" },   // 7 月：海邊
     { date: "07-17", phase: "afterschool", scene: "s0717" },   // 7 月：KTV 通宵（燦榮寫給成燦的歌）
     { date: "07-25", phase: "afterschool", scene: "s0725" }   // 7 月：夏日祭典
   ],
@@ -37,30 +36,6 @@ RIIIZE_ADD({
         { text: "「先去海邊！」", effects: { aff: { m1: 1, m3: 1 } } }
       ] },
       { text: "最後，「作業」還是被寫在了最下面。只是字比寒假的時候小很多。" }
-    ],
-    s0710: [
-      { bg: "images/bg/wander.jpg" },
-      { text: "暑假瘋狂玩樂，第一站：海邊。" },
-      { text: "七個人坐了好幾個小時的火車，終於看到了海。" },
-      { who: "m6", text: "海！！！" },
-      { text: "燦榮第一個衝進海裡——他是游泳隊的，游得比誰都快。" },
-      { text: "成燦想追，結果被浪打回岸上。" },
-      { who: "me", text: "（被海浪退貨的鄭成燦。）" },
-      { text: "將太郎和恩奭坐在遮陽傘下，一個在吃冰，一個在睡覺。" },
-      { text: "元彬在幫炤熙擦防曬，炤熙一直說「哥，我自己可以」。" },
-      { who: "m4", text: "背、背後你擦不到。" },
-      { text: "傍晚，大家坐在沙灘上看夕陽。" },
-      { who: "m1", text: "在日本的時候，我家附近也有海。" },
-      { who: "m1", text: "小時候，我常常一個人在海邊跳舞。" },
-      { who: "m1", text: "現在……有你們了^^" },
-      { text: "海浪的聲音很大，可是將太郎的聲音，你聽得很清楚。" },
-      { text: "晚上，大家在民宿的院子裡放仙女棒。" },
-      { choices: [
-        { text: "和將太郎一起放", effects: { aff: { m1: 2 } } },
-        { text: "和燦榮一起放", effects: { aff: { m6: 2 } } },
-        { text: "一個人看著大家放", effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } }
-      ] },
-      { text: "仙女棒的火花很小、很短。可是七支一起點，就很亮。" }
     ],
     s0717: [
       { bg: "images/bg/karaoke.jpg" },
@@ -129,7 +104,6 @@ RIIIZE_ADD({
 
   // X 貼文（data.js 的 x.tweets）
   tweets: [
-    { id: "x0710", by: "shotaroo0", from: "07-10", date: "下午 9:10 · 2026/7/10", time: "7月10日", text: "海🌊\n現在有大家了。" },
     { id: "x0725", by: "seokkkk", from: "07-25", date: "下午 10:25 · 2026/7/25", time: "7月25日", text: "撈到一隻金魚。名字叫冷笑話。\n因為牠很冷靜。" }
   ]
 });

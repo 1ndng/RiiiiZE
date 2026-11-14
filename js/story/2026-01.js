@@ -8,7 +8,6 @@ RIIIZE_ADD({
     { date: "01-06", phase: "afterschool", scene: "j0106" },   // 1 月寒假：滑雪
     { date: "01-16", phase: "afterschool", scene: "j0116" },   // 1 月寒假：KTV 通宵（成燦唱不出來）
     { date: "01-21", phase: "afterschool", scene: "j0121" },   // 1 月寒假：網咖通宵（炤熙和恩奭的師徒對話）
-    { date: "01-28", phase: "afterschool", scene: "j0128" }   // 1 月寒假：寒假的尾聲
   ],
 
   // 劇情（data.js 的 scenes）
@@ -131,32 +130,6 @@ RIIIZE_ADD({
         { text: "把這件事好好藏在心裡", effects: { aff: { m5: 3 } } }
       ] }
     ],
-    j0128: [
-      { bg: "images/bg/council.jpg" },
-      { text: "寒假過了一大半。" },
-      { text: "今天大家約在學生會辦公室——明明放假，卻還是習慣來這裡。" },
-      { text: "白板上的「寒假計畫」，已經一項一項被打了勾。" },
-      { text: "跨年、日出、滑雪、KTV 通宵、網咖通宵。" },
-      { text: "最下面那行被恩奭擦掉的「寫作業」，又被元彬用很大的字寫了回去。" },
-      { who: "me", text: "（字大到我在門口就看到了。）" },
-      { who: "m4", text: "還剩這個。" },
-      { who: "m3", text: "……元彬，寒假還沒結束啦！" },
-      { who: "m4", text: "寒假還剩不到一個月。" },
-      { text: "全場安靜了三秒，然後大家同時拿出了作業本。" },
-      { who: "me", text: "（我連作業本放在哪裡都不記得了TT）" },
-      { text: "寫到一半，燦榮抬頭看著白板。" },
-      { who: "m6", text: "我們的寒假，好像特別長。" },
-      { who: "m6", text: "長到我覺得……好像過了好幾個寒假。" },
-      { text: "沒有人回答他。" },
-      { text: "過了很久，將太郎才說：" },
-      { who: "m1", text: "那就好。長一點，就可以跟大家多待一點^^" },
-      { choices: [
-        { text: "「下一個寒假也要一起。」", effects: { aff: { m1: 2, m6: 1 } } },
-        { text: "默默把自己的作業推給燦榮抄", effects: { aff: { m6: 3 } } }
-      ] },
-      { who: "m4", text: "……我、我看到了。" },
-      { who: "me", text: "（被抓包了==）" }
-    ]
   },
 
   // 每晚聊天（data.js 的 kakao.dayChats）
@@ -198,6 +171,5 @@ RIIIZE_ADD({
     { id: "x0106", by: "sungchan913", from: "01-06", date: "下午 9:30 · 2026/1/6", time: "1月6日", text: "滑雪！！！我摔了 27 次！！！" },
     { id: "x0116", by: "sungchan913", from: "01-16", date: "上午 5:40 · 2026/1/17", time: "1月17日", text: "有你們在，每一天都會不一樣。" },
     { id: "x0121", by: "seokkkk", from: "01-21", date: "上午 4:12 · 2026/1/21", time: "1月21日", text: "喊了，就會去。" },
-    { id: "x0128", by: "antonnie", from: "01-28", date: "下午 8:08 · 2026/1/28", time: "1月28日", text: "this winter feels so long.\n好像過了好幾個寒假。" }
   ]
 });

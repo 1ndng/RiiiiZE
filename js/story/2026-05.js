@@ -5,7 +5,6 @@
 RIIIZE_ADD({
   // 主線排程（data.js 的 story）
   story: [
-    { date: "05-13", phase: "afterschool", scene: "y0513" },   // 5 月：期末考讀書會
     { date: "05-20", phase: "afterschool", scene: "y0520" },   // 5 月：熱舞社成果發表（將太郎用做得到的方式跳完）
     { date: "05-27", phase: "afterschool", scene: "y0527" },   // 5 月：炤熙把作品給想給的人
     { date: "05-29", phase: "afterschool", scene: "y0529" }   // 5 月：期末考結束
@@ -35,24 +34,6 @@ RIIIZE_ADD({
         { text: "拿出手機，拍下七個人戴兔子耳朵的照片", effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } },
         { text: "「那下次再來，再停一次。」", effects: { aff: { m6: 2 } } }
       ] }
-    ],
-    y0513: [
-      { bg: "images/bg/council.jpg" },
-      { text: "期末考前，學生會辦公室又變成了讀書會。" },
-      { text: "三年級的三個人，對著考卷唉聲嘆氣。" },
-      { who: "m3", text: "這是我高中最後一次期末考……" },
-      { who: "m1", text: "最後一次……TT" },
-      { who: "m2", text: "最後一次，也要考好。" },
-      { text: "元彬負責教數學，炤熙負責教英文——燦榮在旁邊糾正他的發音。" },
-      { who: "m6", text: "炤熙，那個字不是這樣念的。" },
-      { who: "m5", text: "……我是在測試你。" },
-      { who: "me", text: "（炤熙的嘴硬，今天也很穩定。）" },
-      { who: "m6", text: "ㅋㅋㅋ騙人。" },
-      { text: "凌晨，大家都趴在桌上睡著了。" },
-      { text: "只有你醒著，看著窗外的天空慢慢變亮。" },
-      { text: "你想起九月的第一次會議。那時候，大家還在吵預算。" },
-      { text: "現在，大家睡在同一張桌子上，課本疊成一座山。" },
-      { who: "me", text: "……時間過得好快。" }
     ],
     y0520: [
       { bg: "images/bg/club.jpg" },

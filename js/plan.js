@@ -34,7 +34,7 @@
   function scene(id) { return (D().scenes || {})[id]; }
   function T() {
     var t = C().text || {}, d = {
-      planTitle: '{m}月的日程規劃', planHint: '一天可以安排一個日程，沒有安排的日子會回家', confirm: '確認', weekend: '週日', home: '回家',
+      planTitle: '{m}月的日程規劃', planHint: '一天可以安排一個日程，沒有安排的日子會回家', confirm: '確認', weekend: '週日', mainDay: '主線', home: '回家',
       tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以自由規劃日程。\n把方塊拖到月曆上，確認後不可更改。',
       ok: '好', clear: '清除', repeatWeek: '每週重複',
       weekendTitle: '今天要和誰見面？', weekendHint: '最多選兩位', go: '出門', stayHome: '待在家',
@@ -83,7 +83,9 @@
   function normMD(s) { var m = /(\d+)\D+(\d+)/.exec(String(s)); return m ? ('0' + m[1]).slice(-2) + '-' + ('0' + m[2]).slice(-2) : ''; }
   // 送禮日：每月 14 日，但有節日劇情的 14 日（2/14、3/14）不算
   function isGiftDay(day) { return dateOf(day).getDate() === 14 && !holidaysOn(day).length; }
-  function plannedOn(day) { return plans().days[G().md(day)] || null; }
+  // 有主線劇情的日子不能安排日程（當天只播主線，不去日程、也不算回家）
+  function mainOn(day) { return storyOn(day).length > 0; }
+  function plannedOn(day) { return mainOn(day) ? null : plans().days[G().md(day)] || null; }
   // 今天這個日程會觸發的特殊劇情（specials：{ activity, if, scene, date }；看過就不再觸發，repeat: true 可以重複）
   function specialFor(day, act) {
     if (!act || quiet(day)) return null;   // 安靜期間（9/8～9/13）也沒有特殊劇情
@@ -145,7 +147,7 @@
     window.STORY.play(id, next, null, bg);
   }
   // 回家（平日沒安排）：開學週（planFrom 之前）不算
-  function homeDay(day) { return !isWeekend(day) && !forcedOn(day) && !plannedOn(day) && day >= G().dayOf(C().planFrom || '09-08'); }
+  function homeDay(day) { return !isWeekend(day) && !mainOn(day) && !plannedOn(day) && day >= G().dayOf(C().planFrom || '09-08'); }
 
   /* ---- 愛情線（data.js 的 plan.bond；劇情在 js/story/bond.js）；友誼只在後日談出現 ----
    *   好感到 love1 → love_成員_1（心動）；到 love2 → love_成員_2（曖昧）；到 confess → 告白（讓玩家從到門檻的人裡選一位）
@@ -537,10 +539,10 @@
     function dayIdx(n) { return Math.round((new Date(y, m, n) - G().date(1)) / 864e5) + 1; }
     function md(n) { return ('0' + (m + 1)).slice(-2) + '-' + ('0' + n).slice(-2); }
     function cellHTML(n) {
-      var di = dayIdx(n), wd = new Date(y, m, n).getDay(), we = wd === 0, f = forcedOn(di), past = di < day;   // 只有星期日不能放
-      var a = p.days[md(n)], cls = 'pl-day' + (we ? ' we' : '') + (past ? ' past' : '') + (f ? ' forced' : '');
-      var can = !we && !past && !f;
-      var inner = '<b>' + n + '</b>' + (f ? '<i>' + cellOf(f.activity) + '</i>' : we ? '<i class="dim">' + esc(t.weekend) + '</i>'
+      var di = dayIdx(n), wd = new Date(y, m, n).getDay(), we = wd === 0, f = forcedOn(di), mn = !f && mainOn(di), past = di < day;   // 星期日、有主線的日子不能放
+      var a = p.days[md(n)], cls = 'pl-day' + (we ? ' we' : '') + (past ? ' past' : '') + (f || mn ? ' forced' : '');
+      var can = !we && !past && !f && !mn;
+      var inner = '<b>' + n + '</b>' + (f ? '<i>' + cellOf(f.activity) + '</i>' : mn ? '<i class="dim">' + esc(t.mainDay) + '</i>' : we ? '<i class="dim">' + esc(t.weekend) + '</i>'
         : a ? '<i class="blk" data-act="' + esc(a) + '">' + cellOf(a) + '</i>' : '');
       return '<div class="' + cls + '"' + (can ? ' data-pday="' + md(n) + '"' : '') + '>' + inner + '</div>';
     }
@@ -622,7 +624,7 @@
         }
         for (n2 = 1; n2 <= days; n2++) {
           var di2 = dayIdx(n2), wd2 = new Date(y, m, n2).getDay();
-          if (wd2 === 0 || di2 < day || forcedOn(di2) || p.days[md(n2)] || !pat[wd2]) continue;
+          if (wd2 === 0 || di2 < day || mainOn(di2) || p.days[md(n2)] || !pat[wd2]) continue;
           p.days[md(n2)] = pat[wd2];
         }
         render(); return;
