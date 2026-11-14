@@ -473,6 +473,8 @@
     var c = cur;
     cur = null;
     lastEnd = Date.now();
+    // 同一天的下一段劇情之前：黑底日期畫面不再顯示日期，只是一片黑（跟劇情中換背景的轉場一樣）；換天時 plan.js 的 stage() 會把日期放回來
+    var ds = document.getElementById('day-stage'); if (ds) ds.classList.add('blank');
     document.getElementById('phone').classList.remove('story-full');
     if (S() && !c.replay) { S().setFlag('scene_' + c.id); remember(c.id); }
     c.el.classList.remove('show');

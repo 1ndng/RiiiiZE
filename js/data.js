@@ -90,7 +90,7 @@ window.SITE_DATA = {
     m5: { video: "videos/intro_m5.mp4", clean: "videos/intro_m5_clean.mp4", caption: "生日：11月21日\n出現地點：\n舞室、會辦、KTV、網咖" },
     m6: { video: "videos/intro_m6.mp4", clean: "videos/intro_m6_clean.mp4", caption: "生日：3月21日\n出現地點：小學、\n會辦、體育館、KTV" }
   },
-  storyGap: 2000,                // 兩段劇情之間至少隔幾毫秒（上一段結束到下一段開始）
+  storyGap: 700,                 // 兩段劇情之間至少隔幾毫秒（上一段結束到下一段開始；中間是一片黑，跟換背景的轉場差不多長）
   storySpeed: 22,                // 文字逐字出現的速度（每個字幾毫秒，越小越快）
   storyBg: "images/bg/school.jpg",   // 劇情的預設背景（手機以外的畫面都用這張）；劇情裡寫 { bg: "…" } 可以換，{ bg: "phone" } = 直接看到手機畫面
   // 第一次遊玩的開場（js/intro.js）：打開這些 App 就結束自由探索、開始 9/1
@@ -328,7 +328,7 @@ window.SITE_DATA = {
       //     { activity: "club", date: "10-15", title: "社團發表會", scene: "sp_club_show" }
     ],
     // 黑底日期畫面上多顯示一行字的日子
-    dayLabels: { "09-01": "開學日", "09-02": "學生會聚" },
+    dayLabels: {},   // 黑底日期畫面上多一行字：例如 { "09-01": "開學日" }（目前不用）
     holidays: [
       { date: "05-05", title: "兒童節",  scene: "h0505" },
       { date: "10-31", title: "萬聖節",  scene: "h1031" },

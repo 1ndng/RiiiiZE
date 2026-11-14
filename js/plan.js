@@ -717,7 +717,7 @@
     var el = document.getElementById('day-stage');
     if (day == null) { if (el) el.remove(); if (S()) S().setDarkStatus(false); return; }
     if (!el) { el = document.createElement('div'); el.id = 'day-stage'; el.className = 'day-stage'; document.getElementById('phone').appendChild(el); }
-    el.innerHTML = dateHTML(day);
+    el.innerHTML = dateHTML(day); el.classList.remove('blank');
     if (S()) S().setDarkStatus(true);
   }
   /* ---- 試玩版：到 game.trialEnd 那天開始前停下來（後面還在製作中），可以存檔、回到標題畫面 ---- */
@@ -933,6 +933,17 @@
 
   /* 開始自由使用手機：回到主畫面、鎖定畫面 → 星期日馬上在鎖定畫面上跳劇情框提醒（scenes.free_phone，一天一次，不等劇情間隔）→ 自己解鎖
    *   解鎖後就是主畫面；有每晚聊天的星期日也一樣（聊完才跳） */
+  // 跟劇情中換背景一樣的轉場：漸黑（0.55 秒）→ 執行 fn → 0.5 秒後亮回來
+  function blackCut(fn) {
+    var b = document.createElement('div');
+    b.className = 'day-fade cut-fade';
+    document.getElementById('phone').appendChild(b);
+    void b.offsetWidth; b.classList.add('show');
+    setTimeout(function () {
+      fn();
+      setTimeout(function () { b.classList.remove('show'); setTimeout(function () { b.remove(); }, 600); }, 500);
+    }, 550);
+  }
   function freePhone() {
     if (location.hash !== '#/home') S().replaceHash('#/home');
     var lockNow = function () { if (S() && S().lock && !document.getElementById('lock')) S().lock({ onUnlock: function () {} }); };
@@ -964,7 +975,7 @@
           if (next) setTimeout(function () { run(next); }, 400);
           else {
             chaining = false;
-            var after = function () { if (!free) setTimeout(go, 300); else freePhone(); };
+            var after = function () { if (!free) setTimeout(go, 300); else blackCut(freePhone); };   // 聊完 → 跟換背景一樣漸黑再亮起來 → 鎖定畫面＋自由探索提醒
             // 玩家生日延到聊天之後：現在播
             var bk = 'bday_after_chat_' + G().day;
             if (S() && S().hasFlag(bk) && !S().hasFlag(bk + '_done')) { S().setFlag(bk + '_done'); setTimeout(function () { playIf('birthday_me', after); }, 600); }

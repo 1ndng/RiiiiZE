@@ -347,8 +347,8 @@ const TESTS = [
     await clickStory(p, async () => !!(await p.$('.sch')));
     await p.click('.sch-cast button >> nth=1'); await p.click('[data-go]');
     let t = '';
-    for (let i = 0; i < 40 && !/9\/21/.test(t || ''); i++) { await sleep(250); t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); }
-    if (!/9\/21（日），你和恩奭出去玩了。（好感度：恩奭 \+10）/.test(t || '')) throw new Error('星期日的一句話不對：' + t);
+    for (let i = 0; i < 40 && !/\+10）$/.test(t || ''); i++) { await sleep(250); t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); }
+    if (!/9\/21（日），你和恩奭出去玩了。（好感度：恩奭 \+10）/.test(t || '')) throw new Error('星期日的一句話不對：' + t + ' / ' + (await p.evaluate(() => [STORY.scene && STORY.scene(), document.querySelectorAll('.vn').length, SITE_DATA.storySpeed].join(','))));
     if (await p.evaluate(() => /^wk_/.test((STORY.scene && STORY.scene()) || ''))) throw new Error('機率關掉了不該播劇情');
     const n = await p.evaluate(() => Object.keys(SITE_DATA.scenes).filter(k => /^wk_m/.test(k)).length + '/' + Object.keys(SITE_DATA.scenes).filter(k => /^(sp_|wk_.*_sp$)/.test(k)).length);
     if (n !== '21/0') throw new Error('星期日劇情應該剩 21 段、沒有特殊劇情：' + n);
