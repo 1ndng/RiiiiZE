@@ -45,18 +45,18 @@
     day: '第幾天', aff: '好感度', awake: '覺醒度（在手機裡找到線索才會增加，到 3 = 覺醒）', pair: '成員之間的關係', flags: '旗標', noFlags: '還沒有旗標',
     buzz: '震動', sound: '音效', on: '開', off: '關',
     langToCn: '要切換成简体中文嗎？', langToTw: '要切換成繁體中文嗎？', langText: '切換後畫面會重新整理一次，遊戲進度不會不見。', langOk: '切換',
-    clues: '線索收集', cluesNote: '手機裡藏著和六個人有關的線索。這裡會告訴你找到了幾個。', cluesDone: '全部找到了',
+    clues: '線索收集', cluesNote: '', cluesDone: '全部找到了',
     collect: '總收集率', secGame: '遊戲', secMe: '個人化', secFunc: '功能',
-    replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」和時間循環都不會清掉。', replayCount: '{n} / {all}',
-    cg: 'CG 圖鑑', cgNote: '看過的 CG 會收在這裡，點一下可以重看。「重新開始」和時間循環都不會清掉。', cgIntro: '{name}登場', cgBox: '對話框', cgBoxOn: '開', cgBoxOff: '關',
-    gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談', mainEndings: '主線結局', dev: '開發者資訊', devName: '開發者', devVer: '版本', devPrev: '前作', devPrevTitle: '熙醬cp向撿手機解謎', devPrevGo: '前往遊玩',
-    galleryNote: '看過的結局和後日談會記在這裡，「重新開始」也不會清掉。點一下可以重看。',
+    replay: '劇情回想', replayNote: '看過的劇情都可以重看（不會改變好感和進度）。「重新開始」不會被清掉。', replayCount: '{n} / {all}',
+    cg: 'CG 圖鑑', cgNote: '看過的 CG 會收在這裡，點一下可以重看。「重新開始」不會被清掉。', cgIntro: '{name}登場', cgBox: '對話框', cgBoxOn: '開', cgBoxOff: '關',
+    gallery: '結局圖鑑', galleryCount: '已收集 {n} / {all}', locked: '？？？', epilogue: '後日談', mainEndings: '主線結局', dev: '開發者資訊', devName: '開發者', devVer: '版本', devPrev: '前作', devPrevTitle: 'sosho 撿手機解謎', devPrevGo: '前往遊玩',
+    galleryNote: '看過的結局和後日談會記在這裡，「重新開始」不會被清掉。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
-    myName: '名字', nickName: '稱呼', block: '愛情線選擇', blockNote: '可以不選，也可以多選；選擇到的組合，無論好感度如何，都不會觸發任何親密互動的劇情。', blockNone: '沒有', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
+    myName: '名字', nickName: '稱呼', block: '配對禁止選擇', blockNote: '可以不選，也可以多選；選擇到的組合，無論好感度如何，都不會觸發任何親密互動的劇情。', blockNone: '沒有', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
     loopSave: '循環前的存檔', loopSaveName: '第 {n} 輪結束時', loopNote: 'DREAM END 之後回到 9/1 之前自動存的檔，只能讀取。讀取後在 8/31 晚上睡覺，就會再次回到 9/1。', loopNo: '第 {n} 輪',
     wallpaper: '背景圖片', wpLock: '鎖定畫面', wpHome: '主畫面', wpChange: '更換', wpDefault: '恢復預設',
-    wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。存在這個瀏覽器裡，「重新開始」也不會清掉。', wpTooBig: '照片太大了，換一張試試看。',
+    wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。', wpTooBig: '照片太大了，換一張試試看。',
     resetStats: '數值全部歸零', resetTitle: '要把數值全部歸零嗎？', resetText: '好感度、關係、覺醒度都會變回 0（旗標和天數不變）。', reset: '歸零'
   };
   function T() {
@@ -100,7 +100,7 @@
       sec(t.secMe) +
       '<div class="st-group">' +
         row(ICON.person, '#007aff', esc(t.myName), esc(window.STORY ? window.STORY.playerName() || '—' : '—'), 'data-st-myname', true) +
-        row(ICON.chat, '#34c759', esc(t.nickName), esc(window.STORY ? (window.STORY.playerNick() === window.STORY.playerName() ? t.sameAsName + '（' + window.STORY.playerNick() + '）' : window.STORY.playerNick()) : '—'), 'data-st-nick', true) +
+        row(ICON.chat, '#34c759', esc(t.nickName), esc(window.STORY ? window.STORY.playerNick() : '—'), 'data-st-nick', true) +
         (window.INTRO && window.INTRO.blockUI ? row(ICON.person, '#ff9500', esc(t.block), esc(blockCount()), 'data-st-go="#/settings/block"', true) : '') +
         row(ICON.image, '#30b0c7', esc(t.wallpaper), '', 'data-st-go="#/settings/wallpaper"', true) +
       '</div>' +
@@ -479,7 +479,7 @@
     S().$('#settings-scroll').innerHTML =
       '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
       '<h1 class="st-h1 st-h1-s">' + esc(t.clues) + '</h1>' +
-      '<div class="st-note st-note-top">' + esc(t.cluesNote.replace('{n}', need)) + '</div>' +
+      (t.cluesNote ? '<div class="st-note st-note-top">' + esc(t.cluesNote.replace('{n}', need)) + '</div>' : '') +
       '<div class="st-group">' + rows + '</div>';
   }
 
