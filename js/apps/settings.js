@@ -53,7 +53,7 @@
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」不會被清掉。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
-    myName: '名字', nickName: '稱呼', block: '配對禁止選擇', blockNote: '可以不選，也可以多選；選擇到的組合，無論好感度如何，都不會觸發任何親密互動的劇情。', blockNone: '沒有', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
+    myName: '名字', nickName: '稱呼', block: '配對禁止選擇', blockNote: '可以不選，也可以多選。', blockNone: '沒有', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
     loopSave: '循環前的存檔', loopSaveName: '第 {n} 輪結束時', loopNote: 'DREAM END 之後回到 9/1 之前自動存的檔，只能讀取。讀取後在 8/31 晚上睡覺，就會再次回到 9/1。', loopNo: '第 {n} 輪',
     wallpaper: '背景圖片', wpLock: '鎖定畫面', wpHome: '主畫面', wpChange: '更換', wpDefault: '恢復預設',
     wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。', wpTooBig: '照片太大了，換一張試試看。',
