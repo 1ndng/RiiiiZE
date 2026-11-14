@@ -44,6 +44,7 @@
       giftMeText: '你把禮物送給了{a}。', giftAskText: '{a}把禮物送給了{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
       dayLine: '{date}\n去了{place}，遇到了{who}。',   // {place} = 地點（舞室、小學…）、{act} = 活動名稱（社團活動、訓練…）
+      dayShort: '{date}　{what}{gain}', goPlace: '去{place}', stayHomeLine: '回家', sunOutCard: '出遊', sunHome: '待在家',
       weekTitle: '這週的安排', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekMet: '這幾天見到了{who}。', weekAff: '好感', weekPair: '關係', weekNoGain: '這幾天沒有遇到人。'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -217,6 +218,7 @@
       var a = plannedOn(day) || (homeDay(day) ? 'home' : null);
       if (a && !quiet(day, a) && milestoneOf(a, G().stat('visits', a) + 1)) return true;
     }
+    if (!isWeekend(day) && !forcedOn(day) && (plannedOn(day) || homeDay(day))) return true;   // 每個平日都停下來（先一句話，再播當天的劇情）
     return !isWeekend(day) && !!specialFor(day, plannedOn(day));
   }
 
@@ -260,6 +262,20 @@
       .replace('{date}', (d.getMonth() + 1) + '月' + d.getDate() + '日（' + G().weekday(d) + '）')
       .replace('{act}', a.label).replace('{place}', a.place || a.label).replace('{who}', joinNames(ids));
   }
+
+  // 每天的一句話：「9/16（二）　去舞室　將太郎 +2、元彬 +2」（回家：「9/16（二）　回家」）
+  function gainText(fx) {
+    if (!fx || !fx.aff) return '';
+    var ids = cast().map(function (c) { return c.id; }).filter(function (id) { return fx.aff[id]; });
+    var sh = function (id) { var c = cast().filter(function (x) { return x.id === id; })[0] || {}; return c.short || c.name || id; };
+    return ids.length ? '　' + ids.map(function (id) { return sh(id) + ' +' + fx.aff[id]; }).join('、') : '';
+  }
+  function shortDate(day) { var d = dateOf(day); return (d.getMonth() + 1) + '/' + d.getDate() + '（' + G().weekday(d).replace('星期', '') + '）'; }
+  function shortLine(day, act, fx) {
+    var t = T(), what = act === 'home' ? t.stayHomeLine : t.goPlace.replace('{place}', actOf(act).place || actOf(act).label);
+    return t.dayShort.replace('{date}', shortDate(day)).replace('{what}', what).replace('{gain}', gainText(fx));
+  }
+  function actFx(met) { return met && met.length ? shareEffects(met, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15) : null; }
 
   /* ---- 一句話帶過（用對話框） ---- */
   // bg = 這句話的背景（日程、回家…）；沒給就用 plan.narrateBg → storyBg
@@ -316,6 +332,7 @@
       chooser({ title: t.weekendTitle, hint: t.weekendHint, max: 2, min: 1, goLabel: t.go, altLabel: t.stayHome,
         onAlt: function () {
           if (S()) S().setFlag('weekend_home');
+          pendWeek({ day: G().day, act: 'sunday', met: [], fx: null });
           var hs = (w.home || []).filter(function (e) { return ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene); })[0];
           // 待在家：背景 = plan.homeBg
           if (hs) window.STORY.play(hs.scene, done, null, C().homeBg); else narrate(t.stayHomeText, done, C().homeBg);
@@ -326,6 +343,7 @@
           if (ids.length === 1) fx.aff[ids[0]] = w.single != null ? w.single : 6;
           else { ids.forEach(function (id) { fx.aff[id] = w.pairAff != null ? w.pairAff : 3; }); fx.pair[ids[0] + '-' + ids[1]] = w.pairBond != null ? w.pairBond : 15; }
           G().apply(fx);
+          pendWeek({ day: G().day, act: 'sunday', met: ids.slice(), fx: fx });
           // 同一個人／同一組：寫了 chance 的是特殊劇情（照機率觸發），沒寫的是固定劇情
           var cands = (w.scenes || []).filter(function (e) {
             var a = [].concat(e.with || []).slice().sort().join(), b = ids.slice().sort().join();
@@ -448,19 +466,26 @@
       //    背景 = 那個日程的 bg；特殊劇情那天不加好感
       if (!forced && !isWeekend(day)) {
         var act = plannedOn(day), sp = specialFor(day, act);
+        // 每個平日最先一句話：「9/16（二）　去舞室　將太郎 +2」，然後才是當天的劇情；記進這週的紀錄（星期日結束後的卡片用）
+        var lineAt = 0, addLine = function (a, fx, met) {
+          var txt = shortLine(day, a, fx);
+          steps.splice(lineAt, 0, function (next) { narrate(txt, next, bgOf(a)); });
+          pendWeek({ day: day, act: a, met: met || [], fx: fx });
+        };
         if (act) {
           var met;
           if (sp) {
+            countVisit(act); met = membersOf(act);   // 特殊劇情那天不加好感
+            addLine(act, null, met);
             steps.push(function (next) { window.STORY.play(sp.scene, next, null, sp.bg || actOf(act).bg); });
-            countVisit(act); met = membersOf(act);
-          } else met = doActivity(act);
+          } else { met = doActivity(act); addLine(act, actFx(met), met); }
           var ms = milestoneOf(act, G().stat('visits', act));
-          // 沒有日程劇情：不用一句話帶過，記下來放進下一次的「這週的安排」卡片（和跳過的日子一樣）
-          if (ms) playOn(ms, act); else if (!sp) pendWeek({ day: day, act: act, met: met });
+          if (ms) playOn(ms, act);
           playAll(randomFor(act, met), act);
         } else if (homeDay(day)) {
           countVisit('home');
-          var hm = milestoneOf('home', G().stat('visits', 'home')); if (hm) playOn(hm, 'home'); else pendWeek({ day: day, act: 'home', met: [] });
+          addLine('home', null, []);
+          var hm = milestoneOf('home', G().stat('visits', 'home')); if (hm) playOn(hm, 'home');
           playAll(randomFor('home', []), 'home');
         }
       }
@@ -613,9 +638,12 @@
   // 停下來的日子（有生日、節日等劇情）排的日程：存起來，下一次的「這週的安排」卡片一起列出
   var WKEY = 'riiiize-weekpend';
   function pendWeek(w) { var l = load(WKEY, []) || []; if (!l.some(function (x) { return x.day === w.day; })) { w.rnd = []; l.push(w); store(WKEY, l); } }
+  // 星期日結束（星期日晚上按睡覺）→ 這週的卡片（週一～週日）
+  function weekLog() { return load(WKEY, []) || []; }
   function sleep(cb, onWeek) {
-    var day = G().day + 1, from = day, week = load(WKEY, []) || [];
-    try { localStorage.removeItem(WKEY); } catch (e) {}
+    // 這週的紀錄（每天的一句話記下來的）：星期日結束（星期日晚上睡覺）才拿出來做成卡片；其他日子留著繼續記
+    var day = G().day + 1, from = day, week = [];
+    if (dateOf(G().day).getDay() === 0) { week = weekLog(); try { localStorage.removeItem(WKEY); } catch (e) {} }
     function flush(next) { if (!week.length || !onWeek) { next(); return; } var w = week; week = []; onWeek(w, next); }
     (function loop() {
       while (day <= G().totalDays()) {
@@ -631,11 +659,11 @@
         if (act) {   // 有安排：加好感，記進這週的回顧（可能觸發隨機劇情）
           G().setDay(day);
           var met = doActivity(act);
-          week.push({ day: day, act: act, met: met, rnd: randomFor(act, met) });   // rnd = 這天的隨機劇情（最多一段）
+          pendWeek({ day: day, act: act, met: met, fx: actFx(met) });
         } else if (homeDay(day)) {   // 沒安排 = 回家
           G().setDay(day);
           countVisit('home');
-          week.push({ day: day, act: 'home', met: [], rnd: randomFor('home', []) });
+          pendWeek({ day: day, act: 'home', met: [], fx: null });
         }
         day++;
       }
@@ -732,7 +760,12 @@
   var chaining = false;
   function go() {
     if (going) return;
-    if (trialLast(G().day) && !(window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting())) { trialBlock(true); return; }   // 試玩版：最後一天按睡覺 → 前方施工中
+    if (trialLast(G().day) && !(window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting())) {   // 試玩版：最後一天按睡覺 → （星期日：先出這週的卡片）→ 前方施工中
+      var wl = dateOf(G().day).getDay() === 0 ? weekLog() : [];
+      if (wl.length && !going) { going = true; try { localStorage.removeItem(WKEY); } catch (e) {} stage(wl[wl.length - 1].day); showWeekCard(wl, function () { going = false; trialBlock(true); }); }
+      else trialBlock(true);
+      return;
+    }
     // 每日聊天還沒聊完（包括兩段之間的空檔）：不能睡覺
     if (chaining || (window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatting && window.SOSHO_KAKAO.dayChatting())) return;
     // 8/31 晚上睡覺 = 一年結束 → 時間循環，回到 9/1（例如讀了「循環前的存檔」之後）
@@ -770,13 +803,13 @@
       '<small>' + esc(week.length > 1 ? md(d0) + '～' + md(d1) : md(d0)) + '</small>' +
       '<b>' + esc(t.weekTitle) + '</b>' +
       '<ul>' + week.map(function (w) {
-        var d = dateOf(w.day), a = w.act === 'home' ? { label: t.home } : actOf(w.act);
+        var d = dateOf(w.day), a = w.act === 'home' ? { label: t.home } : w.act === 'sunday' ? { label: w.met.length ? t.sunOutCard : t.sunHome } : actOf(w.act);   // 星期日：出遊（後面是一起出去的人）／待在家
         return '<li><span class="wk-d">' + (d.getMonth() + 1) + '/' + d.getDate() + '（' + esc(G().weekday(d).replace('星期', '')) + '）</span>' +
           '<span class="wk-a">' + esc(a.label) + '</span>' +
           '<span class="wk-m">' + (w.met.length ? w.met.map(function (id) {
             var c = cast().filter(function (x) { return x.id === id; })[0] || {};
             return '<i title="' + esc(c.name || id) + '"><img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""></i>';
-          }).join('') : (w.act === 'home' ? '' : '<em>' + esc(t.weekNobody) + '</em>')) + '</span></li>';
+          }).join('') : (w.act === 'home' || w.act === 'sunday' ? '' : '<em>' + esc(t.weekNobody) + '</em>')) + '</span></li>';
       }).join('') + '</ul>' +
       gainsHTML(week) +
       '<button type="button" data-wk-go>' + esc(t.weekGo) + '</button>' +
@@ -794,10 +827,10 @@
   function gainsHTML(week) {
     var t = T(), aff = {}, pair = {};
     week.forEach(function (w) {
-      if (!w.met.length) return;
-      var fx = shareEffects(w.met, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15);
-      Object.keys(fx.aff).forEach(function (k) { aff[k] = (aff[k] || 0) + fx.aff[k]; });
-      Object.keys(fx.pair).forEach(function (k) { pair[k] = (pair[k] || 0) + fx.pair[k]; });
+      var fx = w.fx !== undefined ? w.fx : actFx(w.met);   // 記下來的實際加分（星期日出遊、特殊劇情那天不加）
+      if (!fx) return;
+      Object.keys(fx.aff || {}).forEach(function (k) { aff[k] = (aff[k] || 0) + fx.aff[k]; });
+      Object.keys(fx.pair || {}).forEach(function (k) { pair[k] = (pair[k] || 0) + fx.pair[k]; });
     });
     var num = function (x) { return '+' + (Math.round(x * 10) / 10); };
     // 用成員的 emoji 表示（cast 的 emoji；沒寫就用名字）
