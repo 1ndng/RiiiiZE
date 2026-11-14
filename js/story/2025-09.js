@@ -657,7 +657,7 @@ RIIIZE_ADD({
   // X 貼文（data.js 的 x.tweets）
   tweets: [
     // likedBy = 按讚的成員（目前畫面只顯示數字 likes）；replies 的 replyTo = 回覆誰（沒寫 = 回覆發文的人）
-    // x0908、x0913：9/14 起才看得到（X 只有星期日晚上能看；試玩版 9/13 晚上看到的和 9/7 一樣）
+    // x0908、x0913：9/14 起才看得到（X 只有星期日晚上能看；試玩版玩到 9/14 晚上）
     // x0901：元彬 9/1 晚上發的（if：第一天結束後才看得到；開場探索是 9/1 早上，看不到）
     { id: "x0901", by: "bin032", from: "09-01", if: { any: [{ day: ">=2" }, { phase: "night" }] }, date: "下午 10:30 · 2025/9/1", time: "9月1日", text: "這學期加油⭐️🙏🏻", likes: 5, likedBy: ["shotaroo0", "seokkkk", "sungchan913", "252525252_", "antonnie"] },
     { id: "x0902", by: "shotaroo0", from: "09-02", date: "下午 9:41 · 2025/9/2", time: "9月2日", text: "韓文太難了 ㅎㅎ", likes: 2, likedBy: ["252525252_", "seokkkk"], replies: [

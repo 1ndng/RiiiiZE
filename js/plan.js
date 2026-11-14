@@ -60,7 +60,7 @@
   function isWeekend(day) { return dateOf(day).getDay() === 0; }
   // 這天能不能用手機：星期日、最後一天、看完結局之後
   function phoneDay(day) { return dateOf(day).getDay() === 0 || day >= G().totalDays() || !!G().ended || trialLast(day); }
-  // 試玩版的最後一天（game.trialEnd 的前一天，目前 9/13）：晚上也能自由用手機，按「睡覺」→ 前方施工中
+  // 試玩版的最後一天（game.trialEnd 的前一天，目前 9/14）：晚上也能自由用手機，按「睡覺」→ 前方施工中
   function trialOn() { var e = (D().game || {}).trialEnd, off = false; try { off = localStorage.getItem('riiiizeNoTrial') === '1'; } catch (er) {} return !!e && !off; }
   function trialLast(day) { return trialOn() && day === G().dayOf((D().game || {}).trialEnd) - 1; }
   function ym(day) { var d = dateOf(day); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2); }

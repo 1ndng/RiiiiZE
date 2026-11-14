@@ -328,8 +328,8 @@ const TESTS = [
     if (!/\+\d/.test(gain)) throw new Error('卡片沒有顯示加了多少好感：' + gain);
     return p;
   }],
-  ['試玩版：9/13 晚上自由用手機 → 按睡覺出現前方施工中，可以存檔、回到手機畫面', async (b, base) => {
-    const p = await open(b, base, played({ 'riiiize-game': { day: 13, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, freephone_13: 1 }, riiiizeNoTrial: '0' }));
+  ['試玩版：9/14 晚上自由用手機 → 按睡覺出現前方施工中，可以存檔、回到手機畫面', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, freephone_14: 1, 'daychat_09-14': 1 }, riiiizeNoTrial: '0' }));
     await p.evaluate(() => { localStorage.removeItem('riiiizeNoTrial'); const l = document.getElementById('lock'); if (l) l.remove(); PLAN.go(); });
     await p.waitForSelector('.trial-end', { timeout: 15000 });
     if (await p.evaluate(() => !!document.querySelector('.vn'))) throw new Error('擋住之後還在播劇情');
@@ -338,7 +338,7 @@ const TESTS = [
     const has = await p.evaluate(() => !!GAME.saves().slots[1]);
     if (!has || !/存檔 1/.test(msg || '')) throw new Error('存檔沒有成功：' + msg);
     await p.click('[data-trial-back]'); await sleep(300);
-    const back = await p.evaluate(() => !document.querySelector('.trial-end') && GAME.day === 13 && GAME.phase === 'night');
+    const back = await p.evaluate(() => !document.querySelector('.trial-end') && GAME.day === 14 && GAME.phase === 'night');
     if (!back) throw new Error('回到手機畫面失敗');
     return p;
   }],
