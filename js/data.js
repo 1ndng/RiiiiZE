@@ -347,10 +347,10 @@ window.SITE_DATA = {
      *   好感到 friend → 友誼線 fr_成員（可以好幾條）
      *   到 love1 → 心動 love_成員_1；到 love2 → 曖昧 love_成員_2；到 confess → 告白（從到門檻的人裡選一位；一輪只能一位）
      *   from～until 之間才會觸發；一天最多一段 */
-    //   cp = 成員之間的 CP 線：關係到 stage1（100）親近 → stage2 心動 → stage3 曖昧 → together 在一起（記旗標 couple_m1-m2）
+    //   cp = 成員之間的 CP 線：關係到 love1 心動 → love2 曖昧 → confess 告白（在一起，記旗標 couple_m1-m2）；和愛情線一樣三個階段
     //   每位成員最多一對；玩家的戀人、已經在一對裡的人不會進第 2 階段以後；CP 成立的人也不會進玩家的愛情線
     bond: { love1: 90, love2: 180, confess: 270, from: "09-08", until: "08-23",
-      cp: { stage1: 60, stage2: 120, stage3: 180, together: 240 } },   // 專心追一位 → 6 月前告白；專心推一對 → 6 月前在一起；一位＋一對 → 8 月前都可以
+      cp: { love1: 120, love2: 180, confess: 240 } },   // 專心追一位 → 6 月前告白；專心推一對 → 6 月前在一起；一位＋一對 → 8 月前都可以
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
     /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（目前 20%）（一天最多一段：中了就從遇到的人符合的名單裡抽一段；可以重複觸發）
      *   寫編號：單人 "1"、配對 "14"（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮）；
@@ -377,7 +377,7 @@ window.SITE_DATA = {
    */
   romance: {
     lover: { aff: 270, flag: "confess_{id}" },   // 告白過（plan.bond.confess）＝戀人
-    couple: { pair: 240, flag: "couple_{pair}" },   // CP 線走到「在一起」（plan.bond.cp.together）＝一對
+    couple: { pair: 240, flag: "couple_{pair}" },   // CP 線走到「在一起」（plan.bond.cp.confess）＝一對
     // 個人覺醒 = 覺醒度到 value（每人一樣、不會下降）
     //   覺醒度只能靠「在手機裡找到線索」增加：IG 貼文／限動、X 貼文、照片、備忘錄、KakaoTalk 訊息寫 clue: "m3_1"，
     //   玩家看到 1 秒就算找到（覺醒度 +1、記錄旗標 clue_m3_1）；劇情、日程只會有跡象，不會加覺醒度

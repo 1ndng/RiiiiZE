@@ -166,7 +166,7 @@
       var l1 = loveIds.filter(function (id) { return aff(id) >= love1 && !seen('love_' + id + '_1') && scene('love_' + id + '_1'); })[0];
       if (l1) return { kind: 'scene', id: 'love_' + l1 + '_1' };
     }
-    // 成員之間的 CP 線（plan.bond.cp）：關係到 100 親近 → 300 心動 → 500 曖昧 → 700 在一起（記旗標 couple_a-b）
+    // 成員之間的 CP 線（plan.bond.cp）：關係到 love1 心動 → love2 曖昧 → confess 告白（在一起，記旗標 couple_a-b）
     //   每位成員最多一對；玩家的戀人不會進 CP 的第 2 階段以後；已經在一對裡的人也不會
     var cp = cpFor();
     if (cp) return cp;
@@ -177,18 +177,18 @@
   function cpFor() {
     var c = (B() || {}).cp;
     if (!c) return null;
-    var steps = [c.stage1, c.stage2, c.stage3, c.together];
+    var steps = [c.love1, c.love2, c.confess];   // 心動 → 曖昧 → 告白（在一起）
     var list = pairs().map(function (p) { return { p: p, key: p[0] + '-' + p[1], v: G().stat('pair', p[0] + '-' + p[1]) }; })
       .sort(function (x, y) { return y.v - x.v; });
     for (var i = 0; i < list.length; i++) {
       var it = list[i], base = 'cp_' + it.p[0] + '_' + it.p[1] + '_';
       if (S().hasFlag('couple_' + it.key) || G().blockedPair(it.p[0], it.p[1])) continue;   // 玩家選了「不想配對」的兩人：CP 線不觸發
       // 第幾段還沒看過
-      var n = 1; while (n <= 4 && seen(base + n)) n++;
-      if (n > 4 || it.v < steps[n - 1] || !scene(base + n)) continue;
+      var n = 1; while (n <= 3 && seen(base + n)) n++;
+      if (n > 3 || it.v < steps[n - 1] || !scene(base + n)) continue;
       // 第 2 段以後：兩個人都不能是玩家的戀人、也不能已經在別的一對裡
       if (n >= 2 && it.p.some(function (id) { return S().hasFlag('confess_' + id) || inCouple(id); })) continue;
-      return { kind: 'scene', id: base + n, couple: n === 4 ? it.key : null };
+      return { kind: 'scene', id: base + n, couple: n === 3 ? it.key : null };
     }
     return null;
   }

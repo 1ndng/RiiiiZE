@@ -644,21 +644,21 @@ const TESTS = [
     if (r !== '/m4//m1-m3,m2///m4-m6,m2//m1-m3+m5-m6/,true,true,false') throw new Error(r);
     return p;
   }],
-  ['CP 線：關係 100 → 300 → 500 → 700 在一起；已經在一對、或是玩家戀人的人只剩第一段', async (b, base) => {
+  ['CP 線：心動 → 曖昧 → 告白（在一起），三個階段；已經在一對、或是玩家戀人的人只剩第一段', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
     const r = await p.evaluate(() => {
       const P = (k, v) => GAME.addStat('pair', k, v - GAME.stat('pair', k)), F = f => SOSHO.setFlag(f), q = () => { const x = PLAN.bondFor(GAME.day); return x ? x.id + (x.couple ? '!' : '') : '-'; };
       const out = [];
-      P('m4-m6', 105); out.push(q()); F('scene_cp_m4_m6_1');
-      P('m4-m6', 310); out.push(q()); F('scene_cp_m4_m6_2');
-      P('m4-m6', 510); out.push(q()); F('scene_cp_m4_m6_3');
-      P('m4-m6', 710); out.push(q()); F('couple_m4-m6'); F('scene_cp_m4_m6_4');
+      const C = SITE_DATA.plan.bond.cp;
+      P('m4-m6', C.love1); out.push(q()); F('scene_cp_m4_m6_1');
+      P('m4-m6', C.love2); out.push(q()); F('scene_cp_m4_m6_2');
+      P('m4-m6', C.confess); out.push(q()); F('couple_m4-m6'); F('scene_cp_m4_m6_3');
       out.push(GAME.check({ couple: 'm4-m6' }));
-      P('m1-m4', 300); out.push(q()); F('scene_cp_m1_m4_1'); out.push(q());
-      P('m1-m2', 300); F('scene_cp_m1_m2_1'); F('confess_m2'); out.push(q());
+      P('m1-m4', C.love1); out.push(q()); F('scene_cp_m1_m4_1'); out.push(q());
+      P('m1-m2', C.love1); F('scene_cp_m1_m2_1'); F('confess_m2'); out.push(q());
       return out.join(',');
     });
-    if (r !== 'cp_m4_m6_1,cp_m4_m6_2,cp_m4_m6_3,cp_m4_m6_4!,true,cp_m1_m4_1,-,-') throw new Error(r);
+    if (r !== 'cp_m4_m6_1,cp_m4_m6_2,cp_m4_m6_3!,true,cp_m1_m4_1,-,-') throw new Error(r);
     return p;
   }],
   ['選人畫面：連點兩次「確定」只算一次（9/14 送元彬，好感 +8 不是 +16）', async (b, base) => {

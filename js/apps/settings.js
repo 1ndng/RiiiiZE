@@ -282,12 +282,12 @@
     groups.push({ title: '日程（固定）', items: fixed.concat(sp).sort(by) });
     groups.push({ title: '日程（隨機）', items: rand.sort(by) });
     // 愛情線（心動、曖昧、告白）、CP 線
-    var lv = [], cp = [], LV = { 1: '心動', 2: '曖昧' };
+    var lv = [], cp = [], LV = { 1: '心動', 2: '曖昧' }, CPL = { 1: '心動', 2: '曖昧', 3: '告白' };
     Object.keys(sc).forEach(function (k) {
       var l = /^love_(m\d)_(\d)$/.exec(k), c = /^confess_(m\d)$/.exec(k), p = /^cp_(m\d)_(m\d)_(\d)$/.exec(k);
       if (l) lv.push({ o: (+l[1].slice(1)) * 10 + (+l[2]), id: k, label: nameOf(byId[l[1]]), sub: LV[l[2]] || ('第 ' + l[2] + ' 段') });
       if (c) lv.push({ o: (+c[1].slice(1)) * 10 + 9, id: k, label: nameOf(byId[c[1]]), sub: '告白' });
-      if (p) cp.push({ o: (+p[1].slice(1)) * 100 + (+p[2].slice(1)) * 10 + (+p[3]), id: k, label: nameOf(byId[p[1]]) + '×' + nameOf(byId[p[2]]), sub: '第 ' + p[3] + ' 段' });
+      if (p) cp.push({ o: (+p[1].slice(1)) * 100 + (+p[2].slice(1)) * 10 + (+p[3]), id: k, label: nameOf(byId[p[1]]) + '×' + nameOf(byId[p[2]]), sub: CPL[p[3]] || ('第 ' + p[3] + ' 段') });
     });
     groups.push({ title: '愛情線', items: lv.sort(by) });
     groups.push({ title: 'CP 線', items: cp.sort(by) });
