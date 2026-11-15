@@ -14,7 +14,7 @@
  *   （最後一天、看完結局之後也可以用手機）
  *
  * 好感度（公平：每個日程每次的總量一樣，平分給在場的人）：
- *   好感：affTotal（預設 6）÷ 在場人數；成員之間：pairTotal（預設 15）÷ 在場的對數（四捨五入成整數，最少 1）
+ *   好感：遇到的每個人 +affEach（預設 3）；成員之間：遇到的每一對 +pairEach（預設 10）
  *   在場的人 = cast 的 activities 有這個日程的成員
  *   特殊劇情發生的那天不加好感
  * ========================================================= */
@@ -34,9 +34,9 @@
   function scene(id) { return (D().scenes || {})[id]; }
   function T() {
     var t = C().text || {}, d = {
-      planTitle: '{m}月的日程規劃', planHint: '一天可以安排一個日程，沒有安排的日子會回家', confirm: '確認', weekend: '週日', mainDay: '主線', home: '回家',
-      tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以自由規劃日程。\n把方塊拖到月曆上，確認後不可更改。',
-      ok: '好', clear: '清除', repeatWeek: '每週重複',
+      planTitle: '{m}月的日程規劃', planHint: '每週選三天。每天能去的地方是固定的。', confirm: '確認', weekend: '週日', mainDay: '主線', home: '回家',
+      tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以規劃這個月的日程。\n每週勾選三天，確認後不可更改。',
+      ok: '好', clear: '清除', repeatWeek: '每週都一樣', weekPick: '已選 {n} / {need}',
       giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '要', giftAsk: '有人要', giftNo: '不要',
       giftPickOne: '要送給誰？', giftPickGiver: '誰送？', giftPickTo: '送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
       giftMeText: '你把禮物送給了{a}。', giftAskText: '{a}把禮物送給了{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
@@ -81,9 +81,7 @@
   function normMD(s) { var m = /(\d+)\D+(\d+)/.exec(String(s)); return m ? ('0' + m[1]).slice(-2) + '-' + ('0' + m[2]).slice(-2) : ''; }
   // 送禮日：每月 14 日，但有節日劇情的 14 日（2/14、3/14）不算
   function isGiftDay(day) { return dateOf(day).getDate() === 14 && !holidaysOn(day).length; }
-  // 有主線劇情的日子不能安排日程（當天只播主線，不去日程、也不算回家）
-  function mainOn(day) { return storyOn(day).length > 0; }
-  function plannedOn(day) { var a = mainOn(day) ? null : plans().days[G().md(day)] || null; return a && acts().some(function (x) { return x.id === a; }) ? a : null; }   // 已經刪掉的日程（例如閒晃）= 沒安排
+  function plannedOn(day) { var a = forcedOn(day) ? null : plans().days[G().md(day)] || null; return a && acts().some(function (x) { return x.id === a; }) ? a : null; }   // 已經刪掉的日程（例如閒晃）= 沒安排
   // 今天這個日程會觸發的特殊劇情（specials：{ activity, if, scene, date }；看過就不再觸發，repeat: true 可以重複）
   function specialFor(day, act) {
     if (!act || quiet(day)) return null;   // 安靜期間（9/8～9/13）也沒有特殊劇情
@@ -93,14 +91,14 @@
     })[0] || null;
   }
   /* ---- 日程劇情 ----
-   * 固定：第幾次去某個日程（plan.activities 的 milestones；回家 = plan.homeMilestones）→ scenes.act_日程_次數，那天停下來播
+   * 固定：第幾次去某個日程（plan.activities 的 milestones）→ scenes.act_日程_次數，那天停下來播
    * 隨機：plan.random（一天 chance 機率有一段：從遇到的人符合的名單裡抽一段，可重複）→ scenes.rand_日程_編號 */
   function bgOf(act) { return act === 'home' ? C().homeBg : actOf(act).bg; }
   // 暫時沒有日程劇情的日子（data.js 的 plan.quietUntil 之前，例如 9/8～9/13）：不播固定、隨機、特殊劇情（次數照算、好感照加）
   //   這段期間剛好到第幾次的固定劇情 → 記成「還沒播」（旗標 ms_pending_日程_次數），之後第一次再去那裡時補播
   //   plan.quietOpen 裡的日程（例如已經改好文本的 club）不受影響，照常播固定和隨機劇情（特殊劇情一樣不播）
   function quiet(day, act) { var q = C().quietUntil; return !!q && (day == null ? G().day : day) < G().dayOf(q) && !(act && (C().quietOpen || []).indexOf(act) >= 0); }
-  function msList(act) { return act === 'home' ? (C().homeMilestones || []) : (actOf(act).milestones || []); }
+  function msList(act) { return actOf(act).milestones || []; }
   function milestoneOf(act, n) {
     if (quiet(null, act)) return null;
     var id = 'act_' + act + '_' + n;
@@ -123,7 +121,7 @@
     if (quiet(null, act)) return [];
     var r = C().random || {}, chance = r.chance != null ? r.chance : 0.3;
     var list = (r[act] || []).filter(function (k) {
-      return scene('rand_' + act + '_' + k) && (k === 'me' || (idsOf(k).every(function (id) { return id && met.indexOf(id) >= 0; }) && !G().blockedAny(idsOf(k))));   // 不想配對的兩人不會一起出現
+      return scene('rand_' + act + '_' + k) && !(S() && S().hasFlag('scene_rand_' + act + '_' + k)) && (k === 'me' || (idsOf(k).every(function (id) { return id && met.indexOf(id) >= 0; }) && !G().blockedAny(idsOf(k))));   // 不想配對的兩人不會一起出現
     });
     // 一天最多一段：先用 chance 決定今天有沒有隨機劇情，有的話從符合條件的裡面抽一段（名單長短不影響觸發機率）
     if (!list.length || Math.random() >= chance) return [];
@@ -145,7 +143,6 @@
     window.STORY.play(id, next, null, bg);
   }
   // 回家（平日沒安排）：開學週（planFrom 之前）不算
-  function homeDay(day) { return !isWeekend(day) && !mainOn(day) && !plannedOn(day) && day >= G().dayOf(C().planFrom || '09-08'); }
 
   /* ---- 愛情線（data.js 的 plan.bond；劇情在 js/story/bond.js）；友誼只在後日談出現 ----
    *   好感到 love1 → love_成員_1（心動）；到 love2 → love_成員_2（曖昧）；到 confess → 告白（讓玩家從到門檻的人裡選一位）
@@ -215,10 +212,10 @@
     if (dateOf(day).getDay() === 0) return true;   // 星期日：夜間自由使用手機
     if (day >= G().totalDays()) return true;
     if (!isWeekend(day) && !forcedOn(day)) {   // 這次去剛好是第幾次的固定劇情
-      var a = plannedOn(day) || (homeDay(day) ? 'home' : null);
+      var a = plannedOn(day);
       if (a && !quiet(day, a) && milestoneOf(a, G().stat('visits', a) + 1)) return true;
     }
-    if (!isWeekend(day) && !forcedOn(day) && (plannedOn(day) || homeDay(day))) return true;   // 每個平日都停下來（先一句話，再播當天的劇情）
+    if (!isWeekend(day) && !forcedOn(day) && plannedOn(day)) return true;   // 有排日程的日子停下來（先一句話，再播當天的劇情）
     return !isWeekend(day) && !!specialFor(day, plannedOn(day));
   }
 
@@ -235,9 +232,9 @@
   function shareEffects(ids, affTotal, pairTotal) {
     var fx = { aff: {}, pair: {} }, pairs = [];
     ids.forEach(function (a, i) { ids.slice(i + 1).forEach(function (b) { pairs.push(a + '-' + b); }); });
-    // 平分後四捨五入成整數（最少 1）：好感、關係都不會有小數點
-    ids.forEach(function (id) { fx.aff[id] = Math.max(1, Math.round(affTotal / ids.length)); });
-    pairs.forEach(function (k) { fx.pair[k] = Math.max(1, Math.round(pairTotal / pairs.length)); });
+    // 遇到的每個人都 +affEach、每一對都 +pairEach（不平分：遇到幾個人都一樣多）
+    ids.forEach(function (id) { fx.aff[id] = affTotal; });
+    pairs.forEach(function (k) { fx.pair[k] = pairTotal; });
     return fx;
   }
   // 回傳這次遇到的人（日程的一句話用）
@@ -246,7 +243,7 @@
     var ids = membersOf(act);
     countVisit(act);
     if (S()) S().setFlag('act_' + act);
-    if (ids.length) G().apply(shareEffects(ids, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15));
+    if (ids.length) G().apply(actFx(ids));
     return ids;
   }
   // 「9月8日（星期一）\n去了會辦，遇到了鄭成燦和李炤熙。」（plan.text.dayLine 可以改；活動可以寫自己的 line）
@@ -276,7 +273,7 @@
     var t = T(), what = act === 'home' ? t.stayHomeLine : t.goPlace.replace('{place}', actOf(act).place || actOf(act).label);
     return t.dayShort.replace('{date}', shortDate(day)).replace('{what}', what).replace('{gain}', gainText(fx));
   }
-  function actFx(met) { return met && met.length ? shareEffects(met, C().affTotal != null ? C().affTotal : 6, C().pairTotal != null ? C().pairTotal : 15) : null; }
+  function actFx(met) { return met && met.length ? shareEffects(met, C().affEach != null ? C().affEach : 3, C().pairEach != null ? C().pairEach : 10) : null; }
 
   /* ---- 一句話帶過（用對話框） ---- */
   // bg = 這句話的背景（日程、回家…）；沒給就用 plan.narrateBg → storyBg
@@ -291,7 +288,7 @@
     if (storyOn(day).length || holidaysOn(day).length || birthdaysOn(day).length || isGiftDay(day) || bondFor(day)) return false;
     if (window.SOSHO_KAKAO && window.SOSHO_KAKAO.dayChatFor(G().md(day))) return false;
     if (specialFor(day, plannedOn(day))) return false;
-    return !!(plannedOn(day) || homeDay(day));
+    return !!plannedOn(day);
   }
   function held() { return !!(window.STORY && window.STORY.held && window.STORY.held()); }
   function dropHeld(fast) { if (window.STORY && window.STORY.dropHeld) window.STORY.dropHeld(fast); }
@@ -458,11 +455,6 @@
           var ms = milestoneOf(act, G().stat('visits', act));
           if (ms) playOn(ms, act);
           playAll(randomFor(act, met), act);
-        } else if (homeDay(day)) {
-          countVisit('home');
-          addLine('home', null, []);
-          var hm = milestoneOf('home', G().stat('visits', 'home')); if (hm) playOn(hm, 'home');
-          playAll(randomFor('home', []), 'home');
         }
       }
       // 愛情線、CP 線：一天最多一段，在當天其他劇情之後（判斷放到那時候，才會算進今天加的好感）
@@ -485,109 +477,81 @@
     var from = G().dayOf(C().planFrom || '09-08');
     return day >= from && !plans().months[ym(day)];
   }
+  /* 月曆（一個月排一次）：每週一列，勾選三天；星期幾去哪裡是固定的（data.js 的 plan.weekdays）
+   *   過去的日子、開學週的強制日程、不在這個月的日子不能勾；那週能勾的不到三天就全部勾
+   *   「每週都一樣」= 照第一週（第一週沒勾 → 照上個月）套到每一週 */
+  function weekdayAct(wd) { return (C().weekdays || {})[wd] || null; }
   function planner(day, done) {
-    var t = T(), d0 = dateOf(day), y = d0.getFullYear(), m = d0.getMonth(), p = plans(), sel = null;
-    var first = new Date(y, m, 1), lead = (first.getDay() + 6) % 7, days = new Date(y, m + 1, 0).getDate();
-    var el = document.createElement('div');
-    el.className = 'pl';
+    var t = T(), d0 = dateOf(day), y = d0.getFullYear(), m = d0.getMonth(), p = plans(), per = C().perWeek || 3;
+    var dim = new Date(y, m + 1, 0).getDate(), el = document.createElement('div');
+    el.className = 'pl pl-wk';
     function dayIdx(n) { return Math.round((new Date(y, m, n) - G().date(1)) / 864e5) + 1; }
     function md(n) { return ('0' + (m + 1)).slice(-2) + '-' + ('0' + n).slice(-2); }
-    function cellHTML(n) {
-      var di = dayIdx(n), wd = new Date(y, m, n).getDay(), we = wd === 0, f = forcedOn(di), mn = !f && mainOn(di), past = di < day;   // 星期日、有主線的日子不能放
-      var a = p.days[md(n)], cls = 'pl-day' + (we ? ' we' : '') + (past ? ' past' : '') + (f || mn ? ' forced' : '');
-      var can = !we && !past && !f && !mn;
-      var inner = '<b>' + n + '</b>' + (f ? '<i>' + cellOf(f.activity) + '</i>' : mn ? '<i class="dim">' + esc(t.mainDay) + '</i>' : we ? '<i class="dim">' + esc(t.weekend) + '</i>'
-        : a ? '<i class="blk" data-act="' + esc(a) + '">' + cellOf(a) + '</i>' : '');
-      return '<div class="' + cls + '"' + (can ? ' data-pday="' + md(n) + '"' : '') + '>' + inner + '</div>';
+    // 這個月的每一週（星期一開頭）：{ cells: [星期一～六：{ n, wd, ok }] }
+    var weeks = [], cur = null;
+    for (var n = 1; n <= dim; n++) {
+      var wd = new Date(y, m, n).getDay();
+      if (wd === 0) continue;
+      if (!cur || wd === 1) { cur = { cells: {} }; weeks.push(cur); }
+      var di = dayIdx(n);
+      cur.cells[wd] = { n: n, ok: di >= day && !forcedOn(di) && !!weekdayAct(wd) };
     }
+    weeks = weeks.filter(function (w) { return Object.keys(w.cells).some(function (k) { return w.cells[k].ok; }); });
+    function need(w) { return Math.min(per, Object.keys(w.cells).filter(function (k) { return w.cells[k].ok; }).length); }
+    function picked(w) { return Object.keys(w.cells).filter(function (k) { return w.cells[k].ok && p.days[md(w.cells[k].n)]; }).length; }
+    function ready() { return weeks.every(function (w) { return picked(w) === need(w); }); }
     function render() {
-      var cells = [];
-      for (var i = 0; i < lead; i++) cells.push('<div class="pl-day blank"></div>');
-      for (var n = 1; n <= days; n++) cells.push(cellHTML(n));
       el.innerHTML = '<div class="pl-in"><b class="pl-title">' + esc(t.planTitle.replace('{m}', m + 1)) + '</b><p>' + esc(t.planHint) + '</p>' +
-        '<div class="pl-head">' + ['一', '二', '三', '四', '五', '六', '日'].map(function (h) { return '<span>' + h + '</span>'; }).join('') + '</div>' +
-        '<div class="pl-grid">' + cells.join('') + '</div>' +
-        '<div class="pl-blocks">' + acts().map(function (a) {
-          return '<button type="button" class="pl-blk' + (sel === a.id ? ' on' : '') + '" data-blk="' + esc(a.id) + '">' + esc(a.label) + '</button>';
+        '<div class="pl-weeks">' + weeks.map(function (w, wi) {
+          var ns = Object.keys(w.cells).map(function (k) { return w.cells[k].n; });
+          return '<div class="pl-week"><div class="pl-wk-head"><span>' + (m + 1) + '/' + Math.min.apply(null, ns) + '～' + (m + 1) + '/' + Math.max.apply(null, ns) + '</span>' +
+            '<em' + (picked(w) === need(w) ? ' class="done"' : '') + '>' + esc(t.weekPick.replace('{n}', picked(w)).replace('{need}', need(w))) + '</em></div><div class="pl-wds">' +
+            [1, 2, 3, 4, 5, 6].map(function (wd) {
+              var c = w.cells[wd], a = weekdayAct(wd), on = c && c.ok && p.days[md(c.n)];
+              return '<button type="button" class="pl-wd' + (on ? ' on' : '') + '"' + (c && c.ok ? ' data-wk="' + wi + '" data-wd="' + wd + '"' : ' disabled') + '>' +
+                '<b>' + '一二三四五六'[wd - 1] + '</b><i>' + esc(a ? (actOf(a).place || actOf(a).label) : '') + '</i></button>';
+            }).join('') + '</div></div>';
         }).join('') + '</div>' +
         '<div class="pl-actions"><button type="button" class="pl-clear" data-clear>' + esc(t.clear) + '</button>' +
           '<button type="button" class="pl-clear pl-repeat" data-repeat>' + esc(t.repeatWeek) + '</button>' +
-        '<button type="button" class="pl-ok" data-confirm>' + esc(t.confirm) + '</button></div></div>';
+          '<button type="button" class="pl-ok" data-confirm' + (ready() ? '' : ' disabled') + '>' + esc(t.confirm) + '</button></div></div>';
     }
+    function setCell(w, wd, on) { var c = w.cells[wd]; if (!c || !c.ok) return; if (on) p.days[md(c.n)] = weekdayAct(wd); else delete p.days[md(c.n)]; }
     render();
     document.getElementById('phone').appendChild(el);
     void el.offsetWidth; el.classList.add('show');
-
-    function setDay(key, act) { if (act) p.days[key] = act; else delete p.days[key]; render(); }
-    // 拖曳：手指或滑鼠按住方塊拖到日子上
-    var drag = null;
-    el.addEventListener('pointerdown', function (e) {
-      var b = e.target.closest('[data-blk]'), c = e.target.closest('[data-pday] .blk');
-      if (!b && !c) return;
-      var act = b ? b.dataset.blk : c.dataset.act, from = c ? c.closest('[data-pday]').dataset.pday : null;
-      drag = { act: act, from: from, x: e.clientX, y: e.clientY, moved: false, ghost: null };
-      e.preventDefault();
-    });
-    window.addEventListener('pointermove', function (e) {
-      if (!drag) return;
-      if (!drag.moved && Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) < 6) return;
-      if (!drag.moved) {
-        drag.moved = true;
-        drag.ghost = document.createElement('div');
-        drag.ghost.className = 'pl-ghost'; drag.ghost.textContent = actOf(drag.act).label;
-        document.body.appendChild(drag.ghost);
-      }
-      drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px';
-      el.querySelectorAll('.pl-day.over').forEach(function (x) { x.classList.remove('over'); });
-      var tgt = document.elementFromPoint(e.clientX, e.clientY), cell = tgt && tgt.closest && tgt.closest('[data-pday]');
-      if (cell) cell.classList.add('over');
-    });
-    window.addEventListener('pointerup', function (e) {
-      if (!drag) return;
-      var d = drag; drag = null;
-      if (!d.moved) return;   // 只是點一下：交給 click
-      d.ghost.remove();
-      var tgt = document.elementFromPoint(e.clientX, e.clientY), cell = tgt && tgt.closest && tgt.closest('[data-pday]');
-      if (d.from) delete p.days[d.from];        // 從某一天拖出來：原本那天拿掉（拖到月曆外 = 刪掉）
-      if (cell) p.days[cell.dataset.pday] = d.act;
-      el.dataset.justDragged = 1; setTimeout(function () { delete el.dataset.justDragged; }, 50);
-      render();
-    });
     el.addEventListener('click', function (e) {
-      if (el.dataset.justDragged) return;
-      var b;
-      if ((b = e.target.closest('[data-blk]'))) { sel = sel === b.dataset.blk ? null : b.dataset.blk; render(); return; }
-      if ((b = e.target.closest('[data-pday]'))) {
-        var key = b.dataset.pday;
-        if (sel) setDay(key, sel); else if (p.days[key]) setDay(key, null);   // 選了方塊 → 放上去；沒選 → 點有方塊的日子拿掉
-        return;
+      var b = e.target.closest('[data-wk]');
+      if (b) {
+        var w = weeks[+b.dataset.wk], wd = +b.dataset.wd, c = w.cells[wd];
+        if (p.days[md(c.n)]) setCell(w, wd, false);
+        else if (picked(w) < need(w)) setCell(w, wd, true);   // 一週最多三天
+        render(); return;
       }
-      // 每週重複：照這個月已經排好的（星期一～六各取最早排的那天）填滿其他還沒排的同一個星期幾；
-      //   這個月還沒排任何東西 → 照上個月最後一次的同一個星期幾；已經排好的日子不動
       if (e.target.closest('[data-repeat]')) {
-        var pat = {}, n2, wd;
-        for (n2 = 1; n2 <= days; n2++) { wd = new Date(y, m, n2).getDay(); if (p.days[md(n2)] && !pat[wd]) pat[wd] = p.days[md(n2)]; }
-        if (!Object.keys(pat).length) {
-          var pd = new Date(y, m, 0).getDate();
-          for (n2 = pd; n2 >= 1; n2--) {
-            wd = new Date(y, m - 1, n2).getDay();
-            var k2 = ('0' + m).slice(-2) + '-' + ('0' + n2).slice(-2);
-            if (m === 0) k2 = '12-' + ('0' + n2).slice(-2);
-            if (p.days[k2] && !pat[wd]) pat[wd] = p.days[k2];
+        var pat = [];
+        if (weeks.length) Object.keys(weeks[0].cells).forEach(function (k) { if (weeks[0].cells[k].ok && p.days[md(weeks[0].cells[k].n)]) pat.push(+k); });
+        if (!pat.length) {   // 第一週還沒勾：照上個月最後一週
+          var py = m === 0 ? y - 1 : y, pm = m === 0 ? 11 : m - 1, pd = new Date(py, pm + 1, 0).getDate();
+          for (var n2 = pd; n2 >= 1 && pat.length < per; n2--) {
+            var wd2 = new Date(py, pm, n2).getDay(), k2 = ('0' + (pm + 1)).slice(-2) + '-' + ('0' + n2).slice(-2);
+            if (wd2 === 0) { if (pat.length) break; continue; }
+            if (p.days[k2] && pat.indexOf(wd2) < 0) pat.push(wd2);
           }
         }
-        for (n2 = 1; n2 <= days; n2++) {
-          var di2 = dayIdx(n2), wd2 = new Date(y, m, n2).getDay();
-          if (wd2 === 0 || di2 < day || mainOn(di2) || p.days[md(n2)] || !pat[wd2]) continue;
-          p.days[md(n2)] = pat[wd2];
-        }
+        weeks.forEach(function (w) {
+          Object.keys(w.cells).forEach(function (k) { setCell(w, +k, false); });
+          pat.forEach(function (wd) { if (picked(w) < need(w)) setCell(w, wd, true); });
+          // 這週有幾天不能去（強制日程、已經過了）：從剩下的日子補滿
+          Object.keys(w.cells).forEach(function (k) { if (picked(w) < need(w) && w.cells[k].ok && !p.days[md(w.cells[k].n)]) setCell(w, +k, true); });
+        });
         render(); return;
       }
       if (e.target.closest('[data-clear]')) {
-        for (var n = 1; n <= days; n++) if (dayIdx(n) >= day) delete p.days[md(n)];
+        weeks.forEach(function (w) { Object.keys(w.cells).forEach(function (k) { setCell(w, +k, false); }); });
         render(); return;
       }
-      if (e.target.closest('[data-confirm]')) {
+      if (e.target.closest('[data-confirm]') && ready()) {
         p.months[ym(day)] = 1; store(PKEY, p);
         if (S()) S().setFlag('planned_' + ym(day));
         el.classList.remove('show');
@@ -635,10 +599,6 @@
           G().setDay(day);
           var met = doActivity(act);
           pendWeek({ day: day, act: act, met: met, fx: actFx(met) });
-        } else if (homeDay(day)) {   // 沒安排 = 回家
-          G().setDay(day);
-          countVisit('home');
-          pendWeek({ day: day, act: 'home', met: [], fx: null });
         }
         day++;
       }

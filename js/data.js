@@ -287,7 +287,7 @@ window.SITE_DATA = {
    *   手機只有星期日能用（鎖定畫面 → 自由使用手機 → 睡覺）；星期日沒有日程、也沒有出遊
    *   其他有事的日子不解鎖手機：在黑底日期畫面上直接播劇情，播完自動往後跳
    * 好感度（每個日程每次的總量一樣，平分給在場的人；在場 = cast 的 activities 有這個日程）：
-   *   每人好感 = affTotal ÷ 在場人數；每一對關係 = pairTotal ÷ 在場的對數（都四捨五入成整數，最少 1）
+   *   遇到的每個人好感 +affEach、遇到的每一對關係 +pairEach（不平分）
    *   每次去不會遇到全部的人：從會出現在那裡的成員裡隨機遇到 1 位～全部
    *   總量固定、平分給遇到的人：例如學生會遇到 3 位 → 各 +2；只遇到 1 位 → +6（一年下來每個人平均是公平的）
    *   回家：沒有
@@ -303,8 +303,12 @@ window.SITE_DATA = {
     planFrom: "09-08",
     quietUntil: "09-14",   // 這天之前（9/8～9/13）不會遇到日程劇情（固定、隨機、特殊都不播；次數照算、好感照加，剛好到的固定劇情之後第一次去時補播）。之後不需要就刪掉
     quietOpen: ["club", "volunteer"],   // 安靜期間照常播固定、隨機劇情的日程（已經改好文本的）
-    affTotal: 4,   // 日程每次的好感總量（平分給遇到的人，四捨五入成整數、最少 1）；星期日、送禮比較能指定對象，所以加得比較多
-    pairTotal: 15,
+    // 日程：遇到的每個人好感 +affEach、遇到的每一對關係 +pairEach（不平分）
+    affEach: 3,
+    pairEach: 10,
+    // 星期幾去哪裡（固定）：1 週一 … 6 週六；每週要選 perWeek 天
+    weekdays: { 1: "council", 2: "volunteer", 3: "sports", 4: "club", 5: "games", 6: "karaoke" },
+    perWeek: 3,
     // label = 活動名稱（月曆的日程方塊、每週回顧、行事曆、劇情回想）；place = 地點（「去了舞室，遇到了……」、開場動畫的出現地點、玩法說明）
     // 回家：活動名稱「回家」（plan.text.home）、地點是家
     // cell = 月曆格子裡顯示的名字（"|" = 換行），沒寫就用 label
@@ -345,10 +349,9 @@ window.SITE_DATA = {
      *   from～until 之間才會觸發；一天最多一段 */
     //   cp = 成員之間的 CP 線：關係到 stage1（100）親近 → stage2 心動 → stage3 曖昧 → together 在一起（記旗標 couple_m1-m2）
     //   每位成員最多一對；玩家的戀人、已經在一對裡的人不會進第 2 階段以後；CP 成立的人也不會進玩家的愛情線
-    bond: { love1: 150, love2: 300, confess: 450, from: "09-08", until: "08-23",
-      cp: { stage1: 100, stage2: 300, stage3: 500, together: 700 } },   // 關係加得比好感快（星期日兩人、請別人送禮都是 +15），所以門檻比愛情線高
+    bond: { love1: 90, love2: 180, confess: 270, from: "09-08", until: "08-23",
+      cp: { stage1: 60, stage2: 120, stage3: 180, together: 240 } },   // 專心追一位 → 6 月前告白；專心推一對 → 6 月前在一起；一位＋一對 → 8 月前都可以
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
-    homeMilestones: [3, 5, 10, 20],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
     /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（目前 20%）（一天最多一段：中了就從遇到的人符合的名單裡抽一段；可以重複觸發）
      *   寫編號：單人 "1"、配對 "14"（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮）；
      *   劇情寫在 scenes.rand_日程_編號（例如 rand_club_14）；沒寫劇情的不會觸發
@@ -373,8 +376,8 @@ window.SITE_DATA = {
    * （一年下來的好感度很高，下面的數字是暫定，之後照試玩結果調）
    */
   romance: {
-    lover: { aff: 450, flag: "confess_{id}" },   // 告白過（plan.bond.confess）＝戀人
-    couple: { pair: 700, flag: "couple_{pair}" },   // CP 線走到「在一起」（plan.bond.cp.together）＝一對
+    lover: { aff: 270, flag: "confess_{id}" },   // 告白過（plan.bond.confess）＝戀人
+    couple: { pair: 240, flag: "couple_{pair}" },   // CP 線走到「在一起」（plan.bond.cp.together）＝一對
     // 個人覺醒 = 覺醒度到 value（每人一樣、不會下降）
     //   覺醒度只能靠「在手機裡找到線索」增加：IG 貼文／限動、X 貼文、照片、備忘錄、KakaoTalk 訊息寫 clue: "m3_1"，
     //   玩家看到 1 秒就算找到（覺醒度 +1、記錄旗標 clue_m3_1）；劇情、日程只會有跡象，不會加覺醒度

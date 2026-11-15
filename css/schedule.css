@@ -54,3 +54,14 @@
 .pl-tip { z-index: 102; }
 .pl-tip .ios-alert, .pl-tip .ios-alert button { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang TC", "Noto Sans TC", sans-serif; }   /* 日程規劃的提示：手機字體 */
 .ios-alert-btns.one { grid-template-columns: 1fr; }
+/* 月曆（每週勾三天）：每週一列，星期一～六各一顆（下面寫地點） */
+.pl-weeks { display: flex; flex-direction: column; gap: 10px; max-height: 58vh; overflow-y: auto; }
+.pl-wk-head { display: flex; justify-content: space-between; align-items: baseline; padding: 0 2px 4px; font-size: 13px; }
+.pl-wk-head em { font-style: normal; font-size: 12px; opacity: .7; }
+.pl-wk-head em.done { opacity: 1; font-weight: 700; }
+.pl-wds { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+.pl-wd { height: 52px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font: inherit; }
+.pl-wd b { font-size: 14px; }
+.pl-wd i { font-style: normal; font-size: 10px; }
+.pl-wd:disabled { opacity: .3; }
+.pl-ok:disabled { opacity: .45; }

@@ -209,7 +209,7 @@ const TESTS = [
       { day: 9, act: 'home', met: [], fx: null, rnd: [] },
       { day: 13, act: 'sports', met: ['m4'], fx: { aff: { m4: 10 }, pair: {} }, rnd: [] }
     ];
-    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' }, 'riiiize-flags': Object.assign({ freephone_14: 1, 'daychat_09-14': 1 }, NIGHT7_FLAGS), 'riiiize-weekpend': wk }));
+    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' }, 'riiiize-flags': Object.assign({ freephone_14: 1, 'daychat_09-14': 1 }, NIGHT7_FLAGS), 'riiiize-weekpend': wk, 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days: { '09-15': 'council' } } }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     await p.waitForSelector('.wk', { timeout: 8000 });
     const rows = await p.$$eval('.wk li', a => a.map(x => x.textContent));
@@ -238,23 +238,25 @@ const TESTS = [
     if (sc !== 'act_club_3') throw new Error('9/8 第 3 次去舞室沒有播 act_club_3：' + sc);
     return p;
   }],
-  ['日程規劃：每週重複 → 照已排好的星期幾填滿這個月，已排的不動', async (b, base) => {
-    const days = { '10-06': 'club', '10-07': 'council', '10-15': 'games' };
-    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.filter(m => m !== '2025-10').reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 31, phase: 'morning' }, 'riiiize-flags': NIGHT7_FLAGS }));
-    await p.evaluate(() => { PLAN.openPlanner(); });
+  ['日程規劃：每週勾三天（星期幾的地點固定），「每週都一樣」套用到每週，勾滿才能確認；主線日也能排', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.filter(m => m !== '2025-10').reduce((o, m) => (o[m] = 1, o), {}), days: {} }, 'riiiize-game': { day: 31, phase: 'morning' }, 'riiiize-flags': NIGHT7_FLAGS }));
+    await p.evaluate(() => { document.querySelectorAll('.pl').forEach(x => x.remove()); PLAN.openPlanner(); });
     await p.waitForSelector('[data-repeat]', { timeout: 8000 });
+    if (!(await p.$eval('[data-confirm]', e => e.disabled))) throw new Error('還沒勾滿不該能確認');
+    for (const wd of [3, 4, 5, 6]) await p.click('[data-wk="0"][data-wd="' + wd + '"]');   // 第四個點不上去
+    const n0 = await p.$$eval('.pl-week:first-child .pl-wd.on', a => a.length);
+    if (n0 !== 3) throw new Error('一週最多三天：' + n0);
     await p.click('[data-repeat]'); await sleep(300);
-    const got = await p.$$eval('[data-pday]', a => a.reduce((o, x) => { const k = x.querySelector('.blk'); o[x.dataset.pday] = k ? k.dataset.act : ''; return o; }, {}));
-    const want = { '10-13': 'club', '10-20': 'club', '10-27': 'club', '10-14': 'council', '10-28': 'council', '10-08': 'games', '10-22': 'games', '10-15': 'games', '10-09': '', '10-10': '', '10-11': '' };
-    for (const k in want) if (got[k] !== want[k]) throw new Error(k + ' 應該是「' + want[k] + '」，現在是「' + got[k] + '」');
-    // 有主線的日子（10/24）不能安排日程：格子上寫「主線」
-    if ('10-24' in got) throw new Error('10/24 有主線，不該能安排日程');
-    const c24 = await p.evaluate(() => [...document.querySelectorAll('.pl-day')].filter(d => (d.querySelector('b') || {}).textContent === '24')[0].textContent);
-    if (!/主線/.test(c24)) throw new Error('10/24 的格子應該寫「主線」：' + c24);
+    const rows = await p.$$eval('.pl-week', a => a.map(w => [...w.querySelectorAll('.pl-wd.on b')].map(x => x.textContent).join('')));
+    if (rows.some(r => r !== '三四五' && r !== '三四五'.slice(0, r.length))) throw new Error('每週都一樣不對：' + rows.join('|'));
+    if (await p.$eval('[data-confirm]', e => e.disabled)) throw new Error('勾滿了應該能確認');
+    await p.click('[data-confirm]'); await sleep(500);
+    const d = await p.evaluate(() => JSON.parse(localStorage.getItem('riiiize-plan')).days);
+    if (d['10-24'] !== 'games' || d['10-01'] !== 'sports' || d['10-02'] !== 'club' || d['10-06']) throw new Error('存的不對：' + JSON.stringify(d).slice(0, 200));
     return p;
   }],
-  ['KakaoTalk：好感的愛心照好感填滿（元彬 225 / 告白 450 = 50%）', async (b, base) => {
-    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { aff: { m4: 225 } } }));
+  ['KakaoTalk：好感的愛心照好感填滿（元彬 135 / 告白 270 = 50%）', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS, 'riiiize-stats': { aff: { m4: 135 } } }));
     await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); location.hash = '#/kakao/chat/f4'; });
     await p.waitForSelector('.kk-chat-head [data-kprof]', { timeout: 8000 });
     await p.click('.kk-chat-head [data-kprof]');
@@ -608,16 +610,16 @@ const TESTS = [
     if (!/線索收集/.test(rows2)) throw new Error('10/1 應該有線索收集：' + rows2);
     return p;
   }],
-  ['愛情線：好感 150 心動 → 300 曖昧 → 450 告白（可選多位）→ 有戀人之後其他人沒有愛情線（友誼線已刪除）', async (b, base) => {
+  ['愛情線：好感 90 心動 → 180 曖昧 → 270 告白（可選多位）→ 有戀人之後其他人沒有愛情線（友誼線已刪除）', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 40, phase: 'night' } }));
     const r = await p.evaluate(() => {
       const A = (id, v) => GAME.addStat('aff', id, v - GAME.stat('aff', id)), F = f => SOSHO.setFlag(f), q = () => { const x = PLAN.bondFor(GAME.day); return x ? (x.id || x.kind + ':' + x.ids.join('+')) : '-'; };
       const out = [];
-      A('m4', 160); out.push(q()); F('scene_love_m4_1');
-      A('m4', 310); out.push(q()); F('scene_love_m4_2');
-      out.push(q());   // 好感 300、看過曖昧：沒有別的劇情了（友誼線已刪除）
-      A('m4', 460); A('m1', 460); F('scene_love_m1_1'); F('scene_love_m1_2'); out.push(q());
-      F('confess_m4'); A('m2', 310); out.push(q()); out.push(GAME.check({ lover: 'm4' }) && !GAME.check({ lover: 'm1' }));
+      A('m4', 100); out.push(q()); F('scene_love_m4_1');
+      A('m4', 190); out.push(q()); F('scene_love_m4_2');
+      out.push(q());   // 好感 190、看過曖昧：沒有別的劇情了（友誼線已刪除）
+      A('m4', 280); A('m1', 280); F('scene_love_m1_1'); F('scene_love_m1_2'); out.push(q());
+      F('confess_m4'); A('m2', 190); out.push(q()); out.push(GAME.check({ lover: 'm4' }) && !GAME.check({ lover: 'm1' }));
       return out.join(',');
     });
     if (r !== 'love_m4_1,love_m4_2,-,confess:m1+m4,-,true') throw new Error(r);
