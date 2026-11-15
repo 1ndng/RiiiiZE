@@ -37,11 +37,10 @@ RIIIZE_ADD({
       { call: { room: "g_council", from: "f1", forced: true, start: "start", nodes: { start: { lines: [{ who: "f1", text: "{name}生日快樂🎂🎂" }, { who: "f2", text: "happy birthday" }, { who: "f6", text: "HBD！" }, { who: "f3", text: "生日快樂{name}！！" }, { who: "f5", text: "生日快樂~" }, { who: "f4", text: "{name}" }, { who: "f4", text: "生日快樂" }, { who: "me", text: "謝⋯⋯謝謝你們⋯⋯TT" }, { who: "f3", text: "我們應該早點約你出來的⋯⋯" }, { who: "f5", text: "就算隔著螢幕，還是許個願吧！" }] } } } },
       { label: "wish" },
       { text: "你閉上眼睛。" },
-      { text: "不知道為什麼，在許願的那一瞬間，你想到的不是自己，是眼前這六個人。", if: { flag: "bday_me_ok" } },
-      { text: "不知道為什麼，在許願的那一瞬間，你想到的不是自己，是電話那頭的六個人。", if: { flag: "bday_me_no" } },
+      { text: "此刻在你腦海中浮現的，是眼前這六個人。", if: { flag: "bday_me_ok" } },
+      { text: "此刻在你腦海中浮現的，是電話那頭的六個人。", if: { flag: "bday_me_no" } },
       { text: "你希望——" },
       { wish: { aff: 10, pair: 15 } },
-      { text: "你在心裡，把願望說得很清楚。", wishIs: "aff" },
       { who: "me", text: "（希望我和{wish}，可以一直、一直在一起。）", wishIs: "aff" },
       { who: "me", text: "（希望{wish}，可以一直、一直在一起。）", wishIs: "pair" }
     ],
