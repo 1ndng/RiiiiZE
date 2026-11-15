@@ -238,21 +238,24 @@ const TESTS = [
     if (sc !== 'act_club_3') throw new Error('9/8 第 3 次去舞室沒有播 act_club_3：' + sc);
     return p;
   }],
-  ['日程規劃：每週勾三天（星期幾的地點固定），「每週都一樣」套用到每週，勾滿才能確認；主線日也能排', async (b, base) => {
+  ['日程規劃：每週勾三天（星期幾的地點固定），星期日顯示休息，勾滿才能確認；主線日也能排', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.filter(m => m !== '2025-10').reduce((o, m) => (o[m] = 1, o), {}), days: {} }, 'riiiize-game': { day: 31, phase: 'morning' }, 'riiiize-flags': NIGHT7_FLAGS }));
     await p.evaluate(() => { document.querySelectorAll('.pl').forEach(x => x.remove()); PLAN.openPlanner(); });
-    await p.waitForSelector('[data-repeat]', { timeout: 8000 });
+    await p.waitForSelector('[data-confirm]', { timeout: 8000 });
     if (!(await p.$eval('[data-confirm]', e => e.disabled))) throw new Error('還沒勾滿不該能確認');
     for (const wd of [3, 4, 5, 6]) await p.click('[data-wk="0"][data-wd="' + wd + '"]');   // 第四個點不上去
     const n0 = await p.$$eval('.pl-week:first-child .pl-wd.on', a => a.length);
     if (n0 !== 3) throw new Error('一週最多三天：' + n0);
-    await p.click('[data-repeat]'); await sleep(300);
-    const rows = await p.$$eval('.pl-week', a => a.map(w => [...w.querySelectorAll('.pl-wd.on b')].map(x => x.textContent).join('')));
-    if (rows.some(r => r !== '三四五' && r !== '三四五'.slice(0, r.length))) throw new Error('每週都一樣不對：' + rows.join('|'));
+    if (await p.$('[data-repeat]')) throw new Error('「每週都一樣」應該刪掉了');
+    const sun = await p.$eval('.pl-week:first-child .pl-sun', e => e.disabled && /日/.test(e.textContent) && /休息/.test(e.textContent));
+    if (!sun) throw new Error('星期日要顯示「休息」而且不能選');
+    // 每週勾滿三天（第一週已勾；其他週勾週一、三、五，10/24 是主線日也能排）
+    const nw = await p.$$eval('.pl-week', a => a.length);
+    for (let w = 1; w < nw; w++) for (const wd of [1, 3, 5]) { const s = '[data-wk="' + w + '"][data-wd="' + wd + '"]'; if (await p.$(s)) await p.click(s); }
     if (await p.$eval('[data-confirm]', e => e.disabled)) throw new Error('勾滿了應該能確認');
     await p.click('[data-confirm]'); await sleep(500);
     const d = await p.evaluate(() => JSON.parse(localStorage.getItem('riiiize-plan')).days);
-    if (d['10-24'] !== 'games' || d['10-01'] !== 'sports' || d['10-02'] !== 'club' || d['10-06']) throw new Error('存的不對：' + JSON.stringify(d).slice(0, 200));
+    if (d['10-24'] !== 'games' || d['10-01'] !== 'sports' || d['10-02'] !== 'club' || d['10-06'] !== 'council' || d['10-07']) throw new Error('存的不對：' + JSON.stringify(d).slice(0, 200));
     return p;
   }],
   ['KakaoTalk：好感的愛心照好感填滿（元彬 135 / 告白 270 = 50%）', async (b, base) => {

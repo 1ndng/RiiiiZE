@@ -36,7 +36,7 @@
     var t = C().text || {}, d = {
       planTitle: '{m}月的日程規劃', planHint: '每週選三天。每天能去的地方是固定的。', confirm: '確認', weekend: '週日', mainDay: '主線', home: '回家',
       tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以規劃這個月的日程。\n每週勾選三天，確認後不可更改。',
-      ok: '好', clear: '清除', repeatWeek: '每週都一樣', weekPick: '已選 {n} / {need}',
+      ok: '好', clear: '清除', sunRest: '休息', weekPick: '已選 {n} / {need}',
       giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '要', giftAsk: '有人要', giftNo: '不要',
       giftPickOne: '要送給誰？', giftPickGiver: '誰送？', giftPickTo: '送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
       giftMeText: '你把禮物送給了{a}。', giftAskText: '{a}把禮物送給了{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
@@ -478,8 +478,7 @@
     return day >= from && !plans().months[ym(day)];
   }
   /* 月曆（一個月排一次）：每週一列，勾選三天；星期幾去哪裡是固定的（data.js 的 plan.weekdays）
-   *   過去的日子、開學週的強制日程、不在這個月的日子不能勾；那週能勾的不到三天就全部勾
-   *   「每週都一樣」= 照第一週（第一週沒勾 → 照上個月）套到每一週 */
+   *   過去的日子、開學週的強制日程、不在這個月的日子不能勾；那週能勾的不到三天就全部勾；星期日 = 休息（顯示但不能勾） */
   function weekdayAct(wd) { return (C().weekdays || {})[wd] || null; }
   function planner(day, done) {
     var t = T(), d0 = dateOf(day), y = d0.getFullYear(), m = d0.getMonth(), p = plans(), per = C().perWeek || 3;
@@ -506,14 +505,14 @@
           var ns = Object.keys(w.cells).map(function (k) { return w.cells[k].n; });
           return '<div class="pl-week"><div class="pl-wk-head"><span>' + (m + 1) + '/' + Math.min.apply(null, ns) + '～' + (m + 1) + '/' + Math.max.apply(null, ns) + '</span>' +
             '<em' + (picked(w) === need(w) ? ' class="done"' : '') + '>' + esc(t.weekPick.replace('{n}', picked(w)).replace('{need}', need(w))) + '</em></div><div class="pl-wds">' +
-            [1, 2, 3, 4, 5, 6].map(function (wd) {
+            [1, 2, 3, 4, 5, 6, 0].map(function (wd) {
+              if (wd === 0) return '<button type="button" class="pl-wd pl-sun" disabled><b>日</b><i>' + esc(t.sunRest) + '</i></button>';   // 星期日：休息（不能選）
               var c = w.cells[wd], a = weekdayAct(wd), on = c && c.ok && p.days[md(c.n)];
               return '<button type="button" class="pl-wd' + (on ? ' on' : '') + '"' + (c && c.ok ? ' data-wk="' + wi + '" data-wd="' + wd + '"' : ' disabled') + '>' +
                 '<b>' + '一二三四五六'[wd - 1] + '</b><i>' + esc(a ? (actOf(a).place || actOf(a).label) : '') + '</i></button>';
             }).join('') + '</div></div>';
         }).join('') + '</div>' +
         '<div class="pl-actions"><button type="button" class="pl-clear" data-clear>' + esc(t.clear) + '</button>' +
-          '<button type="button" class="pl-clear pl-repeat" data-repeat>' + esc(t.repeatWeek) + '</button>' +
           '<button type="button" class="pl-ok" data-confirm' + (ready() ? '' : ' disabled') + '>' + esc(t.confirm) + '</button></div></div>';
     }
     function setCell(w, wd, on) { var c = w.cells[wd]; if (!c || !c.ok) return; if (on) p.days[md(c.n)] = weekdayAct(wd); else delete p.days[md(c.n)]; }
@@ -526,25 +525,6 @@
         var w = weeks[+b.dataset.wk], wd = +b.dataset.wd, c = w.cells[wd];
         if (p.days[md(c.n)]) setCell(w, wd, false);
         else if (picked(w) < need(w)) setCell(w, wd, true);   // 一週最多三天
-        render(); return;
-      }
-      if (e.target.closest('[data-repeat]')) {
-        var pat = [];
-        if (weeks.length) Object.keys(weeks[0].cells).forEach(function (k) { if (weeks[0].cells[k].ok && p.days[md(weeks[0].cells[k].n)]) pat.push(+k); });
-        if (!pat.length) {   // 第一週還沒勾：照上個月最後一週
-          var py = m === 0 ? y - 1 : y, pm = m === 0 ? 11 : m - 1, pd = new Date(py, pm + 1, 0).getDate();
-          for (var n2 = pd; n2 >= 1 && pat.length < per; n2--) {
-            var wd2 = new Date(py, pm, n2).getDay(), k2 = ('0' + (pm + 1)).slice(-2) + '-' + ('0' + n2).slice(-2);
-            if (wd2 === 0) { if (pat.length) break; continue; }
-            if (p.days[k2] && pat.indexOf(wd2) < 0) pat.push(wd2);
-          }
-        }
-        weeks.forEach(function (w) {
-          Object.keys(w.cells).forEach(function (k) { setCell(w, +k, false); });
-          pat.forEach(function (wd) { if (picked(w) < need(w)) setCell(w, wd, true); });
-          // 這週有幾天不能去（強制日程、已經過了）：從剩下的日子補滿
-          Object.keys(w.cells).forEach(function (k) { if (picked(w) < need(w) && w.cells[k].ok && !p.days[md(w.cells[k].n)]) setCell(w, +k, true); });
-        });
         render(); return;
       }
       if (e.target.closest('[data-clear]')) {
