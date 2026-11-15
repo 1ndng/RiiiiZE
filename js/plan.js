@@ -15,7 +15,7 @@
  *
  * 好感度（公平：每個日程每次的總量一樣，平分給在場的人）：
  *   好感：affTotal（預設 6）÷ 在場人數；成員之間：pairTotal（預設 15）÷ 在場的對數（四捨五入成整數，最少 1）
- *   在場的人 = cast 的 activities 有這個日程的成員；閒晃 = 隨機 wanderMeet（預設 2）位
+ *   在場的人 = cast 的 activities 有這個日程的成員
  *   特殊劇情發生的那天不加好感
  * ========================================================= */
 (function () {
@@ -37,14 +37,12 @@
       planTitle: '{m}月的日程規劃', planHint: '一天可以安排一個日程，沒有安排的日子會回家', confirm: '確認', weekend: '週日', mainDay: '主線', home: '回家',
       tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以自由規劃日程。\n把方塊拖到月曆上，確認後不可更改。',
       ok: '好', clear: '清除', repeatWeek: '每週重複',
-      weekendTitle: '今天要和誰見面？', weekendHint: '最多選兩位', go: '出門', stayHome: '待在家',
-      single: '今天和{a}一起度過了。', pair: '今天和{a}、{b}一起度過了。', stayHomeText: '今天待在家裡，好好休息了一下。',
       giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '要', giftAsk: '有人要', giftNo: '不要',
       giftPickOne: '要送給誰？', giftPickGiver: '誰送？', giftPickTo: '送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
       giftMeText: '你把禮物送給了{a}。', giftAskText: '{a}把禮物送給了{b}。', birthday: '{name}生日', myBirthday: '我的生日', giftDay: '送禮日',
       skipped: '{from} ～ {to}',
       dayLine: '{date}\n去了{place}，遇到了{who}。',   // {place} = 地點（舞室、小學…）、{act} = 活動名稱（社團活動、訓練…）
-      dayShort: '{date}，{what}。{gain}', gainLabel: '好感度', goPlace: '你去了{place}', stayHomeLine: '你回家了', sunOut: '你和{who}出去玩了', sunHomeLine: '你待在家', sunOutCard: '出遊', sunHome: '待在家',
+      dayShort: '{date}，{what}。{gain}', gainLabel: '好感度', goPlace: '你去了{place}', stayHomeLine: '你回家了',
       weekTitle: '這週的安排', weekGo: '繼續', weekNobody: '沒遇到人', home: '回家', weekMet: '這幾天見到了{who}。', weekAff: '好感', weekPair: '關係', weekNoGain: '這幾天沒有遇到人。'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -85,7 +83,7 @@
   function isGiftDay(day) { return dateOf(day).getDate() === 14 && !holidaysOn(day).length; }
   // 有主線劇情的日子不能安排日程（當天只播主線，不去日程、也不算回家）
   function mainOn(day) { return storyOn(day).length > 0; }
-  function plannedOn(day) { return mainOn(day) ? null : plans().days[G().md(day)] || null; }
+  function plannedOn(day) { var a = mainOn(day) ? null : plans().days[G().md(day)] || null; return a && acts().some(function (x) { return x.id === a; }) ? a : null; }   // 已經刪掉的日程（例如閒晃）= 沒安排
   // 今天這個日程會觸發的特殊劇情（specials：{ activity, if, scene, date }；看過就不再觸發，repeat: true 可以重複）
   function specialFor(day, act) {
     if (!act || quiet(day)) return null;   // 安靜期間（9/8～9/13）也沒有特殊劇情
@@ -226,12 +224,10 @@
 
   /* ---- 好感度：日程每次的總量平分給在場的人 ---- */
   // 這次去會遇到誰：從會出現在這個日程的成員裡隨機挑 1 位～全部（每次都重新抽）
-  //   閒晃 = 從全部成員裡隨機挑 1～wanderMeet 位
   function membersOf(act) {
-    var pool = act === 'wander' ? cast().map(function (c) { return c.id; })
-      : cast().filter(function (c) { return (c.activities || []).indexOf(act) >= 0; }).map(function (c) { return c.id; });
+    var pool = cast().filter(function (c) { return (c.activities || []).indexOf(act) >= 0; }).map(function (c) { return c.id; });
     if (!pool.length) return [];
-    var max = act === 'wander' ? Math.min(C().wanderMeet || 2, pool.length) : pool.length;
+    var max = pool.length;
     var k = 1 + Math.floor(Math.random() * max), out = [];
     while (out.length < k) out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
     return cast().map(function (c) { return c.id; }).filter(function (id) { return out.indexOf(id) >= 0; });   // 照 cast 的順序
@@ -340,46 +336,6 @@
     });
   }
 
-  // 星期日：先播 weekend.intro（劇情樣式），再選要見誰
-  function weekend(done) {
-    var w = C().weekend || {}, t = T();
-    playIf(w.intro, function () {   // 星期日早上：背景 = plan.homeBg
-      chooser({ title: t.weekendTitle, hint: t.weekendHint, max: 2, min: 1, goLabel: t.go, altLabel: t.stayHome,
-        onAlt: function () {
-          if (S()) S().setFlag('weekend_home');
-          pendWeek({ day: G().day, act: 'sunday', met: [], fx: null });
-          // 待在家：平常只有一句話「9/14（日）　待在家」；寫了 chance 的劇情照機率接著播（背景 = plan.homeBg）
-          var hs = (w.home || []).filter(function (e) { return ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene) && (e.chance == null || Math.random() < e.chance); })[0];
-          narrate(t.dayShort.replace('{date}', shortDate(G().day)).replace('{what}', t.sunHomeLine).replace('{gain}', ''), function () {
-            if (hs) window.STORY.play(hs.scene, done, null, C().homeBg); else done();
-          }, C().homeBg);
-        },
-        onGo: function (ids) {
-          // 見一位：好感 +single；見兩位：各自好感 +pairAff、兩人關係 +pairBond
-          var fx = { aff: {}, pair: {} };
-          if (ids.length === 1) fx.aff[ids[0]] = w.single != null ? w.single : 6;
-          else { ids.forEach(function (id) { fx.aff[id] = w.pairAff != null ? w.pairAff : 3; }); fx.pair[ids[0] + '-' + ids[1]] = w.pairBond != null ? w.pairBond : 15; }
-          G().apply(fx);
-          pendWeek({ day: G().day, act: 'sunday', met: ids.slice(), fx: fx });
-          // 同一個人／同一組：寫了 chance 的是特殊劇情（照機率觸發），沒寫的是固定劇情
-          var cands = (w.scenes || []).filter(function (e) {
-            var a = [].concat(e.with || []).slice().sort().join(), b = ids.slice().sort().join();
-            return a === b && ok(e.if) && (e.repeat || !seen(e.scene)) && scene(e.scene);
-          });
-          if (ids.length === 2 && G().blockedPair(ids[0], ids[1])) cands = [];   // 不想配對的兩人一起出門：只用一句話帶過
-          var sc = cands.filter(function (e) { return e.chance != null && Math.random() < e.chance; })[0] ||
-            cands.filter(function (e) { return e.chance == null; })[0];
-          // 出去玩：平常只有一句話「9/14（日）　和元彬出遊　元彬 +10」；照機率（chance）接著播劇情（背景 = weekend.bg）
-          var sh = function (id) { var c = cast().filter(function (x) { return x.id === id; })[0] || {}; return c.short || c.name || id; };
-          var what = t.sunOut.replace('{who}', ids.map(sh).join('、'));
-          narrate(t.dayShort.replace('{date}', shortDate(G().day)).replace('{what}', what).replace('{gain}', gainText(fx)), function () {
-            if (sc) window.STORY.play(sc.scene, done, null, w.bg); else done();
-          }, w.bg);
-        }
-      });
-    }, C().homeBg);
-  }
-
   /* 送禮的劇情（js/story/gift.js）：names = 依序找的劇情 id，第一個有寫的就播；都沒寫 → fallback（一句旁白）
    *   劇情裡 who: "{b}" = 收禮的人、文字裡 {a} = 送禮的人、{b} = 收禮的人的名字 */
   function giftScene(names, a, b, fallback, done) {
@@ -462,10 +418,10 @@
       setTimeout(function () { gift(function () { if (S()) S().setFlag(key); done(); }); }, 300);
     }, true);
     /* 放學的順序（星期一～六）：主線（含開學週強制日程，劇情在 js/story.js 先播）→ 節日 → 生日 → 日程 → 隨機劇情
-     * 星期日：節日 → 生日 → 出去玩（14 日的送禮在早上最先） */
+     * 星期日：節日 → 生日（14 日的送禮在早上最先）；星期日沒有日程、也沒有出遊 */
     G().onPhase('afterschool', function (done) {
       if (window.STORY && window.STORY.resumed('afterschool')) { done(); return; }   // 讀檔：放學的劇情剛剛已經接著播完
-      var day = G().day, steps = [], sunday = dateOf(day).getDay() === 0;
+      var day = G().day, steps = [];
       if (location.hash !== '#/home') location.hash = '#/home';
       var forced = forcedOn(day);
       var playOn = function (id, act) { steps.push(function (next) { window.STORY.play(id, next, null, bgOf(act)); }); };
@@ -509,8 +465,6 @@
           playAll(randomFor('home', []), 'home');
         }
       }
-      // 星期日：出去玩（送禮已經在早上最先做了）
-      if (sunday && !forced && !(C().weekend || {}).off) steps.push(weekend);
       // 愛情線、CP 線：一天最多一段，在當天其他劇情之後（判斷放到那時候，才會算進今天加的好感）
       //   重新打開「愛情線選擇」裡排除的組合之後（GAME.bondCatchup）：這一天把累積到的好感度劇情一段接一段播完
       var bondRuns = 0;
@@ -710,7 +664,7 @@
   /* ---- 一天一天的流程 ----
    * go()：畫面變暗 → 往後跳到下一個有事的日子 →
    *   每一天都在黑底日期畫面上直接開始（不用解鎖）
-   *   星期日（能用手機的日子）：劇情、跟成員出去玩都結束 → 鎖定畫面，解鎖後自由使用手機
+   *   星期日（能用手機的日子）：劇情都結束 → 鎖定畫面，解鎖後自由使用手機
    *   其他日子：晚上自動再往後跳 */
   var going = false;
   function fadeEl() {
@@ -842,13 +796,13 @@
       '<small>' + esc(week.length > 1 ? md(d0) + '～' + md(d1) : md(d0)) + '</small>' +
       '<b>' + esc(t.weekTitle) + '</b>' +
       '<ul>' + week.map(function (w) {
-        var d = dateOf(w.day), a = w.act === 'home' ? { label: t.home } : w.act === 'sunday' ? { label: w.met.length ? t.sunOutCard : t.sunHome } : actOf(w.act);   // 星期日：出遊（後面是一起出去的人）／待在家
+        var d = dateOf(w.day), a = w.act === 'home' ? { label: t.home } : actOf(w.act);
         return '<li><span class="wk-d">' + (d.getMonth() + 1) + '/' + d.getDate() + '（' + esc(G().weekday(d).replace('星期', '')) + '）</span>' +
           '<span class="wk-a">' + esc(a.label) + '</span>' +
           '<span class="wk-m">' + (w.met.length ? w.met.map(function (id) {
             var c = cast().filter(function (x) { return x.id === id; })[0] || {};
             return '<i title="' + esc(c.name || id) + '"><img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""></i>';
-          }).join('') : (w.act === 'home' || w.act === 'sunday' ? '' : '<em>' + esc(t.weekNobody) + '</em>')) + '</span></li>';
+          }).join('') : (w.act === 'home' ? '' : '<em>' + esc(t.weekNobody) + '</em>')) + '</span></li>';
       }).join('') + '</ul>' +
       gainsHTML(week) +
       '<button type="button" data-wk-go>' + esc(t.weekGo) + '</button>' +
@@ -869,7 +823,7 @@
   function gainsHTML(week) {
     var t = T(), aff = {}, pair = {};
     week.forEach(function (w) {
-      var fx = w.fx !== undefined ? w.fx : actFx(w.met);   // 記下來的實際加分（星期日出遊、特殊劇情那天不加）
+      var fx = w.fx !== undefined ? w.fx : actFx(w.met);   // 記下來的實際加分（特殊劇情那天不加）
       if (!fx) return;
       Object.keys(fx.aff || {}).forEach(function (k) { aff[k] = (aff[k] || 0) + fx.aff[k]; });
       Object.keys(fx.pair || {}).forEach(function (k) { pair[k] = (pair[k] || 0) + fx.pair[k]; });
@@ -1017,7 +971,7 @@
       })(chat);
       return;
     }
-    // 能用手機的日子（星期日、最後一天、結局後）：劇情、出去玩都結束 → 提醒 → 鎖定畫面，解鎖後從主畫面自由使用手機
+    // 能用手機的日子（星期日、最後一天、結局後）：劇情都結束 → 提醒 → 鎖定畫面，解鎖後從主畫面自由使用手機
     if (phoneDay(G().day)) { G().setClock((D().game || {}).nightTime || '22:00'); stage(null); freePhone(); return; }
     setTimeout(go, 400);
   });

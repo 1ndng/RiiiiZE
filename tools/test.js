@@ -203,17 +203,17 @@ const TESTS = [
     if (w.date) throw new Error('一句話之後不該出日期畫面：' + w.date);
     return p;
   }],
-  ['每週卡片：星期日晚上按睡覺 → 列出週一～週日（含星期日出遊）＋這週加了多少好感，之後到星期一', async (b, base) => {
+  ['每週卡片：星期日晚上按睡覺 → 列出這週每天去了哪裡＋這週加了多少好感，之後到星期一', async (b, base) => {
     const wk = [
       { day: 8, act: 'club', met: ['m1', 'm4'], fx: { aff: { m1: 2, m4: 2 }, pair: { 'm1-m4': 15 } }, rnd: [] },
       { day: 9, act: 'home', met: [], fx: null, rnd: [] },
-      { day: 14, act: 'sunday', met: ['m4'], fx: { aff: { m4: 10 }, pair: {} }, rnd: [] }
+      { day: 13, act: 'sports', met: ['m4'], fx: { aff: { m4: 10 }, pair: {} }, rnd: [] }
     ];
     const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' }, 'riiiize-flags': Object.assign({ freephone_14: 1, 'daychat_09-14': 1 }, NIGHT7_FLAGS), 'riiiize-weekpend': wk }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     await p.waitForSelector('.wk', { timeout: 8000 });
     const rows = await p.$$eval('.wk li', a => a.map(x => x.textContent));
-    if (rows.length !== 3 || !/9\/14（日）出遊/.test(rows[2])) throw new Error('卡片的列不對：' + rows.join('｜'));
+    if (rows.length !== 3 || !/9\/13（六）訓練/.test(rows[2])) throw new Error('卡片的列不對：' + rows.join('｜'));
     const gain = await p.$eval('.wk-gain', e => e.textContent);
     if (!/\+12/.test(gain)) throw new Error('元彬這週應該 +12：' + gain);
     await p.click('[data-wk-go]'); await sleep(3500);
@@ -380,21 +380,8 @@ const TESTS = [
     if (!back) throw new Error('回到手機畫面失敗');
     return p;
   }],
-  ['星期日出遊：平常只有一句話「9/21（日），你和恩奭出去玩了。（好感度：恩奭 +10）」；20% 劇情關掉就不播', async (b, base) => {
-    const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'daychat_09-21': 1 } }));
-    await p.evaluate(() => { SITE_DATA.storySpeed = 1; SITE_DATA.plan.weekend.scenes.forEach(e => { e.chance = 0; }); });
-    await clickStory(p, async () => !!(await p.$('.sch')));
-    await p.click('.sch-cast button >> nth=1'); await p.click('[data-go]');
-    let t = '';
-    for (let i = 0; i < 40 && !/\+10）$/.test(t || ''); i++) { await sleep(250); t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); }
-    if (!/9\/21（日），你和恩奭出去玩了。（好感度：恩奭 \+10）/.test(t || '')) throw new Error('星期日的一句話不對：' + t + ' / ' + (await p.evaluate(() => [STORY.scene && STORY.scene(), document.querySelectorAll('.vn').length, SITE_DATA.storySpeed].join(','))));
-    if (await p.evaluate(() => /^wk_/.test((STORY.scene && STORY.scene()) || ''))) throw new Error('機率關掉了不該播劇情');
-    const n = await p.evaluate(() => Object.keys(SITE_DATA.scenes).filter(k => /^wk_m/.test(k)).length + '/' + Object.keys(SITE_DATA.scenes).filter(k => /^(sp_|wk_.*_sp$)/.test(k)).length);
-    if (n !== '21/0') throw new Error('星期日劇情應該剩 21 段、沒有特殊劇情：' + n);
-    return p;
-  }],
   ['試玩版 9/14：先出每週卡片（連點繼續只算一次）→ 前方施工中 → 回到手機畫面，畫面沒有卡住', async (b, base) => {
-    const wk = [{ day: 8, act: 'club', met: ['m4'], fx: { aff: { m4: 4 }, pair: {} }, rnd: [] }, { day: 14, act: 'sunday', met: ['m4'], fx: { aff: { m4: 10 }, pair: {} }, rnd: [] }];
+    const wk = [{ day: 8, act: 'club', met: ['m4'], fx: { aff: { m4: 4 }, pair: {} }, rnd: [] }, { day: 13, act: 'sports', met: ['m4'], fx: { aff: { m4: 10 }, pair: {} }, rnd: [] }];
     const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, freephone_14: 1, 'daychat_09-14': 1 }, 'riiiize-weekpend': wk, riiiizeNoTrial: '0' }));
     await p.evaluate(() => { localStorage.removeItem('riiiizeNoTrial'); const l = document.getElementById('lock'); if (l) l.remove(); PLAN.go(); });
     await p.waitForSelector('.wk', { timeout: 8000 });
@@ -406,13 +393,11 @@ const TESTS = [
     if (r.stage) throw new Error('回到手機畫面之後還蓋著黑底');
     return p;
   }],
-  ['星期日：選人出門 → 22:00 鎖定畫面＋自由探索提醒 → 解鎖', async (b, base) => {
-    // 9/21 晚上有炤熙的每晚聊天：這個測試只測沒有聊天的星期日 → 先當作聊過了
+  ['星期日：沒有出遊（不出選人畫面）→ 22:00 鎖定畫面＋自由探索提醒 → 解鎖', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'daychat_09-21': 1 } }));
-    await clickStory(p, async () => !!(await p.$('.sch')));
-    await p.click('.sch-cast button >> nth=1'); await p.click('[data-go]'); await sleep(800);
+    if (await p.evaluate(() => !!(SITE_DATA.plan.weekend || SITE_DATA.plan.activities.some(a => a.id === 'wander') || Object.keys(SITE_DATA.scenes).some(k => /^(wk_|rand_wander|act_wander|rand_home)/.test(k))))) throw new Error('星期日出遊、閒晃應該已經刪掉');
     // 鎖定畫面先出現，「自由探索」提醒蓋在鎖定畫面上；點完提醒才解鎖
-    await clickStory(p, async () => !!(await p.$('#lock')) && /自由探索/.test((await text(p, '#vn-text')) || ''), 80, true);
+    await clickStory(p, async () => { if (await p.$('.sch')) throw new Error('星期日不該出現選人畫面'); return !!(await p.$('#lock')) && /自由探索/.test((await text(p, '#vn-text')) || ''); }, 80, true);
     if (!(await p.$('#lock'))) throw new Error('提醒出現時後面不是鎖定畫面');
     await clickStory(p, async () => !(await p.$('.vn')), 20, true); await sleep(500);
     if (await text(p, '#lc-time') !== '22:00') throw new Error('鎖定畫面時間不是 22:00');
@@ -671,18 +656,16 @@ const TESTS = [
     if (r !== 'cp_m4_m6_1,cp_m4_m6_2,cp_m4_m6_3,cp_m4_m6_4!,true,cp_m1_m4_1,-,-') throw new Error(r);
     return p;
   }],
-  ['選人畫面：連點兩次「確定」只算一次（星期日見元彬，好感 +10 不是 +20）', async (b, base) => {
-    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' },
-      'riiiize-flags': { alarm_done: 1, intro_done: 1, plan_tutorial: 1, giftdone_14: 1 } }));
-    for (let i = 0; i < 80 && !(await p.$('.sch-cast [data-meet="m4"]')); i++) {
-      await p.evaluate(() => { const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(150);
-    }
-    await p.evaluate(() => SITE_DATA.plan.weekend.scenes.forEach(e => { if (e.chance != null) e.chance = 0; }));   // 20% 特殊劇情（會再 +5）關掉
+  ['選人畫面：連點兩次「確定」只算一次（9/14 送元彬，好感 +8 不是 +16）', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' } }));
+    await p.waitForSelector('.sch-col button', { timeout: 8000 });
+    await p.click('.sch-col button >> nth=0'); await sleep(400);
+    await p.waitForSelector('.sch-cast [data-meet="m4"]', { timeout: 8000 });
     await p.click('.sch-cast [data-meet="m4"]');
     await p.evaluate(() => { const g = document.querySelector('[data-go]'); g.click(); g.click(); });
     await sleep(1500);
     const a = await p.evaluate(() => GAME.stat('aff', 'm4'));
-    if (a !== 10) throw new Error('好感 ' + a);
+    if (a !== 8) throw new Error('好感 ' + a);
     return p;
   }],
   ['App 內容：from 日期之前看不到', async (b, base) => {

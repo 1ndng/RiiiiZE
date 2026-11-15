@@ -255,17 +255,6 @@
       .sort(function (a, b) { return a.o - b.o; });
     if (sc.birthday_me) hb.push({ id: 'birthday_me', label: '', sub: '我的生日', anon: true });
     groups.push({ title: '節日與生日', items: hb });
-    var wk = (plan.weekend || {});
-    // 星期日：單人、兩人（固定＋特別）、待在家
-    var wkItems = [];
-    Object.keys(sc).forEach(function (k) {
-      var m = /^wk_((?:m\d_?)+?)(_sp)?$/.exec(k); if (!m) return;
-      var ids = m[1].split('_').filter(Boolean);
-      wkItems.push({ o: ids.length * 1000 + ids.map(function (x) { return +x.slice(1); }).join('') * 2 + (m[2] ? 1 : 0), id: k, label: '',
-        sub: '和' + ids.map(function (x) { return nameOf(byId[x]); }).join('、') + '出門' + (m[2] ? '（特別）' : ''), bg: wk.bg,
-        who: ids.map(function (x) { return nameOf(byId[x]); }).join('×') });
-    });
-    if (sc.wk_home) wkItems.push({ o: 99999, id: 'wk_home', label: '', sub: '待在家', bg: plan.homeBg, who: '待在家' });
     // 送禮：自己送（gift_成員）、請成員送（gift_by_送的人_收的人）
     var gf = [];
     Object.keys(sc).forEach(function (k) {
@@ -274,7 +263,6 @@
       if (n) gf.push({ o: 100 + (+n[1].slice(1)) * 10 + (+n[2].slice(1)), id: k, label: '', sub: '請' + nameOf(byId[n[1]]) + '送給' + nameOf(byId[n[2]]), who: nameOf(byId[n[1]]) + '→' + nameOf(byId[n[2]]) });
     });
     groups.push({ title: '送禮', items: gf.sort(function (a, b) { return a.o - b.o; }) });
-    groups.push({ title: '出遊', items: wkItems.sort(function (a, b) { return a.o - b.o; }) });
     var actOrder = (plan.activities || []).map(function (a) { return a.id; }).concat(['home']);
     var fixed = [], rand = [];
     Object.keys(sc).forEach(function (k) {
@@ -340,7 +328,7 @@
     [replayStat(), cgStat(), galleryStat(), clueStat()].forEach(function (x) { o.got += x.got; o.all += x.all; });
     return o;
   }
-  // 劇情回想：先選類型（主線、節日、出遊……），再列出那一類的劇情
+  // 劇情回想：先選類型（主線、節日、送禮……），再列出那一類的劇情
   //   鎖住（沒看過）的：顯示是誰的劇情（who；沒有 who 就顯示 label），內容是「？？？」；主線、節日與生日（anon）只有「？？？」
   function renderReplay(cat) {
     var t = T(), seen = window.STORY.seenScenes(), groups = replayGroups().filter(function (g) { return g.items.length; }), body = '', head = t.replay, back = '#/settings';

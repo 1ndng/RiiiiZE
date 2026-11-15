@@ -6,7 +6,7 @@
  *   intro  成員介紹影片的音樂：影片播放中（影片本身的聲音關掉；每次從頭放；開始時馬上出聲，結束時淡出、接下來的音樂淡入）
  *   main   主線音樂：開場（鬧鐘之後）、主線、日程劇情、每週回顧、每月安排、每晚聊天、生日、節日
  *   aff    好感度音樂：星期日白天（開頭、選人、出門）、14 日送禮、友誼線／愛情線／CP 線
- *   home   待在家的音樂：待在家（wk_home、act_home、rand_home_me）、自由探索手機的時間
+ *   home   待在家的音樂：回家（act_home）、自由探索手機的時間
  *   awake  覺醒音樂：找到線索後的反應（強制聊天／留言、awake_ 劇情）、結局（最後的選擇、結局、後日談）
  *   音效（game.sounds）：message = KakaoTalk 收到訊息（跟震動一樣，1.5 秒內只響一次）
  *   「音效」關掉 → 全部不放；切換頁籤（看不到網頁）→ 暫停；換天的黑畫面 → 不換曲
@@ -53,8 +53,8 @@
   function byScene(id) {
     if (/^awake_/.test(id)) return 'awake';
     if (/^(final_choice|ending_|ep_)/.test(id)) return 'awake';
-    if (id === 'wk_home' || /^act_home_/.test(id) || id === 'rand_home_me' || id === 'free_phone') return 'home';
-    if (/^wk_/.test(id) || id === 'weekend_intro' || id === '__gift' || /^gift_/.test(id) || /^(fr|love|confess|cp)_/.test(id)) return 'aff';
+    if (/^act_home_/.test(id) || id === 'free_phone') return 'home';
+    if (id === '__gift' || /^gift_/.test(id) || /^(fr|love|confess|cp)_/.test(id)) return 'aff';
     return 'main';
   }
   var awakeUntil = 0, INSTANT = { alarm: 1, intro: 1, ring: 1 }, STOPNOW = { alarm: 1, ring: 1 };

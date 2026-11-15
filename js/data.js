@@ -284,11 +284,11 @@ window.SITE_DATA = {
    * 9/7 之後（planFrom 那天起）每個月開始時跳出月曆：把日程方塊拖到星期一～六，一天一個；沒放 = 回家
    *   星期日、過去的日子、主線強制日程的日子不能放
    * 確認後自動往後跳、照安排加好感，停在有事的日子：主線、特殊劇情、節日、生日、送禮日（每月 14 日）、每個星期日
-   *   手機只有星期日能用（鎖定畫面 → 自由使用手機 → 睡覺）；星期日先播 weekend.intro，再選今天要見誰
+   *   手機只有星期日能用（鎖定畫面 → 自由使用手機 → 睡覺）；星期日沒有日程、也沒有出遊
    *   其他有事的日子不解鎖手機：在黑底日期畫面上直接播劇情，播完自動往後跳
    * 好感度（每個日程每次的總量一樣，平分給在場的人；在場 = cast 的 activities 有這個日程）：
    *   每人好感 = affTotal ÷ 在場人數；每一對關係 = pairTotal ÷ 在場的對數（都四捨五入成整數，最少 1）
-   *   每次去不會遇到全部的人：從會出現在那裡的成員裡隨機遇到 1 位～全部（閒晃 = 從全部成員裡隨機 1～wanderMeet 位）
+   *   每次去不會遇到全部的人：從會出現在那裡的成員裡隨機遇到 1 位～全部
    *   總量固定、平分給遇到的人：例如學生會遇到 3 位 → 各 +2；只遇到 1 位 → +6（一年下來每個人平均是公平的）
    *   回家：沒有
    *   有安排日程、沒有劇情的日子會用一句話顯示「去了哪裡、遇到誰」（plan.text.dayLine；活動也可以寫自己的 line，
@@ -298,8 +298,6 @@ window.SITE_DATA = {
    *   寫 date 就只有那天會觸發；寫 title＋date 會顯示在行事曆上；看過就不再觸發（repeat: true 可以重複）
    * holidays：節日 { date, title, scene }
    * gift：每月 14 日（2/14、3/14 是節日）跳出送禮選單：送給一位 → 好感 +aff；請別人送（先選送禮的人、再選收禮的人）→ 兩人關係 +pair
-   * weekend：星期日選人：intro = 開場劇情；見一位 → 好感 +single；見兩位 → 各 +pairAff、兩人關係 +pairBond
-   *   scenes：[{ with: ["m1"] 或 ["m1", "m2"], scene, if }]；沒寫到的組合用一句話帶過；home = 待在家的劇情
    */
   plan: {
     planFrom: "09-08",
@@ -307,7 +305,6 @@ window.SITE_DATA = {
     quietOpen: ["club", "volunteer"],   // 安靜期間照常播固定、隨機劇情的日程（已經改好文本的）
     affTotal: 4,   // 日程每次的好感總量（平分給遇到的人，四捨五入成整數、最少 1）；星期日、送禮比較能指定對象，所以加得比較多
     pairTotal: 15,
-    wanderMeet: 2,
     // label = 活動名稱（月曆的日程方塊、每週回顧、行事曆、劇情回想）；place = 地點（「去了舞室，遇到了……」、開場動畫的出現地點、玩法說明）
     // 回家：活動名稱「回家」（plan.text.home）、地點是家
     // cell = 月曆格子裡顯示的名字（"|" = 換行），沒寫就用 label
@@ -319,8 +316,7 @@ window.SITE_DATA = {
       { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [3, 10, 30, 50] },
       { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [3, 10, 30, 50] },
       { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [3, 10, 30, 50] },
-      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [3, 10, 30, 50] },
-      { id: "wander",    label: "閒晃",     place: "街道", bg: "images/bg/wander.jpg", milestones: [3, 10, 30, 50] }
+      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [3, 10, 30, 50] }
     ],
     specials: [
       // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },
@@ -354,48 +350,19 @@ window.SITE_DATA = {
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
     homeMilestones: [3, 10, 30, 50],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
     /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（目前 20%）（一天最多一段：中了就從遇到的人符合的名單裡抽一段；可以重複觸發）
-     *   寫編號：單人 "1"、配對 "14"（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮）；回家寫 "me"（跟自己對話）
-     *   劇情寫在 scenes.rand_日程_編號（例如 rand_club_14、rand_home_me）；沒寫劇情的不會觸發
+     *   寫編號：單人 "1"、配對 "14"（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮）；
+     *   劇情寫在 scenes.rand_日程_編號（例如 rand_club_14）；沒寫劇情的不會觸發
      *   被跳過的日子觸發的，在「這週的安排」之後依序播 */
     random: {
       chance: 0.2,
-      bonus: 5,   // 日程隨機劇情播的時候（星期日的 20% 特殊劇情不加）：單人 = 那位的好感 +5、兩人 = 那兩人的關係 +5
+      bonus: 5,   // 日程隨機劇情播的時候：單人 = 那位的好感 +5、兩人 = 那兩人的關係 +5
       club:      ["1", "4", "6", "14", "16", "46"],
       volunteer: ["2", "7", "27"],
-      sports:    ["3", "4", "7", "34", "37", "47"],
-      council:   ["1", "2", "3", "4", "6", "7", "13", "16", "17", "23", "24", "26", "27", "36", "46", "47"],
-      games:     ["1", "2", "6", "12", "26"],
-      karaoke:   ["3", "6", "7", "36", "37", "67"],
-      wander:    ["1", "2", "3", "4", "12", "13", "14", "23", "24", "34", "17", "67"],
-      home:      ["me"]
-    },
-    weekend: { bg: "images/bg/outing.jpg", intro: "weekend_intro", single: 10, pairAff: 5, pairBond: 15,
-      scenes: [
-        // 平常只有一句話（「9/14（日）　和元彬出遊　元彬 +10」）；chance: 0.2 = 20% 機率接著播這段劇情
-        { with: ["m1"], scene: "wk_m1", repeat: true, chance: 0.2 },
-        { with: ["m2"], scene: "wk_m2", repeat: true, chance: 0.2 },
-        { with: ["m3"], scene: "wk_m3", repeat: true, chance: 0.2 },
-        { with: ["m4"], scene: "wk_m4", repeat: true, chance: 0.2 },
-        { with: ["m5"], scene: "wk_m5", repeat: true, chance: 0.2 },
-        { with: ["m6"], scene: "wk_m6", repeat: true, chance: 0.2 },
-        { with: ["m1", "m2"], scene: "wk_m1_m2", repeat: true, chance: 0.2 },
-        { with: ["m1", "m3"], scene: "wk_m1_m3", repeat: true, chance: 0.2 },
-        { with: ["m1", "m4"], scene: "wk_m1_m4", repeat: true, chance: 0.2 },
-        { with: ["m1", "m5"], scene: "wk_m1_m5", repeat: true, chance: 0.2 },
-        { with: ["m1", "m6"], scene: "wk_m1_m6", repeat: true, chance: 0.2 },
-        { with: ["m2", "m3"], scene: "wk_m2_m3", repeat: true, chance: 0.2 },
-        { with: ["m2", "m4"], scene: "wk_m2_m4", repeat: true, chance: 0.2 },
-        { with: ["m2", "m5"], scene: "wk_m2_m5", repeat: true, chance: 0.2 },
-        { with: ["m2", "m6"], scene: "wk_m2_m6", repeat: true, chance: 0.2 },
-        { with: ["m3", "m4"], scene: "wk_m3_m4", repeat: true, chance: 0.2 },
-        { with: ["m3", "m5"], scene: "wk_m3_m5", repeat: true, chance: 0.2 },
-        { with: ["m3", "m6"], scene: "wk_m3_m6", repeat: true, chance: 0.2 },
-        { with: ["m4", "m5"], scene: "wk_m4_m5", repeat: true, chance: 0.2 },
-        { with: ["m4", "m6"], scene: "wk_m4_m6", repeat: true, chance: 0.2 },
-        { with: ["m5", "m6"], scene: "wk_m5_m6", repeat: true, chance: 0.2 }
-      ],
-      // 待在家：平常只有一句話，20% 播這段
-      home: [ { scene: "wk_home", repeat: true, chance: 0.2 } ] }
+      sports:    ["3", "4", "34", "37", "47"],
+      council:   ["13", "17", "23", "24"],
+      games:     ["1", "2", "12", "26"],
+      karaoke:   ["3", "6", "7", "36", "67"]
+    }
   },
 
   /* ---------- 戀愛與覺醒的門檻 ----------
