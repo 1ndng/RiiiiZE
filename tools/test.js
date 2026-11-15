@@ -300,7 +300,7 @@ const TESTS = [
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {
     const days = { '09-15': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 14, phase: 'night' },
-      'riiiize-flags': Object.assign({ ms_pending_club_3: 1, 'daychat_09-14': 1 }, NIGHT7_FLAGS), 'riiiize-stats': { visits: { club: 4 } } }));
+      'riiiize-flags': Object.assign({ ms_pending_club_3: 1, 'daychat_09-14': 1 }, NIGHT7_FLAGS), 'riiiize-stats': { visits: { club: 5 } } }));
     await p.evaluate(() => { SITE_DATA.plan.random.chance = 0; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
     let sc = '';
     for (let i = 0; i < 40 && sc !== 'act_club_3'; i++) { sc = await curScene(p); await sleep(250); }

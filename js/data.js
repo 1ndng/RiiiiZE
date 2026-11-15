@@ -311,12 +311,12 @@ window.SITE_DATA = {
     // milestones = 第幾次去的時候有固定劇情（scenes.act_日程_次數，例如 act_club_10；那天會停下來播）
     // bg = 這個日程的背景（一句話、特殊劇情、主線強制日程的劇情都用它；劇情裡寫 { bg } 會換掉；沒寫就用 storyBg）
     activities: [
-      { id: "club",      label: "社團活動", place: "舞室", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [3, 10, 30, 50] },
-      { id: "volunteer", label: "志工活動", place: "小學", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [3, 10, 30, 50] },
-      { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [3, 10, 30, 50] },
-      { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [3, 10, 30, 50] },
-      { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [3, 10, 30, 50] },
-      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [3, 10, 30, 50] }
+      { id: "club",      label: "社團活動", place: "舞室", cell: "社團|活動", bg: "images/bg/club.jpg", milestones: [3, 5, 10, 20] },
+      { id: "volunteer", label: "志工活動", place: "小學", cell: "志工|活動", bg: "images/bg/volunteer.jpg", milestones: [3, 5, 10, 20] },
+      { id: "sports",    label: "訓練",     place: "體育館", bg: "images/bg/sports.jpg", milestones: [3, 5, 10, 20] },
+      { id: "council",   label: "學生會",   place: "會辦", bg: "images/bg/council.jpg", milestones: [3, 5, 10, 20] },
+      { id: "games",     label: "打遊戲",   place: "網咖", cell: "打|遊戲", bg: "images/bg/games.jpg", milestones: [3, 5, 10, 20] },
+      { id: "karaoke",   label: "唱歌",     place: "KTV", bg: "images/bg/karaoke.jpg", milestones: [3, 5, 10, 20] }
     ],
     specials: [
       // 例：{ activity: "council", if: { visits: { council: ">=5" } }, scene: "sp_council_5" },
@@ -348,13 +348,13 @@ window.SITE_DATA = {
     bond: { love1: 150, love2: 300, confess: 450, from: "09-08", until: "08-23",
       cp: { stage1: 100, stage2: 300, stage3: 500, together: 700 } },   // 關係加得比好感快（星期日兩人、請別人送禮都是 +15），所以門檻比愛情線高
     homeBg: "images/bg/home.jpg",   // 回家、星期日待在家的背景
-    homeMilestones: [3, 10, 30, 50],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
+    homeMilestones: [3, 5, 10, 20],   // 平日沒安排（回家）第幾次有固定劇情（scenes.act_home_次數）
     /* 隨機劇情：去某個日程、遇到某人（或某兩人）時，有 chance 的機率觸發（目前 20%）（一天最多一段：中了就從遇到的人符合的名單裡抽一段；可以重複觸發）
      *   寫編號：單人 "1"、配對 "14"（1 將太郎、2 恩奭、3 成燦、4 元彬、6 炤熙、7 燦榮）；
      *   劇情寫在 scenes.rand_日程_編號（例如 rand_club_14）；沒寫劇情的不會觸發
      *   被跳過的日子觸發的，在「這週的安排」之後依序播 */
     random: {
-      chance: 0.2,
+      chance: 0.3,
       bonus: 5,   // 日程隨機劇情播的時候：單人 = 那位的好感 +5、兩人 = 那兩人的關係 +5
       club:      ["1", "4", "6", "14", "16", "46"],
       volunteer: ["2", "7", "27"],
