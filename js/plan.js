@@ -217,11 +217,12 @@
 
   /* ---- 好感度：日程每次的總量平分給在場的人 ---- */
   // 這次去會遇到誰：從會出現在這個日程的成員裡隨機挑 1 位～全部（每次都重新抽）
-  // 這次去會遇到誰：data.js 的 plan.meet（固定）；單人 = 遇到的人
+  // 這次去會遇到誰：data.js 的 plan.meet（固定）
   function meetOf(act) { return ((C().meet || {})[act] || []).map(String); }
   function membersOf(act) {
-    var ones = meetOf(act).filter(function (k) { return k.length === 1; }).map(function (k) { return idsOf(k)[0]; }).filter(Boolean);
-    return cast().map(function (c) { return c.id; }).filter(function (id) { return ones.indexOf(id) >= 0; });   // 照 cast 的順序
+    // 名單裡的單人＋組合裡的人都算「遇到」（每週卡片、一句話顯示用）；加分只照名單（meetFx）
+    var ids = []; meetOf(act).forEach(function (k) { idsOf(k).forEach(function (id) { if (id && ids.indexOf(id) < 0) ids.push(id); }); });
+    return cast().map(function (c) { return c.id; }).filter(function (id) { return ids.indexOf(id) >= 0; });   // 照 cast 的順序
   }
   // 日程的加分：plan.meet 裡列的單人好感、兩人組合關係各 +meetGain
   function meetFx(act) {
