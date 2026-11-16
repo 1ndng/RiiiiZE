@@ -49,6 +49,44 @@ window.SITE_DATA = {
     { id: "m6", no: 7, name: "李燦榮", short: "燦榮", emoji: "🦕",     birthday: "03-21", activities: ["volunteer", "council", "sports", "karaoke"], avatar: "images/cast/m6.jpg", portrait: "images/portrait/m6.webp" }
   ],
 
+  /* ---------- 人物資訊（設定 → 人物資訊）最下面的「？？？」故事 ----------
+   * 每位成員一串，每段 { scene: "劇情 id", title: "標題", text: "內容" }：看過那段劇情才解鎖，沒看過顯示 ？？？
+   *   也可以改寫 flag: "旗標名稱"（有這個旗標就解鎖）；text 裡 \n = 換行
+   *   text 還沒寫 = 解鎖後顯示「（還沒寫）」；先暫時綁覺醒線索 awake_成員_1～3，之後可以換成別的劇情
+   */
+  profiles: {
+    m1: [
+      { scene: "awake_m1_1", title: "", text: "" },
+      { scene: "awake_m1_2", title: "", text: "" },
+      { scene: "awake_m1_3", title: "", text: "" },
+    ],
+    m2: [
+      { scene: "awake_m2_1", title: "", text: "" },
+      { scene: "awake_m2_2", title: "", text: "" },
+      { scene: "awake_m2_3", title: "", text: "" },
+    ],
+    m3: [
+      { scene: "awake_m3_1", title: "", text: "" },
+      { scene: "awake_m3_2", title: "", text: "" },
+      { scene: "awake_m3_3", title: "", text: "" },
+    ],
+    m4: [
+      { scene: "awake_m4_1", title: "", text: "" },
+      { scene: "awake_m4_2", title: "", text: "" },
+      { scene: "awake_m4_3", title: "", text: "" },
+    ],
+    m5: [
+      { scene: "awake_m5_1", title: "", text: "" },
+      { scene: "awake_m5_2", title: "", text: "" },
+      { scene: "awake_m5_3", title: "", text: "" },
+    ],
+    m6: [
+      { scene: "awake_m6_1", title: "", text: "" },
+      { scene: "awake_m6_2", title: "", text: "" },
+      { scene: "awake_m6_3", title: "", text: "" },
+    ]
+  },
+
   /* ---------- 劇情（對話框） ----------
    * scenes：每段劇情是一串步驟，從上往下播（每個步驟都可以加 if：條件不成立就跳過）
    *   { text: "旁白" }                      沒寫 who = 旁白（沒有名字欄）

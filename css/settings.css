@@ -120,3 +120,29 @@
 /* 設定首頁每一區的小標（淺色、在那一區的左上方）；收集那一區的小標後面寫總收集率 */
 .st-sec-main { padding-top: 4px; }
 .st-sec-main .st-collect { float: none; margin-left: 4px; color: #6d6d72; }
+
+/* 人物資訊：六位的列表（兩欄卡片）＋一位的卡片 */
+.pf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0 16px 30px; }
+.pf-tile { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 16px 8px 14px; border-radius: 14px; background: #fff; color: #000; }
+.pf-tile:active { background: #e5e5ea; }
+.pf-tile img { width: 76px; height: 76px; border-radius: 50%; object-fit: cover; margin-bottom: 4px; }
+.pf-tile b { font-size: 16px; font-weight: 600; }
+.pf-tile small { font-size: 12px; color: #ff2d78; }
+.pf-head { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 4px 16px 20px; }
+.pf-head img { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.pf-head h1 { margin: 0; font-size: 24px; font-weight: 700; }
+.pf-line { position: relative; display: flex; gap: 12px; padding: 11px 16px; font-size: 15px; }
+.pf-line + .pf-line::before, .pf-rel + .pf-rel::before, .pf-story + .pf-story::before { content: ""; position: absolute; left: 16px; right: 0; top: 0; border-top: .5px solid #d8d8dc; }
+.pf-line span { flex: none; width: 104px; color: #8a8a8e; }
+.pf-line b { flex: 1; font-weight: 400; line-height: 1.45; }
+.pf-cols { display: flex; justify-content: flex-end; gap: 0; }
+.pf-cols span:first-child { width: 56px; text-align: center; }
+.pf-cols span:last-child { width: 56px; text-align: center; margin-right: 12px; }
+.pf-rel { position: relative; display: flex; align-items: center; min-height: 46px; padding: 0 12px 0 16px; }
+.pf-who { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+.pf-num { width: 56px; text-align: center; font-size: 17px; font-variant-numeric: tabular-nums; }
+.pf-stage { width: 56px; text-align: center; font-size: 13px; color: #ff2d78; }
+.pf-story { position: relative; padding: 12px 16px; }
+.pf-story b { display: block; font-size: 15px; font-weight: 600; }
+.pf-story p { margin: 4px 0 0; font-size: 14px; line-height: 1.6; color: #3a3a3c; }
+.pf-story.locked b { color: #8a8a8e; font-weight: 500; }

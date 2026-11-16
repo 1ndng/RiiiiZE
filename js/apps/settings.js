@@ -1,6 +1,7 @@
 /* 設定（iPhone「設定」風格）
  *   #/settings         遊戲進度（第幾天）、存檔與讀檔、語言、重新開始
  *   #/settings/saves   存檔與讀檔：每天早上的自動存檔＋好幾格手動存檔（格數 = data.js 的 game.saveSlots）
+ *   #/settings/people  人物資訊：六位成員的卡片（大頭照、生日、地點、好感度、關係階段、？？？故事）
  *   #/settings/clues   線索收集：每位成員找到幾個（●●○，不寫內容）
  *   #/settings/replay  劇情回想：看過的劇情分類列出，點一下重看（不改好感、旗標）
  *   #/settings/block   愛情線選擇：不想配對的人／組合（和第一次玩時選的一樣，點一下就存）
@@ -57,6 +58,9 @@
     loopSave: '循環前的存檔', loopSaveName: '第 {n} 輪結束時', loopNote: 'DREAM END 之後回到 9/1 之前自動存的檔，只能讀取。讀取後在 8/31 晚上睡覺，就會再次回到 9/1。', loopNo: '第 {n} 輪',
     wallpaper: '背景圖片', wpLock: '鎖定畫面', wpHome: '主畫面', wpChange: '更換', wpDefault: '恢復預設',
     wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。', wpTooBig: '照片太大了，換一張試試看。',
+    people: '人物資訊', pBirthday: '生日', pMeetMe: '遇到你的地點', pMeetWith: '一起出現的成員', pNone: '—',
+    pAff: '好感度', pStage: '關係階段', pYou: '你', pStory: '？？？', pTodo: '（還沒寫）',
+    stFriend: '友好', stCrush: '心動', stFlirt: '曖昧', stConfess: '告白',
     resetStats: '數值全部歸零', resetTitle: '要把數值全部歸零嗎？', resetText: '好感度、關係、覺醒度都會變回 0（旗標和天數不變）。', reset: '歸零'
   };
   function T() {
@@ -86,6 +90,7 @@
       '<div class="st-group">' +
         row(ICON.calendar, '#ff3b30', esc(t.progress), esc(g.dateText(null, true)), 'data-st-na disabled', false) +
         row(ICON.save, '#007aff', esc(t.savesTitle), '', 'data-st-go="#/settings/saves"', true) +
+        row(ICON.person, '#ff6fae', esc(t.people), '', 'data-st-go="#/settings/people"', true) +
       '</div>' +
       // 收集：小標寫總收集率（劇情回想＋CG＋結局＋線索），下面各項顯示收集了幾個
       sec(t.collect, ' <span class="st-collect" data-collect>' + esc(pct(totalStat())) + '</span>') +
@@ -442,6 +447,86 @@
     window.INTRO.blockUI(S().$('#st-blk'));
   }
 
+  /* ---- 人物資訊：#/settings/people 六位的列表；#/settings/people/m1 一位的卡片 ----
+   *   1. 大頭照、名字、生日、會遇到你的地點（plan.meet 的單人）、會一起出現的成員（plan.meet 的兩人組合）
+   *   2. 好感度：你 → 這位（aff）、其他成員 ↔ 這位（pair）
+   *   3. 關係階段：友好 → 心動 → 曖昧 → 告白（看過的愛情線、CP 線劇情決定）
+   *   4. ？？？：data.js 的 profiles，看過指定劇情才解鎖 */
+  function castById(id) { return (D().cast || []).filter(function (c) { return c.id === id; })[0]; }
+  function seenIt(id) { return window.STORY && window.STORY.seenScenes ? !!window.STORY.seenScenes()[id] : S().hasFlag('scene_' + id); }
+  function pairKey(a, b) { return [a, b].sort().join('-'); }
+  function stageMe(id) {
+    var t = T();
+    if (S().hasFlag('confess_' + id)) return t.stConfess;
+    if (seenIt('love_' + id + '_2')) return t.stFlirt;
+    if (seenIt('love_' + id + '_1')) return t.stCrush;
+    return t.stFriend;
+  }
+  function stagePair(a, b) {
+    var t = T(), p = [a, b].sort(), base = 'cp_' + p[0] + '_' + p[1] + '_';
+    if (S().hasFlag('couple_' + p[0] + '-' + p[1]) || seenIt(base + 3)) return t.stConfess;
+    if (seenIt(base + 2)) return t.stFlirt;
+    if (seenIt(base + 1)) return t.stCrush;
+    return t.stFriend;
+  }
+  function meetInfo(c) {
+    var plan = D().plan || {}, meet = plan.meet || {}, me = [], withs = [], byNo = {};
+    (D().cast || []).forEach(function (x) { byNo[x.no] = x; });
+    (plan.activities || []).forEach(function (a) {
+      var codes = (meet[a.id] || []).map(String), place = a.place || a.label, mates = [];
+      if (codes.indexOf(String(c.no)) >= 0) me.push(place);
+      codes.forEach(function (k) {
+        if (k.length !== 2 || k.indexOf(String(c.no)) < 0) return;
+        var o = byNo[+k.replace(String(c.no), '')]; if (o) mates.push(o.short || o.name);
+      });
+      if (mates.length) withs.push(place + '（' + mates.join('、') + '）');
+    });
+    return { me: me, withs: withs };
+  }
+  function renderPeople() {
+    var t = T();
+    S().$('#settings-overlay').innerHTML = '';
+    S().$('#settings-scroll').innerHTML =
+      '<div class="st-nav"><a href="#/settings" data-st-back>' + ICON.back + '<span>' + esc(t.back) + '</span></a></div>' +
+      '<h1 class="st-h1 st-h1-s">' + esc(t.people) + '</h1>' +
+      '<div class="pf-grid">' + (D().cast || []).map(function (c) {
+        return '<button type="button" class="pf-tile" data-st-go="#/settings/people/' + esc(c.id) + '">' +
+          '<img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""><b>' + esc(c.short || c.name) + '</b>' +
+          '<small>' + esc(stageMe(c.id)) + '</small></button>';
+      }).join('') + '</div>';
+  }
+  function renderPerson(id) {
+    var t = T(), c = castById(id);
+    if (!c) { renderPeople(); return; }
+    var info = meetInfo(c), others = (D().cast || []).filter(function (x) { return x.id !== id; });
+    var bd = String(c.birthday || '').split('-');
+    var line = function (k, v) { return '<div class="pf-line"><span>' + esc(k) + '</span><b>' + v + '</b></div>'; };
+    var who = function (x) { return '<img class="st-av" src="' + esc(x ? x.avatar || 'images/default_avatar.png' : ((D().kakao || {}).me || {}).avatar || 'images/default_avatar.png') + '" alt="">' + esc(x ? x.short || x.name : t.pYou); };
+    var rel = function (x) {
+      return '<div class="pf-rel"><span class="pf-who">' + who(x) + '</span>' +
+        '<b class="pf-num">' + (x ? G().stat('pair', pairKey(id, x.id)) : G().stat('aff', id)) + '</b>' +
+        '<span class="pf-stage">' + esc(x ? stagePair(id, x.id) : stageMe(id)) + '</span></div>';
+    };
+    var story = ((D().profiles || {})[id] || []).map(function (it) {
+      var open = it.flag ? S().hasFlag(it.flag) : it.scene ? seenIt(it.scene) : false;
+      if (!open) return '<div class="pf-story locked"><b>' + esc(t.locked) + '</b></div>';
+      return '<div class="pf-story">' + (it.title ? '<b>' + esc(it.title) + '</b>' : '') +
+        '<p>' + (it.text ? esc(window.STORY && window.STORY.fill ? window.STORY.fill(it.text) : it.text).replace(/\n/g, '<br>') : esc(t.pTodo)) + '</p></div>';
+    }).join('');
+    S().$('#settings-overlay').innerHTML = '';
+    S().$('#settings-scroll').innerHTML =
+      '<div class="st-nav"><a href="#/settings/people" data-st-back>' + ICON.back + '<span>' + esc(t.people) + '</span></a></div>' +
+      '<div class="pf-head"><img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""><h1>' + esc(c.name) + '</h1></div>' +
+      '<div class="st-group pf-info">' +
+        line(t.pBirthday, esc(bd.length === 2 ? (+bd[0]) + '/' + (+bd[1]) : t.pNone)) +
+        line(t.pMeetMe, esc(info.me.join('、') || t.pNone)) +
+        line(t.pMeetWith, esc(info.withs.join('、') || t.pNone)) +
+      '</div>' +
+      '<div class="st-sec pf-cols"><span>' + esc(t.pAff) + '</span><span>' + esc(t.pStage) + '</span></div>' +
+      '<div class="st-group">' + rel(null) + others.map(rel).join('') + '</div>' +
+      (story ? '<div class="st-sec">' + esc(t.pStory) + '</div><div class="st-group">' + story + '</div>' : '');
+  }
+
   /* 線索收集：10/1 第一個線索出現之前不顯示（data.js 的 game.cluesFrom，預設 "10-01"） */
   function cluesOpen() {
     var g = G(), from = (D().game || {}).cluesFrom || '10-01';
@@ -557,6 +642,7 @@
     if (parts[0] === 'clues') { if (cluesOpen()) renderClues(); else renderMain(); return; }
     if (parts[0] === 'cg' && window.STORY) { renderCG(); return; }
     if (parts[0] === 'block' && window.INTRO && window.INTRO.blockUI) { renderBlock(); return; }
+    if (parts[0] === 'people') { if (parts[1]) renderPerson(parts[1]); else renderPeople(); return; }
     if (parts[0] === 'dev') { renderDev(); return; }
     if (parts[0] === 'stats' && (D().game || {}).debug) renderStats();
     else if (parts[0] === 'saves') renderSaves();

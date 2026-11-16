@@ -302,6 +302,28 @@ const TESTS = [
     if (openIds.indexOf('love_m4_2') >= 0) throw new Error('沒看過的 love_m4_2 不該打開');
     return p;
   }],
+  ['人物資訊：六張卡片；燦榮的生日、地點、好感、關係階段、？？？（看過劇情才解鎖）', async (b, base) => {
+    const flags = Object.assign({ scene_love_m6_1: 1, scene_cp_m3_m6_1: 1, scene_cp_m3_m6_2: 1, scene_awake_m6_1: 1 }, NIGHT7_FLAGS);
+    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': flags, 'riiiize-stats': { aff: { m6: 30 }, pair: { 'm3-m6': 12 }, awake: {}, visits: {} } }));
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); location.hash = '#/settings'; });
+    await p.waitForSelector('[data-st-go="#/settings/people"]', { timeout: 8000 });
+    await p.click('[data-st-go="#/settings/people"]');
+    await p.waitForSelector('.pf-tile', { timeout: 5000 });
+    const n = await p.$$eval('.pf-tile', a => a.length); if (n !== 6) throw new Error('應該有 6 張卡片：' + n);
+    await p.click('[data-st-go="#/settings/people/m6"]');
+    await p.waitForSelector('.pf-head', { timeout: 5000 });
+    const info = await p.$$eval('.pf-line b', a => a.map(x => x.textContent));
+    if (info[0] !== '3/21') throw new Error('生日：' + info[0]);
+    if (info[1] !== '小學、體育館、KTV') throw new Error('遇到你的地點：' + info[1]);
+    if (!/會辦（將太郎）/.test(info[2]) || !/KTV（成燦、炤熙）/.test(info[2])) throw new Error('一起出現：' + info[2]);
+    const rel = await p.$$eval('.pf-rel', a => a.map(x => x.querySelector('.pf-who').textContent + '|' + x.querySelector('.pf-num').textContent + '|' + x.querySelector('.pf-stage').textContent));
+    if (rel[0] !== '你|30|心動') throw new Error('玩家：' + rel[0]);
+    if (!rel.includes('成燦|12|曖昧')) throw new Error('成燦：' + rel.join('、'));
+    if (!rel.includes('元彬|0|友好')) throw new Error('元彬：' + rel.join('、'));
+    const st = await p.$$eval('.pf-story', a => a.map(x => x.textContent));
+    if (st.length !== 3 || st[0] === '？？？' || st[1] !== '？？？') throw new Error('？？？：' + st.join('｜'));
+    return p;
+  }],
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {
     const days = { '09-15': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 14, phase: 'night' },
