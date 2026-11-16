@@ -315,7 +315,7 @@ const TESTS = [
     const info = await p.$$eval('.pf-line b', a => a.map(x => x.textContent));
     if (info[0] !== '3/21') throw new Error('生日：' + info[0]);
     if (info[1] !== '小學、體育館、KTV') throw new Error('遇到你的地點：' + info[1]);
-    if (!/會辦（🧋）/.test(info[2]) || !/KTV（🦌💂）/.test(info[2])) throw new Error('一起出現：' + info[2]);
+    if (!/會辦（🧋）/.test(info[2]) || !/KTV（🦌、💂）/.test(info[2])) throw new Error('一起出現：' + info[2]);
     const rel = await p.$$eval('.pf-rel', a => a.map(x => x.querySelector('.pf-who').textContent + '|' + x.querySelector('.pf-num').textContent + '|' + x.querySelector('.pf-stage').textContent));
     if (rel[0] !== '你|30|心動') throw new Error('玩家：' + rel[0]);
     if (!rel.includes('成燦|12|曖昧')) throw new Error('成燦：' + rel.join('、'));

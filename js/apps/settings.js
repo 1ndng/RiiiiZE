@@ -479,7 +479,7 @@
         if (k.length !== 2 || k.indexOf(String(c.no)) < 0) return;
         var o = byNo[+k.replace(String(c.no), '')]; if (o) mates.push(o.emoji || o.short || o.name);   // 括號裡用成員的代表符號
       });
-      if (mates.length) withs.push(place + '（' + mates.join('') + '）');
+      if (mates.length) withs.push(place + '（' + mates.join('、') + '）');
     });
     return { me: me, withs: withs };
   }
