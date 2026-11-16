@@ -258,17 +258,18 @@ const TESTS = [
     if (d['10-24'] !== 'games' || d['10-01'] !== 'sports' || d['10-02'] !== 'club' || d['10-06'] !== 'council' || d['10-07']) throw new Error('存的不對：' + JSON.stringify(d).slice(0, 200));
     return p;
   }],
-  ['日程規劃說明：第一次排日程前用劇情框（不是 iOS 提示框）播 plan_tutorial，點完才打開月曆', async (b, base) => {
+  ['日程規劃說明：第一次排日程前出現粉色格紋卡片（跟填名字一樣），按「好」才打開月曆', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.filter(m => m !== '2025-09').reduce((o, m) => (o[m] = 1, o), {}), days: {} }, 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS }));
-    await p.evaluate(() => { SITE_DATA.storySpeed = 1; const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
-    let t = '';
-    for (let i = 0; i < 40 && !/每個月的第一天/.test(t); i++) { t = await p.evaluate(() => (document.querySelector('.vn') || {}).textContent || ''); await sleep(200); }
-    if (!/每個月的第一天/.test(t)) throw new Error('沒有用劇情框播說明：' + t);
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); PLAN.go(); });
+    await p.waitForSelector('.vn-name.pl-tip [data-tip-ok]', { timeout: 8000 });
     if (process.env.SHOT) { await sleep(800); await p.screenshot({ path: process.env.SHOT }); }
+    const t = await p.$eval('.vn-name.pl-tip', e => e.textContent);
+    if (!/日程規劃/.test(t) || !/每週勾選三天/.test(t)) throw new Error('卡片內容不對：' + t);
     if (await p.$('.ios-alert-wrap')) throw new Error('不該再出現 iOS 提示框');
-    if (await p.$('[data-confirm]')) throw new Error('說明播完之前不該打開月曆');
-    for (let i = 0; i < 30 && !(await p.$('[data-confirm]')); i++) { await p.click('.vn', { timeout: 1000 }).catch(() => {}); await sleep(250); }
-    if (!(await p.$('[data-confirm]'))) { await p.screenshot({ path: '/tmp/claude-0/-home-user/9121dea4-07f1-5946-bc5d-6025df3eb7a7/scratchpad/tut.png' }); throw new Error('說明播完要打開月曆：' + await p.evaluate(() => ((document.querySelector('.vn') || {}).textContent || '') + '|' + (STORY.scene && STORY.scene()))); }
+    if (await p.$('[data-confirm]')) throw new Error('按「好」之前不該打開月曆');
+    await p.click('[data-tip-ok]');
+    await p.waitForSelector('[data-confirm]', { timeout: 5000 });
+    if (await p.$('.pl-tip')) throw new Error('卡片要消失');
     return p;
   }],
   ['KakaoTalk：好感的愛心照好感填滿（元彬 55 / 告白 110 = 50%）', async (b, base) => {
