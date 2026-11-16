@@ -33,8 +33,8 @@ RIIIZE_ADD({
       { who: "m2", text: "我沒辦法讓全班都喜歡他。" },
       { who: "m2", text: "可是至少運動會那天，他不會一個人坐在場邊。" },
       { choices: [
-        { text: "「這樣就夠了。」", effects: { aff: { m2: 3 } } },
-        { text: "「那我也報名，當你們的啦啦隊。」", effects: { aff: { m2: 2, m6: 1 } } }
+        { text: "「這樣就夠了。」" },
+        { text: "「那我也報名，當你們的啦啦隊。」" }
       ] },
       { who: "m2", text: "……嗯。" },
       { text: "那天晚上，恩奭在學生會的白板上，多寫了一個名字。" }
@@ -95,8 +95,8 @@ RIIIZE_ADD({
       { text: "下台的時候，他第一個跑來找你。" },
       { who: "m6", text: "{name}！他們在拍手！好多人在拍手TT" },
       { choices: [
-        { text: "用力抱住他", effects: { aff: { m6: 3 } } },
-        { text: "「我說過的吧，你的歌很好聽。」", effects: { aff: { m6: 3 } } }
+        { text: "用力抱住他" },
+        { text: "「我說過的吧，你的歌很好聽。」" }
       ] },
       { who: "m6", text: "……嗯！" },
       { text: "那天晚上，成燦說：「今年的運動會，一定是有史以來最不一樣的一次。」" },
@@ -111,8 +111,8 @@ RIIIZE_ADD({
       { text: "今天謝謝你跟來" },
       { text: "那個學生說，他會練習" },
       { choices: [
-        { text: "你是很好的學長", reply: ["……", "只是做我做得到的事"], effects: { aff: { m2: 2 } } },
-        { text: "運動會那天我幫你們加油", reply: ["嗯", "要喊大聲一點"], effects: { aff: { m2: 2 } } }
+        { text: "你是很好的學長", reply: ["……", "只是做我做得到的事"] },
+        { text: "運動會那天我幫你們加油", reply: ["嗯", "要喊大聲一點"] }
       ] }
     ] },
     { date: "04-18", room: "g_council", steps: [
@@ -122,8 +122,8 @@ RIIIZE_ADD({
       { from: "f4", text: "很、很好聽" },
       { from: "f5", text: "元彬哥今天說了兩次很好聽" },
       { choices: [
-        { text: "燦榮，你做到了", reply: [{ from: "f6", text: "🥹🥹🥹" }, { from: "f3", text: "我就說你可以做到的！！！" }], effects: { aff: { m6: 2, m3: 1 } } },
-        { text: "下一首什麼時候發？", reply: [{ from: "f6", text: "……已經在寫了" }, { from: "f2", text: "期待。" }], effects: { aff: { m6: 2 } } }
+        { text: "燦榮，你做到了", reply: [{ from: "f6", text: "🥹🥹🥹" }, { from: "f3", text: "我就說你可以做到的！！！" }] },
+        { text: "下一首什麼時候發？", reply: [{ from: "f6", text: "……已經在寫了" }, { from: "f2", text: "期待。" }] }
       ] }
     ] }
   ],

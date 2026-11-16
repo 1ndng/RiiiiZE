@@ -28,8 +28,8 @@ RIIIZE_ADD({
       { who: "m6", text: "……裡、裡面只有一首歌。還沒完全寫完。" },
       { who: "m6", text: "但是我想，第一個給你聽。" },
       { choices: [
-        { text: "當場打開來聽", effects: { aff: { m6: 3 } } },
-        { text: "「等寫完那天，我們一起聽。」", effects: { aff: { m6: 2 } } }
+        { text: "當場打開來聽" },
+        { text: "「等寫完那天，我們一起聽。」" }
       ] },
       { who: "m1", text: "{name}，喜歡嗎^^" },
       { who: "me", text: "……全部都喜歡。" },
@@ -58,8 +58,8 @@ RIIIZE_ADD({
       { who: "m3", text: "……你一直都有陪著啊。" },
       { who: "m2", text: "……嗯。" },
       { choices: [
-        { text: "送他一個雪人吊飾", effects: { aff: { m2: 3 } } },
-        { text: "講一個冷笑話給他聽", effects: { aff: { m2: 2, m6: 1 } } }
+        { text: "送他一個雪人吊飾" },
+        { text: "講一個冷笑話給他聽" }
       ] },
       { who: "m2", text: "……謝謝。" },
       { who: "m2", text: "今年的生日，是我記得最清楚的一次。" }
@@ -91,8 +91,8 @@ RIIIZE_ADD({
       { text: "他吹熄了蠟燭。" },
       { text: "切蛋糕的時候，他偷偷看了你一眼。你知道，那個蛋糕上的字，是你提議的。" },
       { choices: [
-        { text: "對他眨眨眼", effects: { aff: { m4: 3 } } },
-        { text: "「這次是真的。」", effects: { aff: { m4: 3 } } }
+        { text: "對他眨眨眼" },
+        { text: "「這次是真的。」" }
       ] },
       { who: "m4", text: "……嗯。" }
     ],
@@ -116,8 +116,8 @@ RIIIZE_ADD({
       { who: "m6", text: "可是我明明沒有參加過那種比賽。我的歌也還沒有給別人聽過。" },
       { who: "m6", text: "……我是不是很奇怪？" },
       { choices: [
-        { text: "「你不奇怪。而且你的歌，我聽過。我很喜歡。」", effects: { aff: { m6: 3 } }, goto: "song" },
-        { text: "坐到他旁邊，讓他靠著", effects: { aff: { m6: 3 } }, goto: "lean" }
+        { text: "「你不奇怪。而且你的歌，我聽過。我很喜歡。」", goto: "song" },
+        { text: "坐到他旁邊，讓他靠著", goto: "lean" }
       ] },
       { label: "song" },
       { who: "m6", text: "……" },
@@ -163,9 +163,9 @@ RIIIZE_ADD({
       { who: "me", text: "（恩奭的發明，通常都比他的冷笑話好笑。）" },
       { text: "最後決定：學生會派兩隊。抽籤決定誰跟誰一組。" },
       { choices: [
-        { text: "和成燦、燦榮一組", effects: { aff: { m3: 1, m6: 1 }, flag: "team_a" } },
-        { text: "和將太郎、元彬一組", effects: { aff: { m1: 1, m4: 1 }, flag: "team_b" } },
-        { text: "和恩奭、炤熙一組", effects: { aff: { m2: 1, m5: 1 }, flag: "team_c" } }
+        { text: "和成燦、燦榮一組", flag: "team_a" },
+        { text: "和將太郎、元彬一組", flag: "team_b" },
+        { text: "和恩奭、炤熙一組", flag: "team_c" }
       ] },
       { text: "成燦說，這次的運動會，一定也要「不一樣」。" },
       { text: "說完，他自己愣了一下，好像想起了什麼，又想不起來。" }
@@ -188,8 +188,8 @@ RIIIZE_ADD({
       { text: "炤熙別過頭，小聲地說：「……還不錯。」" },
       { text: "燦榮看向你。" },
       { choices: [
-        { text: "用力鼓掌，鼓到手都紅了", effects: { aff: { m6: 3 } } },
-        { text: "「我要當這首歌的第一個粉絲。」", effects: { aff: { m6: 3 } } }
+        { text: "用力鼓掌，鼓到手都紅了" },
+        { text: "「我要當這首歌的第一個粉絲。」" }
       ] },
       { text: "那天晚上，你一直在想那句歌詞。" },
       { text: "「如果這一年會重來。」" },
@@ -203,8 +203,8 @@ RIIIZE_ADD({
       { text: "蛋糕上的字" },
       { text: "是你想的吧" },
       { choices: [
-        { text: "被發現了", reply: ["……", "謝謝", "今年是最好的生日"], effects: { aff: { m4: 3 } } },
-        { text: "是大家一起想的", reply: ["騙人", "炤熙說是你", "……謝謝"], effects: { aff: { m4: 2 } } }
+        { text: "被發現了", reply: ["……", "謝謝", "今年是最好的生日"] },
+        { text: "是大家一起想的", reply: ["騙人", "炤熙說是你", "……謝謝"] }
       ] }
     ] },
     { date: "03-19", room: "f2", steps: [
@@ -212,8 +212,8 @@ RIIIZE_ADD({
       { text: "今天謝謝你" },
       { text: "為什麼生日蛋糕要插蠟燭" },
       { choices: [
-        { text: "為什麼？", reply: ["因為不插就會「燭」立不安", "……", "生日快樂，給我自己"], effects: { aff: { m2: 2 } } },
-        { text: "因為要許願", reply: ["……嗯", "我許了", "跟你有關"], effects: { aff: { m2: 3 } } }
+        { text: "為什麼？", reply: ["因為不插就會「燭」立不安", "……", "生日快樂，給我自己"] },
+        { text: "因為要許願", reply: ["……嗯", "我許了", "跟你有關"] }
       ] }
     ] },
     { date: "03-21", room: "f6", steps: [
@@ -222,8 +222,8 @@ RIIIZE_ADD({
       { text: "謝謝你" },
       { text: "我決定了，下個星期要把歌唱給大家聽" },
       { choices: [
-        { text: "我一定會在第一排", reply: ["嗯！", "你是我的第一個粉絲"], effects: { aff: { m6: 3 } } },
-        { text: "加油，你可以做到的", reply: ["ㅋㅋㅋ你好像成燦哥", "……可是我很開心"], effects: { aff: { m6: 2, m3: 1 } } }
+        { text: "我一定會在第一排", reply: ["嗯！", "你是我的第一個粉絲"] },
+        { text: "加油，你可以做到的", reply: ["ㅋㅋㅋ你好像成燦哥", "……可是我很開心"] }
       ] }
     ] },
     { date: "03-26", room: "g_council", steps: [
@@ -234,8 +234,8 @@ RIIIZE_ADD({
       { from: "f2", text: "……" },
       { from: "f6", text: "謝謝大家聽我唱歌" },
       { choices: [
-        { text: "謝謝你寫了這首歌", reply: [{ from: "f6", text: "🥹" }, { from: "f4", text: "……很好聽" }], effects: { aff: { m6: 2, m4: 1 } } },
-        { text: "下次在大家面前也要唱", reply: [{ from: "f6", text: "大家？" }, { from: "f3", text: "運動會！！！在運動會上唱！！！" }], effects: { aff: { m3: 1, m6: 1 } } }
+        { text: "謝謝你寫了這首歌", reply: [{ from: "f6", text: "🥹" }, { from: "f4", text: "……很好聽" }] },
+        { text: "下次在大家面前也要唱", reply: [{ from: "f6", text: "大家？" }, { from: "f3", text: "運動會！！！在運動會上唱！！！" }] }
       ] }
     ] }
   ],

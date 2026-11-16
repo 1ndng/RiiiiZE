@@ -38,12 +38,12 @@ RIIIZE_ADD({
       { who: "m2", text: "……這個，我要放冰箱。跟雪球放在一起。" },
       { text: "最後，你手上還剩一個。多做的那一個。" },
       { choices: [
-        { text: "給將太郎", effects: { aff: { m1: 3 } } },
-        { text: "給恩奭", effects: { aff: { m2: 3 } } },
-        { text: "給成燦", effects: { aff: { m3: 3 } } },
-        { text: "給元彬", effects: { aff: { m4: 3 } } },
-        { text: "給炤熙", effects: { aff: { m5: 3 } } },
-        { text: "給燦榮", effects: { aff: { m6: 3 } } }
+        { text: "給將太郎" },
+        { text: "給恩奭" },
+        { text: "給成燦" },
+        { text: "給元彬" },
+        { text: "給炤熙" },
+        { text: "給燦榮" }
       ] },
       { text: "收到第二個巧克力的人，紅著耳朵說了一聲謝謝。" },
       { who: "m5", text: "{name}，下個月的白色情人節，要回禮三倍喔。" },
@@ -75,8 +75,8 @@ RIIIZE_ADD({
       { who: "me", text: "（雖然元彬說得沒錯……但這種時候，真的不用說出來。）" },
       { who: "m4", text: "……" },
       { choices: [
-        { text: "「那就寫『跟大家一起』吧。」", effects: { aff: { m1: 1, m2: 1, m3: 1 } }, goto: "together" },
-        { text: "「我幫你們想！將太郎當舞蹈老師、恩奭當冷笑話作家、成燦當足球隊長！」", effects: { aff: { m1: 1, m2: 1, m3: 2 } }, goto: "dream" }
+        { text: "「那就寫『跟大家一起』吧。」", goto: "together" },
+        { text: "「我幫你們想！將太郎當舞蹈老師、恩奭當冷笑話作家、成燦當足球隊長！」", goto: "dream" }
       ] },
       { label: "together" },
       { who: "m3", text: "……跟大家一起。" },
@@ -114,8 +114,8 @@ RIIIZE_ADD({
       { who: "m4", text: "我明明……從來沒有被這樣對待過。" },
       { who: "m4", text: "為什麼我會說「每次」？" },
       { choices: [
-        { text: "撿起他的包包，站到他旁邊", effects: { aff: { m4: 3 } }, goto: "stand" },
-        { text: "「你沒有做錯。是他們不懂你。」", effects: { aff: { m4: 3 } }, goto: "say" }
+        { text: "撿起他的包包，站到他旁邊", goto: "stand" },
+        { text: "「你沒有做錯。是他們不懂你。」", goto: "say" }
       ] },
       { label: "stand" },
       { text: "你撿起包包，拍掉上面的灰，塞回他手上。" },
@@ -153,8 +153,8 @@ RIIIZE_ADD({
       { who: "m6", text: "ㅋㅋㅋㅋㅋㅋ" },
       { who: "me", text: "（燦榮，你的笑點今年也沒有修好。）" },
       { choices: [
-        { text: "跟燦榮一隊", effects: { aff: { m6: 2 } } },
-        { text: "跟將太郎一隊", effects: { aff: { m1: 2 } } }
+        { text: "跟燦榮一隊" },
+        { text: "跟將太郎一隊" }
       ] },
       { text: "遊戲玩到很晚。最後是恩奭的媽媽說：「明年也一起來吧。」" },
       { text: "七個人同時說好。" },
@@ -180,8 +180,8 @@ RIIIZE_ADD({
       { who: "m3", text: "燦榮啊……" },
       { who: "m6", text: "我知道很幼稚。可是我不要。" },
       { choices: [
-        { text: "摸摸燦榮的頭", effects: { aff: { m6: 3 } }, goto: "pat" },
-        { text: "「那我們把畢業典禮辦成全世界最好的一場。」", effects: { aff: { m6: 2, m1: 1 } }, goto: "best" }
+        { text: "摸摸燦榮的頭", goto: "pat" },
+        { text: "「那我們把畢業典禮辦成全世界最好的一場。」", goto: "best" }
       ] },
       { label: "pat" },
       { text: "你伸手摸了摸燦榮的頭。他沒有躲。" },
@@ -209,16 +209,16 @@ RIIIZE_ADD({
       { from: "f6", text: "你們寫了什麼？" },
       { from: "f3", text: "秘密！！！" },
       { choices: [
-        { text: "我猜我知道你們寫了什麼", reply: [{ from: "f1", text: "ㅎㅎ" }, { from: "f2", text: "……你知道就好。" }], effects: { aff: { m1: 1, m2: 1 } } },
-        { text: "燦榮不要難過，還有四個月", reply: [{ from: "f6", text: "我沒有難過……" }, { from: "f4", text: "他有" }], effects: { aff: { m6: 2 } } }
+        { text: "我猜我知道你們寫了什麼", reply: [{ from: "f1", text: "ㅎㅎ" }, { from: "f2", text: "……你知道就好。" }] },
+        { text: "燦榮不要難過，還有四個月", reply: [{ from: "f6", text: "我沒有難過……" }, { from: "f4", text: "他有" }] }
       ] }
     ] },
     { date: "02-11", room: "f4", steps: [
       { text: "今天的事" },
       { text: "忘掉" },
       { choices: [
-        { text: "不要。我會記得", reply: ["……", "隨便你", "但是不要跟別人說"], effects: { aff: { m4: 3 } } },
-        { text: "好，忘掉了。下次一起吃烤肉", reply: ["嗯", "我請"], effects: { aff: { m4: 2 } } }
+        { text: "不要。我會記得", reply: ["……", "隨便你", "但是不要跟別人說"] },
+        { text: "好，忘掉了。下次一起吃烤肉", reply: ["嗯", "我請"] }
       ] }
     ] },
     { date: "02-25", room: "g_council", steps: [
@@ -227,8 +227,8 @@ RIIIZE_ADD({
       { from: "f6", text: "……我還是不想辦畢業典禮TT" },
       { from: "f1", text: "燦榮~~~（貼圖：小狗抱抱）" },
       { choices: [
-        { text: "那我們先專心辦運動會", reply: [{ from: "f3", text: "對！！！先運動會！！！" }, { from: "f6", text: "……嗯" }], effects: { aff: { m6: 1, m3: 1 } } },
-        { text: "恩奭，白板上那行字是你寫的嗎", reply: [{ from: "f2", text: "……嗯。" }, { from: "f2", text: "寫下來，比較不會忘記時間。" }], effects: { aff: { m2: 2 } } }
+        { text: "那我們先專心辦運動會", reply: [{ from: "f3", text: "對！！！先運動會！！！" }, { from: "f6", text: "……嗯" }] },
+        { text: "恩奭，白板上那行字是你寫的嗎", reply: [{ from: "f2", text: "……嗯。" }, { from: "f2", text: "寫下來，比較不會忘記時間。" }] }
       ] }
     ] }
   ],

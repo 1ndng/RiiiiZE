@@ -13,8 +13,7 @@
  *   其他有事的日子：不解鎖手機，在黑底日期畫面上直接播劇情，播完自動往後跳
  *   （最後一天、看完結局之後也可以用手機）
  *
- * 好感度（公平：每個日程每次的總量一樣，平分給在場的人）：
- *   好感：遇到的每個人 +affEach（預設 3）；成員之間：遇到的每一對 +pairEach（預設 10）
+ * 好感度：每個地點去一次，plan.meet 列的單人好感 +1、兩人組合關係 +1（固定）
  *   在場的人 = cast 的 activities 有這個日程的成員
  *   特殊劇情發生的那天不加好感
  * ========================================================= */
@@ -119,18 +118,15 @@
   }
   function randomFor(act, met) {
     if (quiet(null, act)) return [];
-    var r = C().random || {}, chance = r.chance != null ? r.chance : 0.3;
-    var list = (r[act] || []).filter(function (k) {
-      return scene('rand_' + act + '_' + k) && !(S() && S().hasFlag('scene_rand_' + act + '_' + k)) && (k === 'me' || (idsOf(k).every(function (id) { return id && met.indexOf(id) >= 0; }) && !G().blockedAny(idsOf(k))));   // 不想配對的兩人不會一起出現
-    });
-    // 一天最多一段：先用 chance 決定今天有沒有隨機劇情，有的話從符合條件的裡面抽一段（名單長短不影響觸發機率）
+    var r = C().random || {}, chance = r.chance != null ? r.chance : 0.2;
+    // 名單裡的組合（有寫劇情、不是「配對禁止」的）都可能出現；看過的也會再出現
+    var list = (r[act] || []).filter(function (k) { return scene('rand_' + act + '_' + k) && !G().blockedAny(idsOf(k)); });
     if (!list.length || Math.random() >= chance) return [];
     return ['rand_' + act + '_' + list[Math.floor(Math.random() * list.length)]];
   }
-  /* 日程隨機劇情播的時候加分（data.js 的 plan.random.bonus，預設 5）：
-   *   單人 = 那位成員的好感 +5；兩人 = 那兩人的關係 +5；跟自己對話（rand_home_me）不加 */
+  /* 日程隨機劇情播的時候加分（data.js 的 plan.random.bonus，預設 1）：單人 = 那位成員的好感 +1；兩人 = 那兩人的關係 +1 */
   function chanceFx(ids) {
-    var n = C().random && C().random.bonus != null ? C().random.bonus : 5, fx = { aff: {}, pair: {} };
+    var n = C().random && C().random.bonus != null ? C().random.bonus : 1, fx = { aff: {}, pair: {} };
     ids = (ids || []).filter(Boolean);
     if (ids.length === 1) fx.aff[ids[0]] = n;
     else if (ids.length === 2) fx.pair[ids.slice().sort().join('-')] = n;
@@ -221,20 +217,20 @@
 
   /* ---- 好感度：日程每次的總量平分給在場的人 ---- */
   // 這次去會遇到誰：從會出現在這個日程的成員裡隨機挑 1 位～全部（每次都重新抽）
+  // 這次去會遇到誰：data.js 的 plan.meet（固定）；單人 = 遇到的人
+  function meetOf(act) { return ((C().meet || {})[act] || []).map(String); }
   function membersOf(act) {
-    var pool = cast().filter(function (c) { return (c.activities || []).indexOf(act) >= 0; }).map(function (c) { return c.id; });
-    if (!pool.length) return [];
-    var max = pool.length;
-    var k = 1 + Math.floor(Math.random() * max), out = [];
-    while (out.length < k) out.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
-    return cast().map(function (c) { return c.id; }).filter(function (id) { return out.indexOf(id) >= 0; });   // 照 cast 的順序
+    var ones = meetOf(act).filter(function (k) { return k.length === 1; }).map(function (k) { return idsOf(k)[0]; }).filter(Boolean);
+    return cast().map(function (c) { return c.id; }).filter(function (id) { return ones.indexOf(id) >= 0; });   // 照 cast 的順序
   }
-  function shareEffects(ids, affTotal, pairTotal) {
-    var fx = { aff: {}, pair: {} }, pairs = [];
-    ids.forEach(function (a, i) { ids.slice(i + 1).forEach(function (b) { pairs.push(a + '-' + b); }); });
-    // 遇到的每個人都 +affEach、每一對都 +pairEach（不平分：遇到幾個人都一樣多）
-    ids.forEach(function (id) { fx.aff[id] = affTotal; });
-    pairs.forEach(function (k) { fx.pair[k] = pairTotal; });
+  // 日程的加分：plan.meet 裡列的單人好感、兩人組合關係各 +meetGain
+  function meetFx(act) {
+    var n = C().meetGain != null ? C().meetGain : 1, fx = { aff: {}, pair: {} };
+    meetOf(act).forEach(function (k) {
+      var ids = idsOf(k).filter(Boolean);
+      if (ids.length === 1) fx.aff[ids[0]] = n;
+      else if (ids.length === 2) fx.pair[ids.slice().sort().join('-')] = n;
+    });
     return fx;
   }
   // 回傳這次遇到的人（日程的一句話用）
@@ -243,7 +239,7 @@
     var ids = membersOf(act);
     countVisit(act);
     if (S()) S().setFlag('act_' + act);
-    if (ids.length) G().apply(actFx(ids));
+    G().apply(meetFx(act));
     return ids;
   }
   // 「9月8日（星期一）\n去了會辦，遇到了鄭成燦和李炤熙。」（plan.text.dayLine 可以改；活動可以寫自己的 line）
@@ -273,7 +269,6 @@
     var t = T(), what = act === 'home' ? t.stayHomeLine : t.goPlace.replace('{place}', actOf(act).place || actOf(act).label);
     return t.dayShort.replace('{date}', shortDate(day)).replace('{what}', what).replace('{gain}', gainText(fx));
   }
-  function actFx(met) { return met && met.length ? shareEffects(met, C().affEach != null ? C().affEach : 3, C().pairEach != null ? C().pairEach : 10) : null; }
 
   /* ---- 一句話帶過（用對話框） ---- */
   // bg = 這句話的背景（日程、回家…）；沒給就用 plan.narrateBg → storyBg
@@ -451,7 +446,7 @@
             countVisit(act); met = membersOf(act);   // 特殊劇情那天不加好感
             addLine(act, null, met);
             steps.push(function (next) { window.STORY.play(sp.scene, next, null, sp.bg || actOf(act).bg); });
-          } else { met = doActivity(act); addLine(act, actFx(met), met); }
+          } else { met = doActivity(act); addLine(act, meetFx(act), met); }
           var ms = milestoneOf(act, G().stat('visits', act));
           if (ms) playOn(ms, act);
           playAll(randomFor(act, met), act);
@@ -578,7 +573,7 @@
         if (act) {   // 有安排：加好感，記進這週的回顧（可能觸發隨機劇情）
           G().setDay(day);
           var met = doActivity(act);
-          pendWeek({ day: day, act: act, met: met, fx: actFx(met) });
+          pendWeek({ day: day, act: act, met: met, fx: meetFx(act) });
         }
         day++;
       }
@@ -763,7 +758,7 @@
   function gainsHTML(week) {
     var t = T(), aff = {}, pair = {};
     week.forEach(function (w) {
-      var fx = w.fx !== undefined ? w.fx : actFx(w.met);   // 記下來的實際加分（特殊劇情那天不加）
+      var fx = w.fx !== undefined ? w.fx : (w.act && w.act !== 'home' ? meetFx(w.act) : null);   // 記下來的實際加分（特殊劇情那天不加）
       if (!fx) return;
       Object.keys(fx.aff || {}).forEach(function (k) { aff[k] = (aff[k] || 0) + fx.aff[k]; });
       Object.keys(fx.pair || {}).forEach(function (k) { pair[k] = (pair[k] || 0) + fx.pair[k]; });

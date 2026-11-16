@@ -45,8 +45,8 @@ RIIIZE_ADD({
       { who: "m1", text: "……一起，就好。" },
       { text: "他吹熄了蠟燭。辦公室裡安靜了一下。" },
       { choices: [
-        { text: "「一定可以的。」", effects: { aff: { m1: 3 } } },
-        { text: "走過去，抱住他", effects: { aff: { m1: 3 } } }
+        { text: "「一定可以的。」" },
+        { text: "走過去，抱住他" }
       ] },
       { who: "m1", text: "……{name}最好了TT" },
       { text: "那天晚上，將太郎在群組裡傳了七次「謝謝」，每一次都加了不一樣的哭哭貼圖。" }
@@ -76,8 +76,8 @@ RIIIZE_ADD({
       { who: "m5", text: "{name}。禮物呢？" },
       { who: "me", text: "（來了，壽星的勒索。）" },
       { choices: [
-        { text: "把那張紙箱獎盃的照片洗出來，裝進相框送他", effects: { aff: { m5: 3 } }, goto: "photo" },
-        { text: "「我的禮物是：今天讓你贏一局。」", effects: { aff: { m5: 2, m2: 1 } }, goto: "game" }
+        { text: "把那張紙箱獎盃的照片洗出來，裝進相框送他", goto: "photo" },
+        { text: "「我的禮物是：今天讓你贏一局。」", goto: "game" }
       ] },
       { label: "photo" },
       { who: "m5", text: "……這是校慶那天的。" },
@@ -112,8 +112,8 @@ RIIIZE_ADD({
       { who: "m1", text: "……{name}？^^" },
       { who: "me", text: "（不要用那種小狗眼神看我！！！）" },
       { choices: [
-        { text: "「好啦，我來寫。」", effects: { aff: { m1: 2, m5: 1 } } },
-        { text: "「會長，你自己寫。順便練韓文。」", effects: { aff: { m1: 1, m2: 1 } } }
+        { text: "「好啦，我來寫。」" },
+        { text: "「會長，你自己寫。順便練韓文。」" }
       ] },
       { text: "散會之後，你經過熱舞社的練習室。" },
       { text: "將太郎一個人在裡面，對著鏡子，一遍又一遍地蹲下、站起來。" },
@@ -144,8 +144,8 @@ RIIIZE_ADD({
       { who: "m5", text: "開玩笑的啦，元彬哥。" },
       { who: "me", text: "（元彬剛剛的眼神可以殺人。）" },
       { choices: [
-        { text: "把最後一盒分給大家", effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } },
-        { text: "偷偷把最後一盒留給元彬", effects: { aff: { m4: 3 } } }
+        { text: "把最後一盒分給大家" },
+        { text: "偷偷把最後一盒留給元彬" }
       ] },
       { text: "那天回家的時候，你的書包裡還有三盒沒吃完的巧克力棒。" }
     ],
@@ -193,8 +193,8 @@ RIIIZE_ADD({
       { who: "m5", text: "這明明是第一次。" },
       { text: "他皺著眉，看著廣播室的喇叭，好像在聽一個很遠的聲音。" },
       { choices: [
-        { text: "「我們去跟學校說清楚。」", effects: { aff: { m5: 2 } }, goto: "fight" },
-        { text: "「我知道是你做的。燦榮也知道。這樣夠嗎？」", effects: { aff: { m5: 3 } }, goto: "know" }
+        { text: "「我們去跟學校說清楚。」", goto: "fight" },
+        { text: "「我知道是你做的。燦榮也知道。這樣夠嗎？」", goto: "know" }
       ] },
       { label: "fight" },
       { who: "m5", text: "……不用啦，{name}。" },
@@ -246,8 +246,8 @@ RIIIZE_ADD({
       { who: "m5", text: "我要留著。" },
       { who: "me", text: "（傲嬌的副會長，今天也很傲嬌。）" },
       { choices: [
-        { text: "拿手機幫他們拍一張照", effects: { aff: { m5: 2, m6: 2 } } },
-        { text: "「炤熙，下次不要再說『每次都這樣』了。」", effects: { aff: { m5: 3 } } }
+        { text: "拿手機幫他們拍一張照" },
+        { text: "「炤熙，下次不要再說『每次都這樣』了。」" }
       ] },
       { text: "那天的學生會辦公室，一直笑到很晚。" }
     ]
@@ -262,8 +262,8 @@ RIIIZE_ADD({
       { from: "f5", text: "燦榮，草稿明天給我看" },
       { from: "f1", text: "會議紀錄……誰寫的TT" },
       { choices: [
-        { text: "我寫的，會長請看", reply: [{ from: "f1", text: "{name}好可靠🥺" }, { from: "f2", text: "字很漂亮。" }], effects: { aff: { m1: 1, m2: 1 } } },
-        { text: "會長自己寫的，大家給他掌聲", reply: [{ from: "f1", text: "我寫了三個小時TT" }, { from: "f3", text: "👏👏👏👏👏" }], effects: { aff: { m1: 2 } } }
+        { text: "我寫的，會長請看", reply: [{ from: "f1", text: "{name}好可靠🥺" }, { from: "f2", text: "字很漂亮。" }] },
+        { text: "會長自己寫的，大家給他掌聲", reply: [{ from: "f1", text: "我寫了三個小時TT" }, { from: "f3", text: "👏👏👏👏👏" }] }
       ] }
     ] },
     { date: "11-15", room: "g_council", steps: [
@@ -275,8 +275,8 @@ RIIIZE_ADD({
       { from: "f3", text: "元彬難得誇獎！！！" },
       { from: "f4", text: "我、我沒有誇" },
       { choices: [
-        { text: "大家都辛苦了！今年最棒！", reply: [{ from: "f1", text: "😭😭😭" }, { from: "f6", text: "最棒！" }], effects: { aff: { m1: 1, m3: 1, m6: 1 } } },
-        { text: "炤熙，那個海報……", reply: [{ from: "f5", text: "{name}，不用說了" }, { from: "f5", text: "你知道就好" }], effects: { aff: { m5: 2 } } }
+        { text: "大家都辛苦了！今年最棒！", reply: [{ from: "f1", text: "😭😭😭" }, { from: "f6", text: "最棒！" }] },
+        { text: "炤熙，那個海報……", reply: [{ from: "f5", text: "{name}，不用說了" }, { from: "f5", text: "你知道就好" }] }
       ] }
     ] },
     { date: "11-17", room: "f5", steps: [
@@ -284,8 +284,8 @@ RIIIZE_ADD({
       { text: "紙箱獎盃我放在書桌上了" },
       { text: "醜得很可愛" },
       { choices: [
-        { text: "那是成燦剪的，他會很高興", reply: ["不要跟他說", "他會再剪十個"], effects: { aff: { m5: 2 } } },
-        { text: "你值得一個真的獎盃", reply: ["……", "那等我以後拿到真的，第一個給{name}看"], effects: { aff: { m5: 3 } } }
+        { text: "那是成燦剪的，他會很高興", reply: ["不要跟他說", "他會再剪十個"] },
+        { text: "你值得一個真的獎盃", reply: ["……", "那等我以後拿到真的，第一個給{name}看"] }
       ] }
     ] },
     { date: "11-25", room: "f1", steps: [
@@ -294,8 +294,8 @@ RIIIZE_ADD({
       { text: "護膝我會一直戴著的" },
       { text: "雖然我的膝蓋明明沒事ㅎㅎ" },
       { choices: [
-        { text: "生日快樂，將太郎", reply: ["謝謝🥺", "明年也要一起過喔", "約好了"], effects: { aff: { m1: 2 } } },
-        { text: "那就戴著跳舞，跳一輩子", reply: ["一輩子……", "嗯！", "一輩子都跟大家跳"], effects: { aff: { m1: 3 } } }
+        { text: "生日快樂，將太郎", reply: ["謝謝🥺", "明年也要一起過喔", "約好了"] },
+        { text: "那就戴著跳舞，跳一輩子", reply: ["一輩子……", "嗯！", "一輩子都跟大家跳"] }
       ] }
     ] }
   ],

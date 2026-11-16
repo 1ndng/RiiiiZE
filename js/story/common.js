@@ -40,7 +40,7 @@ RIIIZE_ADD({
       { text: "此刻在你腦海中浮現的，是眼前這六個人。", if: { flag: "bday_me_ok" } },
       { text: "此刻在你腦海中浮現的，是電話那頭的六個人。", if: { flag: "bday_me_no" } },
       { text: "你希望——" },
-      { wish: { aff: 10, pair: 15 } },
+      { wish: { aff: 5, pair: 3 } },
       { who: "me", text: "（希望我和{wish}，可以一直、一直在一起。）", wishIs: "aff" },
       { who: "me", text: "（希望{wish}，可以一直、一直在一起。）", wishIs: "pair" }
     ],

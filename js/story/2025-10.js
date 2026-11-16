@@ -44,8 +44,8 @@ RIIIZE_ADD({
       { text: "燦榮小聲地說。" },
       { who: "m6", text: "去年很好玩。再玩一次也很好。" },
       { choices: [
-        { text: "「那今年我們加一點新的東西進去！」", effects: { aff: { m3: 3 } }, goto: "new" },
-        { text: "「燦榮說得對，一樣也很好。」", effects: { aff: { m6: 2, m3: 1 } }, goto: "same" }
+        { text: "「那今年我們加一點新的東西進去！」", goto: "new" },
+        { text: "「燦榮說得對，一樣也很好。」", goto: "same" }
       ] },
       { label: "new" },
       { who: "me", text: "那今年我們加一點新的東西進去！公關長負責宣傳，保證跟去年不一樣。" },
@@ -110,8 +110,8 @@ RIIIZE_ADD({
       { text: "恩奭小聲地叫你。" },
       { who: "m2", text: "許願吧。中秋的月亮，聽說很靈。" },
       { choices: [
-        { text: "對著月亮許願", effects: { aff: { m2: 2 } } },
-        { text: "「我的願望已經實現了。」", effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } }
+        { text: "對著月亮許願" },
+        { text: "「我的願望已經實現了。」" }
       ] },
       { text: "那天晚上的月亮，你記了很久很久。" }
     ],
@@ -135,8 +135,8 @@ RIIIZE_ADD({
       { who: "m1", text: "明明現在什麼都很好，可是心裡有一個地方，一直在害怕。" },
       { who: "m1", text: "好像這些很好的東西，有一天會突然不見。" },
       { choices: [
-        { text: "「不會不見的。我在這裡。」", effects: { aff: { m1: 3 } }, goto: "here" },
-        { text: "「那我們就趁現在，好好記住。」", effects: { aff: { m1: 2 } }, goto: "remember" }
+        { text: "「不會不見的。我在這裡。」", goto: "here" },
+        { text: "「那我們就趁現在，好好記住。」", goto: "remember" }
       ] },
       { label: "here" },
       { who: "m1", text: "……嗯。" },
@@ -181,8 +181,8 @@ RIIIZE_ADD({
       { from: "f6", text: "海報我會畫得跟去年不一樣！" },
       { from: "f5", text: "{name}，公關長的宣傳計畫什麼時候交" },
       { choices: [
-        { text: "明天！我已經想好了", reply: [{ from: "f5", text: "這麼快？{name}是不是發燒了" }, { from: "f1", text: "{name}好可靠~~♪" }], effects: { aff: { m1: 1, m5: 1 } } },
-        { text: "副會長先交場地計畫我再交==", reply: [{ from: "f5", text: "……{name}好狡猾" }, { from: "f2", text: "場地計畫，我跟炤熙明天交。" }], effects: { aff: { m5: 2 } } }
+        { text: "明天！我已經想好了", reply: [{ from: "f5", text: "這麼快？{name}是不是發燒了" }, { from: "f1", text: "{name}好可靠~~♪" }] },
+        { text: "副會長先交場地計畫我再交==", reply: [{ from: "f5", text: "……{name}好狡猾" }, { from: "f2", text: "場地計畫，我跟炤熙明天交。" }] }
       ] },
       { from: "f3", text: "總之！今年一定要不一樣！" },
       { from: "f2", text: "睡覺吧，活動長。" }
@@ -193,8 +193,8 @@ RIIIZE_ADD({
       { text: "大家擠在窗邊看星星" },
       { text: "我好喜歡那個時候^^" },
       { choices: [
-        { text: "我也是。七個人一起看的", reply: ["嗯", "七個人", "……我會記住的"], effects: { aff: { m1: 2 } } },
-        { text: "你今天一直靠在我肩膀上==", reply: ["因為很累嘛TT", "（貼圖：一隻小狗在蹭蹭）", "下次也借我靠"], effects: { aff: { m1: 2 } } }
+        { text: "我也是。七個人一起看的", reply: ["嗯", "七個人", "……我會記住的"] },
+        { text: "你今天一直靠在我肩膀上==", reply: ["因為很累嘛TT", "（貼圖：一隻小狗在蹭蹭）", "下次也借我靠"] }
       ] },
       { text: "對了" },
       { text: "我的膝蓋今天有點痠" },

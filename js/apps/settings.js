@@ -268,7 +268,7 @@
     Object.keys(sc).forEach(function (k) {
       var m = /^act_(\w+?)_(\d+)$/.exec(k), r = /^rand_(\w+?)_(\w+)$/.exec(k);
       if (m && acts[m[1]]) fixed.push({ o: actOrder.indexOf(m[1]) * 1000 + (+m[2]), id: k, label: acts[m[1]].label, sub: '第 ' + m[2] + ' 次', bg: acts[m[1]].bg, who: acts[m[1]].label });   // 鎖住：只顯示地點（不顯示第幾次）
-      if (r && acts[r[1]]) rand.push({ o: actOrder.indexOf(r[1]) * 1000 + (r[2] === 'me' ? 999 : r[2].length * 100 + (+r[2])), id: k, label: acts[r[1]].label,
+      if (r && acts[r[1]] && ((plan.random || {})[r[1]] || []).map(String).indexOf(r[2]) >= 0) rand.push({ o: actOrder.indexOf(r[1]) * 1000 + (r[2] === 'me' ? 999 : r[2].length * 100 + (+r[2])), id: k, label: acts[r[1]].label,
         sub: r[2] === 'me' ? '跟自己對話' : r[2].split('').map(function (n) { var c = byNo[+n]; return c ? (c.emoji || nameOf(c)) : n; }).join(''), bg: acts[r[1]].bg,
         who: acts[r[1]].label + '　' + (r[2] === 'me' ? '我' : r[2].split('').map(function (n) { return nameOf(byNo[+n]); }).join('×')) });
     });

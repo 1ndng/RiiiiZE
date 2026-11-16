@@ -89,12 +89,12 @@ RIIIZE_ADD({
       { text: "你看著螢幕，想了一下——" },
       { who: "me", text: "（這是什麼戀愛遊戲的選擇題啊……）" },
       { choices: [
-        { text: "回覆將太郎", effects: { aff: { m1: 4 } }, goto: "c1" },
-        { text: "回覆恩奭", effects: { aff: { m2: 4 } }, goto: "c2" },
-        { text: "回覆成燦", effects: { aff: { m3: 4 } }, goto: "c3" },
-        { text: "回覆元彬", effects: { aff: { m4: 4 } }, goto: "c4" },
-        { text: "回覆炤熙", effects: { aff: { m5: 4 } }, goto: "c5" },
-        { text: "回覆燦榮", effects: { aff: { m6: 4 } }, goto: "c6" }
+        { text: "回覆將太郎", goto: "c1" },
+        { text: "回覆恩奭", goto: "c2" },
+        { text: "回覆成燦", goto: "c3" },
+        { text: "回覆元彬", goto: "c4" },
+        { text: "回覆炤熙", goto: "c5" },
+        { text: "回覆燦榮", goto: "c6" }
       ] },
       { label: "c1" },
       { text: "你和將太郎在公園的長椅上，一起看雪。" },
@@ -160,8 +160,8 @@ RIIIZE_ADD({
       { who: "m3", text: "你的臉有說！" },
       { text: "恩奭沒有反駁。你這才發現，成燦說的，大概全都對。" },
       { choices: [
-        { text: "捏一顆小小的雪球，輕輕放到恩奭手上", effects: { aff: { m2: 3 } }, goto: "ball" },
-        { text: "「那我們來堆一個不會融化的雪人。」", effects: { aff: { m2: 2, m3: 1 } }, goto: "man" }
+        { text: "捏一顆小小的雪球，輕輕放到恩奭手上", goto: "ball" },
+        { text: "「那我們來堆一個不會融化的雪人。」", goto: "man" }
       ] },
       { label: "ball" },
       { text: "恩奭看著手上的雪球，愣了一下。" },
@@ -201,8 +201,8 @@ RIIIZE_ADD({
       { text: "他笑了一下，可是那個笑很難看。" },
       { who: "m1", text: "那個房間……好像我去過很多次。" },
       { choices: [
-        { text: "「那只是夢。你現在在這裡，跟我們在一起。」", effects: { aff: { m1: 3 } }, goto: "here" },
-        { text: "握住他的手，什麼都不說", effects: { aff: { m1: 3 } }, goto: "hold" }
+        { text: "「那只是夢。你現在在這裡，跟我們在一起。」", goto: "here" },
+        { text: "握住他的手，什麼都不說", goto: "hold" }
       ] },
       { label: "here" },
       { who: "m1", text: "……嗯。跟大家在一起。" },
@@ -236,12 +236,12 @@ RIIIZE_ADD({
       { who: "m3", text: "{name}，你先抽！" },
       { text: "你抽出一張紙條，打開——" },
       { choices: [
-        { text: "是將太郎", effects: { aff: { m1: 1 } }, flag: "xmas_m1" },
-        { text: "是恩奭", effects: { aff: { m2: 1 } }, flag: "xmas_m2" },
-        { text: "是成燦", effects: { aff: { m3: 1 } }, flag: "xmas_m3" },
-        { text: "是元彬", effects: { aff: { m4: 1 } }, flag: "xmas_m4" },
-        { text: "是炤熙", effects: { aff: { m5: 1 } }, flag: "xmas_m5" },
-        { text: "是燦榮", effects: { aff: { m6: 1 } }, flag: "xmas_m6" }
+        { text: "是將太郎", flag: "xmas_m1" },
+        { text: "是恩奭", flag: "xmas_m2" },
+        { text: "是成燦", flag: "xmas_m3" },
+        { text: "是元彬", flag: "xmas_m4" },
+        { text: "是炤熙", flag: "xmas_m5" },
+        { text: "是燦榮", flag: "xmas_m6" }
       ] },
       { who: "m3", text: "不准說出來喔！到時候才揭曉！" },
       { text: "你把紙條摺好，放進口袋。" },
@@ -264,8 +264,8 @@ RIIIZE_ADD({
       { who: "m2", text: "……嗯。" },
       { who: "m1", text: "{name}呢？" },
       { choices: [
-        { text: "「是我最開心的一年。」", effects: { aff: { m1: 2, m3: 1 } } },
-        { text: "「明年也要一起。」", effects: { aff: { m1: 1, m2: 1, m3: 1, m4: 1, m5: 1, m6: 1 } } }
+        { text: "「是我最開心的一年。」" },
+        { text: "「明年也要一起。」" }
       ] },
       { text: "倒數開始了。" },
       { who: "m3", text: "十！" },
@@ -293,8 +293,8 @@ RIIIZE_ADD({
       { text: "今天的雪球" },
       { text: "我放在冰箱冷凍庫了" },
       { choices: [
-        { text: "放冰箱幹嘛ㅋㅋㅋ", reply: ["不想讓它融化", "……這是冷笑話嗎", "不是。是真的"], effects: { aff: { m2: 2 } } },
-        { text: "那明年拿出來，一起再堆一個", reply: ["……嗯", "明年"], effects: { aff: { m2: 3 } } }
+        { text: "放冰箱幹嘛ㅋㅋㅋ", reply: ["不想讓它融化", "……這是冷笑話嗎", "不是。是真的"] },
+        { text: "那明年拿出來，一起再堆一個", reply: ["……嗯", "明年"] }
       ] }
     ] },
     { date: "12-10", room: "f1", steps: [
@@ -302,8 +302,8 @@ RIIIZE_ADD({
       { text: "我後來又睡著了，這次沒有做夢" },
       { text: "（貼圖：一隻小狗抱著枕頭）" },
       { choices: [
-        { text: "太好了，以後累了就靠著我睡", reply: ["真的嗎！", "那我每天都要累一下ㅎㅎ"], effects: { aff: { m1: 3 } } },
-        { text: "考試加油，會長", reply: ["嗯！", "會長會加油的！"], effects: { aff: { m1: 1 } } }
+        { text: "太好了，以後累了就靠著我睡", reply: ["真的嗎！", "那我每天都要累一下ㅎㅎ"] },
+        { text: "考試加油，會長", reply: ["嗯！", "會長會加油的！"] }
       ] }
     ] },
     { date: "12-19", room: "g_council", steps: [
@@ -313,8 +313,8 @@ RIIIZE_ADD({
       { from: "f4", text: "一萬元" },
       { from: "f2", text: "我抽到的人，你等著。" },
       { choices: [
-        { text: "恩奭你不要劇透！", reply: [{ from: "f2", text: "我什麼都沒說。" }, { from: "f3", text: "你說了！！！" }], effects: { aff: { m2: 1 } } },
-        { text: "我已經想好要送什麼了", reply: [{ from: "f1", text: "好期待~~♪" }, { from: "f5", text: "{name}不要送奇怪的東西" }], effects: { aff: { m1: 1, m5: 1 } } }
+        { text: "恩奭你不要劇透！", reply: [{ from: "f2", text: "我什麼都沒說。" }, { from: "f3", text: "你說了！！！" }] },
+        { text: "我已經想好要送什麼了", reply: [{ from: "f1", text: "好期待~~♪" }, { from: "f5", text: "{name}不要送奇怪的東西" }] }
       ] }
     ] },
   ],
