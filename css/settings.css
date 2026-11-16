@@ -133,11 +133,11 @@
 .pf-head h1 { margin: 0; font-size: 24px; font-weight: 700; }
 .pf-line { position: relative; display: flex; gap: 12px; padding: 11px 16px; font-size: 15px; }
 .pf-line + .pf-line::before, .pf-rel + .pf-rel::before, .pf-story + .pf-story::before { content: ""; position: absolute; left: 16px; right: 0; top: 0; border-top: .5px solid #d8d8dc; }
-.pf-line span { flex: none; width: 104px; color: #8a8a8e; }
+.pf-line span { flex: none; width: 108px; white-space: nowrap; color: #8a8a8e; }
 .pf-line b { flex: 1; font-weight: 400; line-height: 1.45; }
-.pf-cols { display: flex; justify-content: flex-end; gap: 0; }
+.pf-cols { display: flex; justify-content: flex-end; gap: 0; padding-right: 28px; }   /* 跟下面的列對齊：外框 16px＋列的右邊 12px */
 .pf-cols span:first-child { width: 56px; text-align: center; }
-.pf-cols span:last-child { width: 56px; text-align: center; margin-right: 12px; }
+.pf-cols span:last-child { width: 56px; text-align: center; }
 .pf-rel { position: relative; display: flex; align-items: center; min-height: 46px; padding: 0 12px 0 16px; }
 .pf-who { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 16px; }
 .pf-num { width: 56px; text-align: center; font-size: 17px; font-variant-numeric: tabular-nums; }
