@@ -155,7 +155,7 @@
     // opts.noGap = 不等兩段劇情之間的間隔（例如自由探索的提醒要馬上跳出來）
     if (gap > 0 && !resume && !replay && !reuse && !(opts && opts.noGap)) { waitingPlay = true; setTimeout(function () { waitingPlay = false; play(id, done, resume, bg, opts); }, gap); return; }
     var t = T(), el = document.createElement('div');
-    el.className = 'vn' + (opts && opts.overLock ? ' over-lock' : '');   // overLock = 蓋在鎖定畫面上（自由探索的提醒）
+    el.className = 'vn' + (opts && opts.overLock ? ' over-lock' : '') + (opts && opts.overFade ? ' over-fade' : '');   // overLock = 蓋在鎖定畫面上（自由探索的提醒）；overFade = 蓋在換天的黑幕上（日程規劃說明）
     el.innerHTML =
       '<div class="vn-bg" id="vn-bg"></div><div class="vn-black"></div>' +
       // 右上角：紀錄、存檔（結局進行中不能存檔）

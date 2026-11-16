@@ -51,8 +51,6 @@
 .pl-clear { background: rgba(255,255,255,.12); color: #fff; }
 .pl-ok { background: #fff; color: #2b2340; }
 .pl-ghost { position: fixed; z-index: 1000; transform: translate(-50%, -50%); padding: 8px 12px; border-radius: 12px; background: #c9b8ff; color: #2b2340; font-size: 14px; font-weight: 700; pointer-events: none; box-shadow: 0 6px 18px rgba(0,0,0,.3); }
-.pl-tip { z-index: 102; }
-.pl-tip .ios-alert, .pl-tip .ios-alert button { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "PingFang TC", "Noto Sans TC", sans-serif; }   /* 日程規劃的提示：手機字體 */
 .ios-alert-btns.one { grid-template-columns: 1fr; }
 /* 月曆（每週勾三天）：每週一列，星期一～六各一顆（下面寫地點） */
 .pl-weeks { display: flex; flex-direction: column; gap: 10px; max-height: 58vh; overflow-y: auto; }

@@ -25,7 +25,7 @@
   font-weight: 400 700;   /* 跟 Kaisei Decol 一樣：粗體時不另外加粗 */
   font-display: swap;
 }
-.vn, .vn-name, .sch, .pl, .pl-ghost, .end-card, .day-stage, .day-fade, .ios-alert-wrap.pl-tip {
+.vn, .vn-name, .sch, .pl, .pl-ghost, .end-card, .day-stage, .day-fade {
   font-family: "Kaisei Decol", "UoqMunThenKhung", "JiangChengJieXingTi", "Noto Serif TC", "Songti TC", "PMingLiU", serif;
 }
 .vn button, .vn input, .vn select, .vn-name button, .vn-name input, .vn-name select, .sch button, .pl button { font-family: inherit; }

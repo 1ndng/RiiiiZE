@@ -34,7 +34,7 @@
   function T() {
     var t = C().text || {}, d = {
       planTitle: '{m}月的日程規劃', planHint: '每週選三天。每天能去的地方是固定的。', confirm: '確認', weekend: '週日', mainDay: '主線', home: '回家',
-      tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以規劃這個月的日程。\n每週勾選三天，確認後不可更改。',
+
       ok: '好', clear: '清除', sunRest: '休息', weekPick: '已選 {n} / {need}',
       giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '要', giftAsk: '有人要', giftNo: '不要',
       giftPickOne: '要送給誰？', giftPickGiver: '誰送？', giftPickTo: '送給誰？', giftOk: '確定', back: '返回', next: '下一步', giftFrom: '送禮的人：{a}',
@@ -535,13 +535,10 @@
       }
     });
   }
+  // 第一次排日程之前的說明：劇情框（粉色格紋）播 scenes.plan_tutorial（js/story/weekend.js）；沒有這段劇情就直接打開月曆
   function tutorial(done) {
-    var t = T(), w = document.createElement('div');
-    w.className = 'ios-alert-wrap pl-tip';
-    w.innerHTML = '<div class="ios-alert"><b>' + esc(t.tutorialTitle) + '</b><p>' + esc(t.tutorialText).replace(/\n/g, '<br>') + '</p>' +
-      '<div class="ios-alert-btns one"><button type="button" data-alert-yes>' + esc(t.ok) + '</button></div></div>';
-    document.getElementById('phone').appendChild(w);
-    w.addEventListener('click', function (e) { if (e.target.closest('[data-alert-yes]')) { w.remove(); done(); } });
+    if (!scene('plan_tutorial')) { done(); return; }
+    window.STORY.play('plan_tutorial', done, null, C().narrateBg || D().storyBg, { overFade: true, noGap: true });
   }
 
   /* ---- 睡覺：往後跳到下一個有事的日子（沒事的日子照月曆加好感） ----
