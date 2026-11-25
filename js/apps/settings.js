@@ -54,7 +54,7 @@
     galleryNote: '看過的結局和後日談會記在這裡，「重新開始」不會被清掉。',
     visits: '去過幾次（日程）', planNow: '打開這個月的月曆安排',
     scenes: '劇情（播放測試）', playerName: '玩家名字', rename: '改名字', renameTitle: '輸入新的名字',
-    myName: '名字', nickName: '稱呼', block: '配對禁止選擇', blockNote: '可以不選，也可以多選。', blockNone: '沒有', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
+    myName: '名字', nickName: '稱呼', block: '配對選擇', blockNote: '可以不選，也可以多選。', blockNone: '沒有', nickTitle: '成員要怎麼叫你？\n（六位成員都一樣；留空 = 跟名字一樣）', sameAsName: '跟名字一樣',
     loopSave: '循環前的存檔', loopSaveName: '第 {n} 輪結束時', loopNote: 'DREAM END 之後回到 9/1 之前自動存的檔，只能讀取。讀取後在 8/31 晚上睡覺，就會再次回到 9/1。', loopNo: '第 {n} 輪',
     wallpaper: '背景圖片', wpLock: '鎖定畫面', wpHome: '主畫面', wpChange: '更換', wpDefault: '恢復預設',
     wpNote: '選一張自己的照片當鎖定畫面或主畫面的背景。', wpTooBig: '照片太大了，換一張試試看。',
@@ -93,13 +93,14 @@
         row(ICON.person, '#ff6fae', esc(t.people), '', 'data-st-go="#/settings/people"', true) +
       '</div>' +
       // 收集：小標寫總收集率（劇情回想＋CG＋結局＋線索），下面各項顯示收集了幾個
-      sec(t.collect, ' <span class="st-collect" data-collect>' + esc(pct(totalStat())) + '</span>') +
+      // data.js 的 game.hideCollect = true：這一區暫時不顯示
+      ((D().game || {}).hideCollect ? '' : sec(t.collect, ' <span class="st-collect" data-collect>' + esc(pct(totalStat())) + '</span>') +
       '<div class="st-group">' +
         (window.ENDING ? row(ICON.star, '#ff9500', esc(t.gallery), esc(frac(galleryStat())), 'data-st-go="#/settings/gallery"', true) : '') +
         row(ICON.book, '#af52de', esc(t.replay), esc(frac(replayStat())), 'data-st-go="#/settings/replay"', true) +
         row(ICON.image, '#ff6fae', esc(t.cg), esc(cgCount()), 'data-st-go="#/settings/cg"', true) +
         (cluesOpen() ? row(ICON.star, '#ff2d55', esc(t.clues), esc(clueTotal()), 'data-st-go="#/settings/clues"', true) : '') +
-      '</div>' +
+      '</div>') +
       ((D().game || {}).debug ? '<div class="st-group">' + row(ICON.wrench, '#34c759', esc(t.statsTitle), '', 'data-st-go="#/settings/stats"', true) + '</div>' : '') +
       // 個人化：名字（旁白、你說的話、App 的個人資料）／稱呼（成員說的話、傳的訊息）／愛情線選擇／背景圖片
       sec(t.secMe) +
@@ -492,7 +493,7 @@
       '<div class="pf-grid">' + (D().cast || []).map(function (c) {
         return '<button type="button" class="pf-tile" data-st-go="#/settings/people/' + esc(c.id) + '">' +
           '<img src="' + esc(c.avatar || 'images/default_avatar.png') + '" alt=""><b>' + esc(c.short || c.name) + '</b>' +
-          '<small>' + esc(stageMe(c.id)) + '</small></button>';
+          ((D().game || {}).hidePeopleStats ? '' : '<small>' + esc(stageMe(c.id)) + '</small>') + '</button>';
       }).join('') + '</div>';
   }
   function renderPerson(id) {
@@ -522,9 +523,11 @@
         line(t.pMeetMe, esc(info.me.join('、') || t.pNone)) +
         line(t.pMeetWith, esc(info.withs.join('、') || t.pNone)) +
       '</div>' +
-      '<div class="st-sec pf-cols"><span>' + esc(t.pAff) + '</span><span>' + esc(t.pStage) + '</span></div>' +
-      '<div class="st-group">' + rel(null) + others.map(rel).join('') + '</div>' +
-      (story ? '<div class="st-sec">' + esc(t.pStory) + '</div><div class="st-group">' + story + '</div>' : '');
+      // data.js 的 game.hidePeopleStats = true：好感度、關係階段、？？？暫時不顯示
+      ((D().game || {}).hidePeopleStats ? '' :
+        '<div class="st-sec pf-cols"><span>' + esc(t.pAff) + '</span><span>' + esc(t.pStage) + '</span></div>' +
+        '<div class="st-group">' + rel(null) + others.map(rel).join('') + '</div>' +
+        (story ? '<div class="st-sec">' + esc(t.pStory) + '</div><div class="st-group">' + story + '</div>' : ''));
   }
 
   /* 線索收集：10/1 第一個線索出現之前不顯示（data.js 的 game.cluesFrom，預設 "10-01"） */

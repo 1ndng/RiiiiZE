@@ -521,6 +521,8 @@ window.SITE_DATA = {
     // 音效：message = KakaoTalk 收到訊息
     sounds: { message: "audio/message.mp3", volume: { message: 0.6 } },
     debug: false,                // true = 設定裡出現「數值（開發用）」（開發時再改回 true）
+    hideCollect: true,           // true = 設定首頁暫時不顯示「總收集率」那一區（結局圖鑑、劇情回想、CG 圖鑑、線索收集）
+    hidePeopleStats: true,       // true = 人物資訊暫時不顯示好感度、關係階段和最下面的「？？？」故事
     startDate: "2025-09-01",
     endDate: "2026-08-31",
     saveSlots: 10,

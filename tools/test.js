@@ -52,6 +52,8 @@ async function open(browser, base, seed, opt) {
   }, [seed, !!opt.title]);
   await page.goto(base + '/#/home');
   await sleep(1200);
+  // 暫時隱藏的區塊（data.js 的 game.hideCollect、hidePeopleStats）：測試時打開，才測得到裡面；opt.keepHidden = 照正式設定
+  if (!opt.keepHidden) await page.evaluate(() => { if (window.SITE_DATA && SITE_DATA.game) { SITE_DATA.game.hideCollect = false; SITE_DATA.game.hidePeopleStats = false; } });
   // 從星期日晚上開始的測試：先把「自由探索手機」的提醒點掉（等 2 秒的劇情間隔）
   if (opt.keepFreePhone) return page;
   // 只有星期日晚上會出現：等一下它出現，點完它
@@ -252,10 +254,13 @@ const TESTS = [
     // 每週勾滿三天（第一週已勾；其他週勾週一、三、五，10/24 是主線日也能排）
     const nw = await p.$$eval('.pl-week', a => a.length);
     for (let w = 1; w < nw; w++) for (const wd of [1, 3, 5]) { const s = '[data-wk="' + w + '"][data-wd="' + wd + '"]'; if (await p.$(s)) await p.click(s); }
+    // 跨月的週：星期一在這個月就整週都在這張月曆（10/27～11/1）；10/1～10/4 已經在 9 月的月曆排過，不出現
+    const heads = await p.$$eval('.pl-wk-head span', a => a.map(x => x.textContent));
+    if (heads[0] !== '10/6～10/11' || heads[heads.length - 1] !== '10/27～11/1') throw new Error('週的範圍不對：' + heads.join('、'));
     if (await p.$eval('[data-confirm]', e => e.disabled)) throw new Error('勾滿了應該能確認');
     await p.click('[data-confirm]'); await sleep(500);
     const d = await p.evaluate(() => JSON.parse(localStorage.getItem('riiiize-plan')).days);
-    if (d['10-24'] !== 'games' || d['10-01'] !== 'sports' || d['10-02'] !== 'club' || d['10-06'] !== 'council' || d['10-07']) throw new Error('存的不對：' + JSON.stringify(d).slice(0, 200));
+    if (d['10-24'] !== 'games' || d['10-08'] !== 'sports' || d['10-09'] !== 'club' || d['10-13'] !== 'council' || d['10-14'] || d['10-01']) throw new Error('存的不對：' + JSON.stringify(d).slice(0, 200));
     return p;
   }],
   ['日程規劃說明：第一次排日程前出現粉色格紋卡片（跟填名字一樣），按「好」才打開月曆', async (b, base) => {
@@ -336,6 +341,19 @@ const TESTS = [
     if (!rel.includes('元彬|0|友好')) throw new Error('元彬：' + rel.join('、'));
     const st = await p.$$eval('.pf-story', a => a.map(x => x.textContent));
     if (st.length !== 3 || st[0] === '？？？' || st[1] !== '？？？') throw new Error('？？？：' + st.join('｜'));
+    return p;
+  }],
+  ['暫時隱藏：設定首頁沒有總收集率那一區；人物資訊沒有好感度、關係階段、？？？；「配對選擇」', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS }), { keepHidden: true });
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); location.hash = '#/settings'; });
+    await p.waitForSelector('[data-st-go="#/settings/people"]', { timeout: 8000 });
+    if (await p.$('[data-collect]') || await p.$('[data-st-go="#/settings/replay"]') || await p.$('[data-st-go="#/settings/cg"]') || await p.$('[data-st-go="#/settings/gallery"]')) throw new Error('總收集率那一區要隱藏');
+    const labels = await p.$$eval('.st-label', a => a.map(x => x.textContent));
+    if (!labels.includes('配對選擇')) throw new Error('要叫「配對選擇」：' + labels.join('、'));
+    await p.evaluate(() => { location.hash = '#/settings/people/m6'; });
+    await p.waitForSelector('.pf-head', { timeout: 5000 });
+    if (await p.$('.pf-rel') || await p.$('.pf-story') || await p.$('.pf-cols')) throw new Error('好感度、關係階段、？？？要隱藏');
+    if ((await p.$$('.pf-line')).length !== 3) throw new Error('生日、地點要留著');
     return p;
   }],
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {

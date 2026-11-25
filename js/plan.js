@@ -474,36 +474,42 @@
     return day >= from && !plans().months[ym(day)];
   }
   /* 月曆（一個月排一次）：每週一列，勾選三天；星期幾去哪裡是固定的（data.js 的 plan.weekdays）
-   *   過去的日子、開學週的強制日程、不在這個月的日子不能勾；那週能勾的不到三天就全部勾；星期日 = 休息（顯示但不能勾） */
+   *   過去的日子、開學週的強制日程不能勾；跨月的那週整週在星期一所在的月份排；那週能勾的不到三天就全部勾；星期日 = 休息（顯示但不能勾） */
   function weekdayAct(wd) { return (C().weekdays || {})[wd] || null; }
   function planner(day, done) {
     var t = T(), d0 = dateOf(day), y = d0.getFullYear(), m = d0.getMonth(), p = plans(), per = C().perWeek || 3;
-    var dim = new Date(y, m + 1, 0).getDate(), el = document.createElement('div');
+    var el = document.createElement('div');
     el.className = 'pl pl-wk';
-    function dayIdx(n) { return Math.round((new Date(y, m, n) - G().date(1)) / 864e5) + 1; }
-    function md(n) { return ('0' + (m + 1)).slice(-2) + '-' + ('0' + n).slice(-2); }
-    // 這個月的每一週（星期一開頭）：{ cells: [星期一～六：{ n, wd, ok }] }
-    var weeks = [], cur = null;
-    for (var n = 1; n <= dim; n++) {
-      var wd = new Date(y, m, n).getDay();
-      if (wd === 0) continue;
-      if (!cur || wd === 1) { cur = { cells: {} }; weeks.push(cur); }
-      var di = dayIdx(n);
-      cur.cells[wd] = { n: n, ok: di >= day && !forcedOn(di) && !!weekdayAct(wd) };
+    function dayIdx(dt) { return Math.round((dt - G().date(1)) / 864e5) + 1; }
+    function pad(x) { return ('0' + x).slice(-2); }
+    function mdOf(dt) { return pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()); }
+    // 這個月的每一週（星期一開頭）：星期一在這個月的週，整週都在這張月曆排（跨到下個月的日子也能勾）
+    //   星期一在上個月的那週（月初的幾天）已經在上個月的月曆排過了 → 不再出現
+    //   { cells: [星期一～六：{ d: 日期, key: "MM-DD", ok }] }
+    var weeks = [], mon = new Date(y, m, 1);
+    while (mon.getDay() !== 1) mon.setDate(mon.getDate() + 1);
+    for (; mon.getMonth() === m; mon.setDate(mon.getDate() + 7)) {
+      var w = { cells: {} };
+      for (var wd = 1; wd <= 6; wd++) {
+        var dt = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + wd - 1), di = dayIdx(dt);
+        if (di > G().totalDays()) continue;
+        w.cells[wd] = { d: dt, key: mdOf(dt), ok: di >= day && !forcedOn(di) && !!weekdayAct(wd) };
+      }
+      weeks.push(w);
     }
     weeks = weeks.filter(function (w) { return Object.keys(w.cells).some(function (k) { return w.cells[k].ok; }); });
     function need(w) { return Math.min(per, Object.keys(w.cells).filter(function (k) { return w.cells[k].ok; }).length); }
-    function picked(w) { return Object.keys(w.cells).filter(function (k) { return w.cells[k].ok && p.days[md(w.cells[k].n)]; }).length; }
+    function picked(w) { return Object.keys(w.cells).filter(function (k) { return w.cells[k].ok && p.days[w.cells[k].key]; }).length; }
     function ready() { return weeks.every(function (w) { return picked(w) === need(w); }); }
     function render() {
       el.innerHTML = '<div class="pl-in"><b class="pl-title">' + esc(t.planTitle.replace('{m}', m + 1)) + '</b><p>' + esc(t.planHint) + '</p>' +
         '<div class="pl-weeks">' + weeks.map(function (w, wi) {
-          var ns = Object.keys(w.cells).map(function (k) { return w.cells[k].n; });
-          return '<div class="pl-week"><div class="pl-wk-head"><span>' + (m + 1) + '/' + Math.min.apply(null, ns) + '～' + (m + 1) + '/' + Math.max.apply(null, ns) + '</span>' +
+          var ks = Object.keys(w.cells).map(Number).sort(function (a, b) { return a - b; }), f = w.cells[ks[0]].d, l = w.cells[ks[ks.length - 1]].d;
+          return '<div class="pl-week"><div class="pl-wk-head"><span>' + (f.getMonth() + 1) + '/' + f.getDate() + '～' + (l.getMonth() + 1) + '/' + l.getDate() + '</span>' +
             '<em' + (picked(w) === need(w) ? ' class="done"' : '') + '>' + esc(t.weekPick.replace('{n}', picked(w)).replace('{need}', need(w))) + '</em></div><div class="pl-wds">' +
             [1, 2, 3, 4, 5, 6, 0].map(function (wd) {
               if (wd === 0) return '<button type="button" class="pl-wd pl-sun" disabled><b>日</b><i>' + esc(t.sunRest) + '</i></button>';   // 星期日：休息（不能選）
-              var c = w.cells[wd], a = weekdayAct(wd), on = c && c.ok && p.days[md(c.n)];
+              var c = w.cells[wd], a = weekdayAct(wd), on = c && c.ok && p.days[c.key];
               return '<button type="button" class="pl-wd' + (on ? ' on' : '') + '"' + (c && c.ok ? ' data-wk="' + wi + '" data-wd="' + wd + '"' : ' disabled') + '>' +
                 '<b>' + '一二三四五六'[wd - 1] + '</b><i>' + esc(a ? (actOf(a).place || actOf(a).label) : '') + '</i></button>';
             }).join('') + '</div></div>';
@@ -511,7 +517,7 @@
         '<div class="pl-actions"><button type="button" class="pl-clear" data-clear>' + esc(t.clear) + '</button>' +
           '<button type="button" class="pl-ok" data-confirm' + (ready() ? '' : ' disabled') + '>' + esc(t.confirm) + '</button></div></div>';
     }
-    function setCell(w, wd, on) { var c = w.cells[wd]; if (!c || !c.ok) return; if (on) p.days[md(c.n)] = weekdayAct(wd); else delete p.days[md(c.n)]; }
+    function setCell(w, wd, on) { var c = w.cells[wd]; if (!c || !c.ok) return; if (on) p.days[c.key] = weekdayAct(wd); else delete p.days[c.key]; }
     render();
     document.getElementById('phone').appendChild(el);
     void el.offsetWidth; el.classList.add('show');
@@ -519,7 +525,7 @@
       var b = e.target.closest('[data-wk]');
       if (b) {
         var w = weeks[+b.dataset.wk], wd = +b.dataset.wd, c = w.cells[wd];
-        if (p.days[md(c.n)]) setCell(w, wd, false);
+        if (p.days[c.key]) setCell(w, wd, false);
         else if (picked(w) < need(w)) setCell(w, wd, true);   // 一週最多三天
         render(); return;
       }
