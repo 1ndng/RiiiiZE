@@ -204,8 +204,15 @@
       var box = el('kc-caps'); box.scrollTop = box.scrollHeight;
       return;
     }
-    call.timer = setTimeout(function () { if (node.endFlag) S().setFlag(node.endFlag); hangUp(); }, node.waitMs || 1600);
+    call.timer = setTimeout(function () {
+      if (node.endFlag) S().setFlag(node.endFlag);
+      // 劇情電話寫 keep: true：講完不掛斷，通話畫面留在劇情後面，劇情接著往下；之後劇情步驟 { endCall: true } 再默認掛斷
+      if (call.cfg && call.cfg.keep && call.done) { var d = call.done; call.done = null; call.kept = true; call.ov.classList.add('kc-kept'); d(); return; }
+      hangUp();
+    }, node.waitMs || 1600);
   }
+  // 默認掛斷（keep 的電話）：不出「通話結束」，直接留通話紀錄、收起通話畫面
+  function drop() { if (call && call.kept) finish(); }
   function choose(i) {
     if (!call || !call.node) return;
     var c = (call.node.choices || [])[i];
@@ -275,5 +282,5 @@
     if (e.target.closest('.kc-cap') && call.node && !(call.node.choices && call.line >= (call.node.lines || []).length)) nextLine();
   });
 
-  window.SOSHO_KAKAO_CALL = { start: start, story: storyCall, busy: function () { return !!call; } };
+  window.SOSHO_KAKAO_CALL = { start: start, story: storyCall, drop: drop, busy: function () { return !!call; } };
 })();

@@ -620,7 +620,7 @@ RIIIZE_ADD({
     { id: "x0906", by: "sungchan913", from: "09-06", date: "下午 7:55 · 2025/9/6", time: "9月6日", text: "明天KTV誰都別想跟我搶麥！", likes: 2, likedBy: ["252525252_", "antonnie"], replies: [
       { by: "seokkkk", time: "9月6日", text: "如此霸道。" }
     ] },
-    { id: "x0913", if: { day: ">=14" }, by: "sungchan913", from: "09-13", date: "下午 11:48 · 2025/9/13", time: "9月13日", text: "謝謝今天給我祝福的你們！\n另外我最想收到的生日禮物是錢" },
+    { id: "x0913", if: { day: ">=14" }, by: "sungchan913", from: "09-13", date: "下午 11:48 · 2025/9/13", time: "9月13日", text: "謝謝今天給我祝福的你們！\n另外我最想收到的生日禮物是錢", likes: 3, likedBy: ["shotaroo0", "252525252_", "antonnie"] },
     { id: "x0920", by: "seokkkk", from: "09-20", date: "下午 4:30 · 2025/9/20", time: "9月20日", text: "如果今天一直重複，冷笑話也會重複嗎。" },
     { id: "x0927", by: "antonnie", from: "09-27", date: "上午 1:14 · 2025/9/27", time: "9月27日", text: "wrote half a song today.\n只有一個人聽過。" }
   ]

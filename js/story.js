@@ -16,6 +16,8 @@
  *   { music: "anotherlife" } / { music: null }   劇情中換音樂（data.js 的 game.music）／換回原本的
  *   { phone: { id, room, time, before, steps } }   回到手機主畫面收到訊息（只能點 KakaoTalk），聊完才往下
  *   { call: { room, from, forced, start, nodes } }   KakaoTalk 來電（格式同 kakao.incoming；forced = 一定要接），講完才往下
+ *     keep: true = 講完不掛斷，通話畫面留在後面（配 { bg: "phone" }），之後 { endCall: true } 默認掛斷
+ *   { bg: "black" }                           全黑
  *   { label: "名稱" }                         標記，給 goto 用
  *   { goto: "名稱" }                          跳過去（常和 if 一起用：條件成立才跳）
  *   { effects: { … } } / { flag: "旗標" }     套用效果、記錄旗標（不會顯示）
@@ -248,6 +250,7 @@
         });
         return;
       }
+      if (s.endCall) { if (window.SOSHO_KAKAO_CALL && window.SOSHO_KAKAO_CALL.drop) window.SOSHO_KAKAO_CALL.drop(); continue; }
       if (s.intro) { if (introVideo(s.intro)) return; continue; }
       // 玩家生日許願：選單蓋在劇情上，選完接著往下；{wish} = 許願的對象（例如「元彬」「將太郎和恩奭」）
       if (s.wish && window.PLAN && window.PLAN.wish) {
@@ -415,7 +418,7 @@
     cur.el.classList.toggle('dim', src === 'phone-dim');
     // 背景不是手機畫面：上面的狀態列（時間、電量）不顯示
     document.getElementById('phone').classList.toggle('story-full', src !== 'phone' && src !== 'phone-dim');
-    if (src === 'phone' || src === 'phone-dim') src = '';
+    if (src === 'phone' || src === 'phone-dim' || src === 'black') src = '';
     bg.classList.remove('in'); void bg.offsetWidth;
     bg.style.backgroundImage = src ? 'url("' + src + '")' : 'none';
     cur.bg = orig;   // 存檔用（記原本寫的，例如 "phone-dim"）

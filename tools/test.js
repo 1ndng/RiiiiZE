@@ -631,6 +631,35 @@ const TESTS = [
     if (aff !== 5) throw new Error('好感：' + aff);
     return p;
   }],
+  ['玩家生日選「不方便」：群組電話沒掛斷就許願（通話畫面在後面）→ 許完願黑屏，電話默認掛斷、留通話紀錄', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' },
+      'riiiize-flags': { alarm_done: 1, intro_done: 1, plan_tutorial: 1, phone_unlocked: 1, freephone_14: 1, giftdone_14: 1, daychat_0907_helper: 1 } }));
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); SITE_DATA.storySpeed = 1; STORY.play('birthday_me'); });
+    await sleep(2600);
+    // 點 KakaoTalk → 元彬的訊息選「不方便」→ 群組來電（一定要接）→ 接起來 → 聽完 → 許願選單
+    for (let i = 0; i < 400 && !(await p.$('.sch .sch-col button')); i++) {
+      await p.evaluate(() => {
+        if (document.getElementById('phone').classList.contains('only-kakao')) { const k = document.querySelector('a.app-icon[href="#/kakao"]'); if (k) k.click(); return; }
+        const chips = document.querySelectorAll('#kk-choices .kk-chip'); if (chips.length) { chips[chips.length - 1].click(); const x = document.querySelector('.kk-send'); if (x) x.click(); return; }
+        const a = document.querySelector('[data-kc-accept]'); if (a) { a.click(); return; }
+        if (document.querySelector('.kc:not(.kc-kept)')) return;   // 通話中：等它講完
+        const v = document.querySelector('.vn:not(.vn-away) #vn-box'); if (v) v.click();
+      });
+      await sleep(150);
+    }
+    if (!(await p.$('.sch .sch-col button'))) { await p.screenshot({ path: '/tmp/claude-0/-home-user/9121dea4-07f1-5946-bc5d-6025df3eb7a7/scratchpad/bd.png' }); throw new Error('沒有出現許願選單：' + await p.evaluate(() => location.hash + '|' + (STORY.scene && STORY.scene()) + '|' + !!document.querySelector('.kc') + '|' + ((document.querySelector('.vn') || {}).textContent || '').slice(-40))); }
+    if (process.env.SHOT) { await sleep(600); await p.screenshot({ path: process.env.SHOT }); }
+    if (!(await p.$('.kc.kc-kept'))) throw new Error('許願時電話還沒掛，通話畫面要留在後面');
+    await p.click('.sch .sch-col button >> nth=0'); await sleep(400);
+    await p.click('.sch-cast button >> nth=3'); await p.click('[data-go]'); await sleep(800);
+    for (let i = 0; i < 40 && await p.$('.kc'); i++) { await p.evaluate(() => { const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(200); }
+    if (await p.$('.kc')) throw new Error('許完願之後電話要默認掛斷');
+    const log = await p.evaluate(() => JSON.stringify(SOSHO_KAKAO.friend('g_council')) + '');
+    const calls = await p.evaluate(() => { try { return JSON.stringify(JSON.parse(localStorage.getItem('riiiize-kakao') || '{}')); } catch (e) { return ''; } });
+    if (!/"call":"voice"/.test(calls) || !/duration/.test(calls)) throw new Error('要留通話紀錄：' + calls.slice(0, 300) + ' ' + log.slice(0, 80));
+    if (await p.evaluate(() => GAME.stat('aff', 'm4')) !== 5) throw new Error('許願要加好感');
+    return p;
+  }],
   ['設定：CG 圖鑑（看過的出場動畫才打開、點了可以重看）；線索收集 10/1 之前不顯示', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 10, phase: 'night' }, riiiizeCG: { intro_m4: 1 } }));
     await p.evaluate(() => { location.hash = '#/settings'; });
