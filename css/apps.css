@@ -183,8 +183,6 @@ button.kk-call { font: inherit; color: inherit; text-align: left; cursor: pointe
 .kc-btns > div { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 12px; opacity: .95; }
 .kc-btns button { width: 66px; height: 66px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; }
 .kc-btns svg { width: 30px; height: 30px; }
-.kc-tog { background: rgba(255,255,255,.18); }
-.kc-tog.on { background: #fff; color: #1c1c1e !important; }
 .kc-red { background: #ff3b30; }
 .kc-green { background: #34c759; }
 .kc-in { gap: 120px; }

@@ -12,8 +12,6 @@
   'use strict';
 
   var ICON = {
-    mic: '<svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
-    speaker: '<svg viewBox="0 0 24 24"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>',
     call: '<svg viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" fill="currentColor"/></svg>',
   };
   ICON.end = ICON.call.replace('<svg viewBox="0 0 24 24">', '<svg viewBox="0 0 24 24" style="transform:rotate(135deg)">');
@@ -26,7 +24,7 @@
   function TX() {
     var t = K().text || {}, d = {
       voiceTalk: 'KakaoTalk 語音通話', calling: '正在撥號⋯', incoming: '來電中⋯',
-      noAnswer: '對方未接聽', ended: '通話結束', mute: '靜音', speaker: '擴音', end: '結束',
+      noAnswer: '對方未接聽', ended: '通話結束', end: '結束',
       accept: '接聽', decline: '拒絕'
     };
     Object.keys(t).forEach(function (k) { d[k] = t[k]; });
@@ -69,11 +67,10 @@
     S().setDarkStatus(true);
     return ov;
   }
+  // 通話中：只有「結束」（靜音、擴音已刪除）
   function controls() {
     var t = TX();
     return '<div class="kc-btns">' +
-      '<div><button type="button" class="kc-tog" data-kc-tog>' + ICON.mic + '</button><span>' + esc(t.mute) + '</span></div>' +
-      '<div><button type="button" class="kc-tog" data-kc-tog>' + ICON.speaker + '</button><span>' + esc(t.speaker) + '</span></div>' +
       '<div><button type="button" class="kc-red" data-kc-end>' + ICON.end + '</button><span>' + esc(t.end) + '</span></div>' +
     '</div>';
   }
@@ -274,7 +271,6 @@
     if (e.target.closest('[data-kc-accept]')) { accept(); return; }
     if (e.target.closest('[data-kc-decline]')) { if (call.forced) return; clearTimeout(call.timer); decline(); return; }
     if ((b = e.target.closest('[data-kc-choice]'))) { choose(+b.dataset.kcChoice); return; }
-    if ((b = e.target.closest('[data-kc-tog]'))) { b.classList.toggle('on'); return; }
     // 點字幕跳到下一句
     if (e.target.closest('.kc-cap') && call.node && !(call.node.choices && call.line >= (call.node.lines || []).length)) nextLine();
   });
