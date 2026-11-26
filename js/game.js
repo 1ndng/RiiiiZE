@@ -11,6 +11,8 @@
   'use strict';
 
   var D = window.SITE_DATA || {}, G = D.game || {};
+  // 暫時隱藏的劇情（data.js 的 hideScenes，舊草稿）：從劇情清單拿掉 = 不會播、劇情回想也不列
+  (D.hideScenes || []).forEach(function (id) { if (D.scenes) delete D.scenes[id]; });
 
   /* ---- KakaoTalk 好友、IG 帳號、X 帳號寫 cast: "m1" = 這個帳號是那位成員：
    *      大頭照一律用 cast 的 avatar；名字沒寫的話用 cast 的 name ---- */

@@ -333,6 +333,22 @@ window.SITE_DATA = {
    * holidays：節日 { date, title, scene }
    * gift：每月 14 日（2/14、3/14 是節日）跳出送禮選單：送給一位 → 好感 +aff；請別人送（先選送禮的人、再選收禮的人）→ 兩人關係 +pair
    */
+  /* ---------- 暫時隱藏的劇情（舊草稿）----------
+   * 這裡列的劇情遊戲裡不會播（劇情回想也不會出現）；內容還留在 js/story/ 裡
+   * 文件裡寫好新版本、換進遊戲之後，就從清單拿掉 */
+  hideScenes: [
+    // 體育館：第 3 次以外的固定劇情、全部隨機劇情
+    "act_sports_5", "act_sports_10", "act_sports_20",
+    "rand_sports_4", "rand_sports_7", "rand_sports_34", "rand_sports_37", "rand_sports_47",
+    // 會辦：第 3 次以外的固定劇情（隨機劇情都是新版本）
+    "act_council_5", "act_council_10", "act_council_20",
+    // 網咖：固定劇情全部、恩奭的隨機劇情
+    "act_games_3", "act_games_5", "act_games_10", "act_games_20", "rand_games_2",
+    // KTV：全部
+    "act_karaoke_3", "act_karaoke_5", "act_karaoke_10", "act_karaoke_20",
+    "rand_karaoke_3", "rand_karaoke_6", "rand_karaoke_36", "rand_karaoke_37", "rand_karaoke_67"
+  ],
+
   plan: {
     planFrom: "09-08",
     quietUntil: "09-14",   // 這天之前（9/8～9/13）不會遇到日程劇情（固定、隨機、特殊都不播；次數照算、好感照加，剛好到的固定劇情之後第一次去時補播）。之後不需要就刪掉

@@ -356,6 +356,14 @@ const TESTS = [
     if ((await p.$$('.pf-line')).length !== 3) throw new Error('生日、地點要留著');
     return p;
   }],
+  ['舊草稿隱藏（data.js 的 hideScenes）：不在劇情清單裡；新版本照常在', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS }));
+    const r = await p.evaluate(() => ({ hid: SITE_DATA.hideScenes.filter(id => SITE_DATA.scenes[id]), keep: ['act_sports_3', 'act_council_3', 'rand_games_12', 'rand_games_26'].filter(id => !SITE_DATA.scenes[id]) }));
+    if (r.hid.length) throw new Error('應該隱藏：' + r.hid.join('、'));
+    if (r.keep.length) throw new Error('新版本不該被隱藏：' + r.keep.join('、'));
+    if (!(await p.evaluate(() => SITE_DATA.hideScenes.length)) ) throw new Error('清單是空的');
+    return p;
+  }],
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {
     const days = { '09-15': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 14, phase: 'night' },
