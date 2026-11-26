@@ -425,8 +425,8 @@ const TESTS = [
     if (fx < 2) throw new Error('日程 +1、隨機劇情 +1 應該至少 2：' + sc + ' = ' + fx);
     return p;
   }],
-  ['試玩版：9/14 晚上自由用手機 → 按睡覺出現前方施工中，可以存檔、回到手機畫面', async (b, base) => {
-    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, freephone_14: 1, 'daychat_09-14': 1 }, riiiizeNoTrial: '0' }));
+  ['試玩版：9/28 晚上自由用手機 → 按睡覺出現前方施工中，可以存檔、回到手機畫面', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 28, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, freephone_28: 1, 'daychat_09-28': 1 }, riiiizeNoTrial: '0' }));
     await p.evaluate(() => { localStorage.removeItem('riiiizeNoTrial'); const l = document.getElementById('lock'); if (l) l.remove(); PLAN.go(); });
     await p.waitForSelector('.trial-end', { timeout: 15000 });
     if (await p.evaluate(() => !!document.querySelector('.vn'))) throw new Error('擋住之後還在播劇情');
@@ -435,13 +435,13 @@ const TESTS = [
     const has = await p.evaluate(() => !!GAME.saves().slots[1]);
     if (!has || !/存檔 1/.test(msg || '')) throw new Error('存檔沒有成功：' + msg);
     await p.click('[data-trial-back]'); await sleep(300);
-    const back = await p.evaluate(() => !document.querySelector('.trial-end') && GAME.day === 14 && GAME.phase === 'night');
+    const back = await p.evaluate(() => !document.querySelector('.trial-end') && GAME.day === 28 && GAME.phase === 'night');
     if (!back) throw new Error('回到手機畫面失敗');
     return p;
   }],
-  ['試玩版 9/14：先出每週卡片（連點繼續只算一次）→ 前方施工中 → 回到手機畫面，畫面沒有卡住', async (b, base) => {
+  ['試玩版 9/28：先出每週卡片（連點繼續只算一次）→ 前方施工中 → 回到手機畫面，畫面沒有卡住', async (b, base) => {
     const wk = [{ day: 8, act: 'club', met: ['m4'], fx: { aff: { m4: 4 }, pair: {} }, rnd: [] }, { day: 13, act: 'sports', met: ['m4'], fx: { aff: { m4: 10 }, pair: {} }, rnd: [] }];
-    const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, freephone_14: 1, 'daychat_09-14': 1 }, 'riiiize-weekpend': wk, riiiizeNoTrial: '0' }));
+    const p = await open(b, base, played({ 'riiiize-game': { day: 28, phase: 'night' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, freephone_28: 1, 'daychat_09-28': 1 }, 'riiiize-weekpend': wk, riiiizeNoTrial: '0' }));
     await p.evaluate(() => { localStorage.removeItem('riiiizeNoTrial'); const l = document.getElementById('lock'); if (l) l.remove(); PLAN.go(); });
     await p.waitForSelector('.wk', { timeout: 8000 });
     await p.evaluate(() => { const g = document.querySelector('[data-wk-go]'); g.click(); g.click(); g.click(); });
