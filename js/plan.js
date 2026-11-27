@@ -34,6 +34,7 @@
   function T() {
     var t = C().text || {}, d = {
       planTitle: '{m}月的日程規劃', planHint: '每週選三天。每天能去的地方是固定的。', confirm: '確認', weekend: '週日', mainDay: '主線', home: '回家',
+      askTitle: '要做什麼？', askPhone: '玩手機', askSleep: '睡覺',
       tutorialTitle: '日程規劃', tutorialText: '每個月的第一天，可以規劃這個月的日程。\n每週勾選三天，確認後不可更改。',
       ok: '好', clear: '清除', sunRest: '休息', weekPick: '已選 {n} / {need}',
       giftTitle: '{m}月14日', giftHint: '要送禮物嗎？', giftMe: '要', giftAsk: '有人要', giftNo: '不要',
@@ -882,14 +883,27 @@
       if (S()) S().setFlag(fpKey);
       // 第一次：free_phone（說明怎麼睡覺）；之後：free_phone_ask（選「玩手機」= 回到手機；「睡覺」= 直接進入下一天）
       var ask = S() && S().hasFlag('scene_free_phone') && scene('free_phone_ask');
-      window.STORY.play(ask ? 'free_phone_ask' : 'free_phone', function () {
-        var pk = window.STORY.lastPick && window.STORY.lastPick();
-        if (!ask || !pk || !pk.sleep) return;
-        var lk = document.getElementById('lock'); if (lk) lk.remove();
-        document.getElementById('phone').classList.remove('locked');
-        go();
-      }, null, 'phone-dim', { noGap: true, overLock: true });
+      window.STORY.play(ask ? 'free_phone_ask' : 'free_phone', function () { if (ask) setTimeout(askCard, 500); /* 等對話框淡出、消失之後才出現卡片 */ }, null, 'phone-dim', { noGap: true, overLock: true });
     }
+  }
+  // 星期日（第二次以後）：「要做什麼？」卡片（和前方施工中一樣的粉色格紋卡片，選項在卡片裡）
+  //   玩手機 = 收起卡片，回到手機（鎖定畫面）；睡覺 = 直接進入下一天
+  function askCard() {
+    var t = T(), w = document.createElement('div');
+    w.className = 'vn-name fp-ask';
+    w.innerHTML = '<form autocomplete="off"><b>' + esc(t.askTitle) + '</b>' +
+      '<button type="button" data-fp="phone">' + esc(t.askPhone) + '</button>' +
+      '<button type="button" data-fp="sleep">' + esc(t.askSleep) + '</button></form>';
+    document.getElementById('phone').appendChild(w);
+    w.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-fp]');
+      if (!b) return;
+      w.remove();
+      if (b.dataset.fp !== 'sleep') return;
+      var lk = document.getElementById('lock'); if (lk) lk.remove();
+      document.getElementById('phone').classList.remove('locked');
+      go();
+    });
   }
   // 晚上：不能用手機的日子 → 直接往後跳
   if (window.GAME) G().onNight(function () {

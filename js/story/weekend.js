@@ -11,9 +11,9 @@ RIIIZE_ADD({
       { text: "現在是可以自由使用手機的時間。" },
       { text: "點選主畫面的「睡覺」會進入下一天。" },
     ],
+    // 這句講完、對話框消失之後，跳出「要做什麼？」卡片（玩手機／睡覺；文字在 js/plan.js 的 askTitle、askPhone、askSleep）
     free_phone_ask: [
       { text: "現在是可以自由使用手機的時間。" },
-      { title: "要做什麼？", choices: [{ text: "玩手機" }, { text: "睡覺", sleep: true }] },
     ],
   }
 });

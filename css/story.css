@@ -30,6 +30,7 @@
 /* 選項 */
 .vn-choices { position: absolute; z-index: 4; inset: 0; display: none; flex-direction: column; justify-content: center; gap: 12px; padding: 0 28px 120px; background: rgba(0,0,0,.35); cursor: default; }
 .vn-choices.show { display: flex; animation: vnIn .25s; }
+.vn-name.fp-ask b { margin-bottom: 4px; }
 .vn-ch-title { margin: 0 0 4px; text-align: center; color: #fff; font-size: 18px; font-weight: 700; text-shadow: 0 2px 8px rgba(0,0,0,.4); }
 .vn-choices button { padding: 15px 18px; border-radius: 16px; background: rgba(255,255,255,.92); color: #2b2340; font: inherit; font-size: 16px; font-weight: 600; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
 .vn-choices button:active { background: #fff; transform: scale(.98); }
