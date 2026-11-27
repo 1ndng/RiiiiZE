@@ -364,6 +364,27 @@ const TESTS = [
     if (!(await p.evaluate(() => SITE_DATA.hideScenes.length)) ) throw new Error('清單是空的');
     return p;
   }],
+  ['電腦（滑鼠）：左右捲動的選項列可以拖曳、滾輪捲動；拖曳放開不會誤點，單純點一下照常選', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS }));
+    await p.evaluate(() => {
+      const box = document.createElement('div'); box.className = 'kk-choices'; box.id = 'dt-test';
+      box.style.cssText = 'position:fixed;left:0;top:200px;width:300px;z-index:999';
+      for (let i = 0; i < 8; i++) { const bt = document.createElement('button'); bt.className = 'kk-chip'; bt.textContent = '很長的選項 ' + i; bt.style.flex = 'none'; bt.style.width = '140px'; bt.onclick = () => { window.__picked = i; }; box.appendChild(bt); }
+      document.body.appendChild(box);
+    });
+    await p.mouse.move(250, 220); await p.mouse.down(); await p.mouse.move(150, 220, { steps: 5 }); await p.mouse.move(60, 220, { steps: 5 }); await p.mouse.up();
+    const r1 = await p.evaluate(() => ({ left: document.getElementById('dt-test').scrollLeft, picked: window.__picked }));
+    if (r1.left < 150) throw new Error('拖曳沒有捲動：' + r1.left);
+    if (r1.picked != null) throw new Error('拖曳放開不該選到選項');
+    await p.evaluate(() => { document.getElementById('dt-test').scrollLeft = 0; });
+    await p.mouse.move(100, 220); await p.mouse.wheel(0, 200); await sleep(200);
+    const left2 = await p.evaluate(() => document.getElementById('dt-test').scrollLeft);
+    if (left2 < 100) throw new Error('滾輪沒有左右捲動：' + left2);
+    await p.evaluate(() => { document.getElementById('dt-test').scrollLeft = 0; });
+    await p.mouse.click(60, 220);
+    if (await p.evaluate(() => window.__picked) !== 0) throw new Error('單純點一下要照常選到');
+    return p;
+  }],
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {
     const days = { '09-15': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 14, phase: 'night' },

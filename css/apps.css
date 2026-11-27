@@ -264,3 +264,9 @@ button.kk-mem { width: 100%; background: none; border: 0; font: inherit; text-al
 .kk-heart svg:first-child { fill: none; stroke: #f19ab8; stroke-width: 2.2; }
 .kk-heart svg:last-child { fill: #f06292; clip-path: inset(calc(100% - var(--h, 0%)) 0 0 0); transition: clip-path .4s; }
 .kk-heart.big { width: 22px; height: 22px; margin: 0; }
+
+/* 電腦（滑鼠）：左右捲動的區塊可以拖曳（js/desktop.js）；手機不受影響 */
+@media (hover: hover) and (pointer: fine) {
+  .kk-choices, .ig-hl, .ig-car, .pt-strip { cursor: grab; }
+  .dt-dragging, .dt-dragging * { cursor: grabbing !important; user-select: none; }
+}
