@@ -684,7 +684,8 @@ const TESTS = [
   ['玩家生日選「不方便」：群組電話沒掛斷就許願（通話畫面在後面）→ 許完願黑屏，電話默認掛斷、留通話紀錄', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'night' },
       'riiiize-flags': { alarm_done: 1, intro_done: 1, plan_tutorial: 1, phone_unlocked: 1, freephone_14: 1, giftdone_14: 1, daychat_0907_helper: 1 } }));
-    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); SITE_DATA.storySpeed = 1; STORY.play('birthday_me'); });
+    // 生日那天是黑底日期畫面上播（day-stage）：這裡自己放一個，確認許願時會被通話畫面取代
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); const d = document.createElement('div'); d.id = 'day-stage'; d.className = 'day-stage'; d.innerHTML = '<div><b>9月19日</b></div>'; document.getElementById('phone').appendChild(d); SITE_DATA.storySpeed = 1; STORY.play('birthday_me'); });
     await sleep(2600);
     // 點 KakaoTalk → 元彬的訊息選「不方便」→ 群組來電（一定要接）→ 接起來 → 聽完 → 許願選單
     for (let i = 0; i < 400 && !(await p.$('.sch .sch-col button')); i++) {
@@ -692,6 +693,7 @@ const TESTS = [
         if (document.getElementById('phone').classList.contains('only-kakao')) { const k = document.querySelector('a.app-icon[href="#/kakao"]'); if (k) k.click(); return; }
         const chips = document.querySelectorAll('#kk-choices .kk-chip'); if (chips.length) { chips[chips.length - 1].click(); const x = document.querySelector('.kk-send'); if (x) x.click(); return; }
         const a = document.querySelector('[data-kc-accept]'); if (a) { a.click(); return; }
+        const say = document.querySelector('[data-kc-say]'); if (say) { window.__said = (window.__said || 0) + 1; say.click(); return; }   // 玩家的台詞要先點選項
         if (document.querySelector('.kc:not(.kc-kept)')) return;   // 通話中：等它講完
         const v = document.querySelector('.vn:not(.vn-away) #vn-box'); if (v) v.click();
       });
@@ -700,6 +702,8 @@ const TESTS = [
     if (!(await p.$('.sch .sch-col button'))) { await p.screenshot({ path: '/tmp/claude-0/-home-user/9121dea4-07f1-5946-bc5d-6025df3eb7a7/scratchpad/bd.png' }); throw new Error('沒有出現許願選單：' + await p.evaluate(() => location.hash + '|' + (STORY.scene && STORY.scene()) + '|' + !!document.querySelector('.kc') + '|' + ((document.querySelector('.vn') || {}).textContent || '').slice(-40))); }
     if (process.env.SHOT) { await sleep(600); await p.screenshot({ path: process.env.SHOT }); }
     if (!(await p.$('.kc.kc-kept'))) throw new Error('許願時電話還沒掛，通話畫面要留在後面');
+    if (!(await p.evaluate(() => window.__said))) throw new Error('通話中玩家的台詞要先出現選項');
+    if (await p.evaluate(() => { const d = document.getElementById('day-stage'); return !!d && getComputedStyle(d).display !== 'none'; })) throw new Error('許願時背景要是通話畫面，不是日期畫面');
     await p.click('.sch .sch-col button >> nth=0'); await sleep(400);
     await p.click('.sch-cast button >> nth=3'); await p.click('[data-go]'); await sleep(800);
     for (let i = 0; i < 40 && await p.$('.kc'); i++) { await p.evaluate(() => { const v = document.getElementById('vn-box'); if (v) v.click(); }); await sleep(200); }

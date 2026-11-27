@@ -242,10 +242,5 @@ RIIIZE_ADD({
 
   // X 貼文（data.js 的 x.tweets）
   tweets: [
-    { id: "x0302", by: "252525252_", from: "03-02", date: "下午 9:00 · 2026/3/2", time: "3月2日", text: "今天看到元彬哥笑了。\n整張臉都笑開的那種。" },
-    { id: "x0314", by: "252525252_", from: "03-14", date: "下午 3:14 · 2026/3/14", time: "3月14日", text: "回禮三倍完成。\n{name}，下次輸的請客。" },
-    { id: "x0319", by: "sungchan913", from: "03-19", date: "下午 11:00 · 2026/3/19", time: "3月19日", text: "恩奭生日快樂！！！\n（恩奭現在非常感動）" },
-    { id: "x0321", by: "antonnie", from: "03-21", date: "下午 11:58 · 2026/3/21", time: "3月21日", text: "even if only 3 people listen.\n只要其中一個是你。" },
-    { id: "x0326", by: "antonnie", from: "03-26", date: "下午 10:30 · 2026/3/26", time: "3月26日", text: "〈七〉\n如果這一年會重來，我還是想再遇見你們一次。" }
   ]
 });

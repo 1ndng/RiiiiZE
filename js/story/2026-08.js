@@ -81,6 +81,5 @@ RIIIZE_ADD({
 
   // X 貼文（data.js 的 x.tweets）
   tweets: [
-    { id: "x0819", by: "antonnie", from: "08-19", date: "上午 12:19 · 2026/8/20", time: "8月20日", text: "saw a shooting star with 6 people.\n大家都許願了。" },
   ]
 });

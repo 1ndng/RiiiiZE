@@ -104,6 +104,5 @@ RIIIZE_ADD({
 
   // X 貼文（data.js 的 x.tweets）
   tweets: [
-    { id: "x0725", by: "seokkkk", from: "07-25", date: "下午 10:25 · 2026/7/25", time: "7月25日", text: "撈到一隻金魚。名字叫冷笑話。\n因為牠很冷靜。" }
   ]
 });

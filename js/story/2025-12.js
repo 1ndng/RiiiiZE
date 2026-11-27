@@ -321,10 +321,5 @@ RIIIZE_ADD({
 
   // X 貼文（data.js 的 x.tweets）
   tweets: [
-    { id: "x1205", by: "sungchan913", from: "12-05", date: "下午 6:20 · 2025/12/5", time: "12月5日", text: "初雪！！！❄️\n恩奭今天沒講冷笑話，我幫他講：雪為什麼是白的？因為它很純潔！" },
-    { id: "x1205b", by: "seokkkk", from: "12-05", date: "下午 11:02 · 2025/12/5", time: "12月5日", text: "那不是我的冷笑話。" },
-    { id: "x1210", by: "shotaroo0", from: "12-10", date: "下午 10:44 · 2025/12/10", time: "12月10日", text: "白色的房間。\n夢而已。" },
-    { id: "x1224", by: "antonnie", from: "12-24", date: "下午 11:50 · 2025/12/24", time: "12月24日", text: "Merry Christmas🎄\n今年的聖誕節，不孤單。" },
-    { id: "x1231", by: "bin032", from: "12-31", date: "下午 11:59 · 2025/12/31", time: "12月31日", text: "某人又沒穿外套。" }
   ]
 });

@@ -156,6 +156,7 @@ button.kk-call { font: inherit; color: inherit; text-align: left; cursor: pointe
 .kc.kc-story { z-index: 90; }   /* 劇情裡打來的電話：蓋在劇情畫面上面 */
 .kc.kc-story.kc-kept { z-index: 40; }   /* keep：講完沒掛，退到劇情（對話框、許願選單）後面 */
 .kc.kc-kept .kc-btns { visibility: hidden; }
+#phone.kc-keeping .day-stage, #phone.kc-keeping .day-fade { display: none; }   /* 電話沒掛的時候：背景是通話畫面，不是日期畫面 */
 .kc-bg { position: absolute; inset: -40px; background: #333 center / cover no-repeat; filter: blur(30px) brightness(.45) saturate(1.2); }
 .kc > *:not(.kc-bg) { position: relative; }
 .kc-top { display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: .85; }

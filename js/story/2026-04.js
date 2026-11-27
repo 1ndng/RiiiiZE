@@ -130,6 +130,5 @@ RIIIZE_ADD({
 
   // X 貼文（data.js 的 x.tweets）
   tweets: [
-    { id: "x0418", by: "antonnie", from: "04-18", date: "下午 9:41 · 2026/4/18", time: "4月18日", text: "today, a lot of people listened.\n不只三個。" }
   ]
 });

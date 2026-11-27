@@ -188,6 +188,14 @@
     var lines = call.node.lines || [];
     if (call.line >= lines.length) { afterLines(); return; }
     var l = lines[call.line++];
+    // 玩家說的話（who: "me"）：先跳出選項，點了才說出口
+    if (l.who === 'me') {
+      el('kc-choices').innerHTML = '<button type="button" data-kc-say>' + esc(window.STORY ? window.STORY.fill(l.text) : l.text) +
+        (l.sub && l.sub !== l.text ? '<small>' + esc(l.sub) + '</small>' : '') + '</button>';
+      call.say = l;
+      var bx = el('kc-caps'); if (bx) bx.scrollTop = bx.scrollHeight;
+      return;
+    }
     addCap(l.who, l.text, l.sub);
     var len = String(l.text || '').length + String(l.sub || '').length * .5;
     call.timer = setTimeout(nextLine, l.ms || Math.min(4500, 1200 + len * 60));
@@ -207,7 +215,7 @@
     call.timer = setTimeout(function () {
       if (node.endFlag) S().setFlag(node.endFlag);
       // 劇情電話寫 keep: true：講完不掛斷，通話畫面留在劇情後面，劇情接著往下；之後劇情步驟 { endCall: true } 再默認掛斷
-      if (call.cfg && call.cfg.keep && call.done) { var d = call.done; call.done = null; call.kept = true; call.ov.classList.add('kc-kept'); d(); return; }
+      if (call.cfg && call.cfg.keep && call.done) { var d = call.done; call.done = null; call.kept = true; call.ov.classList.add('kc-kept'); document.getElementById('phone').classList.add('kc-keeping'); d(); return; }
       hangUp();
     }, node.waitMs || 1600);
   }
@@ -249,6 +257,7 @@
     clearTimeout(call.timer); clearInterval(call.clock);
     var ov = call.ov, done = call.done;
     call = null;
+    document.getElementById('phone').classList.remove('kc-keeping');
     ov.classList.remove('show');
     setTimeout(function () { ov.remove(); }, 250);
     S().setDarkStatus(false);
@@ -278,6 +287,13 @@
     if (e.target.closest('[data-kc-accept]')) { accept(); return; }
     if (e.target.closest('[data-kc-decline]')) { if (call.forced) return; clearTimeout(call.timer); decline(); return; }
     if ((b = e.target.closest('[data-kc-choice]'))) { choose(+b.dataset.kcChoice); return; }
+    if (e.target.closest('[data-kc-say]') && call.say) {   // 玩家的台詞選項：點了才說出口，接著下一句
+      var l = call.say; call.say = null;
+      el('kc-choices').innerHTML = '';
+      addCap('me', l.text, l.sub);
+      call.timer = setTimeout(nextLine, 900);
+      return;
+    }
     // 點字幕跳到下一句
     if (e.target.closest('.kc-cap') && call.node && !(call.node.choices && call.line >= (call.node.lines || []).length)) nextLine();
   });

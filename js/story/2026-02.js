@@ -235,10 +235,5 @@ RIIIZE_ADD({
 
   // X 貼文（data.js 的 x.tweets）
   tweets: [
-    { id: "x0204", by: "sungchan913", from: "02-04", date: "下午 8:10 · 2026/2/4", time: "2月4日", text: "畢業後的夢想：跟大家一起。" },
-    { id: "x0211", by: "bin032", from: "02-11", date: "下午 11:47 · 2026/2/11", time: "2月11日", text: "……每次？" },
-    { id: "x0214", by: "antonnie", from: "02-14", date: "下午 9:14 · 2026/2/14", time: "2月14日", text: "got a chocolate from mom🍫\nand 7 more from my friends here." },
-    { id: "x0217", by: "shotaroo0", from: "02-17", date: "下午 10:02 · 2026/2/17", time: "2月17日", text: "새해 복 많이 받으세요！\n第一次拿到韓國的紅包🧧" },
-    { id: "x0225", by: "seokkkk", from: "02-25", date: "下午 7:30 · 2026/2/25", time: "2月25日", text: "還有四個月。" }
   ]
 });
