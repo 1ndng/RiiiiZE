@@ -880,7 +880,15 @@
     lockNow();
     if ((dateOf(G().day).getDay() === 0 || trialLast(G().day)) && scene('free_phone') && window.STORY && !(S() && S().hasFlag(fpKey))) {
       if (S()) S().setFlag(fpKey);
-      window.STORY.play('free_phone', function () {}, null, 'phone-dim', { noGap: true, overLock: true });
+      // 第一次：free_phone（說明怎麼睡覺）；之後：free_phone_ask（選「玩手機」= 回到手機；「睡覺」= 直接進入下一天）
+      var ask = S() && S().hasFlag('scene_free_phone') && scene('free_phone_ask');
+      window.STORY.play(ask ? 'free_phone_ask' : 'free_phone', function () {
+        var pk = window.STORY.lastPick && window.STORY.lastPick();
+        if (!ask || !pk || !pk.sleep) return;
+        var lk = document.getElementById('lock'); if (lk) lk.remove();
+        document.getElementById('phone').classList.remove('locked');
+        go();
+      }, null, 'phone-dim', { noGap: true, overLock: true });
     }
   }
   // 晚上：不能用手機的日子 → 直接往後跳

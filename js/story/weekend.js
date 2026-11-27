@@ -6,9 +6,14 @@ RIIIZE_ADD({
   // 劇情（data.js 的 scenes）
   scenes: {
     // 星期日：劇情都結束、開放自由探索手機之前的提醒（背景是變暗的手機畫面）
+    // 第一次（9/14）：free_phone；之後每次：free_phone_ask（選「玩手機」回到手機、「睡覺」直接進入下一天）
     free_phone: [
-      { text: "現在是自由使用手機的時間。" },
+      { text: "現在是可以自由使用手機的時間。" },
       { text: "點選主畫面的「睡覺」會進入下一天。" },
+    ],
+    free_phone_ask: [
+      { text: "現在是可以自由使用手機的時間。" },
+      { title: "要做什麼？", choices: [{ text: "玩手機" }, { text: "睡覺", sleep: true }] },
     ],
   }
 });

@@ -264,7 +264,7 @@
         }, cur.replay);
         return;
       }
-      if (s.choices) { showChoices(s.choices); return; }
+      if (s.choices) { showChoices(s.choices, s.title); return; }
       if (s.shake) shake();
       if (s.headache) headache();
       if (s.text != null) { say(s.who, s.text, resumed); return; }
@@ -461,11 +461,13 @@
     cur.el.querySelector('#vn-box').classList.add('done');
     afterLine();
   }
-  function showChoices(list) {
+  // title = 選項上面的問題（例如「要做什麼？」）
+  var lastPick = null;
+  function showChoices(list, title) {
     var box = cur.el.querySelector('#vn-choices');
     if (mode === 'skip') setMode(null);   // 要選擇：快轉停下來（自動會在選完後繼續）
     cur.choices = list.filter(function (c) { return ok(c.if); });
-    box.innerHTML = cur.choices.map(function (c, i) {
+    box.innerHTML = (title ? '<p class="vn-ch-title">' + esc(fill(title)) + '</p>' : '') + cur.choices.map(function (c, i) {
       return '<button type="button" data-vn-choice="' + i + '">' + esc(fill(c.text)) + '</button>';
     }).join('');
     box.classList.add('show');
@@ -474,6 +476,7 @@
     var c = cur.choices[i];
     if (!c) return;
     cur.choices = null;
+    lastPick = c;   // 最後選的選項（STORY.lastPick()，例如星期日選「睡覺」）
     var box = cur.el.querySelector('#vn-choices');
     box.classList.remove('show'); box.innerHTML = '';
     cur.log.push({ choice: true, text: fill(c.text) });
@@ -674,6 +677,7 @@
       setTimeout(function () { if (location.hash === h) clue(c); }, ms);
     },
     held: function () { return !!held; }, dropHeld: dropHeld,
+    lastPick: function () { return lastPick; },
     play: play, fill: fill, playerName: playerName, playerNick: playerNick,
     // 現在正在播的劇情 id（沒有 = null；背景音樂用）；clueBusy = 找到線索後的強制聊天／留言進行中
     scene: function () { return cur ? cur.id : null; },

@@ -514,6 +514,32 @@ const TESTS = [
     if (await p.$('#lock')) throw new Error('沒有解鎖');
     return p;
   }],
+  ['星期日（第二次以後）：提醒變成「要做什麼？」選項；選「睡覺」直接進入下一天，選「玩手機」回到手機', async (b, base) => {
+    for (const pick of ['睡覺', '玩手機']) {
+      const p = await open(b, base, played({ 'riiiize-game': { day: 21, phase: 'morning' }, 'riiiize-flags': { alarm_done: 1, intro_done: 1, 'daychat_09-21': 1, scene_free_phone: 1 } }), { keepFreePhone: true });
+      await p.evaluate(() => { SITE_DATA.storySpeed = 1; });
+      for (let i = 0; i < 120 && !(await p.$('.vn-ch-title')); i++) {
+        await p.evaluate(() => { const c = document.querySelector('[data-vn-choice]'); if (c && !document.querySelector('.vn-ch-title')) { c.click(); return; } const v = document.querySelector('.vn #vn-box'); if (v) v.click(); });
+        await sleep(200);
+      }
+      const title = await text(p, '.vn-ch-title');
+      if (title !== '要做什麼？') throw new Error('要出現「要做什麼？」：' + title);
+      const opts = await p.$$eval('[data-vn-choice]', a => a.map(x => x.textContent).join('/'));
+      if (opts !== '玩手機/睡覺') throw new Error('選項：' + opts);
+      await p.click('[data-vn-choice] >> text=' + pick);
+      await sleep(1500);
+      if (pick === '睡覺') {
+        let d = 21; for (let i = 0; i < 30 && d === 21; i++) { d = await p.evaluate(() => GAME.day); await sleep(300); }
+        if (d <= 21) throw new Error('選睡覺要直接往後進入下一天：' + d);
+      } else {
+        const dd = await p.evaluate(() => GAME.day + ' ' + GAME.phase + ' ' + JSON.stringify(STORY.lastPick()));
+        if (!/^21 /.test(dd)) throw new Error('選玩手機要留在今天：' + dd);
+        if (!(await p.$('#lock'))) throw new Error('選玩手機要回到手機（鎖定畫面）');
+      }
+      await p.close();
+    }
+    return null;
+  }],
   ['14 日送禮：請別人送（兩次選擇）', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 14, phase: 'morning' } }));
     await p.waitForSelector('.sch-col button', { timeout: 8000 });
