@@ -358,7 +358,7 @@ const TESTS = [
   }],
   ['舊草稿隱藏（data.js 的 hideScenes）：不在劇情清單裡；新版本照常在', async (b, base) => {
     const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS }));
-    const r = await p.evaluate(() => ({ hid: SITE_DATA.hideScenes.filter(id => SITE_DATA.scenes[id]), keep: ['act_sports_3', 'act_council_3', 'rand_games_12', 'rand_games_26'].filter(id => !SITE_DATA.scenes[id]) }));
+    const r = await p.evaluate(() => ({ hid: SITE_DATA.hideScenes.filter(id => SITE_DATA.scenes[id]), keep: ['act_sports_3', 'act_council_3', 'act_games_3', 'act_karaoke_3', 'rand_games_12', 'rand_games_26'].filter(id => !SITE_DATA.scenes[id]) }));
     if (r.hid.length) throw new Error('應該隱藏：' + r.hid.join('、'));
     if (r.keep.length) throw new Error('新版本不該被隱藏：' + r.keep.join('、'));
     if (!(await p.evaluate(() => SITE_DATA.hideScenes.length)) ) throw new Error('清單是空的');

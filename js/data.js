@@ -342,10 +342,10 @@ window.SITE_DATA = {
     "rand_sports_4", "rand_sports_7", "rand_sports_34", "rand_sports_37", "rand_sports_47",
     // 會辦：第 3 次以外的固定劇情（隨機劇情都是新版本）
     "act_council_5", "act_council_10", "act_council_20",
-    // 網咖：固定劇情全部、恩奭的隨機劇情
-    "act_games_3", "act_games_5", "act_games_10", "act_games_20", "rand_games_2",
-    // KTV：全部
-    "act_karaoke_3", "act_karaoke_5", "act_karaoke_10", "act_karaoke_20",
+    // 網咖：第 3 次以外的固定劇情、恩奭的隨機劇情
+    "act_games_5", "act_games_10", "act_games_20", "rand_games_2",
+    // KTV：第 3 次以外的固定劇情、全部隨機劇情
+    "act_karaoke_5", "act_karaoke_10", "act_karaoke_20",
     "rand_karaoke_3", "rand_karaoke_6", "rand_karaoke_36", "rand_karaoke_37", "rand_karaoke_67"
   ],
 
