@@ -385,6 +385,27 @@ const TESTS = [
     if (await p.evaluate(() => window.__picked) !== 0) throw new Error('單純點一下要照常選到');
     return p;
   }],
+  ['X：貼文底下的回覆可以按讚（再按取消）、可以回覆某一則回覆（顯示「回覆 @那個人」）', async (b, base) => {
+    const p = await open(b, base, played({ 'riiiize-game': { day: 7, phase: 'night' }, 'riiiize-flags': NIGHT7_FLAGS }));
+    await p.evaluate(() => { const l = document.getElementById('lock'); if (l) l.parentNode.removeChild(l); document.getElementById('phone').classList.remove('locked'); location.hash = '#/x/t/x0902'; });
+    await p.waitForSelector('[data-xrlike]', { timeout: 8000 });
+    await p.click('[data-xrlike] >> nth=0');
+    if (!(await p.$eval('[data-xrlike] >> nth=0', e => e.classList.contains('on-like') && e.textContent.trim() === '1'))) throw new Error('回覆按讚後要變紅、數字 1');
+    await p.click('[data-xrlike] >> nth=0');
+    if (await p.$eval('[data-xrlike] >> nth=0', e => e.classList.contains('on-like'))) throw new Error('再按一次要取消');
+    await p.click('[data-xrlike] >> nth=0');
+    const who = await p.$eval('[data-xrto] >> nth=0', e => e.dataset.xrto);
+    await p.click('[data-xrto] >> nth=0');
+    if (!(await p.$eval('#x-replybox input', (e, w) => e.placeholder.indexOf('@' + w) >= 0, who))) throw new Error('輸入框要變成回覆 @' + who);
+    await p.fill('#x-replybox input', '測試回覆'); await p.click('#x-replybox button'); await sleep(400);
+    const last = await p.$$eval('.x-rep', a => a[a.length - 1].textContent);
+    if (process.env.SHOT) await p.screenshot({ path: process.env.SHOT });
+    if (!/測試回覆/.test(last) || last.indexOf('@' + who) < 0) throw new Error('回覆要接在 @' + who + ' 底下：' + last);
+    await p.evaluate(() => { location.hash = '#/x'; }); await sleep(300);
+    await p.evaluate(() => { location.hash = '#/x/t/x0902'; }); await sleep(500);
+    if (!(await p.$eval('[data-xrlike] >> nth=0', e => e.classList.contains('on-like')))) throw new Error('按讚要記住');
+    return p;
+  }],
   ['安靜期間錯過的固定劇情：9/14 之後第一次去那裡時補播', async (b, base) => {
     const days = { '09-15': 'club' };
     const p = await open(b, base, played({ 'riiiize-plan': { months: MONTHS.reduce((o, m) => (o[m] = 1, o), {}), days }, 'riiiize-game': { day: 14, phase: 'night' },

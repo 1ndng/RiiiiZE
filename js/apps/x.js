@@ -38,7 +38,7 @@
   }
   function state() {
     var st = S().load(KEY, null) || {};
-    ['likes', 'rts', 'replies', 'follows'].forEach(function (k) { st[k] = st[k] || {}; });
+    ['likes', 'rts', 'replies', 'follows', 'rlikes'].forEach(function (k) { st[k] = st[k] || {}; });   // rlikes = 玩家按讚的回覆（貼文id#第幾則）
     st.posts = st.posts || [];
     return st;
   }
@@ -178,7 +178,7 @@
     (t.replies || []).forEach(function (r) { if (r.clue && (!window.GAME || window.GAME.unlocked(r)) && window.STORY) window.STORY.clue(r.clue); });
     var c = counts(t), st = state();
     var reps = (t.replies || []).concat((st.replies[t.id] || []).map(function (r) {
-      return { by: me().handle, text: r.text, time: tt.justNow, replyTo: t.by };
+      return { by: me().handle, text: r.text, time: tt.justNow, replyTo: r.to || t.by };   // to = 回覆某一則回覆的人
     }));
     S().$('#x-overlay').innerHTML = '';
     S().$('#x-scroll').innerHTML =
@@ -204,6 +204,12 @@
             '<div class="x-replying">' + esc(tt.replyingTo) + ' <span class="x-blue">@' + esc(to ? to.handle : (r.replyTo || t.by)) + '</span></div>' +
             '<div class="x-text">' + rich(r.text) + '</div>' +
             images(r.images) +
+            // 回覆也可以按讚、回覆（玩家按的讚：st.rlikes[貼文id#第幾則]；回覆 = 下面的輸入框改成回覆這個人）
+            '<div class="x-acts x-racts">' +
+              '<button type="button" class="x-act" data-xrto="' + esc(r.by) + '">' + ICON.reply + '</button>' +
+              '<button type="button" class="x-act' + (st.rlikes[t.id + '#' + i] ? ' on-like' : '') + '" data-xrlike="' + esc(t.id + '#' + i) + '">' +
+                (st.rlikes[t.id + '#' + i] ? ICON.heartFill : ICON.heart) + '<span>' + ((+r.likes || 0) + (st.rlikes[t.id + '#' + i] ? 1 : 0) || '') + '</span></button>' +
+            '</div>' +
           '</div>' +
         '</div>';
       }).join('') + '</div>' +
@@ -219,7 +225,7 @@
       var v = f.r.value.trim();
       if (!v) return;
       var st2 = state();
-      (st2.replies[t.id] = st2.replies[t.id] || []).push({ text: v });
+      (st2.replies[t.id] = st2.replies[t.id] || []).push(f.dataset.to && f.dataset.to !== t.by ? { text: v, to: f.dataset.to } : { text: v });
       save(st2);
       renderTweet(t.id);
       var sc = S().$('#x-scroll'); sc.scrollTop = sc.scrollHeight;
@@ -284,7 +290,7 @@
     var st = state(), mine = [], data = [];
     all.forEach(function (t) {
       if (isMe(a)) (st.replies[t.id] || []).forEach(function (r) {
-        mine.push({ t: t, r: { by: a.handle, text: r.text, time: T().justNow, replyTo: t.by } });
+        mine.push({ t: t, r: { by: a.handle, text: r.text, time: T().justNow, replyTo: r.to || t.by } });
       });
       (t.replies || []).forEach(function (r) { if (r.by === a.handle) data.push({ t: t, r: r }); });
     });
@@ -447,6 +453,24 @@
     if (!app || !app.contains(e.target)) return;
     var el, st;
     if ((el = e.target.closest('[data-xback]'))) { e.preventDefault(); S().goBack('#/x'); return; }
+    if ((el = e.target.closest('[data-xrlike]'))) {   // 回覆按讚
+      st = state();
+      if (st.rlikes[el.dataset.xrlike]) delete st.rlikes[el.dataset.xrlike]; else st.rlikes[el.dataset.xrlike] = 1;
+      save(st);
+      var on = !!st.rlikes[el.dataset.xrlike], n = +(el.querySelector('span').textContent || 0) + (on ? 1 : -1);
+      el.classList.toggle('on-like', on);
+      el.innerHTML = (on ? ICON.heartFill : ICON.heart) + '<span>' + (n > 0 ? n : '') + '</span>';
+      return;
+    }
+    if ((el = e.target.closest('[data-xrto]'))) {   // 回覆某一則回覆：輸入框改成「回覆 @那個人」
+      var rf = document.getElementById('x-replybox');
+      if (rf) {
+        rf.dataset.to = el.dataset.xrto;
+        rf.r.placeholder = T().replyingTo + ' @' + el.dataset.xrto;
+        rf.r.focus();
+      }
+      return;
+    }
     if ((el = e.target.closest('[data-xlike]'))) {
       st = state(); var t = tweet(el.dataset.xlike);
       st.likes[t.id] = counts(t).liked ? 0 : 1;

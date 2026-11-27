@@ -42,6 +42,7 @@
 .x-act svg { width: 18px; height: 18px; }
 .x-act span { min-width: 18px; }
 .x-act.on-like { color: #f91880; }
+.x-racts { justify-content: flex-start; gap: 28px; margin-top: 2px; }   /* 回覆底下的回覆、按讚 */
 .x-act.on-rt { color: #00ba7c; }
 .x-acts.big { max-width: none; margin: 0; padding: 4px 6px; border-top: 1px solid var(--x-line); border-bottom: 1px solid var(--x-line); }
 .x-acts.big svg { width: 22px; height: 22px; }
